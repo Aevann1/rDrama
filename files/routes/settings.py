@@ -62,7 +62,7 @@ def settings_profile_post(v):
 		updated = True
 		v.is_nofollow = request.values.get("nofollow", None) == 'true'
 
-	if request.values.get("bio"):
+	if "bio" in request.values:
 		bio = request.values.get("bio")[:1500]
 
 		if bio == v.bio:
@@ -364,7 +364,7 @@ def settings_images_banner(v):
 @auth_required
 @validate_formkey
 def settings_delete_profile(v):
-	v.highres = None
+
 	v.profileurl = None
 	g.db.add(v)
 	return render_template("settings_profile.html", v=v,
