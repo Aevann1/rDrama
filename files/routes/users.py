@@ -54,8 +54,9 @@ def transfer_coins(v, username):
 		amount = int(amount) if amount.isdigit() else None
 
 		if amount is None or amount <= 0: return {"error": f"Invalid amount of {app.config['COINS_NAME']}."}, 400
-		if v.coins < amount: return {"error": f"You don't have enough {app.config['COINS_NAME']}"}, 400
+		if v.coins < amount: return {"error": f"You don't have enough {app.config['COINS_NAME']}."}, 400
 		if amount < 100: return {"error": f"You have to gift at least 100 {app.config['COINS_NAME']}."}, 400
+		if v.is_banned: return {"error": f"You are banned."}, 400
 
 		v.coins -= amount
 		receiver.coins += amount
