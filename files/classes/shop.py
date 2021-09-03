@@ -48,6 +48,10 @@ class ShopItemDef(Base):
     created_utc = Column(Integer, default=0)
     price = Column(Integer)
     discount_price = Column(Integer, default=0)
+    consumable = Column(Boolean, default=False)
+    prompt = Column(String, default=None)
+    # kind of the award to give when purchasing the item (ban, gold, etc..)
+    given_award = Column(String, default=None)
     featured = Column(Boolean, default=False)
     category_id = Column(Integer, ForeignKey('shopcats.id'))
 
@@ -96,7 +100,9 @@ class ShopItemDef(Base):
             "discount": self.discount_price > 0 and self.price > self.discount_price,
             "featured": self.featured,
             "new": self.new,
-            "category_name": self.category.name
+            "category_name": self.category.name,
+            "award": bool(self.given_award),
+            "ability": self.consumable
         }
 
 
@@ -119,5 +125,7 @@ class ShopItem(Base):
             "item_id": self.item.id,
             "name": self.item.name,
             "description": self.item.description,
-            "price": self.item.price
+            "price": self.item.price,
+            "award": bool(self.item.given_award),
+            "ability": self.item.consumable
         }
