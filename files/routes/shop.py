@@ -94,6 +94,14 @@ def shop_items_featured():
     return jsonify([x.json for x in queer])
 
 
+@app.get("/api/items/consumables")
+def shop_items_consumables():
+
+    queer = g.db.query(ShopItemDef).filter_by(consumable=True).all()
+
+    return jsonify([x.json for x in queer])
+
+
 @app.get("/api/items/mine")
 @auth_required
 def items_mine(v):
@@ -125,6 +133,22 @@ def purchase_item(iid, v):
 
     v.coins -= item.cost
     v.coins_spent += item.cost
+
+    if item.given_award:
+        latest = g.db.query(AwardRelationship).order_by(AwardRelationship.id.desc()).first()
+
+        if latest:
+            thing = latest.id+1
+        else:
+            thing = 1
+
+        give_award = AwardRelationship(
+            id=thing,
+            kind=item.given_award,
+            user_id=v.id
+        )
+
+        g.db.add(give_award)
 
     g.db.add(v)
 
