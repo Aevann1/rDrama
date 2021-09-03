@@ -34,10 +34,17 @@
 		</div>
 	</div>
 	<!-- Product actions -->
-	<div class="card-body d-flex justify-content-center align-items-center p-4" @click="pick(item)">
-		<button class="btn btn-outline-primary" :disabled="item.cost > coins">
-			Add to bag
-		</button>
+	<div class="card-body p-2 mb-2">
+		<div class="text-center text-muted p-1 mb-2 text-lg" style="font-weight: bold">
+			<span v-if="item.award"><i class="far fa-fw fa-gift"></i> Award</span>
+			<span v-else-if="item.ability"><i class="far fa-fw fa-bolt"></i> Ability</span>
+			<span v-else><i class="far fa-fw fa-sparkles"></i> Feature</span>
+		</div>
+		<div class="d-flex justify-content-center align-items-center" @click="pick(item)">
+			<button class="btn btn-outline-primary" :disabled="item.cost > coins">
+				Add to bag
+			</button>
+		</div>
 	</div>
 	<!-- Product price -->
 	<div class="card-footer px-2 py-3 pt-0">
