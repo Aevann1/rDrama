@@ -116,6 +116,7 @@
 
 					{% if v and v.id!=p.author_id %}
 					  <button class="btn btn-link btn-block btn-lg text-left text-muted" data-toggle="modal" data-dismiss="modal" data-target="#awardModal" onclick="awardModal('/post/{{p.id}}/awards')"><i class="fas fa-gift text-center text-muted mr-3"></i>Give Award</button>
+					  <button class="btn btn-link btn-block btn-lg text-left text-muted" data-toggle="modal" data-dismiss="modal" data-target="#awardModal" onclick="awardModal('/post/{{p.id}}/awards')"><i class="fas fa-bolt text-center text-muted mr-3"></i>Use Item</button>
 					{% endif %}
 
 					{% if v and p.id in v.subscribed_idlist() %}
@@ -314,6 +315,7 @@
 						
 						{% if v and v.id!=p.author_id %}
 							<li class="list-inline-item text-muted d-none d-md-inline-block"><a href="javascript:void(0)" data-toggle="modal" data-target="#awardModal" onclick="awardModal('/post/{{p.id}}/awards')"><i class="fas fa-gift fa-fw"></i>Give Award</a></li>
+							<li class="list-inline-item text-muted d-none d-md-inline-block"><a href="javascript:void(0)" data-toggle="modal" data-target="#awardModal" onclick="awardModal('/post/{{p.id}}/awards')"><i class="fas fa-bolt fa-fw"></i>Use Item</a></li>
 						{% endif %}
 
 						<li class="list-inline-item"><a href="javascript:void(0);" role="button" class="copy-link" data-clipboard-text="{{p.permalink | full_link}}"><i class="fas fa-copy"></i>Copy link</a></li>
