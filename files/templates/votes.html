@@ -1,8 +1,8 @@
 {% extends "default.html" %}
 
 {% block title %}
-<title>{{"SITE_NAME" | app_config}}</title>
-<meta name="description" content="{{"SITE_NAME" | app_config}} Votes">
+<title>{{'SITE_NAME' | app_config}}</title>
+<meta name="description" content="{{'SITE_NAME' | app_config}} Votes">
 {% endblock %}
 
 {% block content %}
@@ -28,7 +28,7 @@
 	<thead class="bg-primary text-white"><tr><th>User</th></tr></thead>
 
 	{% for vote in ups %}
-		<tr><td><a {% if vote.user.animatedname %}class="{% if vote.user.patron %}patron{% else %}leaderboard{% endif %}"{% endif %} style="color:#{{vote.user.namecolor}}; font-weight:bold;" href="/@{{vote.user.username}}"><img src="/uid/{{vote.user.id}}/pic/profile" class="profile-pic-20 mr-1">{{vote.user.username}}</a></td></tr>
+		<tr><td><a style="color:#{{vote.user.namecolor}};  font-weight:bold;" href="/@{{vote.user.username}}"><img src="/uid/{{vote.user.id}}/pic/profile" class="profile-pic-20 mr-1"><span {% if vote.user.patron %}class="patron" style="background-color:#{{vote.user.namecolor}};"{% endif %}>{{vote.user.username}}</span></a></td></tr>
 	{% endfor %}
 </table>
 
@@ -37,7 +37,7 @@
 	<thead class="bg-primary text-white"><tr><th>User</th></tr></thead>
 
 	{% for vote in downs %}
-		<tr><td><a {% if vote.user.animatedname %}class="{% if vote.user.patron %}patron{% else %}leaderboard{% endif %}"{% endif %} style="color:#{{vote.user.namecolor}}; font-weight:bold;" href="/@{{vote.user.username}}"><img src="/uid/{{vote.user.id}}/pic/profile" class="profile-pic-20 mr-1">{{vote.user.username}}</a></td></tr>
+		<tr><td><a style="color:#{{vote.user.namecolor}};  font-weight:bold;" href="/@{{vote.user.username}}"><img src="/uid/{{vote.user.id}}/pic/profile" class="profile-pic-20 mr-1"><span {% if vote.user.patron %}class="patron" style="background-color:#{{vote.user.namecolor}};"{% endif %}>{{vote.user.username}}</span></a></td></tr>
 	{% endfor %}
 </table>
 

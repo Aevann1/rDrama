@@ -4,12 +4,14 @@ from sqlalchemy.orm import relationship, deferred
 import re, random
 from urllib.parse import urlparse
 from files.helpers.lazy import lazy
+from files.helpers.const import SLURS
 from files.__main__ import Base
 from .mix_ins import *
 from .flags import *
 from os import environ
 
 site = environ.get("DOMAIN").strip()
+site_name = environ.get("SITE_NAME").strip()
 
 class SubmissionAux(Base):
 
@@ -20,10 +22,10 @@ class SubmissionAux(Base):
 	title = Column(String(500))
 	title_html = Column(String(500))
 	url = Column(String(500))
-	body = Column(String(10000), default="")
-	body_html = Column(String(20000), default="")
-	ban_reason = Column(String(128), default="")
-	embed_url = Column(String(256), default="")
+	body = Column(String(10000))
+	body_html = Column(String(20000))
+	ban_reason = Column(String(128))
+	embed_url = Column(String(256))
 
 
 class Submission(Base, Stndrd, Age_times, Scores, Fuzzing):
@@ -42,6 +44,7 @@ class Submission(Base, Stndrd, Age_times, Scores, Fuzzing):
 	created_utc = Column(BigInteger, default=0)
 	thumburl = Column(String)
 	is_banned = Column(Boolean, default=False)
+	bannedfor = Column(Boolean)
 	views = Column(Integer, default=0)
 	deleted_utc = Column(Integer, default=0)
 	distinguish_level = Column(Integer, default=0)
@@ -49,6 +52,7 @@ class Submission(Base, Stndrd, Age_times, Scores, Fuzzing):
 	stickied = Column(Boolean, default=False)
 	is_pinned = Column(Boolean, default=False)
 	private = Column(Boolean, default=False)
+	comment_count = Column(Integer, default=0)
 	comments = relationship(
 		"Comment",
 		lazy="joined",
@@ -91,11 +95,6 @@ class Submission(Base, Stndrd, Age_times, Scores, Fuzzing):
 
 	def __repr__(self):
 		return f"<Submission(id={self.id})>"
-
-	@property
-	@lazy
-	def comment_count(self):
-		return len(self.comments)
 
 	@property
 	@lazy
@@ -201,11 +200,11 @@ class Submission(Base, Stndrd, Age_times, Scores, Fuzzing):
 	@property
 	@lazy
 	def thumb_url(self):
-		if self.over_18: return f"https://{site}/assets/images/nsfw.png"
-		elif not self.url: return f"https://{site}/assets/images/default_thumb_text.png"
+		if self.over_18: return f"https://{site}/assets/images/nsfw.gif"
+		elif not self.url: return f"https://{site}/assets/images/{site_name}/default_thumb_text.gif"
 		elif self.thumburl: return self.thumburl
-		elif "youtu.be" in self.domain or "youtube.com" in self.domain: return f"https://{site}/assets/images/default_thumb_yt.png"
-		else: return f"https://{site}/assets/images/default_thumb_link.png"
+		elif "youtu.be" in self.domain or "youtube.com" in self.domain: return f"https://{site}/assets/images/default_thumb_yt.gif"
+		else: return f"https://{site}/assets/images/default_thumb_link.gif"
 
 	@property
 
@@ -286,8 +285,8 @@ class Submission(Base, Stndrd, Age_times, Scores, Fuzzing):
 
 		return data
 
-	def has_award(self, kind):
-		return bool(len([x for x in self.awards if x.kind == kind]))
+	def award_count(self, kind) -> int:
+		return len([x for x in self.awards if x.kind == kind])
 
 	@property
 	def title(self):
@@ -310,10 +309,15 @@ class Submission(Base, Stndrd, Age_times, Scores, Fuzzing):
 	def realurl(self, v):
 		if v and v.agendaposter and random.randint(1, 10) < 4:
 			return 'https://secure.actblue.com/donate/ms_blm_homepage_2019'
-		elif self.url:
-			if v and not v.oldreddit: return self.url.replace("old.reddit.com", "reddit.com")
-			if self.url: return self.url
-		return ""
+		elif v and self.url and self.url.startswith("https://old.reddit.com/"):
+			url = self.url
+			if not v.oldreddit: url = self.url.replace("old.reddit.com", "reddit.com")
+			if v.controversial and '/comments/' in url and "sort=" not in url:
+				if "?" in url: url += "&sort=controversial" 
+				else: url += "?sort=controversial"
+			return url
+		elif self.url: return self.url
+		else: return ""
  
 	@property
 	def body(self):
@@ -335,7 +339,11 @@ class Submission(Base, Stndrd, Age_times, Scores, Fuzzing):
 
 	def realbody(self, v):
 		body = self.submission_aux.body_html
-		if not v or v.slurreplacer: body = body.replace(" nigger"," 🏀").replace(" Nigger"," 🏀").replace(" NIGGER"," 🏀").replace(" pedo"," libertarian").replace(" Pedo"," Libertarian ").replace(" PEDO"," LIBERTARIAN ").replace(" tranny"," 🚄").replace(" Tranny"," 🚄").replace(" TRANNY"," 🚄").replace("  fag","  cute twink").replace("  Fag","  Cute twink").replace("  FAG","  CUTE TWINK").replace(" faggot"," cute twink").replace(" Faggot"," Cute twink").replace(" FAGGOT"," CUTE TWINK").replace(" trump"," DDR").replace(" Trump"," DDR").replace(" TRUMP"," DDR").replace(" biden"," DDD").replace(" Biden"," DDD").replace(" BIDEN"," DDD").replace(" steve akins"," penny verity oaken").replace(" Steve Akins"," Penny Verity Oaken").replace(" STEVE AKINS"," PENNY VERITY OAKEN").replace(" RETARD"," RSLUR").replace(" rapist"," male feminist").replace(" Rapist"," Male feminist").replace(" RAPIST"," MALE FEMINIST").replace(" RETARD"," RSLUR").replace(" rapist"," male feminist").replace(" Rapist"," Male feminist").replace(" RAPIST"," MALE FEMINIST").replace(" RETARD"," RSLUR").replace(" rapist"," male feminist").replace(" Rapist"," Male feminist").replace(" RAPIST"," MALE FEMINIST").replace(" kill yourself"," keep yourself safe").replace(" KILL YOURSELF"," KEEP YOURSELF SAFE").replace(" trannie"," 🚄").replace(" Trannie"," 🚄").replace(" TRANNIE"," 🚄").replace(" troon"," 🚄").replace(" Troon"," 🚄").replace(" TROON"," 🚄")
+
+		if not v or v.slurreplacer: 
+			for s,r in SLURS.items(): 
+				body = body.replace(s, r) 
+
 		if v and not v.oldreddit: body = body.replace("old.reddit.com", "reddit.com")
 		return body
 
@@ -351,7 +359,10 @@ class Submission(Base, Stndrd, Age_times, Scores, Fuzzing):
 	def realtitle(self, v):
 		if self.title_html: title = self.title_html
 		else: title = self.title
-		if not v or v.slurreplacer: title = title.replace(" nigger"," 🏀").replace(" Nigger"," 🏀").replace(" NIGGER"," 🏀").replace(" pedo"," libertarian").replace(" Pedo"," Libertarian ").replace(" PEDO"," LIBERTARIAN ").replace(" tranny"," 🚄").replace(" Tranny"," 🚄").replace(" TRANNY"," 🚄").replace("  fag","  cute twink").replace("  Fag","  Cute twink").replace("  FAG","  CUTE TWINK").replace(" faggot"," cute twink").replace(" Faggot"," Cute twink").replace(" FAGGOT"," CUTE TWINK").replace(" trump"," DDR").replace(" Trump"," DDR").replace(" TRUMP"," DDR").replace(" biden"," DDD").replace(" Biden"," DDD").replace(" BIDEN"," DDD").replace(" steve akins"," penny verity oaken").replace(" Steve Akins"," Penny Verity Oaken").replace(" STEVE AKINS"," PENNY VERITY OAKEN").replace(" RETARD"," RSLUR").replace(" rapist"," male feminist").replace(" Rapist"," Male feminist").replace(" RAPIST"," MALE FEMINIST").replace(" RETARD"," RSLUR").replace(" rapist"," male feminist").replace(" Rapist"," Male feminist").replace(" RAPIST"," MALE FEMINIST").replace(" RETARD"," RSLUR").replace(" rapist"," male feminist").replace(" Rapist"," Male feminist").replace(" RAPIST"," MALE FEMINIST").replace(" kill yourself"," keep yourself safe").replace(" KILL YOURSELF"," KEEP YOURSELF SAFE").replace(" trannie"," 🚄").replace(" Trannie"," 🚄").replace(" TRANNIE"," 🚄").replace(" troon"," 🚄").replace(" Troon"," 🚄").replace(" TROON"," 🚄")
+
+		if not v or v.slurreplacer: 
+			for s,r in SLURS.items(): title = title.replace(s, r) 
+
 		return title
 
 	@property
@@ -386,7 +397,7 @@ class Submission(Base, Stndrd, Age_times, Scores, Fuzzing):
 
 	@property
 	def is_image(self):
-		if self.url: return self.url.lower().endswith('.jpg') or self.url.lower().endswith('.png') or self.url.lower().endswith('.gif') or self.url.lower().endswith('.jpeg') or self.url.lower().endswith('?maxwidth=9999') or self.url.lower().endswith('?maxwidth=8888')
+		if self.url: return self.url.lower().endswith('.jpg') or self.url.lower().endswith('.png') or self.url.lower().endswith('.gif') or self.url.lower().endswith('.jpeg') or self.url.lower().endswith('?maxwidth=9999')
 		else: return False
 
 	@property

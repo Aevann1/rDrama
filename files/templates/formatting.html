@@ -1,7 +1,7 @@
 {% extends "default.html" %}
 {% block title %}
-<title>{{"SITE_NAME" | app_config}} - Formatting</title>
-<meta name="description" content="{{"SITE_NAME" | app_config}} Formatting">
+<title>{{'SITE_NAME' | app_config}} - Formatting</title>
+<meta name="description" content="{{'SITE_NAME' | app_config}} Formatting">
 {% endblock %}
 
 {% block content %}
@@ -12,7 +12,7 @@
 {% filter markdown %}
 # Formatting
 
-On {{"SITE_NAME" | app_config}}, you can use Markdown formatting.
+On {{'SITE_NAME' | app_config}}, you can use Markdown formatting.
 
 
 ## Inline formatting
@@ -49,8 +49,8 @@ On {{"SITE_NAME" | app_config}}, you can use Markdown formatting.
 	</tr>
 	<tr>
 		<td>Links</td>
-		<td>[{{"SITE_NAME" | app_config}}]({{request.host_url}})</td>
-		<td><a href="{{request.host_url}}">{{"SITE_NAME" | app_config}}</a></td>
+		<td>[{{'SITE_NAME' | app_config}}]({{request.host_url}})</td>
+		<td><a href="{{request.host_url}}">{{'SITE_NAME' | app_config}}</a></td>
 	</tr>
 	<tr>
 		<td>Emojis</td>
@@ -132,8 +132,8 @@ We also have some custom hooks for mentioning users and subreddits. Note that th
 	</tr>
 	<tr>
 		<td>Subreddit Mention</td>
-		<td>r/{{"SITE_NAME" | app_config}}</td>
-		<td><a class="d-inline-block" href="https://www.reddit.com/r/{{"SITE_NAME" | app_config}}/">r/{{"SITE_NAME" | app_config}}</a></td>
+		<td>r/{{'SITE_NAME' | app_config}}</td>
+		<td><a class="d-inline-block" href="https://www.reddit.com/r/{{'SITE_NAME' | app_config}}/">r/{{'SITE_NAME' | app_config}}</a></td>
 	</tr>
 	<tr>
 		<td>Redditor Mention</td>
@@ -145,6 +145,6 @@ We also have some custom hooks for mentioning users and subreddits. Note that th
 {% include "expanded_image_modal.html" %}
 {% include "expanded_video_modal.html" %}
 
-<script src="/assets/js/all_js.js"></script>
+<script src="/assets/js/javascript.js"></script>
 
 {% endblock %}

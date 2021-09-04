@@ -6,10 +6,10 @@
 
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-		<meta name="description" content="Sign in to {{"SITE_NAME" | app_config}}">
+		<meta name="description" content="Sign in to {{'SITE_NAME' | app_config}}">
 		<meta name="author" content="">
 
-		<title>2-Step Login - {{"SITE_NAME" | app_config}}</title>
+		<title>2-Step Login - {{'SITE_NAME' | app_config}}</title>
 
 		<!-- Bootstrap core CSS -->
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
@@ -18,12 +18,12 @@
 		<!-- Font Awesome -->
 		<link href="/assets/fontawesome/css/all.css" rel="stylesheet"> <!--load all styles -->
 
-		<script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/latest/js/all.js"
+		<script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/latest/js/javascript.js"
 		integrity="sha384-L469/ELG4Bg9sDQbl0hvjMq8pOcqFgkSpwhwnslzvVVGpDjYJ6wJJyYjvG3u8XW7"
 		crossorigin="anonymous"></script>
 
-		<!-- {{"SITE_NAME" | app_config}} CSS -->
-		<link rel="stylesheet" href="/assets/style/dark_ff66ac.css">
+		<!-- {{'SITE_NAME' | app_config}} CSS -->
+		<link rel="stylesheet" href="/assets/style/{{'DEFAULT_THEME' | app_config}}.css">
 
 </head>
 
@@ -52,7 +52,7 @@
 								<div class="col-10 col-md-7">
 
 										<div class="mb-5">
-												<a href="/" class="text-decoration-none"><span class="h3 text-primary">{{"SITE_NAME" | app_config}}</span></a>
+												<a href="/" class="text-decoration-none"><span class="h3 text-primary">{{'SITE_NAME' | app_config}}</span></a>
 										</div>
 
 										<div id="login-form" class="">
@@ -106,7 +106,7 @@
 
 						<div class="splash-overlay"></div>
 
-						<img class="splash-img" src="{{i.path}}"></img>
+						<img class="splash-img" src="/assets/images/{{'SITE_NAME' | app_config}}/cover.gif"></img>
 				</div>
 
 		</div>

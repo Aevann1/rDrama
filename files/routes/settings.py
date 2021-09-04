@@ -4,23 +4,49 @@ from files.helpers.sanitize import *
 from files.helpers.filters import filter_comment_html
 from files.helpers.markdown import *
 from files.helpers.discord import remove_user, set_nick
+from files.helpers.const import *
 from files.mail import *
 from files.__main__ import app, cache
 import youtube_dl
 from .front import frontlist
+import os
+from .posts import filter_title
+from files.helpers.discord import add_role
 
 valid_username_regex = re.compile("^[a-zA-Z0-9_\-]{3,25}$")
-valid_title_regex = re.compile("^((?!<).){3,100}$")
 valid_password_regex = re.compile("^.{8,100}$")
 
 YOUTUBE_KEY = environ.get("YOUTUBE_KEY", "").strip()
 COINS_NAME = environ.get("COINS_NAME").strip()
+GUMROAD_TOKEN = environ.get("GUMROAD_TOKEN", "").strip()
+
+tiers={
+	"(Paypig)": 1,
+	"(Renthog)": 2,
+	"(Landchad)": 3,
+	"(Terminally online turboautist)": 4,
+	"(Ape)": 1,
+	"(Monke)": 2,
+	"(Gigachad)": 3,
+	"(Ascended Griller)": 4
+	}
+
+@app.post("/settings/removebackground")
+@auth_required
+def removebackground(v):
+	v.background = None
+	g.db.add(v)
+	return "", 204
 
 @app.post("/settings/profile")
 @auth_required
 @validate_formkey
 def settings_profile_post(v):
 	updated = False
+
+	if request.values.get("background", v.background) != v.background:
+		updated = True
+		v.background= request.values.get("background", None)
 
 	if request.values.get("slurreplacer", v.slurreplacer) != v.slurreplacer:
 		updated = True
@@ -42,6 +68,10 @@ def settings_profile_post(v):
 		updated = True
 		v.oldreddit = request.values.get("oldreddit", None) == 'true'
 
+	if request.values.get("controversial", v.controversial) != v.controversial:
+		updated = True
+		v.controversial = request.values.get("controversial", None) == 'true'
+
 	if request.values.get("over18", v.over_18) != v.over_18:
 		updated = True
 		v.over_18 = request.values.get("over18", None) == 'true'
@@ -49,14 +79,6 @@ def settings_profile_post(v):
 	if request.values.get("private", v.is_private) != v.is_private:
 		updated = True
 		v.is_private = request.values.get("private", None) == 'true'
-
-	if request.values.get("animatedname", v.animatedname) != v.animatedname:
-		if v.animatedname == False:
-			users = g.db.query(User.id).options(lazyload('*')).order_by(User.coins.desc()).limit(25).all()
-			users = [x[0] for x in users]
-			if v.id not in users: return {"error": "You must be in the top 25 leaderboard or be a patron to apply an animated name!"}, 403
-		updated = True
-		v.animatedname = request.values.get("animatedname", None) == 'true'
 
 	if request.values.get("nofollow", v.is_nofollow) != v.is_nofollow:
 		updated = True
@@ -70,10 +92,10 @@ def settings_profile_post(v):
 								   v=v,
 								   error="You didn't change anything")
 
-		for i in re.finditer('^(https:\/\/.*\.(png|jpg|jpeg|gif|PNG|JPG|JPEG|GIF))', bio, re.MULTILINE): bio = bio.replace(i.group(1), f'![]({i.group(1)})')
+		for i in re.finditer('^(https:\/\/.*\.(png|jpg|jpeg|gif|PNG|JPG|JPEG|GIF|9999))', bio, re.MULTILINE): bio = bio.replace(i.group(1), f'![]({i.group(1)})')
 		bio = bio.replace("\n", "\n\n").replace("\n\n\n\n\n\n", "\n\n").replace("\n\n\n\n", "\n\n").replace("\n\n\n", "\n\n")
 		with CustomRenderer() as renderer: bio_html = renderer.render(mistletoe.Document(bio))
-		bio_html = sanitize(bio_html, linkgen=True)
+		bio_html = sanitize(bio_html)
 
 		# Run safety filter
 		bans = filter_comment_html(bio_html)
@@ -140,8 +162,9 @@ def settings_profile_post(v):
 	theme = request.values.get("theme")
 	if theme:
 		v.theme = theme
-		if theme == "coffee": v.themecolor = "38a169"
+		if theme == "coffee" or theme == "4chan": v.themecolor = "38a169"
 		elif theme == "tron": v.themecolor = "80ffff"
+		elif theme == "win98": v.themecolor = "30409f"
 		g.db.add(v)
 		return "", 204
 
@@ -160,7 +183,7 @@ def changelogsub(v):
 	v.changelogsub = not v.changelogsub
 	g.db.add(v)
 
-	cache.delete_memoized(frontlist)
+	cache.delete_memoized(frontlist, v)
 
 	return "", 204
 
@@ -169,7 +192,8 @@ def changelogsub(v):
 @validate_formkey
 def namecolor(v):
 	color = str(request.form.get("color", "")).strip()
-	if color not in ['ff66ac','805ad5','62ca56','38a169','80ffff','2a96f3','eb4963','ff0000','f39731','30409f','3e98a7','e4432d','7b9ae4','ec72de','7f8fa6', 'f8db58']: abort(400)
+	if color.startswith('#'): color = color[1:]
+	if len(color) != 6: return render_template("settings_security.html", v=v, error="Invalid color code")
 	v.namecolor = color
 	g.db.add(v)
 	return redirect("/settings/profile")
@@ -179,17 +203,92 @@ def namecolor(v):
 @validate_formkey
 def themecolor(v):
 	themecolor = str(request.form.get("themecolor", "")).strip()
-	if themecolor not in ['ff66ac','805ad5','62ca56','38a169','80ffff','2a96f3','eb4963','ff0000','f39731','30409f','3e98a7','e4432d','7b9ae4','ec72de','7f8fa6', 'f8db58']: abort(400)
+	if themecolor.startswith('#'): themecolor = themecolor[1:]
+	if len(themecolor) != 6: return render_template("settings_security.html", v=v, error="Invalid color code")
 	v.themecolor = themecolor
 	g.db.add(v)
 	return redirect("/settings/profile")
+
+@app.post("/settings/gumroad")
+@auth_required
+@validate_formkey
+def gumroad(v):
+	if not (v.email and v.is_activated):
+		return {"error": "You must have a verified email to verify patron status and claim awards"}, 400
+
+	data = {
+		'access_token': GUMROAD_TOKEN,
+		'email': v.email
+	}
+	response = requests.get('https://api.gumroad.com/v2/sales', data=data).json()["sales"]
+
+	if len(response) == 0:
+		return {"error": "Email not found"}, 404
+
+	response = response[0]
+	tier = tiers[response["variants_and_quantity"]]
+	if v.patron == tier:
+		return {"error": "Patron awards already claimed"}, 400
+
+	v.patron = tier
+
+	grant_awards = {}
+	if tier == 1:
+		if v.discord_id: add_role(v, "1")
+		grant_awards["shit"] = 1
+		grant_awards["gold"] = 1
+	elif tier == 2:
+		if v.discord_id: add_role(v, "2")
+		grant_awards["shit"] = 3
+		grant_awards["gold"] = 3
+	elif tier == 3:
+		if v.discord_id: add_role(v, "3")
+		grant_awards["shit"] = 5
+		grant_awards["gold"] = 5
+		grant_awards["ban"] = 1
+	elif tier == 4 or tier == 8:
+		if v.discord_id: add_role(v, "4")
+		grant_awards["shit"] = 10
+		grant_awards["gold"] = 10
+		grant_awards["ban"] = 3
+	elif tier == 5:
+		if v.discord_id: add_role(v, "5")
+		grant_awards["shit"] = 10
+		grant_awards["gold"] = 10
+		grant_awards["ban"] = 6
+
+	_awards = []
+
+	thing = g.db.query(AwardRelationship).order_by(AwardRelationship.id.desc()).first().id
+
+	for name in grant_awards:
+		for count in range(grant_awards[name]):
+
+			thing += 1
+
+			_awards.append(AwardRelationship(
+				id=thing,
+				user_id=v.id,
+				kind=name
+			))
+
+	g.db.bulk_save_objects(_awards)
+
+	new_badge = Badge(badge_id=20+tier,
+					  user_id=v.id,
+					  )
+	g.db.add(new_badge)
+
+	g.db.add(v)
+	return {"message": "Patron awards claimed"}
 
 @app.post("/settings/titlecolor")
 @auth_required
 @validate_formkey
 def titlecolor(v):
 	titlecolor = str(request.form.get("titlecolor", "")).strip()
-	if titlecolor not in ['ff66ac','805ad5','62ca56','38a169','80ffff','2a96f3','eb4963','ff0000','f39731','30409f','3e98a7','e4432d','7b9ae4','ec72de','7f8fa6', 'f8db58']: abort(400)
+	if titlecolor.startswith('#'): titlecolor = titlecolor[1:]
+	if len(titlecolor) != 6: return render_template("settings_security.html", v=v, error="Invalid color code")
 	v.titlecolor = titlecolor
 	g.db.add(v)
 	return redirect("/settings/profile")
@@ -227,15 +326,8 @@ def settings_security_post(v):
 							escape("Invalid password."))
 
 		new_email = request.form.get("new_email","").strip()
-		#counteract gmail username+2 and extra period tricks - convert submitted email to actual inbox
-		if new_email.endswith("@gmail.com"):
-			gmail_username=new_email.split('@')[0]
-			gmail_username=gmail_username.split("+")[0]
-			gmail_username=gmail_username.replace('.','')
-			new_email=f"{gmail_username}@gmail.com"
 		if new_email == v.email:
-			return redirect("/settings/security?error=" +
-							escape("That email is already yours!"))
+			return redirect("/settings/security?error=That email is already yours!")
 
 		# check to see if email is in use
 		existing = g.db.query(User).filter(User.id != v.id,
@@ -396,7 +488,7 @@ def update_announcement(v):
 @app.get("/settings/blocks")
 @auth_required
 def settings_blockedpage(v):
-	if v and v.is_banned and not v.unban_utc: return render_template("seized.html")
+
 
 	#users=[x.target for x in v.blocked]
 
@@ -406,7 +498,7 @@ def settings_blockedpage(v):
 @app.get("/settings/css")
 @auth_required
 def settings_css_get(v):
-	if v and v.is_banned and not v.unban_utc: return render_template("seized.html")
+
 
 	return render_template("settings_css.html", v=v)
 
@@ -425,7 +517,7 @@ def settings_css(v):
 @app.get("/settings/profilecss")
 @auth_required
 def settings_profilecss_get(v):
-	if v and v.is_banned and not v.unban_utc: return render_template("seized.html")
+
 	if v.coins < 1000 and not v.patron: return f"You must have +1000 {COINS_NAME} or be a patron to set profile css."
 	return render_template("settings_profilecss.html", v=v)
 
@@ -454,7 +546,7 @@ def settings_block_user(v):
 	if v.has_block(user):
 		return {"error": f"You have already blocked @{user.username}."}, 409
 
-	if user.id == 1046:
+	if user.id == NOTIFICATIONS_ACCOUNT:
 		return {"error": "You can't block @files."}, 409
 
 	new_block = UserBlock(user_id=v.id,
@@ -467,11 +559,9 @@ def settings_block_user(v):
 	existing = g.db.query(Notification).filter_by(blocksender=v.id, user_id=user.id).first()
 	if not existing: send_block_notif(v.id, user.id, f"@{v.username} has blocked you!")
 
-	if request.args.get("notoast"): return "", 204
-
 	if v.admin_level == 1: return {"message": f"@{user.username} banned!"}
 
-	cache.delete_memoized(frontlist)
+	cache.delete_memoized(frontlist, v)
 
 	return {"message": f"@{user.username} blocked."}
 
@@ -494,11 +584,9 @@ def settings_unblock_user(v):
 	existing = g.db.query(Notification).filter_by(unblocksender=v.id, user_id=user.id).first()
 	if not existing: send_unblock_notif(v.id, user.id, f"@{v.username} has unblocked you!")
 
-	if request.args.get("notoast"): return "", 204
-
 	if v.admin_level == 1: return {"message": f"@{user.username} unbanned!"}
 
-	cache.delete_memoized(frontlist)
+	cache.delete_memoized(frontlist, v)
 
 	return {"message": f"@{user.username} unblocked."}
 
@@ -506,7 +594,7 @@ def settings_unblock_user(v):
 @app.get("/settings/apps")
 @auth_required
 def settings_apps(v):
-	if v and v.is_banned and not v.unban_utc: return render_template("seized.html")
+
 
 	return render_template("settings_apps.html", v=v)
 
@@ -523,14 +611,13 @@ def settings_remove_discord(v):
 
 	v.discord_id=None
 	g.db.add(v)
-	g.db.commit()
 
 	return redirect("/settings/profile")
 
 @app.get("/settings/content")
 @auth_required
 def settings_content_get(v):
-	if v and v.is_banned and not v.unban_utc: return render_template("seized.html")
+
 
 	return render_template("settings_filters.html", v=v)
 
@@ -578,7 +665,6 @@ def settings_name_change(v):
 	set_nick(v, new_name)
 
 	g.db.add(v)
-	g.db.commit()
 
 	return redirect("/settings/profile")
 
@@ -610,7 +696,6 @@ def settings_song_change(v):
 	if path.isfile(f'/songs/{id}.mp3'): 
 		v.song=id
 		g.db.add(v)
-		g.db.commit()
 		return redirect("/settings/profile")
 		
 	
@@ -670,13 +755,7 @@ def settings_title_change(v):
 
 	if v.flairchanged: abort(403)
 	
-	new_name=request.form.get("title").strip()
-
-	#verify acceptability
-	if not re.match(valid_title_regex, new_name):
-		return render_template("settings_profile.html",
-						   v=v,
-						   error=f"This isn't a valid flair.")
+	new_name=request.form.get("title").strip()[:100]
 
 	#make sure name is different
 	if new_name==v.customtitle:
@@ -685,14 +764,10 @@ def settings_title_change(v):
 						   error="You didn't change anything")
 
 	v.customtitleplain = new_name
-	new_name = sanitize(new_name, flair=True)
 
-	v = g.db.query(User).with_for_update().options(lazyload('*')).filter_by(id=v.id).first()
-	v.customtitle = new_name
+	v.customtitle = filter_title(new_name)
 
 	g.db.add(v)
-	g.db.commit()
-
 	return redirect("/settings/profile")
 
 @app.post("/settings/badges")

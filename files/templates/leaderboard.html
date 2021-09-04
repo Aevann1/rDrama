@@ -17,7 +17,7 @@
 {% for user in users1 %}
 	<tr>
 		<td style="font-weight:bold;">{{users1.index(user)+1}}</td>
-		<td><a {% if user.animatedname %}class="{% if user.patron %}patron{% else %}leaderboard{% endif %}"{% endif %} style="color:#{{user.namecolor}}; font-weight:bold;" href="/@{{user.username}}"><img src="/uid/{{user.id}}/pic/profile" class="profile-pic-20 mr-1">{{user.username}}</a></td>
+		<td><a style="color:#{{user.namecolor}};  font-weight:bold;" href="/@{{user.username}}"><img src="/uid/{{user.id}}/pic/profile" class="profile-pic-20 mr-1"><span {% if user.patron %}class="patron" style="background-color:#{{user.namecolor}};"{% endif %}>{{user.username}}</span></a></td>
 		<td style="font-weight:bold; text-align:right;">{{user.coins}}</td>
 	</tr>
 {% endfor %}
@@ -42,7 +42,7 @@
 {% for user in users2 %}
 	<tr>
 		<td style="font-weight:bold;">{{users2.index(user)+1}}</td>
-		<td><a {% if user.animatedname %}class="{% if user.patron %}patron{% else %}leaderboard{% endif %}"{% endif %} style="color:#{{user.namecolor}}; font-weight:bold;" href="/@{{user.username}}"><img src="/uid/{{user.id}}/pic/profile" class="profile-pic-20 mr-1">{{user.username}}</a></td>
+		<td><a style="color:#{{user.namecolor}};  font-weight:bold;" href="/@{{user.username}}"><img src="/uid/{{user.id}}/pic/profile" class="profile-pic-20 mr-1"><span {% if user.patron %}class="patron" style="background-color:#{{user.namecolor}};"{% endif %}>{{user.username}}</span></a></td>
 		<td style="font-weight:bold; text-align:right;">{{user.stored_subscriber_count}}</td>
 	</tr>
 {% endfor %}
@@ -67,7 +67,7 @@
 {% for user in users3 %}
 	<tr>
 		<td style="font-weight:bold;">{{users3.index(user)+1}}</td>
-		<td><a {% if user.animatedname %}class="{% if user.patron %}patron{% else %}leaderboard{% endif %}"{% endif %} style="color:#{{user.namecolor}}; font-weight:bold;" href="/@{{user.username}}"><img src="/uid/{{user.id}}/pic/profile" class="profile-pic-20 mr-1">{{user.username}}</a></td>
+		<td><a style="color:#{{user.namecolor}};  font-weight:bold;" href="/@{{user.username}}"><img src="/uid/{{user.id}}/pic/profile" class="profile-pic-20 mr-1"><span {% if user.patron %}class="patron" style="background-color:#{{user.namecolor}};"{% endif %}>{{user.username}}</span></a></td>
 		<td style="font-weight:bold; text-align:right;">{{user.post_count}}</td>
 	</tr>
 {% endfor %}
@@ -92,7 +92,7 @@
 {% for user in users4 %}
 	<tr>
 		<td style="font-weight:bold;">{{users4.index(user)+1}}</td>
-		<td><a {% if user.animatedname %}class="{% if user.patron %}patron{% else %}leaderboard{% endif %}"{% endif %} style="color:#{{user.namecolor}}; font-weight:bold; fonts" href="/@{{user.username}}"><img src="/uid/{{user.id}}/pic/profile" class="profile-pic-20 mr-1">{{user.username}}</a></td>
+		<td><a style="color:#{{user.namecolor}};  font-weight:bold; fonts" href="/@{{user.username}}"><img src="/uid/{{user.id}}/pic/profile" class="profile-pic-20 mr-1"><span {% if user.patron %}class="patron" style="background-color:#{{user.namecolor}};"{% endif %}>{{user.username}}</span></a></td>
 		<td style="font-weight:bold; text-align:right;">{{user.comment_count}}</td>
 	</tr>
 {% endfor %}

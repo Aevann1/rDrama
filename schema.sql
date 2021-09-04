@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 12.7 (Ubuntu 12.7-0ubuntu0.20.04.1)
--- Dumped by pg_dump version 12.7 (Ubuntu 12.7-0ubuntu0.20.04.1)
+-- Dumped from database version 12.8 (Ubuntu 12.8-0ubuntu0.20.04.1)
+-- Dumped by pg_dump version 12.8 (Ubuntu 12.8-0ubuntu0.20.04.1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -145,7 +145,6 @@ CREATE TABLE public.badge_defs (
     description character varying(256),
     icon character varying(64),
     kind integer,
-    rank integer,
     qualification_expr character varying(128)
 );
 
@@ -395,7 +394,7 @@ CREATE TABLE public.comments (
     is_pinned boolean DEFAULT false,
     app_id integer,
     sentto integer,
-    shadowbanned boolean
+    bannedfor boolean
 );
 
 
@@ -806,7 +805,9 @@ CREATE TABLE public.submissions (
     thumburl text,
     private boolean,
     views integer,
-    is_bot boolean
+    is_bot boolean,
+    bannedfor boolean,
+    comment_count integer DEFAULT 0
 );
 
 
@@ -1039,14 +1040,15 @@ CREATE TABLE public.users (
     agendaposter boolean,
     agendaposter_expires_utc integer DEFAULT 0,
     resized boolean,
-    animatedname boolean,
     suicide_utc integer,
     post_count integer,
     comment_count integer,
     highres text,
     rent_utc integer,
     patron integer,
-    zzz boolean DEFAULT false
+    controversial boolean,
+    background text,
+    verified boolean
 );
 
 

@@ -1,8 +1,8 @@
 {% extends "default.html" %}
 
 {% block title %}
-<title>{{"SITE_NAME" | app_config}} - API</title>
-<meta name="description" content="{{"SITE_NAME" | app_config}} API Guide">
+<title>{{'SITE_NAME' | app_config}} - API</title>
+<meta name="description" content="{{'SITE_NAME' | app_config}} API Guide">
 {% endblock %}
 
 {% block content %}
@@ -20,7 +20,7 @@ This page explains how to obtain and use an access token.
 
 ## Step 1: Create your Application
 
-In the [apps tab of {{"SITE_NAME" | app_config}} settings](/settings/apps), fill in and submit the form to request an access token. You will need:
+In the [apps tab of {{'SITE_NAME' | app_config}} settings](/settings/apps), fill in and submit the form to request an access token. You will need:
 
 * an application name
 * a Redirect URI. May not use HTTP unless using localhost (use HTTPS instead).
@@ -28,13 +28,13 @@ In the [apps tab of {{"SITE_NAME" | app_config}} settings](/settings/apps), fill
 
 Don't worry too much about accuracy; you will be able to change all of these later.
 
-{{"SITE_NAME" | app_config}} administrators will review and approve or deny your request for an access token. You'll know when your request has been approved when you get a private message with an access token tied to your account.
+{{'SITE_NAME' | app_config}} administrators will review and approve or deny your request for an access token. You'll know when your request has been approved when you get a private message with an access token tied to your account.
 
 DO NOT reveal your Client ID or Access Token. Anyone with these information will be able to pretend to be you. You are responsible for keeping them a secret!
 
 ## Step 2: Using the Access Token
 
-To use the access token, include the following header in subsequent API requests to {{"SITE_NAME" | app_config}}: `Authorization: access_token_goes_here`
+To use the access token, include the following header in subsequent API requests to {{'SITE_NAME' | app_config}}: `Authorization: access_token_goes_here`
 
 Python example:
 
@@ -73,13 +73,13 @@ The expected result of this would be a large JSON representation of the posts po
 
 <pre>
 </pre>
-The OAuth2 authorization flow is used to enable users to authorize third-party applications to access their {{"SITE_NAME" | app_config}} account without having to provide their login information to the application.
+The OAuth2 authorization flow is used to enable users to authorize third-party applications to access their {{'SITE_NAME' | app_config}} account without having to provide their login information to the application.
 
 This page explains how to obtain API application keys, how to prompt a user for authorization, and how to obtain and use access tokens. 
 
 ## Step 1: Create your Application
 
-In the [apps tab of {{"SITE_NAME" | app_config}} settings](/settings/apps), fill in and submit the form to request new API keys. You will need:
+In the [apps tab of {{'SITE_NAME' | app_config}} settings](/settings/apps), fill in and submit the form to request new API keys. You will need:
 
 * an application name
 * a Redirect URI. May not use HTTP unless using localhost (use HTTPS instead).
@@ -87,7 +87,7 @@ In the [apps tab of {{"SITE_NAME" | app_config}} settings](/settings/apps), fill
 
 Don't worry too much about accuracy; you will be able to change all of these later.
 
-{{"SITE_NAME" | app_config}} administrators will review and approve or deny your request for API keys. You'll know when your request has been approved when you get a private message with an access token tied to your account.
+{{'SITE_NAME' | app_config}} administrators will review and approve or deny your request for API keys. You'll know when your request has been approved when you get a private message with an access token tied to your account.
 
 DO NOT reveal your Client ID or Access Token. Anyone with these information will be able to pretend to be you. You are responsible for keeping them a secret!
 
@@ -95,15 +95,15 @@ DO NOT reveal your Client ID or Access Token. Anyone with these information will
 
 Send your user to `{{request.host_url}}authorize/?client_id=YOUR_CLIENT_ID`
 
-If done correctly, the user will see that your application wants to access their {{"SITE_NAME" | app_config}} account, and be prompted to approve or deny the request.
+If done correctly, the user will see that your application wants to access their {{'SITE_NAME' | app_config}} account, and be prompted to approve or deny the request.
 
 ## Step 3: Catch the redirect
 
-The user clicks "Authorize". {{"SITE_NAME" | app_config}} will redirect the user's browser to GET the designated redirect URI. The access token URL parameter will be included in the redirect, which your server should process.
+The user clicks "Authorize". {{'SITE_NAME' | app_config}} will redirect the user's browser to GET the designated redirect URI. The access token URL parameter will be included in the redirect, which your server should process.
 
 ## Step 4: Using the Access Token
 
-To use the access token, include the following header in subsequent API requests to {{"SITE_NAME" | app_config}}: `Authorization: access_token_goes_here`
+To use the access token, include the following header in subsequent API requests to {{'SITE_NAME' | app_config}}: `Authorization: access_token_goes_here`
 
 Python example:
 

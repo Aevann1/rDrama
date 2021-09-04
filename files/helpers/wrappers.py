@@ -4,6 +4,7 @@ from werkzeug.wrappers.response import Response as RespObj
 from .get import *
 from .alerts import send_notification
 from files.__main__ import app
+from files.helpers.const import *
 
 
 def get_logged_in_user():
@@ -48,7 +49,7 @@ def check_ban_evade(v):
 	
 	if random.randint(0,30) < v.ban_evade:
 		v.ban(reason="ban evasion")
-		send_notification(1046, v, "Your account has been permanently suspended for the following reason:\n\n> ban evasion")
+		send_notification(NOTIFICATIONS_ACCOUNT, v, "Your account has been permanently suspended for the following reason:\n\n> ban evasion")
 
 		for post in g.db.query(Submission).filter_by(author_id=v.id).all():
 			if post.is_banned:
@@ -60,13 +61,13 @@ def check_ban_evade(v):
 
 			ma=ModAction(
 				kind="ban_post",
-				user_id=2317,
+				user_id=AUTOJANNY_ACCOUNT,
 				target_submission_id=post.id,
 				note="ban evasion"
 				)
 			g.db.add(ma)
 
-		g.db.commit()
+		g.db.flush()
 
 		for comment in g.db.query(Comment).filter_by(author_id=v.id).all():
 			if comment.is_banned:
@@ -78,20 +79,20 @@ def check_ban_evade(v):
 
 			ma=ModAction(
 				kind="ban_comment",
-				user_id=2317,
+				user_id=AUTOJANNY_ACCOUNT,
 				target_comment_id=comment.id,
 				note="ban evasion"
 				)
 			g.db.add(ma)
 
-		g.db.commit()
+		g.db.flush()
 		try: abort(403)
 		except Exception as e: print(e)
 
 	else:
 		v.ban_evade +=1
 		g.db.add(v)
-		g.db.commit()
+		g.db.flush()
 
 
 

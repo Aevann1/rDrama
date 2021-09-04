@@ -1,6 +1,6 @@
 {% extends "settings.html" %}
 
-{% block pagetitle %}Profile Settings - {{"SITE_NAME" | app_config}}{% endblock %}
+{% block pagetitle %}Profile Settings - {{'SITE_NAME' | app_config}}{% endblock %}
 
 {% block content %}
 
@@ -24,15 +24,15 @@
 							<p>Change the default sorting for comments.</p>
 							<div class="input-group mb2">
 								<select id='defaultsortingcomments' class="form-control" form="profile-settings" name="defaultsortingcomments" onchange="post_toast('/settings/profile?defaultsortingcomments='+document.getElementById('defaultsortingcomments').value)">
-								 {% for entry in ["new", "old", "top", "bottom", "controversial", "random"] %}
-								 <option value="{{entry}}"{{' selected' if v.defaultsortingcomments==entry else ''}}>{{entry}}</option>
-								 {% endfor %}
-							 </select>
+								{% for entry in ["new", "old", "top", "bottom", "controversial", "random"] %}
+								<option value="{{entry}}"{{' selected' if v.defaultsortingcomments==entry else ''}}>{{entry}}</option>
+								{% endfor %}
+							</select>
 							</div>
 
 						</div>
 
-				 </div>
+				</div>
 
 					<div class="d-lg-flex border-bottom">
 						<div class="title w-lg-25">
@@ -43,15 +43,15 @@
 							<p>Change the default sorting for posts.</p>
 							<div class="input-group mb2">
 								<select id='defaultsorting' class="form-control" form="profile-settings" name="defaultsorting" onchange="post_toast('/settings/profile?defaultsorting='+document.getElementById('defaultsorting').value)">
-								 {% for entry in ["hot", "new", "old", "top", "bottom", "controversial", "comments", "random"] %}
-								 <option value="{{entry}}"{{' selected' if v.defaultsorting==entry else ''}}>{{entry}}</option>
-								 {% endfor %}
-							 </select>
+								{% for entry in ["hot", "new", "old", "top", "bottom", "controversial", "comments", "random"] %}
+								<option value="{{entry}}"{{' selected' if v.defaultsorting==entry else ''}}>{{entry}}</option>
+								{% endfor %}
+							</select>
 							</div>
 
 						</div>
 
-				 </div>
+				</div>
 
 					<div class="d-lg-flex border-bottom">
 						<div class="title w-lg-25">
@@ -62,10 +62,10 @@
 							<p>Change the default time filter for posts.</p>
 							<div class="input-group mb2">
 								<select id='defaulttime' class="form-control" form="profile-settings" name="defaulttime" onchange="post_toast('/settings/profile?defaulttime='+document.getElementById('defaulttime').value)">
-								 {% for entry in ["hour", "day", "week", "month", "year", "all"] %}
-								 <option value="{{entry}}"{{' selected' if v.defaulttime==entry else ''}}>{{entry}}</option>
-								 {% endfor %}
-							 </select>
+								{% for entry in ["hour", "day", "week", "month", "year", "all"] %}
+								<option value="{{entry}}"{{' selected' if v.defaulttime==entry else ''}}>{{entry}}</option>
+								{% endfor %}
+							</select>
 							</div>
 
 						</div>
@@ -140,6 +140,25 @@
 						</div>
 
 						<span class="text-small-extra text-muted">Enable if you would like to automatically convert reddit.com links to old.reddit.com links.</span>
+
+					</div>
+
+				</div>
+
+				<div class="d-lg-flex border-bottom">
+
+					<div class="title w-lg-25">
+						<label for="controversial">Sort by Controversial</label>
+					</div>
+
+					<div class="body w-lg-100">
+
+						<div class="custom-control custom-switch">
+							<input type="checkbox" class="custom-control-input" id="controversial" name="controversial"{% if v.controversial %} checked{% endif %} onchange="post_toast('/settings/profile?controversial='+document.getElementById('controversial').checked);">
+							<label class="custom-control-label" for="controversial"></label>
+						</div>
+
+						<span class="text-small-extra text-muted">Enable if you would like to automatically sort reddit.com links by controversial.</span>
 
 					</div>
 

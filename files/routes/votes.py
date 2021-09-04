@@ -8,7 +8,7 @@ from files.__main__ import app
 @app.get("/votes")
 @auth_desired
 def admin_vote_info_get(v):
-	if v and v.is_banned and not v.unban_utc: return render_template("seized.html")
+
 
 	link = request.args.get("link")
 	if not link: return render_template("votes.html", v=v)
@@ -55,7 +55,7 @@ def admin_vote_info_get(v):
 
 
 @app.post("/vote/post/<post_id>/<new>")
-@is_not_banned
+@auth_required
 @validate_formkey
 def api_vote_post(post_id, new, v):
 
@@ -70,6 +70,8 @@ def api_vote_post(post_id, new, v):
 
 	# check for existing vote
 	existing = g.db.query(Vote).filter_by(user_id=v.id, submission_id=post.id).first()
+
+	if existing and existing.vote_type == new: return "", 204
 
 	if existing:
 		if existing.vote_type == 0 and new != 0:
@@ -99,7 +101,7 @@ def api_vote_post(post_id, new, v):
 	return "", 204
 
 @app.post("/vote/comment/<comment_id>/<new>")
-@is_not_banned
+@auth_required
 @validate_formkey
 def api_vote_comment(comment_id, new, v):
 
@@ -118,6 +120,8 @@ def api_vote_comment(comment_id, new, v):
 
 	# check for existing vote
 	existing = g.db.query(CommentVote).filter_by(user_id=v.id, comment_id=comment.id).first()
+
+	if existing and existing.vote_type == new: return "", 204
 
 	if existing:
 		if existing.vote_type == 0 and new != 0:
@@ -145,4 +149,4 @@ def api_vote_comment(comment_id, new, v):
 	comment.upvotes = g.db.query(CommentVote).filter_by(comment_id=comment.id, vote_type=1).count()
 	comment.downvotes = g.db.query(CommentVote).filter_by(comment_id=comment.id, vote_type=-1).count()
 	g.db.add(comment)
-	return make_response(""), 204
+	return "", 204

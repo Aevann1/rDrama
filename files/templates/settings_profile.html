@@ -1,6 +1,6 @@
 {% extends "settings.html" %}
 
-{% block pagetitle %}Profile Settings - {{"SITE_NAME" | app_config}}{% endblock %}
+{% block pagetitle %}Profile Settings - {{'SITE_NAME' | app_config}}{% endblock %}
 
 {% block content %}
 {% include "emoji_modal.html" %}
@@ -11,6 +11,35 @@
 	<div class="col col-lg-10">
 
 		<div class="settings">
+
+			{% if "pcm" in request.host.lower() %}
+
+			<h2 class="h5" name="referral">Quadrant</h2>
+
+			<div class="settings-section rounded">
+
+					<div class="d-lg-flex border-bottom">
+						<div class="title w-lg-25">
+							<label for="quadrant">Quadrant</label>
+						</div>
+
+						<div class="body w-lg-100">
+							<p>Choose your quadrant.</p>
+							<div class="input-group mb2">
+								<select id='quadrant' class="form-control" form="profile-settings" name="quadrant" onchange="post('/settings/profile?quadrant='+document.getElementById('quadrant').value, function(){window.location.reload(true);})">
+								{% for entry in ["Centrist", "AuthRight", "AuthLeft", "LibLeft", "LibRight", "AuthCenter", "Left", "LibCenter", "Right", "LibRight"] %}
+									<option value="{{entry}}">
+										{{entry}}
+									</option>
+								{% endfor %}
+							</select>
+							</div>
+
+						</div>
+
+				</div>
+			</div>
+			{% endif %}
 
 			<h2 class="h5" name="referral">Theme</h2>
 
@@ -25,25 +54,30 @@
 							<p>Change the theme for the website.</p>
 							<div class="input-group mb2">
 								<select id='theme' class="form-control" form="profile-settings" name="theme" onchange="post('/settings/profile?theme='+document.getElementById('theme').value, function(){window.location.reload(true);})">
-								 {% for entry in ["dark", "light", "coffee", "tron", "4chan", "midnight"] %}
-									 <option value="{{entry}}" {% if v.theme==entry %} selected {% endif %}>
+								{% if v.background %}
+									{% set entries = ["transparent", "win98", "dark", "light", "coffee", "tron", "4chan", "midnight"] %}
+								{% else %}
+									{% set entries = ["dark", "win98", "light", "coffee", "tron", "4chan", "midnight"] %}
+								{% endif %}
+								{% for entry in entries %}
+									<option value="{{entry}}" {% if v.theme==entry %} selected {% endif %}>
 										{{entry}}
 									</option>
-								 {% endfor %}
-							 </select>
+								{% endfor %}
+							</select>
 							</div>
 
 						</div>
 
-				 </div>
-				 
+				</div>
+				
 				<div class="body d-lg-flex border-bottom">
 
 				<label for="bio" class="text-black w-lg-25">Theme Color</label>
 
 				<div class="d-flex">
 
-					 <form action="/settings/themecolor" id="themecolor-form" method="post" class="color-picker" style="line-height: 0">
+					<form action="/settings/themecolor" id="themecolor-form" method="post" class="color-picker" style="line-height: 0">
 							<input type="hidden" name="formkey" value="{{v.formkey}}">
 
 							{% for themecolor in ['ff66ac','805ad5','62ca56','38a169','80ffff','2a96f3','eb4963','ff0000','f39731','30409f','3e98a7','e4432d','7b9ae4','ec72de','7f8fa6', 'f8db58'] %}
@@ -62,11 +96,116 @@
 					</form>
 
 				</div>
+
+				<!-- <p class="text-small mb-2">Or type a color code:</p>
+			
+				<div class="d-flex">
 				
-			</div>
+				<form action="/settings/themecolor" id="color-code-form" method="post">
+					<input type="hidden" name="formkey" value="{{v.formkey}}">
+  
+					<input class="form-control" type="text" name="themecolor" id="color-code" value="{% if v.themecolor %}{{v.themecolor}}{% endif %}">
+					<label class="btn btn-secondary text-capitalize mr-2 mt-2 mb-0">Update<input type="text" for="color-code" onclick="form.submit()" hidden=""></label>
+				</form>
+				
+				</div> -->
 
 			</div>
-
+			<div class="d-lg-flex border-bottom">
+			<div class="title w-lg-25">
+				<label for="theme">Website Backgrounds</label>
+			</div>
+				<div class="body w-lg-100">
+					<script>
+						function updatebgselection(){
+						var bgselector = document.getElementById("backgroundSelector");
+						var selection = bgselector.options[bgselector.selectedIndex].text;
+						
+						//var paragraph = document.getElementById("testp");
+						//paragraph.innerHTML = selection;
+						
+						const backgrounds = [
+							{
+								folder: "fantasy",
+								backgrounds: 
+								[
+									"1.gif",
+									"2.gif",
+									"3.gif",
+									"4.gif",
+									"5.gif",
+								]
+							},
+							{
+								folder: "solarpunk",
+								backgrounds: 
+								[
+									"1.gif",
+									"2.gif",
+									"3.gif",
+									"4.gif",
+									"5.gif",
+									"6.gif",
+									"7.gif",
+									"8.gif",
+									"9.gif",
+									"10.gif",
+									"11.gif",
+									"12.gif",
+									"13.gif",
+									"14.gif",
+									"15.gif",
+									"16.gif",
+									"17.gif",
+									"18.gif",
+									"19.gif",
+								]
+							},
+							{
+							folder: "pixelart",
+							backgrounds:
+							[
+								"1.gif",
+								"2.gif",
+								"3.gif",
+								"4.gif",
+								"5.gif",
+							]
+							}
+						]
+							let bgContainer = document.getElementById(`bgcontainer`);
+							let str = '';
+							let bgsToDisplay = backgrounds[bgselector.selectedIndex].backgrounds;
+							let bgsDir = backgrounds[bgselector.selectedIndex].folder;
+							for (i=0; i < bgsToDisplay.length; i++) {
+								let onclickPost = bgsDir + "/" + bgsToDisplay[i];
+								str += `<button class="btn btn-secondary m-1 p-0" style="width:15rem; overflow: hidden;"><img style="padding:0.25rem; width: 15rem" src="/assets/images/backgrounds/${bgsDir}/${bgsToDisplay[i]}" alt="${bgsToDisplay[i]}-background" onclick="post('/settings/profile?background=${onclickPost}', function(){window.location.reload(true);})"/></button>`;
+							}
+							bgContainer.innerHTML = str;
+						}
+						updatebgselection();
+					</script>
+					<p>Change the background for the website.</p>
+					<div class="input-group mb2">
+							<select id='backgroundSelector' class="form-control" form="profile-settings" name="background" onchange="updatebgselection();">
+							{% for entry in ["fantasy", "solarpunk", "pixelart"] %}
+								<option value="{{entry}}">
+									{{entry}}
+								</option>
+							{% endfor %}
+						</select>
+					</div>
+					{% if v.background %}
+						<div class="d-flex mt-2">
+							<a class="btn btn-primary ml-auto" href="javascript:void(0)" onclick="post('/settings/removebackground', function(){window.location.reload(true);})">Remove Background</a>
+							<pre></pre>
+						</div>
+					{% endif %}
+					<div id="bgcontainer"></div>
+					
+				</div>
+				</div>
+			</div>
 
 			<h2 class="h5">Profile Picture</h2>
 
@@ -190,42 +329,42 @@
 					</div>
 
 
-					  <h2 class="h5" name="referral">Linked Accounts</h2>
+					<h2 class="h5" name="referral">Linked Accounts</h2>
 
-					  <p class="text-small text-muted">Manage your connections to other services.</p>
+					<p class="text-small text-muted">Manage your connections to other services.</p>
 
-					  <div class="settings-section rounded">
+					<div class="settings-section rounded">
 
 						<div class="d-lg-flex">
 
-						  <div class="title w-lg-25">
+						<div class="title w-lg-25">
 							<label>Discord</label>
-						  </div>
+						</div>
 
-						  <div class="body w-lg-100">
+						<div class="body w-lg-100">
 
 							{% if v.discord_id %}
 							<form action="/settings/remove_discord" method="post">
-							  <input type="hidden" name="formkey" value="{{v.formkey}}">
-							  <input type="submit" class="btn btn-secondary text-capitalize mr-2 mb-0 mt-2" value="Disconnect Discord">
+							<input type="hidden" name="formkey" value="{{v.formkey}}">
+							<input type="submit" class="btn btn-secondary text-capitalize mr-2 mb-0 mt-2" value="Disconnect Discord">
 							</form>
 
-							<div class="text-small-extra text-muted mt-3">Disconnecting your Discord account will remove you from the {{"SITE_NAME" | app_config}} Discord server.</div>
+							<div class="text-small-extra text-muted mt-3">Disconnecting your Discord account will remove you from the {{'SITE_NAME' | app_config}} Discord server.</div>
 							{% else %}
 							<a href="/discord" class="btn btn-primary">Link Discord</a>
-							<div class="text-small-extra text-muted mt-3">Link your Discord account to join the {{"SITE_NAME" | app_config}} Discord server.</div>
+							<div class="text-small-extra text-muted mt-3">Link your Discord account to join the {{'SITE_NAME' | app_config}} Discord server.</div>
 							{% endif %}
-
-						  </div>
 
 						</div>
 
-					  </div>
+						</div>
+
+					</div>
 
 
 					<h2 class="h5" name="referral">RSS Feed</h2>
 
-					<p class="text-small text-muted">Subscribe to the {{"SITE_NAME" | app_config}} RSS feed.</p>
+					<p class="text-small text-muted">Subscribe to the {{'SITE_NAME' | app_config}} RSS feed.</p>
 
 					<div class="settings-section rounded">
 
@@ -245,7 +384,7 @@
 
 						<h2 class="h5" id="bio" name="bio">Your Profile</h2>
 
-						<p class="text-small text-muted">Edit how others see you on {{"SITE_NAME" | app_config}}.</p>
+						<p class="text-small text-muted">Edit how others see you on {{'SITE_NAME' | app_config}}.</p>
 
 						<div class="settings-section rounded mb-0">
 
@@ -255,7 +394,6 @@
 
 								<div class="w-lg-100">
 									<p>Your original username will always stay reserved for you: <code>{{v.original_username}}</code></p>
-
 
 									<form action="/settings/name_change" method="post">
 										<input type="hidden" name="formkey" value="{{v.formkey}}">
@@ -313,6 +451,19 @@
 									</form>
 
 								</div>
+
+								<p class="text-small mb-2">Or type a color code:</p>
+			
+								<div class="d-flex">
+								
+								<form action="/settings/namecolor" id="color-code-form" method="post">
+									<input type="hidden" name="formkey" value="{{v.formkey}}">
+				
+									<input class="form-control" type="text" name="color" id="color-code" value="{% if v.namecolor %}{{v.namecolor}}{% endif %}">
+									<label class="btn btn-secondary text-capitalize mr-2 mt-2 mb-0">Update<input type="text" for="color-code" onclick="form.submit()" hidden=""></label>
+								</form>
+								
+								</div>
 							
 							</div>							
 
@@ -340,11 +491,11 @@
 
 							<div class="body d-lg-flex border-bottom">
 
-							 <label for="bio" class="text-black w-lg-25">Flair Color</label>
+							<label for="bio" class="text-black w-lg-25">Flair Color</label>
 
 							<div class="d-flex">
 
-								 <form action="/settings/titlecolor" id="titlecolor-form" method="post" class="color-picker" style="line-height: 0">
+								<form action="/settings/titlecolor" id="titlecolor-form" method="post" class="color-picker" style="line-height: 0">
 										<input type="hidden" name="formkey" value="{{v.formkey}}">
 
 										{% for titlecolor in ['ff66ac','805ad5','62ca56','38a169','80ffff','2a96f3','eb4963','ff0000','f39731','30409f','3e98a7','e4432d','7b9ae4','ec72de','7f8fa6', 'f8db58'] %}
@@ -362,6 +513,19 @@
 
 								</form>
 
+							</div>
+
+							<p class="text-small mb-2">Or type a color code:</p>
+			
+							<div class="d-flex">
+							
+							<form action="/settings/titlecolor" id="color-code-form" method="post">
+								<input type="hidden" name="formkey" value="{{v.formkey}}">
+			
+								<input class="form-control" type="text" name="titlecolor" id="color-code" value="{% if v.titlecolor %}{{v.titlecolor}}{% endif %}">
+								<label class="btn btn-secondary text-capitalize mr-2 mt-2 mb-0">Update<input type="text" for="color-code" onclick="form.submit()" hidden=""></label>
+							</form>
+							
 							</div>
 
 							</div>
@@ -409,16 +573,16 @@
 								<label class="text-black w-lg-25">Badges</label>
 
 								<div class="w-lg-100">
-									<p>Profile badges show off all of your site achievements. If your badges look not quite up to date, use this tool to refresh them.</p>
+									<p><a href="/badges">Profile badges</a> show off all of your site achievements. If your badges look not quite up to date, use this tool to refresh them.</p>
 									<div class="d-flex">
 										<a class="btn btn-primary ml-auto" id="badgeUpdate" href="javascript:void(0)" onclick="post_toast('/settings/badges')">Refresh badges</a>
 									</div>
 
-							 </div>
+							</div>
 
-						 </div>
+						</div>
 
-						 <div class="d-lg-flex border-bottom">
+						<div class="d-lg-flex border-bottom">
 
 							<div class="title w-lg-25">
 								<label for="privateswitch">Private Mode</label>
@@ -436,7 +600,7 @@
 							</div>
 
 						</div>
-						 <div class="d-lg-flex border-bottom">
+						<div class="d-lg-flex border-bottom">
 
 							<div class="title w-lg-25">
 								<label for="nofollowswitch">Disable Subscriptions</label>

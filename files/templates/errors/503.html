@@ -7,7 +7,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
 	<meta name="author" content="">
-	<link rel="icon" type="image/png" href="/assets/favicon.png">
+	<link rel="icon" type="image/png" href="/assets/{{'SITE_NAME' | app_config}}/icon.gif">
 
 	
 <title>503 Service Unavailable</title>
@@ -18,18 +18,18 @@
 	integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
 	<!-- iOS webapp -->
-	<link rel="apple-touch-icon" href="/assets/favicon.png">
+	<link rel="apple-touch-icon" href="/assets/{{'SITE_NAME' | app_config}}/icon.gif">
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="format-detection" content="telephone=no">
-	<meta name="apple-mobile-web-app-title" content="{{"SITE_NAME" | app_config}}">
+	<meta name="apple-mobile-web-app-title" content="{{'SITE_NAME' | app_config}}">
 
-	<!-- {{"SITE_NAME" | app_config}} CSS -->
+	<!-- {{'SITE_NAME' | app_config}} CSS -->
 	
 	{% if v %}
 		<link rel="stylesheet" href="/assets/style/{{v.theme}}_{{v.themecolor}}.css">
 		{% if v.agendaposter %}<link rel="stylesheet" href="/assets/style/agendaposter.css">{% elif v.css %}<link rel="stylesheet" href="/@{{v.username}}/css">{% endif %}
 	{% else %}
-		<link rel="stylesheet" href="/assets/style/dark_ff66ac.css">
+		<link rel="stylesheet" href="/assets/style/{{'DEFAULT_THEME' | app_config}}.css">
 	{% endif %}
 
 	<!-- Font Awesome -->
@@ -44,25 +44,15 @@
 <!-- Navigation -->
 <nav class="navbar navbar-expand-md navbar-light bg-white shadow shadow-md fixed-top" id="navbar">
 	<div class="container">
-		<div class="flex-grow-1"><span class="text-primary navbar-brand">{{"SITE_NAME" | app_config}}</span></div>
+		<div class="flex-grow-1"><span class="text-primary navbar-brand">{{'SITE_NAME' | app_config}}</span></div>
 
-	 
+	
 		
 		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive"
 		aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
 		<span class="navbar-toggler-icon"><i class="fal fa-bars text-gray-400" style="font-size: 2rem;"></i></span>
 	</button>
 	<div class="collapse navbar-collapse" id="navbarResponsive">
-
-	 <!-- Mobile Nav Menu -->
-	 <ul class="navbar-nav ml-auto d-flex d-md-none mt-3">
-
-		
-		 <li class="nav-item nav-item">
-			<a class="nav-link text-small-extra" href="https://github.com/Aevann1/Drama">GitHub</a>
-		</li>
-		
-	</ul>
 
 </div>
 </div>
@@ -79,14 +69,14 @@
 	<div class="col-10">
 		<div class="text-center px-3 py-8">
 			<span class="fa-stack text-muted mb-5" style="font-size: 2.5rem;">
-					<i class="far fa-cloud fa-stack-2x text-muted"></i>
-					<i class="fad fa-fire fa-stack-1x text-danger"></i>
-			</span>
+				<img src="/assets/images/emojis/marseydead.gif">
+				<pre></pre>
+				</span>
 			<h1 class="h5">503 Service Unavailable</h1>
-			<p class="text-muted">r{{"SITE_NAME" | app_config}} is unavailable.</p>
+			<p class="text-muted">r{{'SITE_NAME' | app_config}} is unavailable.</p>
 			<p class="text-muted">HI IT'S CARP AGAIN<BR>I'm like 95% sure this error means Aevann is restarting the server to apply a change. But I think that's also 520/521? What causes a 503? No one knows. Wait like a minute (maybe two) and see if it's still happening. It shouldn't. Good luck!</p>
 			<button class="btn btn-primary" onclick="window.location.reload()">
-			 	Refresh
+				Refresh
 			</button>
 		</div>
 	</div>

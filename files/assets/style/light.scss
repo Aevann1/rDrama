@@ -3372,7 +3372,7 @@ body, #settings, #notifications, #submit{
 }
 
 .custom-gutters {
-	padding-left: 8px;
+	padding-left: 0;
 	padding-right: 0;
 }
 
@@ -3889,4 +3889,8 @@ img.emoji {
 
 .comment-box {
     border: 2px solid $gray-200;
+}
+
+.transparent {
+	background: None !important;
 }

@@ -15,3 +15,4 @@ from .votes import *
 from .feeds import *
 from .awards import *
 from .shop import *
+from .giphy import *

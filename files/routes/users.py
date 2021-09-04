@@ -8,17 +8,16 @@ from files.classes.user import ViewerRelationship
 from files.helpers.alerts import *
 from files.helpers.sanitize import *
 from files.helpers.markdown import *
+from files.helpers.const import *
 from files.mail import *
 from flask import *
 from files.__main__ import app, limiter
-from pusher_push_notifications import PushNotifications, PusherAuthError
+from pusher_push_notifications import PushNotifications
 
 site = environ.get("DOMAIN").strip()
 
-PUSHER_KEY = environ.get("PUSHER_KEY", "").strip()
-
 beams_client = PushNotifications(
-		instance_id='02ddcc80-b8db-42be-9022-44c546b4dce6',
+		instance_id=PUSHER_INSTANCE_ID,
 		secret_key=PUSHER_KEY,
 )
 
@@ -29,7 +28,7 @@ def suicide(v, username):
 	if v.admin_level == 0 and t - v.suicide_utc < 86400: return "", 204
 	user = get_user(username)
 	suicide = f"Hi there,\n\nA [concerned user]({v.url}) reached out to us about you.\n\nWhen you're in the middle of something painful, it may feel like you don't have a lot of options. But whatever you're going through, you deserve help and there are people who are here for you.\n\nThere are resources available in your area that are free, confidential, and available 24/7:\n\n- Call, Text, or Chat with Canada's [Crisis Services Canada](https://www.crisisservicescanada.ca/en/)\n- Call, Email, or Visit the UK's [Samaritans](https://www.samaritans.org/)\n- Text CHAT to America's [Crisis Text Line](https://www.crisistextline.org/) at 741741.\nIf you don't see a resource in your area above, the moderators at r/SuicideWatch keep a comprehensive list of resources and hotlines for people organized by location. Find Someone Now\n\nIf you think you may be depressed or struggling in another way, don't ignore it or brush it aside. Take yourself and your feelings seriously, and reach out to someone.\n\nIt may not feel like it, but you have options. There are people available to listen to you, and ways to move forward.\n\nYour fellow users care about you and there are people who want to help."
-	send_notification(1046, user, suicide)
+	send_notification(NOTIFICATIONS_ACCOUNT, user, suicide)
 	v.suicide_utc = t
 	g.db.add(v)
 	return "", 204
@@ -62,8 +61,6 @@ def transfer_coins(v, username):
 		g.db.add(receiver)
 		g.db.add(v)
 
-		g.db.commit()
-
 		transfer_message = f"🤑 [@{v.username}]({v.url}) has gifted you {amount} {app.config['COINS_NAME']}!"
 		send_notification(v.id, receiver, transfer_message)
 		return {"message": f"{amount} {app.config['COINS_NAME']} transferred!"}, 200
@@ -73,7 +70,6 @@ def transfer_coins(v, username):
 @app.get("/leaderboard")
 @auth_desired
 def leaderboard(v):
-	if v and v.is_banned and not v.unban_utc:return render_template("seized.html")
 	users = g.db.query(User).options(lazyload('*'))
 	users1 = users.order_by(User.coins.desc()).limit(25).all()
 	users2 = users.order_by(User.stored_subscriber_count.desc()).limit(10).all()
@@ -103,9 +99,6 @@ def get_profilecss(username):
 @auth_required
 def messagereply(v, username, id):
 
-	if v.zzz:
-		abort(418)
-
 	message = request.form.get("message", "")[:1000].strip()
 	user = get_user(username)
 	message = message.replace("\n", "\n\n").replace("\n\n\n\n\n\n", "\n\n").replace("\n\n\n\n", "\n\n").replace("\n\n\n", "\n\n")
@@ -115,10 +108,10 @@ def messagereply(v, username, id):
 															Comment.sentto == user.id,
 															CommentAux.body == message,
 															).options(contains_eager(Comment.comment_aux)).first()
-	if existing: return redirect('/notifications?all=true')
+	if existing: return redirect('/notifications?messages=true')
 
 	with CustomRenderer() as renderer: text_html = renderer.render(mistletoe.Document(message))
-	text_html = sanitize(text_html, linkgen=True)
+	text_html = sanitize(text_html)
 	parent = get_comment(int(id), v=v)
 	new_comment = Comment(author_id=v.id,
 							parent_submission=None,
@@ -132,8 +125,9 @@ def messagereply(v, username, id):
 	g.db.add(new_aux)
 	notif = Notification(comment_id=new_comment.id, user_id=user.id)
 	g.db.add(notif)
-	g.db.commit()
-	return redirect('/notifications?all=true')
+	
+	if request.referrer.endswith('/notifications'): return redirect("/notifications?all=true")
+	else: return redirect(request.referrer)
 
 @app.get("/songs/<id>")
 def songs(id):
@@ -147,7 +141,6 @@ def songs(id):
 def subscribe(v, post_id):
 	new_sub = Subscription(user_id=v.id, submission_id=post_id)
 	g.db.add(new_sub)
-	g.db.commit()
 	return "", 204
 	
 @app.post("/unsubscribe/<post_id>")
@@ -162,9 +155,6 @@ def unsubscribe(v, post_id):
 @auth_required
 def message2(v, username):
 
-	if v.zzz:
-		abort(418)
-
 	user = get_user(username, v=v)
 	if user.is_blocking: return {"error": "You're blocking this user."}, 403
 	if user.is_blocked: return {"error": "This user is blocking you."}, 403
@@ -177,7 +167,7 @@ def message2(v, username):
 															Comment.sentto == user.id,
 															CommentAux.body == message,
 															).options(contains_eager(Comment.comment_aux)).first()
-	if existing: return redirect('/notifications?all=true')
+	if existing: return redirect('/notifications?messages=true')
 
 	send_pm(v.id, user, message)
 	
@@ -194,11 +184,10 @@ def message2(v, username):
 				},
 			},
 		)
-	except PusherAuthError as e:
-		sys.stderr.write(traceback.format_exc())
-		sys.stderr.flush()
+	except Exception as e:
+		print(e)
 
-	return redirect('/notifications?all=true')
+	return redirect(request.referrer)
 
 @app.get("/2faqr/<secret>")
 @auth_required
@@ -256,7 +245,7 @@ def redditor_moment_redirect(username):
 # @app.get("/rentoids")
 # @auth_desired
 # def rentoids(v):
-# 	if v and v.is_banned and not v.unban_utc: return render_template("seized.html")
+# 
 
 # 	users = g.db.query(User).filter(User.rent_utc > 0).all()
 # 	return render_template("rentoids.html", v=v, users=users)
@@ -264,7 +253,7 @@ def redditor_moment_redirect(username):
 @app.get("/@<username>/followers")
 @auth_required
 def followers(username, v):
-	if v and v.is_banned and not v.unban_utc: return render_template("seized.html")
+
 
 	u = get_user(username, v=v)
 	users = [x.user for x in u.followers]
@@ -277,10 +266,16 @@ def visitors(v):
 	viewers=sorted(v.viewers, key = lambda x: x.last_view_utc, reverse=True)
 	return render_template("viewers.html", v=v, viewers=viewers)
 
+
 @app.get("/@<username>")
+@app.get("/logged_out/@<username>")
 @auth_desired
 def u_username(username, v=None):
-	if v and v.is_banned and not v.unban_utc: return render_template("seized.html")
+
+
+	if not v and "logged_out" not in request.path: return redirect(f"/logged_out/@{username}")
+
+	if v and "logged_out" in request.full_path: v = None
 
 	# username is unique so at most this returns one result. Otherwise 404
 
@@ -326,7 +321,7 @@ def u_username(username, v=None):
 		# 		g.db.add(v)
 		# 		u.coins += 500
 		# 		g.db.add(u)
-		# 		send_notification(1046, u, f"@{v.username} has paid rent!")
+		# 		send_notification(NOTIFICATIONS_ACCOUNT, u, f"@{v.username} has paid rent!")
 		# 		paidrent = True
 
 		# if not paidrent:
@@ -393,11 +388,15 @@ def u_username(username, v=None):
 									is_following=(v and u.has_follower(v)))
 
 
-
 @app.get("/@<username>/comments")
+@app.get("/logged_out/@<username>/comments")
 @auth_desired
 def u_username_comments(username, v=None):
-	if v and v.is_banned and not v.unban_utc: return render_template("seized.html")
+
+
+	if not v and "logged_out" not in request.path: return redirect(f"/logged_out/@{username}/comments")
+
+	if v and "logged_out" in request.full_path: v = None
 
 	# username is unique so at most this returns one result. Otherwise 404
 
@@ -428,7 +427,7 @@ def u_username_comments(username, v=None):
 		# 		g.db.add(v)
 		# 		u.coins += 500
 		# 		g.db.add(u)
-		# 		send_notification(1046, u, f"@{v.username} has paid rent!")
+		# 		send_notification(NOTIFICATIONS_ACCOUNT, u, f"@{v.username} has paid rent!")
 		# 		paidrent = True
 
 		# if not paidrent:
@@ -495,7 +494,7 @@ def follow_user(username, v):
 	if target.id==v.id: return {"error": "You can't follow yourself!"}, 400
 
 	# check for existing follow
-	if g.db.query(Follow).filter_by(user_id=v.id, target_id=target.id).first(): abort(409)
+	if g.db.query(Follow).filter_by(user_id=v.id, target_id=target.id).first(): return "", 204
 
 	new_follow = Follow(user_id=v.id, target_id=target.id)
 	g.db.add(new_follow)
@@ -517,7 +516,7 @@ def unfollow_user(username, v):
 	# check for existing follow
 	follow = g.db.query(Follow).filter_by(user_id=v.id, target_id=target.id).first()
 
-	if not follow: abort(409)
+	if not follow: return "", 204
 
 	g.db.delete(follow)
 	target.stored_subscriber_count = g.db.query(Follow).filter_by(target_id=target.id).count()

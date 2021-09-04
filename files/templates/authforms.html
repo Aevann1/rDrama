@@ -5,10 +5,10 @@
 
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-		<meta name="description" content="{% block pagedesc %}{{"SITE_NAME" | app_config}}{% endblock %}">
+		<meta name="description" content="{% block pagedesc %}{{'SITE_NAME' | app_config}}{% endblock %}">
 		<meta name="author" content="">
 
-		<title>{% block pagetitle %}{{"SITE_NAME" | app_config}}{% endblock %}</title>
+		<title>{% block pagetitle %}{{'SITE_NAME' | app_config}}{% endblock %}</title>
 
 		<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600&display=swap" rel="stylesheet">
 
@@ -19,16 +19,16 @@
 		<!-- Font Awesome -->
 		<link href="/assets/fontawesome/css/all.css" rel="stylesheet"> <!--load all styles -->
 
-		<script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/latest/js/all.js"
+		<script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/latest/js/javascript.js"
 				integrity="sha384-L469/ELG4Bg9sDQbl0hvjMq8pOcqFgkSpwhwnslzvVVGpDjYJ6wJJyYjvG3u8XW7"
 				crossorigin="anonymous"></script>
 
-		<!-- {{"SITE_NAME" | app_config}} CSS -->
+		<!-- {{'SITE_NAME' | app_config}} CSS -->
 		{% if v %}
 			<link rel="stylesheet" href="/assets/style/{{v.theme}}_{{v.themecolor}}.css">
 			{% if v.agendaposter %}<link rel="stylesheet" href="/assets/style/agendaposter.css">{% elif v.css %}<link rel="stylesheet" href="/@{{v.username}}/css">{% endif %}
 		{% else %}
-		<link rel="stylesheet" href="/assets/style/dark_ff66ac.css">
+			<link rel="stylesheet" href="/assets/style/{{'DEFAULT_THEME' | app_config}}.css">
 		{% endif %}
 
 </head>
@@ -57,7 +57,7 @@
 										<div class="col-10 col-md-7">
 
 										<div class="mb-5">
-												<a href="/" class="text-decoration-none"><span class="h3 text-primary">{{"SITE_NAME" | app_config}}</span></a>
+												<a href="/" class="text-decoration-none"><span class="h3 text-primary">{{'SITE_NAME' | app_config}}</span></a>
 										</div>
 
 										<h1 class="h2">{% block authtitle %}{% endblock %}</h1>
@@ -102,11 +102,7 @@
 
 										<div class="splash-overlay"></div>
 
-										<h6 class="splash-text">
-												{{i.text}}
-										</h6>
-
-										<img class="splash-img" src="{{i.path}}"></img>
+										<img class="splash-img" src="/assets/images/{{'SITE_NAME' | app_config}}/cover.gif"></img>
 								</div>
 
 						</div>

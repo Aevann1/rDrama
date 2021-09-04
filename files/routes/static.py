@@ -3,6 +3,7 @@ from files.__main__ import app, limiter
 from files.helpers.alerts import *
 
 site = environ.get("DOMAIN").strip()
+site_name = environ.get("SITE_NAME").strip()
 
 @app.get("/stats")
 @auth_desired
@@ -39,18 +40,18 @@ def participation_stats(v):
 
 	return render_template("admin/content_stats.html", v=v, title="Content Statistics", data=data)
 
-@app.get("/patrons")
+@app.get("/paypigs")
 @auth_desired
 def patrons(v):
-	if v and v.is_banned and not v.unban_utc: return render_template("seized.html")
-	users = [x for x in g.db.query(User).filter(User.patron > 0).order_by(User.patron.desc()).all()]
+
+	users = g.db.query(User).options(lazyload('*')).filter(User.patron > 0).order_by(User.patron.desc()).all()
 	return render_template("patrons.html", v=v, users=users)
 
-@app.get("/badmins")
+@app.get("/admins")
 @auth_desired
-def badmins(v):
-	badmins = g.db.query(User).filter_by(admin_level=6).order_by(User.coins.desc()).all()
-	return render_template("badmins.html", v=v, badmins=badmins)
+def admins(v):
+	admins = g.db.query(User).filter_by(admin_level=6).order_by(User.coins.desc()).all()
+	return render_template("admins.html", v=v, admins=admins)
 
 @app.get("/log")
 @auth_desired
@@ -97,7 +98,7 @@ def index():
 
 @app.get("/assets/favicon.ico")
 def favicon():
-	return send_file("./assets/images/favicon.png")
+	return send_file(f"./assets/images/{site_name}/icon.gif")
 
 @app.get("/api")
 @auth_desired
@@ -107,7 +108,7 @@ def api(v):
 @app.get("/contact")
 @auth_desired
 def contact(v):
-	if v and v.is_banned and not v.unban_utc: return render_template("seized.html")
+
 	return render_template("contact.html", v=v)
 
 @app.post("/contact")
@@ -133,7 +134,10 @@ def archives(path):
 @limiter.exempt
 def static_service(path):
 	resp = make_response(send_from_directory('./assets', path))
-	if request.path.endswith('.css'): resp.headers.add("Content-Type", "text/css")
+	if request.path.endswith('.gif') or request.path.endswith('.ttf') or request.path.endswith('.woff') or request.path.endswith('.woff2'):
+		resp.headers.remove("Cache-Control")
+		resp.headers.add("Cache-Control", "public, max-age=31556952")
+
 	return resp
 
 @app.get("/robots.txt")
@@ -143,7 +147,7 @@ def robots_txt():
 @app.get("/settings")
 @auth_required
 def settings(v):
-	if v and v.is_banned and not v.unban_utc: return render_template("seized.html")
+
 
 	return redirect("/settings/profile")
 
@@ -151,7 +155,7 @@ def settings(v):
 @app.get("/settings/profile")
 @auth_required
 def settings_profile(v):
-	if v and v.is_banned and not v.unban_utc: return render_template("seized.html")
+
 
 	return render_template("settings_profile.html",
 						   v=v)
@@ -160,7 +164,7 @@ def settings_profile(v):
 @app.get("/titles")
 @auth_desired
 def titles(v):
-	if v and v.is_banned and not v.unban_utc: return render_template("seized.html")
+
 
 	titles = [x for x in g.db.query(Title).order_by(text("id asc")).all()]
 	return render_template("/titles.html",
@@ -170,19 +174,15 @@ def titles(v):
 @app.get("/badges")
 @auth_desired
 def badges(v):
-	if v and v.is_banned and not v.unban_utc: return render_template("seized.html")
 
-	badges = [
-		x for x in g.db.query(BadgeDef).order_by(
-			text("rank asc, id asc")).all()]
-	return render_template("badges.html",
-						   v=v,
-						   badges=badges)
+
+	badges = g.db.query(BadgeDef).all()
+	return render_template("badges.html", v=v, badges=badges)
 
 @app.get("/blocks")
 @auth_desired
 def blocks(v):
-	if v and v.is_banned and not v.unban_utc: return render_template("seized.html")
+
 
 	blocks=g.db.query(UserBlock).all()
 	users = []
@@ -196,7 +196,7 @@ def blocks(v):
 @app.get("/banned")
 @auth_desired
 def banned(v):
-	if v and v.is_banned and not v.unban_utc: return render_template("seized.html")
+
 
 	users = [x for x in g.db.query(User).filter(User.is_banned > 0, User.unban_utc == 0).all()]
 	return render_template("banned.html", v=v, users=users)
@@ -204,7 +204,7 @@ def banned(v):
 @app.get("/formatting")
 @auth_desired
 def formatting(v):
-	if v and v.is_banned and not v.unban_utc: return render_template("seized.html")
+
 
 	return render_template("formatting.html", v=v)
 	
@@ -224,7 +224,7 @@ def serviceworker():
 @app.get("/settings/security")
 @auth_required
 def settings_security(v):
-	if v and v.is_banned and not v.unban_utc: return render_template("seized.html")
+
 
 	return render_template("settings_security.html",
 						   v=v,

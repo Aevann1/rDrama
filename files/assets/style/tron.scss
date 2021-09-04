@@ -86,3 +86,11 @@ $reddit: #ED4630;
 .badge-count {
 	color: $light;
 }
+
+.transparent {
+	background: None !important;
+}
+
+.btn-danger.disabled, .btn-danger:disabled {
+	color: $primary !important;
+}

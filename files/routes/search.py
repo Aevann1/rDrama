@@ -30,7 +30,6 @@ def searchparse(text):
 	return criteria
 
 
-@cache.memoize(300)
 def searchlisting(criteria, v=None, page=1, t="None", sort="top", b=None):
 
 	posts = g.db.query(Submission).options(
@@ -128,7 +127,7 @@ def searchlisting(criteria, v=None, page=1, t="None", sort="top", b=None):
 	elif sort == "bottom":
 		posts = sorted(posts.all(), key=lambda x: x.score)
 	elif sort == "comments":
-		posts = sorted(posts.all(), key=lambda x: x.comment_count, reverse=True)
+		posts = posts.order_by(Submission.comment_count.desc()).all()
 	elif sort == "random":
 		posts = posts.all()
 		posts = random.sample(posts, k=len(posts))
@@ -144,7 +143,6 @@ def searchlisting(criteria, v=None, page=1, t="None", sort="top", b=None):
 	return total, [x.id for x in posts]
 
 
-@cache.memoize(300)
 def searchcommentlisting(criteria, v=None, page=1, t="None", sort="top"):
 
 	comments = g.db.query(Comment).options(lazyload('*')).filter(Comment.parent_submission != None).join(Comment.comment_aux)
@@ -198,7 +196,7 @@ def searchcommentlisting(criteria, v=None, page=1, t="None", sort="top"):
 @app.get("/search/posts")
 @auth_desired
 def searchposts(v):
-	if v and v.is_banned and not v.unban_utc: return render_template("seized.html")
+
 
 	query = request.args.get("q", '').strip()
 
@@ -239,7 +237,7 @@ def searchposts(v):
 @app.get("/search/comments")
 @auth_desired
 def searchcomments(v):
-	if v and v.is_banned and not v.unban_utc: return render_template("seized.html")
+
 
 	query = request.args.get("q", '').strip()
 
@@ -264,7 +262,7 @@ def searchcomments(v):
 @app.get("/search/users")
 @auth_desired
 def searchusers(v):
-	if v and v.is_banned and not v.unban_utc: return render_template("seized.html")
+
 
 	query = request.args.get("q", '').strip()
 

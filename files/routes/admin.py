@@ -12,16 +12,17 @@ from files.helpers.markdown import *
 from files.helpers.security import *
 from files.helpers.get import *
 from files.helpers.images import *
+from files.helpers.const import *
 from files.classes import *
 from flask import *
 import matplotlib.pyplot as plt
-from files.__main__ import app, cache
+from files.__main__ import app, cache, limiter
 from .front import frontlist
+from files.helpers.discord import add_role
 
 @app.get("/admin/shadowbanned")
 @auth_required
 def shadowbanned(v):
-	if v and v.is_banned and not v.unban_utc: return render_template("seized.html")
 	if not (v and v.admin_level == 6): abort(404)
 	users = [x for x in g.db.query(User).filter_by(shadowbanned = True).all()]
 	return render_template("banned.html", v=v, users=users)
@@ -30,33 +31,9 @@ def shadowbanned(v):
 @app.get("/admin/agendaposters")
 @auth_required
 def agendaposters(v):
-	if v and v.is_banned and not v.unban_utc: return render_template("seized.html")
 	if not (v and v.admin_level == 6): abort(404)
 	users = [x for x in g.db.query(User).filter_by(agendaposter = True).all()]
 	return render_template("banned.html", v=v, users=users)
-
-
-@app.get("/admin/flagged/posts")
-@admin_level_required(3)
-def flagged_posts(v):
-
-	page = max(1, int(request.args.get("page", 1)))
-
-	posts = g.db.query(Submission).filter_by(
-		is_approved=0,
-		is_banned=False
-	).join(Submission.flags
-		   ).options(contains_eager(Submission.flags)
-					 ).order_by(Submission.id.desc()).offset(25 * (page - 1)).limit(26)
-
-	listing = [p.id for p in posts]
-	next_exists = (len(listing) == 26)
-	listing = listing[:25]
-
-	listing = get_posts(listing, v=v)
-
-	return render_template("admin/flagged_posts.html",
-						   next_exists=next_exists, listing=listing, page=page, v=v)
 
 
 @app.get("/admin/image_posts")
@@ -76,6 +53,27 @@ def image_posts_listing(v):
 	return render_template("admin/image_posts.html", v=v, listing=posts, next_exists=next_exists, page=page, sort="new")
 
 
+@app.get("/admin/flagged/posts")
+@admin_level_required(3)
+def flagged_posts(v):
+
+	page = max(1, int(request.args.get("page", 1)))
+
+	posts = g.db.query(Submission).filter_by(
+		is_approved=0,
+		is_banned=False
+	).join(Submission.flags).order_by(Submission.id.desc()).offset(25 * (page - 1)).limit(26)
+
+	listing = [p.id for p in posts]
+	next_exists = (len(listing) == 26)
+	listing = listing[:25]
+
+	listing = get_posts(listing, v=v)
+
+	return render_template("admin/flagged_posts.html",
+						   next_exists=next_exists, listing=listing, page=page, v=v)
+
+
 @app.get("/admin/flagged/comments")
 @admin_level_required(3)
 def flagged_comments(v):
@@ -86,8 +84,7 @@ def flagged_comments(v):
 					   ).filter_by(
 		is_approved=0,
 		is_banned=False
-	).join(Comment.flags).options(contains_eager(Comment.flags)
-								  ).order_by(Comment.id.desc()).offset(25 * (page - 1)).limit(26).all()
+	).join(Comment.flags).order_by(Comment.id.desc()).offset(25 * (page - 1)).limit(26).all()
 
 	listing = [p.id for p in posts]
 	next_exists = (len(listing) == 26)
@@ -109,6 +106,58 @@ def admin_home(v):
 		x = f.read()
 		return render_template("admin/admin_home.html", v=v, x=x)
 
+@app.post("/admin/monthly")
+@limiter.limit("1/day")
+@admin_level_required(6)
+def monthly(v):
+	thing = g.db.query(AwardRelationship).order_by(AwardRelationship.id.desc()).first().id
+	_awards = []
+	for u in g.db.query(User).filter(User.patron > 0).all():
+		grant_awards = {}
+
+		if u.patron == 1:
+			grant_awards["shit"] = 1
+			grant_awards["gold"] = 1
+		elif u.patron == 2:
+			grant_awards["shit"] = 3
+			grant_awards["gold"] = 3
+		elif u.patron == 3:
+			grant_awards["shit"] = 5
+			grant_awards["gold"] = 5
+			grant_awards["ban"] = 1
+		elif u.patron == 4 or u.patron == 8:
+			grant_awards["shit"] = 10
+			grant_awards["gold"] = 10
+			grant_awards["ban"] = 3
+		elif u.patron == 5 or u.patron == 8:
+			grant_awards["shit"] = 10
+			grant_awards["gold"] = 10
+			grant_awards["ban"] = 6
+
+
+		for name in grant_awards:
+			for count in range(grant_awards[name]):
+
+				thing += 1
+
+				_awards.append(AwardRelationship(
+					id=thing,
+					user_id=u.id,
+					kind=name
+				))
+
+		text = "You were given the following awards:\n\n"
+
+		for key, value in grant_awards.items():
+			text += f" - **{value}** {AWARDS[key]['title']} {'Awards' if value != 1 else 'Award'}\n"
+
+		send_notification(NOTIFICATIONS_ACCOUNT, u, text)
+
+	g.db.bulk_save_objects(_awards)
+
+
+	return {"message": "Monthly awards granted"}
+
 
 @app.post("/admin/disablesignups")
 @admin_level_required(6)
@@ -125,7 +174,7 @@ def disablesignups(v):
 @admin_level_required(4)
 def badge_grant_get(v):
 
-	badge_types = g.db.query(BadgeDef).filter_by(kind=3).order_by(BadgeDef.rank).all()
+	badge_types = g.db.query(BadgeDef).filter_by(kind=3).all()
 
 	errors = {"already_owned": "That user already has that badge.",
 			  "no_user": "That user doesn't exist."
@@ -158,7 +207,6 @@ def badge_grant_post(v):
 
 	if user.has_badge(badge_id):
 		g.db.query(Badge).filter_by(badge_id=badge_id, user_id=user.id,).delete()
-		g.db.commit()
 		return redirect(user.url)
 	
 	new_badge = Badge(badge_id=badge_id,
@@ -172,33 +220,44 @@ def badge_grant_post(v):
 	if url: new_badge.url = url
 
 	g.db.add(new_badge)
-
-	g.db.commit()
-
+	g.db.flush()
+	
 	text = f"""
 	@{v.username} has given you the following profile badge:
 	\n\n![]({new_badge.path})
 	\n\n{new_badge.name}
 	"""
 
-	send_notification(1046, user, text)
+	send_notification(NOTIFICATIONS_ACCOUNT, user, text)
 
 	if badge_id in [21,22,23,24,28]:
 		user.patron = int(str(badge_id)[-1])
-		user.animatedname = True
 
 		grant_awards = {}
 
 		if badge_id == 21:
+			if user.discord_id: add_role(user, "1")
 			grant_awards["shit"] = 1
+			grant_awards["gold"] = 1
 		elif badge_id == 22:
+			if user.discord_id: add_role(user, "2")
 			grant_awards["shit"] = 3
+			grant_awards["gold"] = 3
 		elif badge_id == 23:
+			if user.discord_id: add_role(user, "3")
 			grant_awards["shit"] = 5
+			grant_awards["gold"] = 5
 			grant_awards["ban"] = 1
 		elif badge_id in [24, 28]:
+			if user.discord_id: add_role(user, "4")
 			grant_awards["shit"] = 10
+			grant_awards["gold"] = 10
 			grant_awards["ban"] = 3
+		elif badge_id == 25:
+			if user.discord_id: add_role(user, "5")
+			grant_awards["shit"] = 10
+			grant_awards["gold"] = 10
+			grant_awards["ban"] = 6
 
 		if len(grant_awards):
 
@@ -218,6 +277,14 @@ def badge_grant_post(v):
 					))
 
 			g.db.bulk_save_objects(_awards)
+
+			text = "You were given the following awards:\n\n"
+
+			for key, value in grant_awards.items():
+				text += f" - **{value}** {AWARDS[key]['title']} {'Awards' if value != 1 else 'Award'}\n"
+
+			send_notification(NOTIFICATIONS_ACCOUNT, user, text)
+
 
 		g.db.add(user)
 	
@@ -370,7 +437,6 @@ def admin_link_accounts(v):
 		)
 
 	g.db.add(new_alt)
-	g.db.commit()
 
 	return redirect(f"/admin/alt_votes?u1={g.db.query(User).get(u1).username}&u2={g.db.query(User).get(u2).username}")
 
@@ -463,7 +529,6 @@ def admin_image_ban(v):
 		)
 
 	g.db.add(new_bp)
-	g.db.commit()
 
 	return render_template("admin/image_ban.html", v=v, success=True)
 
@@ -505,10 +570,9 @@ def agendaposter(user_id, v):
 	)
 	g.db.add(ma)
 
-	if 'toast' in request.args:
-		return "", 204
-	else:
-		return redirect(user.url)
+	user.refresh_selfset_badges()
+
+	return (redirect(user.url), user)
 
 @app.post("/shadowban/<user_id>")
 @admin_level_required(6)
@@ -570,7 +634,7 @@ def admin_title_change(user_id, v):
 	new_name=request.form.get("title").strip()
 
 	user.customtitleplain=new_name
-	new_name = sanitize(new_name, linkgen=True)
+	new_name = sanitize(new_name)
 
 	user=g.db.query(User).with_for_update().options(lazyload('*')).filter_by(id=user.id).first()
 	user.customtitle=new_name
@@ -601,8 +665,8 @@ def ban_user(user_id, v):
 
 	# check for number of days for suspension
 	days = int(request.form.get("days")) if request.form.get('days') else 0
-	reason = request.form.get("reason", "")
-	message = request.form.get("reason", "")
+	reason = request.values.get("reason", "")
+	message = request.values.get("reason", "")
 
 	if not user: abort(400)
 
@@ -628,7 +692,7 @@ def ban_user(user_id, v):
 			if x.admin_level > 0: break
 			x.ban(admin=v, reason=reason)
 
-	send_notification(1046, user, text)
+	send_notification(NOTIFICATIONS_ACCOUNT, user, text)
 	
 	if days == 0: duration = "permanent"
 	elif days == 1: duration = "1 day"
@@ -640,11 +704,20 @@ def ban_user(user_id, v):
         note=f'reason: "{reason}", duration: {duration}'
 		)
 	g.db.add(ma)
-	g.db.commit()
 
-	if request.args.get("notoast"): return (redirect(user.url), user)
-
-	return {"message": f"@{user.username} was banned"}
+	if 'reason' in request.args:
+		if reason.startswith("/post/"):
+			post = reason.split("/post/")[1].split("/")[0]
+			post = get_post(post)
+			post.bannedfor = True
+			g.db.add(post)
+		elif reason.startswith("/comment/"):
+			comment = reason.split("/comment/")[1].split("/")[0]
+			comment = get_comment(comment)
+			comment.bannedfor = True
+			g.db.add(comment)
+		return {"message": f"@{user.username} was banned!"}
+	else: return redirect(user.url)
 
 
 @app.post("/unban_user/<user_id>")
@@ -664,7 +737,7 @@ def unban_user(user_id, v):
 			if x.admin_level == 0:
 				x.unban()
 
-	send_notification(1046, user,
+	send_notification(NOTIFICATIONS_ACCOUNT, user,
 					  "Your account has been reinstated. Please carefully review and abide by the [rules](/post/2510) to ensure that you don't get suspended again.")
 
 	ma=ModAction(
@@ -673,10 +746,11 @@ def unban_user(user_id, v):
 		target_user_id=user.id,
 		)
 	g.db.add(ma)
-	g.db.commit()
 
-	if request.args.get("notoast"): return (redirect(user.url), user)
-	return {"message": f"@{user.username} was unbanned"}
+	if 'reason' in request.args:
+		return {"message": f"@{user.username} was unbanned!"}
+	else:
+		return redirect(user.url)
 
 @app.post("/ban_post/<post_id>")
 @admin_level_required(3)
@@ -697,7 +771,7 @@ def ban_post(post_id, v):
 	ban_reason = ban_reason.replace("\n", "\n\n").replace("\n\n\n\n\n\n", "\n\n").replace("\n\n\n\n", "\n\n").replace("\n\n\n", "\n\n")
 	with CustomRenderer() as renderer:
 		ban_reason = renderer.render(mistletoe.Document(ban_reason))
-	ban_reason = sanitize(ban_reason, linkgen=True)
+	ban_reason = sanitize(ban_reason)
 
 	post.ban_reason = ban_reason
 
@@ -776,7 +850,6 @@ def api_sticky_post(post_id, v):
 	if post:
 		post.stickied = not (post.stickied)
 		g.db.add(post)
-		g.db.commit()
 		
 	cache.delete_memoized(frontlist)
 
@@ -852,7 +925,6 @@ def admin_distinguish_comment(c_id, v):
 	comment.distinguish_level = 0 if comment.distinguish_level else v.admin_level
 
 	g.db.add(comment)
-	g.db.commit()
 	html=render_template(
 				"comments.html",
 				v=v,
@@ -863,18 +935,6 @@ def admin_distinguish_comment(c_id, v):
 	html=str(BeautifulSoup(html, features="html.parser").find(id=f"comment-{comment.id}-only"))
 
 	return html
-
-@app.get("/admin/refund")
-@admin_level_required(6)
-def refund(v):
-	for u in g.db.query(User).all():
-		if u.id == 253: continue
-		posts=sum([x[0]+x[1]-1 for x in g.db.query(Submission.upvotes, Submission.downvotes).options(lazyload('*')).filter_by(author_id = u.id, is_banned = False, deleted_utc = 0).all()])
-		comments=sum([x[0]+x[1]-1 for x in g.db.query(Comment.upvotes, Comment.downvotes).options(lazyload('*')).filter_by(author_id = u.id, is_banned = False, deleted_utc = 0).all()])
-		u.coins = int(posts+comments)
-		g.db.add(u)
-	return "sex"
-
 
 @app.get("/admin/dump_cache")
 @admin_level_required(6)
@@ -970,7 +1030,6 @@ def admin_nunuke_user(v):
 	
 @app.get("/admin/user_stat_data")
 @admin_level_required(2)
-@cache.memoize(timeout=60)
 def user_stat_data(v):
 
 	days = int(request.args.get("days", 25))

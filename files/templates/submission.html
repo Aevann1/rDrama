@@ -9,7 +9,7 @@
 	{% endif %}
 </script>
 
-{% set title=p.title %}
+{% set title=p.realtitle(v) %}
 {% set ups=p.upvotes_fuzzed %}
 {% set downs=p.downvotes_fuzzed %}
 {% set score=ups-downs %}
@@ -26,7 +26,7 @@
 <meta property="og:type" content="article" />
 
 {% if comment_info and not comment_info.is_banned and not linked_comment.deleted_utc > 0 %}
-<title>{{'@'+comment_info.author.username}} comments on "{{title}} - {{"SITE_NAME" | app_config}}"</title>
+<title>{{'@'+comment_info.author.username}} comments on "{{p.title}} - {{'SITE_NAME' | app_config}}"</title>
 
 
 <meta property="og:article:author" content="{{'@'+comment_info.author.username}}" />
@@ -34,17 +34,17 @@
 {% if comment_info.edited_utc %}<meta property="article:modified_time" content="{{comment_info.edited_string}}" />{% endif %}
 <meta property="og:description" name="description" content="{{comment_info.body}}" />
 <meta property="og:author" name="author" content="{{'@'+comment_info.author.username}}" />
-<meta property="og:title" content="{{'@'+comment_info.author.username}} comments on {{title}} - {{"SITE_NAME" | app_config}}" />
-<meta property="og:image" content="{% if p.is_image %}{{p.realurl(v)}}{% elif p.has_thumb%}{{p.thumb_url}}{% else %}{{'/assets/images/preview.png' | full_link}}{% endif %}" />
+<meta property="og:title" content="{{'@'+comment_info.author.username}} comments on {{p.title}} - {{'SITE_NAME' | app_config}}" />
+<meta property="og:image" content="{% if p.is_image %}{{p.realurl(v)}}{% elif p.has_thumb%}{{p.thumb_url}}{% else %}{{'SITE_NAME' | app_config}}/assets/images/{{'SITE_NAME' | app_config}}/preview.gif{% endif %}" />
 <meta property="og:url" content="{{comment_info.permalink | full_link}}" />
 <meta property="og:site_name" content="{{request.host}}" />
 
 <meta name="twitter:card" content="summary" />
 <meta name="twitter:site" content="{{request.host_url}}">
-<meta name="twitter:title" content="{{'@'+comment_info.author.username}} comments on {{title}} - {{"SITE_NAME" | app_config}}" />
+<meta name="twitter:title" content="{{'@'+comment_info.author.username}} comments on {{p.title}} - {{'SITE_NAME' | app_config}}" />
 <meta name="twitter:creator" content="{{'@'+comment_info.author.username}}">
 <meta name="twitter:description" content="{{comment_info.body}}" />
-<meta name="twitter:image" content="{% if p.is_image %}{{p.realurl(v)}}{% elif p.has_thumb%}{{p.thumb_url}}{% else %}{{'/assets/images/preview.png' | full_link}}{% endif %}" />
+<meta name="twitter:image" content="{% if p.is_image %}{{p.realurl(v)}}{% elif p.has_thumb%}{{p.thumb_url}}{% else %}{{'SITE_NAME' | app_config}}/assets/images/{{'SITE_NAME' | app_config}}/preview.gif{% endif %}" />
 <meta name="twitter:url" content="{{p.permalink | full_link}}" />
 
 {% if linked_comment.author.is_private %}
@@ -52,25 +52,25 @@
 {% endif %}
 
 {% else %}
-<title>{{title | safe}} - {{"SITE_NAME" | app_config}}</title>
+<title>{{p.title}} - {{'SITE_NAME' | app_config}}</title>
 
 
 <meta property="og:article:author" content="{{'@'+p.author.username}}" />
 <meta property="article:published_time" content="{{p.created_iso}}" />
 {% if p.edited_utc %}<meta property="article:modified_time" content="{{p.edited_string}}" />{% endif %}
-<meta property="og:description" name="description" content="{{p.body}}" />
+<meta property="og:description" name="description" content="{{p.realbody(V)}}" />
 <meta property="og:author" name="author" content="{{'@'+p.author.username}}" />
-<meta property="og:title" content="{{title}} - {{"SITE_NAME" | app_config}}" />
-<meta property="og:image" content="{% if p.is_image %}{{p.realurl(v)}}{% elif p.has_thumb%}{{p.thumb_url}}{% else %}{{'/assets/images/preview.png' | full_link}}{% endif %}" />
+<meta property="og:title" content="{{p.title}} - {{'SITE_NAME' | app_config}}" />
+<meta property="og:image" content="{% if p.is_image %}{{p.realurl(v)}}{% elif p.has_thumb%}{{p.thumb_url}}{% else %}{{'SITE_NAME' | app_config}}/assets/images/{{'SITE_NAME' | app_config}}/preview.gif{% endif %}" />
 <meta property="og:url" content="{{p.permalink | full_link}}" />
 <meta property="og:site_name" content="{{request.host}}" />
 
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:site" content="{{request.host_url}}">
-<meta name="twitter:title" content="{{title}} - {{"SITE_NAME" | app_config}}" />
+<meta name="twitter:title" content="{{p.title}} - {{'SITE_NAME' | app_config}}" />
 <meta name="twitter:creator" content="{{'@'+p.author.username}}">
-<meta name="twitter:description" content="{{p.body}}" />
-<meta name="twitter:image" content="{% if p.is_image %}{{p.realurl(v)}}{% elif p.has_thumb %}{{p.thumb_url}}{% else %}{{'/assets/images/preview.png' | full_link}}{% endif %}" />
+<meta name="twitter:description" content="{{p.realbody(v)}}" />
+<meta name="twitter:image" content="{% if p.is_image %}{{p.realurl(v)}}{% elif p.has_thumb %}{{p.thumb_url}}{% else %}{{'SITE_NAME' | app_config}}/assets/images/{{'SITE_NAME' | app_config}}/preview.gif{% endif %}" />
 <meta name="twitter:url" content="{{p.permalink | full_link}}" />
 
 {% if p.author.is_private %}
@@ -95,75 +95,75 @@
 			</div>
 			<div class="modal-body">
 				<ul class="list-group post-actions">
-					<button class="btn btn-link btn-block btn-lg text-left text-muted" data-toggle="modal" data-dismiss="modal" data-target="#reportPostModal" onclick="report_postModal('{{p.id}}','{{'@'+p.author.username}}')" class="d-block"><i class="far fa-flag text-center text-muted mr-3"></i>Report</button>
+					<button class="nobackground btn btn-link btn-block btn-lg text-left text-muted" data-toggle="modal" data-dismiss="modal" data-target="#reportPostModal" onclick="report_postModal('{{p.id}}','{{'@'+p.author.username}}')" class="d-block"><i class="far fa-flag text-center text-muted mr-3"></i>Report</button>
 					{% if v and v.id==p.author_id %}
 						{% if p.private %}
-						<button class="btn btn-link btn-block btn-lg text-left text-muted"><a href="javascript:void(0)" onclick="post('/publish/{{p.id}}', function(){window.location.reload(true);})"><i class="fas fa-globe text-center text-muted mr-3"></i>Publish</a></button>
+						<button class="nobackground btn btn-link btn-block btn-lg text-left text-muted"><a href="javascript:void(0)" onclick="post('/publish/{{p.id}}', function(){window.location.reload(true);})"><i class="fas fa-globe text-center text-muted mr-3"></i>Publish</a></button>
 						{% endif %}
 
-						<button class="btn btn-link btn-block btn-lg text-left text-muted" data-dismiss="modal" onclick="togglePostEdit('{{p.id}}')"><i class="far fa-edit text-center text-muted mr-3"></i>Edit</button>
+						<button class="nobackground btn btn-link btn-block btn-lg text-left text-muted" data-dismiss="modal" onclick="togglePostEdit('{{p.id}}')"><i class="far fa-edit text-center text-muted mr-3"></i>Edit</button>
 
-						<button class="btn btn-link btn-block btn-lg text-muted text-left" id="pin-post-{{p.id}}" href="javascript:void(0)" onclick="post('/pin/{{p.id}}',callback=function(){window.location.reload(true);})"><i class="fas fa-thumbtack text-center mr-3"></i>{% if p.is_pinned %}Unpin from your profile{% else %}Pin to your profile{% endif %}</button>
+						<button class="nobackground btn btn-link btn-block btn-lg text-muted text-left" id="pin-post-{{p.id}}" href="javascript:void(0)" onclick="post('/pin/{{p.id}}',callback=function(){window.location.reload(true);})"><i class="fas fa-thumbtack text-center mr-3"></i>{% if p.is_pinned %}Unpin from your profile{% else %}Pin to your profile{% endif %}</button>
 
 						{% if p.deleted_utc > 0 %}
-							<button class="btn btn-link btn-block btn-lg text-left text-muted" href="javascript:void(0)" onclick="post('/undelete_post/{{p.id}}', function(){window.location.reload(true);})"><i class="far fa-trash-alt text-center text-muted mr-3"></i>Undelete</button>
+							<button class="nobackground btn btn-link btn-block btn-lg text-left text-muted" href="javascript:void(0)" onclick="post('/undelete_post/{{p.id}}', function(){window.location.reload(true);})"><i class="far fa-trash-alt text-center text-muted mr-3"></i>Undelete</button>
 						{% else %}
-							<button class="btn btn-link btn-block btn-lg text-left text-muted" data-toggle="modal" data-dismiss="modal" data-target="#deletePostModal" onclick="delete_postModal('{{p.id}}')"><i class="far fa-trash-alt text-center text-muted mr-3"></i>Delete</button>
+							<button class="nobackground btn btn-link btn-block btn-lg text-left text-muted" data-toggle="modal" data-dismiss="modal" data-target="#deletePostModal" onclick="delete_postModal('{{p.id}}')"><i class="far fa-trash-alt text-center text-muted mr-3"></i>Delete</button>
 						{% endif %}
 					{% endif %}
 
-					 <button class="btn btn-link btn-block btn-lg text-left text-muted"><a href="/votes?link={{p.fullname}}"><i class="fas fa-arrows-v text-center text-muted mr-3"></i>Votes</a></button>
+					<button class="nobackground btn btn-link btn-block btn-lg text-left text-muted"><a href="/votes?link={{p.fullname}}"><i class="fas fa-arrows-v text-center text-muted mr-3"></i>Votes</a></button>
 
 					{% if v and v.id!=p.author_id %}
-					  <button class="btn btn-link btn-block btn-lg text-left text-muted" data-toggle="modal" data-dismiss="modal" data-target="#awardModal" onclick="awardModal('/post/{{p.id}}/awards')"><i class="fas fa-gift text-center text-muted mr-3"></i>Give Award</button>
-					  <button class="btn btn-link btn-block btn-lg text-left text-muted" data-toggle="modal" data-dismiss="modal" data-target="#awardModal" onclick="awardModal('/post/{{p.id}}/awards')"><i class="fas fa-bolt text-center text-muted mr-3"></i>Use Item</button>
+					  <button class="nobackground btn btn-link btn-block btn-lg text-left text-muted" data-toggle="modal" data-dismiss="modal" data-target="#awardModal" onclick="awardModal('/post/{{p.id}}/awards')"><i class="fas fa-gift text-center text-muted mr-3"></i>Give Award</button>
+					  <button class="nobackground btn btn-link btn-block btn-lg text-left text-muted" data-toggle="modal" data-dismiss="modal" data-target="#awardModal" onclick="awardModal('/post/{{p.id}}/awards')"><i class="fas fa-bolt text-center text-muted mr-3"></i>Use Item</button>
 					{% endif %}
 
 					{% if v and p.id in v.subscribed_idlist() %}
-						<button class="btn btn-link btn-block btn-lg text-left text-muted"><a href="javascript:void(0)" onclick="post('/unsubscribe/{{p.id}}', function(){window.location.reload(true);})"><i class="fas fa-eye-slash text-center text-muted mr-3"></i>Unsubscribe</a></button>
+						<button class="nobackground btn btn-link btn-block btn-lg text-left text-muted"><a href="javascript:void(0)" onclick="post('/unsubscribe/{{p.id}}', function(){window.location.reload(true);})"><i class="fas fa-eye-slash text-center text-muted mr-3"></i>Unsubscribe</a></button>
 					{% elif v %}
-						<button class="btn btn-link btn-block btn-lg text-left text-muted"><a href="javascript:void(0)" onclick="post('/subscribe/{{p.id}}', function(){window.location.reload(true);})"><i class="fas fa-eye text-center text-muted mr-3"></i>Subscribe</a></button>
+						<button class="nobackground btn btn-link btn-block btn-lg text-left text-muted"><a href="javascript:void(0)" onclick="post('/subscribe/{{p.id}}', function(){window.location.reload(true);})"><i class="fas fa-eye text-center text-muted mr-3"></i>Subscribe</a></button>
 					{% endif %}
 
 					{% if v and p.id in v.saved_idlist() %}
-						<button class="btn btn-link btn-block btn-lg text-left text-muted"><a href="javascript:void(0)" onclick="post('/unsave_post/{{p.id}}', function(){window.location.reload(true);})"><i class="fas fa-save text-center text-muted mr-3"></i>Unsave</a></button>
+						<button class="nobackground btn btn-link btn-block btn-lg text-left text-muted"><a href="javascript:void(0)" onclick="post('/unsave_post/{{p.id}}', function(){window.location.reload(true);})"><i class="fas fa-save text-center text-muted mr-3"></i>Unsave</a></button>
 					{% elif v %}
-						<button class="btn btn-link btn-block btn-lg text-left text-muted"><a href="javascript:void(0)" onclick="post('/save_post/{{p.id}}', function(){window.location.reload(true);})"><i class="fas fa-save text-center text-muted mr-3"></i>Save</a></button>
+						<button class="nobackground btn btn-link btn-block btn-lg text-left text-muted"><a href="javascript:void(0)" onclick="post('/save_post/{{p.id}}', function(){window.location.reload(true);})"><i class="fas fa-save text-center text-muted mr-3"></i>Save</a></button>
 					{% endif %}
 
 					{% if v %}
 						{% if v.admin_level >=3 %}
-							<button class="btn btn-link btn-block btn-lg text-left" id="sticky-post-{{p.id}}" href="javascript:void(0)" onclick="post('/sticky/{{p.id}}',callback=function(){window.location.reload(true);})"><i class="fas fa-thumbtack text-center mr-3"></i>{% if p.stickied %}Unpin{% else %}Pin{% endif %}</button>
+							<button class="nobackground btn btn-link btn-block btn-lg text-left" id="sticky-post-{{p.id}}" href="javascript:void(0)" onclick="post('/sticky/{{p.id}}',callback=function(){window.location.reload(true);})"><i class="fas fa-thumbtack text-center mr-3"></i>{% if p.stickied %}Unpin{% else %}Pin{% endif %}</button>
 							{% if v==p.author %}
-							<button class="btn btn-link btn-block btn-lg text-left" id="distinguish-post-{{p.id}}" href="javascript:void(0)" onclick="post('/distinguish/{{p.id}}',callback=function(){window.location.reload(true);})"><i class="fas fa-crown text-center mr-3"></i>Distinguish</button>
+							<button class="nobackground btn btn-link btn-block btn-lg text-left" id="distinguish-post-{{p.id}}" href="javascript:void(0)" onclick="post('/distinguish/{{p.id}}',callback=function(){window.location.reload(true);})"><i class="fas fa-crown text-center mr-3"></i>Distinguish</button>
 							{% endif %}
 
-							<button class="btn btn-link btn-block btn-lg text-success text-left" id="moderate-post-{{p.id}}" href="javascript:void(0)" onclick="post('/unban_post/{{p.id}}',callback=function(){window.location.reload(true);})"><i class="far fa-check text-center mr-3"></i>Approve</button>
-							<button class="btn btn-link btn-block btn-lg text-danger text-left" id="moderate-post-{{p.id}}" href="javascript:void(0)" onclick="post('/ban_post/{{p.id}}',callback=function(){window.location.reload(true);})"><i class="far fa-ban text-center mr-3"></i>Remove</button>
+							<button class="nobackground btn btn-link btn-block btn-lg text-success text-left" id="moderate-post-{{p.id}}" href="javascript:void(0)" onclick="post('/unban_post/{{p.id}}',callback=function(){window.location.reload(true);})"><i class="far fa-check text-center mr-3"></i>Approve</button>
+							<button class="nobackground btn btn-link btn-block btn-lg text-danger text-left" id="moderate-post-{{p.id}}" href="javascript:void(0)" onclick="post('/ban_post/{{p.id}}',callback=function(){window.location.reload(true);})"><i class="far fa-ban text-center mr-3"></i>Remove</button>
 						{% endif %}
 
 						{% if v.admin_level >=4 and p.oauth_app %}
-							<button class="btn btn-link btn-block btn-lg text-muted text-left"	href="{{p.oauth_app.permalink}}"><a href="{{p.oauth_app.permalink}}"><i class="far fa-code text-center text-info mr-3"></i>API App</a></button>
+							<button class="nobackground btn btn-link btn-block btn-lg text-muted text-left"	href="{{p.oauth_app.permalink}}"><a href="{{p.oauth_app.permalink}}"><i class="far fa-code text-center text-info mr-3"></i>API App</a></button>
 						{% endif %}
 
 					{% endif %}
 
 					{% if v and v.id != p.author_id and v.admin_level == 0 %}
-						<button id="block-user-button-{{p.id}}" class="btn btn-link btn-block btn-lg text-muted text-left{% if p.is_blocking %} d-none{% endif %}" data-dismiss="modal" onclick="post_toast('/settings/block?username={{p.author.username}}', callback=function(){document.getElementById('block-user-button-{{p.id}}').classList.toggle('d-none');document.getElementById('unblock-user-button-{{p.id}}').classList.toggle('d-none');})"
+						<button id="block-user-button-{{p.id}}" class="nobackground btn btn-link btn-block btn-lg text-muted text-left{% if p.is_blocking %} d-none{% endif %}" data-dismiss="modal" onclick="post_toast('/settings/block?username={{p.author.username}}', callback=function(){document.getElementById('block-user-button-{{p.id}}').classList.toggle('d-none');document.getElementById('unblock-user-button-{{p.id}}').classList.toggle('d-none');})"
 						><i class="fas fa-eye-slash mr-3"></i>Block user</button>
-						<button id="unblock-user-button-{{p.id}}" class="btn btn-link btn-block btn-lg text-muted text-left{% if not p.is_blocking %} d-none{% endif %}" data-dismiss="modal" onclick="post_toast('/settings/unblock?username={{p.author.username}}', callback=function(){document.getElementById('block-user-button-{{p.id}}').classList.toggle('d-none');document.getElementById('unblock-user-button-{{p.id}}').classList.toggle('d-none');})"
+						<button id="unblock-user-button-{{p.id}}" class="nobackground btn btn-link btn-block btn-lg text-muted text-left{% if not p.is_blocking %} d-none{% endif %}" data-dismiss="modal" onclick="post_toast('/settings/unblock?username={{p.author.username}}', callback=function(){document.getElementById('block-user-button-{{p.id}}').classList.toggle('d-none');document.getElementById('unblock-user-button-{{p.id}}').classList.toggle('d-none');})"
 						><i class="fas fa-eye mr-3"></i>Unblock user</button>
 					{% endif %}
 
 					{% if v and (v.id==p.author_id or v.admin_level>=3) %}
-						<button class="btn btn-link btn-block btn-lg text-left text-danger" onclick="post('/toggle_post_nsfw/{{p.id}}', function(){window.location.reload(true);})"><i class="far fa-eye-evil text-center text-danger mr-3"></i>Toggle +18</button>
+						<button class="nobackground btn btn-link btn-block btn-lg text-left text-danger" onclick="post('/toggle_post_nsfw/{{p.id}}', function(){window.location.reload(true);})"><i class="far fa-eye-evil text-center text-danger mr-3"></i>Toggle +18</button>
 					{% endif %}
 
 					{% if v and v.admin_level == 6 and v.id!=p.author_id %}
-						{% if p.author.is_banned %}
-							<button class="btn btn-link btn-block btn-lg text-success text-left" href="javascript:void(0)" onclick="post_toast('/unban_user/{{p.author_id}}?toast=1')"><i class="fas fa-user-minus mr-3"></i>Unban user</a></button>
+						{% if p.author.is_suspended %}
+							<button class="nobackground btn btn-link btn-block btn-lg text-success text-left" href="javascript:void(0)" onclick="post_toast('/unban_user/{{p.author_id}}?toast=1')"><i class="fas fa-user-minus mr-3"></i>Unban user</a></button>
 						{% else %}
-							<button class="btn btn-link btn-block btn-lg text-danger text-left" href="javascript:void(0)" onclick="post_toast('/ban_user/{{p.author_id}}?toast=1')"><i class="fas fa-user-minus mr-3"></i>Ban user</a></button>
+							<button class="nobackground btn btn-link btn-block btn-lg text-danger text-left" href="javascript:void(0)" onclick="post_toast('/ban_user/{{p.author_id}}?toast=1')"><i class="fas fa-user-minus mr-3"></i>Ban user</a></button>
 						{% endif %}
 					{% endif %}
 
@@ -176,74 +176,122 @@
 
 {% block content %}
 
-{% if p.has_award("shit") %}
+{% if p.award_count("shit") %}
 <script src="/assets/js/bug-min.js" type="text/javascript"></script>
+{% set minbugs = 10*p.award_count("shit") if p.award_count("shit") <= 5 else 50 %}
+{% set maxbugs = 20*p.award_count("shit") if p.award_count("shit") <= 5 else 100 %}
 <script type="text/javascript">
 	new BugController({
-		imageSprite: "/assets/images/fly-sprite.png",
+		imageSprite: "/assets/images/fly-sprite.gif",
 		canDie: false,
-		minBugs: 10,
-		maxBugs: 20,
+		minBugs: {{minbugs}},
+		maxBugs: {{maxbugs}},
 		mouseOver: "multiply"
+	});
+</script>
+{% endif %}
+
+<script src="/assets/js/sparkle.min.js" type="text/javascript"></script>
+
+{% if p.award_count("gold") %}
+{% set sparkles = 10*p.award_count("gold") if p.award_count("gold") <= 5 else 50 %}
+<style>
+	#post-content {
+		z-index: 50;
+	}
+</style>
+<script>
+	document.querySelector("#post-content").sparkle({
+		count: {{ sparkles }},
+		minAge: 500,
+		maxAge: 1000,
+		position: "afterend",
+		starsource: `
+		<svg
+		  width="100%"
+		  height="100%"
+		  viewBox="0 0 15 15"
+		  version="1.1"
+		  xmlns="http://www.w3.org/2000/svg" x
+		  mlns:xlink="http://www.w3.org/1999/xlink"
+		  xml:space="preserve"
+		  xmlns:serif="http://www.serif.com/"
+		  style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+			<path d="M1.125,4.95l4.462,0l1.913,-3.825l0.637,3.825l5.738,0l-4.463,3.188l0.638,5.737l-3.187,-3.825l-4.463,3.825l1.913,-5.737l-3.188,-3.188Z"
+			style="fill:#aaad00;">
+			</path>
+		  </svg>`,
 	});
 </script>
 {% endif %}
 
 <div class="row mb-3">
 
-	<div class="col-12">
+	<div id="post-root" class="col-12">
 
 		<div id="post-{{p.id}}" class="card border-0 mt-3{% if p.is_banned %} banned{% endif %}{% if p.stickied %} stickied{% endif %}{% if voted==1 %} upvoted{% elif voted==-1 %} downvoted{% endif %}">
 			<div class="{% if p.deleted_utc > 0 %}deleted {% endif %}d-flex flex-row-reverse flex-nowrap justify-content-end">
 
 				{% if p.thumb_url and not p.embed_url %}
 				<div class="card-header bg-transparent border-0 d-none d-md-flex flex-row flex-nowrap pl-3 p-0">
-					<a rel="noopener noreferrer" href="{{p.realurl(v)}}" style="height: fit-content;" {% if v and v.newtabexternal %}target="_blank"{% endif %} rel="nofollow"{% if p.is_image %} data-toggle="modal" data-target="#expandImageModal" onclick="expandDesktopImage('{{p.realurl(v)}}','{{p.realurl(v)}}')"{% endif %}><img src="{{p.thumb_url}}" class="post-img d-none d-md-block" alt="Unable to load image"></a>
+					<a rel="noopener noreferrer" href="{{p.realurl(v)}}" style="height: fit-content;" {% if not v or v.newtabexternal %}target="_blank"{% endif %} rel="nofollow"{% if p.is_image %} data-toggle="modal" data-target="#expandImageModal" onclick="expandDesktopImage('{{p.realurl(v)}}','{{p.realurl(v)}}')"{% endif %}><img src="{{p.thumb_url}}" class="post-img d-none d-md-block" alt="Unable to load image"></a>
 
 				</div>
 				{% endif %}
 
-				<div class="{% if p.deleted_utc > 0 %}deleted {% endif %}card-block w-100 my-md-auto">
+				<div id="post-content" class="{% if p.deleted_utc > 0 %}deleted {% endif %}card-block w-100 my-md-auto">
 
 					<div class="post-meta text-left mb-2">
+						{% if p.bannedfor %}
+							<a href="javascript:void(0)"><i class="fad fa-gavel text-danger" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="User was banned for this post by @{{p.author.banned_by.username}}"></i></a>
+						{% endif %}
+
 						{% if p.awards %}
 							{% for a in p.awards[:5] %}
 								<i class="{{a.class_list}} px-1" data-toggle="tooltip" data-placement="bottom" title="{{a.title}} Award given by @{{a.user.username}}"></i>
 							{% endfor %}
 						{% endif %}
-						{% if v and v.admin_level==6 and p.author.shadowbanned %}<i class="fas fa-user-times text-admin" data-toggle="tooltip" data-placement="bottom" title="Shadowbanned user"></i>&nbsp;{% endif %}
-						{% if p.stickied %}<i class="fas fa-thumbtack fa-fw text-admin fa-rotate--45" data-toggle="tooltip" data-placement="bottom" title="Pinned post"></i>&nbsp;{% endif %}
-						{% if p.is_pinned %}<i class="fas fa-thumbtack fa-fw text-admin fa-rotate--45" data-toggle="tooltip" data-placement="bottom" title="Pinned to profile"></i>&nbsp;{% endif %}
-						{% if p.distinguish_level %} <i class="fas fa-broom text-admin" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="{{"SITE_NAME" | app_config}} Badmin, speaking officially"></i>&nbsp;{% endif %}
+						{% if v and v.admin_level==6 and p.author.shadowbanned %}<i class="fas fa-user-times text-admin" data-toggle="tooltip" data-placement="bottom" title="Shadowbanned user"></i>{% endif %}
+						{% if p.stickied %}<i class="fas fa-thumbtack fa-fw text-admin fa-rotate--45" data-toggle="tooltip" data-placement="bottom" title="Pinned post"></i>{% endif %}
+						{% if p.is_pinned %}<i class="fas fa-thumbtack fa-fw text-admin fa-rotate--45" data-toggle="tooltip" data-placement="bottom" title="Pinned to profile"></i>{% endif %}
+						{% if p.distinguish_level %} <i class="fas fa-broom text-admin" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="{{'SITE_NAME' | app_config}} Admin, speaking officially"></i>{% endif %}
 						{% if p.is_bot %} <i class="fad fa-robot text-info" data-toggle="tooltip" data-placement="bottom"	data-original-title="Bot"></i>{% endif %}
-						&nbsp;
 						{% if p.over_18 %}<span class="badge badge-danger text-small-extra mr-1">+18</span>{% endif %}
-						{% if p.private %}<span class="badge border-warning border-1 text-small-extra">unlisted</span>{% endif %}
+						{% if p.private %}<span class="badge border-warning border-1 text-small-extra">Draft</span>{% endif %}
 						{% if p.active_flags %}<a class="btn btn-primary" href="javascript:void(0)" style="padding:1px 5px; font-size:10px;" onclick="document.getElementById('flaggers').classList.toggle('d-none')">{{p.active_flags}} Reports</a>{% endif %}
-						&nbsp;<a {% if p.author.animatedname %}class="{% if p.author.patron %}patron{% else %}leaderboard{% endif %}"{% endif %} href="{{p.author.url}}" style="color: #{{p.author.namecolor}}; font-weight: bold;" class="user-name">&nbsp;&nbsp;<img src="{{p.author.profile_url}}" class="profile-pic-25 mr-2"/>{{p.author.username}}</a>{% if p.author.customtitle %}&nbsp;<bdi style="color: #{{p.author.titlecolor}}">&nbsp;{{p.author.customtitle | safe}}</bdi>{% endif %}
+						{% if p.author.verified %}<i class="fas fa-badge-check align-middle ml-1" style="color:#1DA1F2" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Verified"></i>
+						{% endif %}
+						<a {% if v %}href="{{p.author.url}}"{% else %}href="/logged_out{{p.author.url}}"{% endif %} style="color: #{{p.author.namecolor}};  font-weight: bold;" class="user-name"><img src="{{p.author.profile_url}}" class="profile-pic-25 mr-2"/><span {% if p.author.patron %}class="patron" style="background-color:#{{p.author.namecolor}};"{% endif %}>{{p.author.username}}</span></a>{% if p.author.customtitle %}&nbsp;<bdi style="color: #{{p.author.titlecolor}}">&nbsp;{{p.author.customtitle | safe}}</bdi>{% endif %}
 						<span data-toggle="tooltip" data-placement="bottom" id="timestamp" title="">&nbsp;{{p.age_string}}</span>
-						({% if p.realurl(v) %}<a href="/search/posts/?q=domain%3A{{p.domain}}&sort=new&t=all" {% if v and v.newtabexternal %}target="_blank"{% endif %}>{{p.domain}}</a>{% else %}text post{% endif %})
+						({% if p.realurl(v) %}<a href="/search/posts/?q=domain%3A{{p.domain}}&sort=new&t=all" {% if not v or v.newtabexternal %}target="_blank"{% endif %}>{{p.domain}}</a>{% else %}text post{% endif %})
 						
 						
 						{% if p.edited_utc %}&nbsp;&nbsp;Edited <span data-toggle="tooltip" data-placement="bottom" id="edited_timestamp" title="">{{p.edited_string}}</span>{% endif %}
 						&nbsp;&nbsp;{{p.views}} views
 					</div>
 					
+					{% if p.active_flags %}
+					<div id="flaggers" class="flaggers d-none">
+						<strong><i class="far fa-fw fa-flag"></i> Reported by:</strong>
+						<pre></pre>
+						<ul style="padding-left:20px; margin-bottom: 0;">
+							{% for f in p.ordered_flags %}
+								<li><a style="font-weight:bold" href="{{f.user.url}}">{{f.user.username}}</a>{% if f.reason %}: {{f.reason | safe}}{% endif %} {% if v.admin_level==6 %}<a href="javascript:void(0)" onclick="post_toast('/del_report/p{{ f.id }}')">[remove]</a>{% endif %}</li>
+							{% endfor %}
+						</ul>
+					</div>
+					{% endif %}
+
 					{% if p.realurl(v) %}
-						<h1 id="post-title" class="card-title post-title text-left mb-md-3"><a {% if v and v.newtabexternal %}target="_blank"{% endif %} rel="noopener noreferrer" href="{{p.realurl(v)}}" rel="nofollow noopener">{{p.realtitle(v) | safe}}</a></h1>					
+						<h1 id="post-title" class="card-title post-title text-left mb-md-3"><a {% if not v or v.newtabexternal %}target="_blank"{% endif %} rel="noopener noreferrer" href="{{p.realurl(v)}}" rel="nofollow noopener">{{title | safe}}</a></h1>
 					{% else %}
-						<h1 id="post-title" class="card-title post-title text-left mb-md-3">{{p.realtitle(v) | safe}}</h1>
+						<h1 id="post-title" class="card-title post-title text-left mb-md-3">{{title | safe}}</h1>
 					{% endif %}
 
 					<div id="post-body" class="post-body mt-3">
 						{% if p.realurl(v) %}
 							{% if "streamable.com/" in p.realurl(v) %}
-								{% if "streamable.com/e/" in p.realurl(v) %}
-									{% set streamurl=p.realurl(v) %}
-								{% else %}
-									{% set streamurl=p.realurl(v).replace("streamable.com/", "streamable.com/e/") %}
-								{% endif %}
-								<div style="width: 100%; height: 0px; position: relative; padding-bottom: 56.250%;"><iframe src="{{streamurl}}" frameborder="0" width="100%" height="100%" allowfullscreen="" style="width: 100%; height: 100%; position: absolute;"></iframe></div>
+								<div style="width: 100%; height: 0px; position: relative; padding-bottom: 56.250%;"><iframe src="{{p.realurl(v)}}" frameborder="0" width="100%" height="100%" allowfullscreen="" style="width: 100%; height: 100%; position: absolute;"></iframe></div>
 								<pre></pre>
 								
 							{% elif "spotify.com/" in p.realurl(v) %}
@@ -256,7 +304,7 @@
 								<pre></pre>
 
 							{% elif not p.embed_url and not p.is_image %}
-							<a rel="noopener noreferrer" href="{{p.realurl(v)}}" {% if v and v.newtabexternal %}target="_blank"{% endif %}>
+							<a rel="noopener noreferrer" href="{{p.realurl(v)}}" {% if not v or v.newtabexternal %}target="_blank"{% endif %}>
 								<div class="d-flex d-md-none justify-content-between align-items-center border rounded p-2{% if p.realbody(v) %} mb-3{% endif %}">
 									<span>{{p.domain|truncate(30, True)}}</span>
 									<i class="fas fa-external-link-alt text-small"></i>
@@ -265,7 +313,9 @@
 							{% endif %}
 						{% endif %}
 
-						{{p.realbody(v) | safe}}
+						<div id="post-text" style="z-index: 50">
+							{{p.realbody(v) | safe}}
+						</div>
 
 						{% if p.domain == "twitter.com" and (v and v.theme.split("_")[0] in ["light", "coffee", "4chan"]) %}
 							{% include "embeds/twitterlight.html" %}
@@ -273,18 +323,16 @@
 							{% include "embeds/twitter.html" %}
 						{% elif "youtu" in p.domain %}
 							{% include "embeds/youtube.html" %}
-						{% elif "instagram.com" in p.domain %}
-							{% include "embeds/instagram.html" %}
 						{% endif %}
 
 					</div>
 
-					{% if v and v.id==p.author_id and not v.is_banned %}
+					{% if v and v.id==p.author_id and not v.is_suspended %}
 					<div id="edit-post-body-{{p.id}}" class="d-none comment-write collapsed child">
 						<form id="post-edit-form-{{p.id}}" class="d-flex flex-column" action="/edit_post/{{p.id}}" method="post" class="input-group">
 							<input type="hidden" name="formkey" value="{{v.formkey}}">
 							<input type="hidden" name="current_page" value="{{request.path}}">
-                            <input name="title" required placeholder="title" value="{{title}}" />
+							<input name="title" required placeholder="title" value="{{p.title}}" />
 							<textarea name="body" id="post-edit-box-{{p.id}}" form="post-edit-form-{{p.id}}" class="comment-box form-control rounded" aria-label="With textarea" placeholder="Add text to your post..." rows="10">{{p.body}}</textarea> 
 							<div class="comment-format"> 
 								<small class="format pl-0"><i class="fas fa-bold" aria-hidden="true" onclick="makeBold('post-edit-box-{{p.id}}')" data-toggle="tooltip" data-placement="bottom" title="Bold"></i></small> 
@@ -298,15 +346,27 @@
 							</div>
 							{% endif %}
 
+							{% if p.embed_url and "http" not in p.embed_url %}
+							<div id="crosspost-embed">
+							<div class="row no-gutters">
+								<div id="frontpage" class="col-12 pt-0">
+								<div class="posts" id="posts">
+									{{ p.embed_url | post_embed(v) | safe }}
+								</div>
+								</div>
+							</div>
+							</div>
+							{% endif %}
+
 							<div class="d-none d-md-flex justify-content-between align-items-center mt-2">
 								<div class="post-actions mt-2">
 				<ul class="list-inline text-right d-flex">
 
-						<li class="list-inline-item"><a href="{{p.permalink}}"><i class="fas fa-comment-dots"></i>{{p.comment_count}}</a></li>
+						<li class="list-inline-item"><a {% if v %}href="{{p.permalink}}"{% else %}href="/logged_out{{p.permalink}}"{% endif %}><i class="fas fa-comment-dots"></i>{{p.comment_count}}</a></li>
 
 						{% if v and v.id==p.author_id %}
 							{% if p.private %}
-								<li class="list-inline-item"><a href="javascript:void(0)" onclick="post('/publish/{{p.id}}', function(){window.location.reload(true);})"><i class="fas fa-globe"></i>Publish</a></li>
+								<li class="list-inline-item"><a href="javascript:void(0)" onclick="post_toast('/publish/{{p.id}}')"><i class="fas fa-globe"></i>Publish</a></li>
 							{% endif %}
 							<li class="list-inline-item"><a href="javascript:void(0)" onclick="togglePostEdit('{{p.id}}')"><i class="fas fa-edit"></i>Edit</a></li>
 						{% endif %}
@@ -318,48 +378,48 @@
 							<li class="list-inline-item text-muted d-none d-md-inline-block"><a href="javascript:void(0)" data-toggle="modal" data-target="#awardModal" onclick="awardModal('/post/{{p.id}}/awards')"><i class="fas fa-bolt fa-fw"></i>Use Item</a></li>
 						{% endif %}
 
-						<li class="list-inline-item"><a href="javascript:void(0);" role="button" class="copy-link" data-clipboard-text="{{p.permalink | full_link}}"><i class="fas fa-copy"></i>Copy link</a></li>
+						<li class="list-inline-item"><a href="javascript:void(0);" role="button" class="copy-link" data-clipboard-text="http://drama2.github.io/?p={{p.id}}"><i class="fas fa-copy"></i>Copy link</a></li>
 
 						{% if v and not (v.admin_level == 6 and v.id == p.author_id) %}
 							{% if p.id in v.subscribed_idlist() %}
-								<li class="list-inline-item"><a href="javascript:void(0)" onclick="post('/unsubscribe/{{p.id}}', function(){window.location.reload(true);})"><i class="fas fa-eye-slash"></i>Unsubscribe</a></li>
+								<li class="list-inline-item"><a href="javascript:void(0)" onclick="post_toast('/unsubscribe/{{p.id}}')"><i class="fas fa-eye-slash"></i>Unsubscribe</a></li>
 							{% else %}
-								<li class="list-inline-item"><a href="javascript:void(0)" onclick="post('/subscribe/{{p.id}}', function(){window.location.reload(true);})"><i class="fas fa-eye"></i>Subscribe</a></li>
+								<li class="list-inline-item"><a href="javascript:void(0)" onclick="post_toast('/subscribe/{{p.id}}')"><i class="fas fa-eye"></i>Subscribe</a></li>
 							{% endif %}
 						{% endif %}
 
 						{% if v and p.id in v.saved_idlist() %}
-							<li class="list-inline-item"><a href="javascript:void(0)" onclick="post('/unsave_post/{{p.id}}', function(){window.location.reload(true);})"><i class="fas fa-save"></i>Unsave</a></li>
+							<li class="list-inline-item"><a href="javascript:void(0)" onclick="post_toast('/unsave_post/{{p.id}}')"><i class="fas fa-save"></i>Unsave</a></li>
 						{% elif v %}
-							<li class="list-inline-item"><a href="javascript:void(0)" onclick="post('/save_post/{{p.id}}', function(){window.location.reload(true);})"><i class="fas fa-save"></i>Save</a></li>
+							<li class="list-inline-item"><a href="javascript:void(0)" onclick="post_toast('/save_post/{{p.id}}')"><i class="fas fa-save"></i>Save</a></li>
 						{% endif %}
 
 						<li class="list-inline-item"><a href="javascript:void(0)" data-toggle="modal" data-dismiss="modal" data-target="#reportPostModal" onclick="report_postModal('{{p.id}}', '{{p.author.username}}')"><i class="fas fa-flag"></i>Report</a></li>
 
 						{% if v and v.id==p.author_id %}
-							<li class="list-inline-item"><a class="text-muted" href="javascript:void(0)" onclick="post('/pin/{{p.id}}', function(){window.location.reload(true);})"><i class="fas fa-thumbtack"></i>{% if p.is_pinned %}Unpin from your profile{% else %}Pin to your profile{% endif %}</a></li>
+							<li class="list-inline-item"><a class="text-muted" href="javascript:void(0)" onclick="post_toast('/pin/{{p.id}}')"><i class="fas fa-thumbtack"></i>{% if p.is_pinned %}Unpin from your profile{% else %}Pin to your profile{% endif %}</a></li>
 							{% if p.deleted_utc > 0 %}
-								<li class="list-inline-item"><a href="javascript:void(0)" onclick="post('/undelete_post/{{p.id}}', function(){window.location.reload(true);})"><i class="fas fa-trash-alt"></i>Undelete</a></li>
+								<li class="list-inline-item"><a href="javascript:void(0)" onclick="post_toast('/undelete_post/{{p.id}}')"><i class="fas fa-trash-alt"></i>Undelete</a></li>
 							{% else %}
 								<li class="list-inline-item"><a href="javascript:void(0)" data-toggle="modal" data-dismiss="modal" data-target="#deletePostModal" onclick="delete_postModal('{{p.id}}')"><i class="fas fa-trash-alt"></i>Delete</a></li>
 							{% endif %}
 						{% endif %}
 						
 						{% if v and v.admin_level>=3 %}
-							<li class="list-inline-item"><a class="text-info" href="javascript:void(0)" onclick="post('/sticky/{{p.id}}', function(){window.location.reload(true);})"><i class="fas fa-thumbtack"></i>{% if p.stickied %}Unpin{% else %}Pin{% endif %}</a></li>
+							<li class="list-inline-item"><a class="text-info" href="javascript:void(0)" onclick="post_toast('/sticky/{{p.id}}')"><i class="fas fa-thumbtack"></i>{% if p.stickied %}Unpin{% else %}Pin{% endif %}</a></li>
 							{% if v==p.author %}
-								<li class="list-inline-item"><a class="text-info" href="javascript:void(0)" onclick="post('/distinguish/{{p.id}}', function(){window.location.reload(true);})"><i class="fas fa-crown"></i>Distinguish</a></li>
+								<li class="list-inline-item"><a class="text-info" href="javascript:void(0)" onclick="post_toast('/distinguish/{{p.id}}')"><i class="fas fa-crown"></i>Distinguish</a></li>
 							{% endif %}
 						{% endif %}
 
 						{% if v %}
 							{% if v.admin_level >=3 %}
-								<li class="list-inline-item"><a class="text-success" href="javascript:void(0)" onclick="post('/unban_post/{{p.id}}',callback=function(){window.location.reload(true);})"><i class="fas fa-check"></i>Approve</a></li>
-								<li class="list-inline-item"><a class="text-danger" href="javascript:void(0)" onclick="post('/ban_post/{{p.id}}',callback=function(){window.location.reload(true);})"><i class="fas fa-ban"></i>Remove</a></li>
+								<li class="list-inline-item"><a class="text-success" href="javascript:void(0)" onclick="post_toast('/unban_post/{{p.id}}')"><i class="fas fa-check"></i>Approve</a></li>
+								<li class="list-inline-item"><a class="text-danger" href="javascript:void(0)" onclick="post_toast('/ban_post/{{p.id}}')"><i class="fas fa-ban"></i>Remove</a></li>
 							{% endif %}
 
 							{% if v.id == p.author_id or v.admin_level >= 3 %}
-								<li class="list-inline-item"><a class="text-danger" href="javascript:void(0)" onclick="post('/toggle_post_nsfw/{{p.id}}', function(){window.location.reload(true);})"><i class="fas fa-eye-evil"></i>Toggle +18</a></li>
+								<li class="list-inline-item"><a class="text-danger" href="javascript:void(0)" onclick="post_toast('/toggle_post_nsfw/{{p.id}}')"><i class="fas fa-eye-evil"></i>Toggle +18</a></li>
 							{% endif %}
 
 							{% if v.admin_level >= 4 and p.oauth_app %}
@@ -381,11 +441,11 @@
 							{% endif %}
 
 							{% if v.admin_level >=3 and v.id!=p.author_id %}
-								{% if p.author.is_banned %}
+								{% if p.author.is_suspended %}
 									<li class="list-inline-item"><a class="text-success" href="javascript:void(0)" onclick="post_toast('/unban_user/{{p.author_id}}')"
 									><i class="fas fa-user-slash text-success"></i>Unban user</a></li>
 								{% else %}
-									<li class="list-inline-item "><a class="text-danger" href="javascript:void(0)" onclick="post_toast('/ban_user/{{p.author_id}}')"
+									<li class="list-inline-item "><a class="text-danger" href="javascript:void(0)" onclick="post_toast('/ban_user/{{p.author_id}}/?reason={{p.permalink}}')"
 									><i class="fas fa-user-slash text-danger"></i>Ban user</a></li>
 								{% endif %}
 							{% endif %}
@@ -432,12 +492,12 @@
 
 		<div class="row no-gutters d-block d-md-none">
 			<div class="col">
-			 <a {% if v and v.newtabexternal %}target="_blank"{% endif %} rel="noopener noreferrer" href="{{p.realurl(v)}}">{% if p.is_image %}<img src="{{p.realurl(v)}}" class="img-fluid" alt="Unable to anonymously load image">
-				 <div class="post-img-overlay d-block d-md-none">{{p.domain}}<i class="fas fa-external-link-alt text-small ml-2"></i></div>
-				 {% endif %}
-			 </a>
-		 </div>
-	 </div>
+			<a {% if not v or v.newtabexternal %}target="_blank"{% endif %} rel="noopener noreferrer" href="{{p.realurl(v)}}">{% if p.is_image %}<img src="{{p.realurl(v)}}" class="img-fluid" alt="Unable to anonymously load image">
+				<div class="post-img-overlay d-block d-md-none">{{p.domain}}<i class="fas fa-external-link-alt text-small ml-2"></i></div>
+				{% endif %}
+			</a>
+		</div>
+	</div>
 
  </div>
 
@@ -447,9 +507,9 @@
 		<div class="post-actions">
 			<ul class="list-inline text-right d-flex">
 
-				<li class="list-inline-item mr-auto"><a href="{{p.permalink}}"><i class="fas fa-comment-dots"></i>{{p.comment_count}}</a></li>
+				<li class="list-inline-item mr-auto"><a {% if v %}href="{{p.permalink}}"{% else %}href="/logged_out{{p.permalink}}"{% endif %}><i class="fas fa-comment-dots"></i>{{p.comment_count}}</a></li>
 
-				<li class="list-inline-item"><a href="javascript:void(0);" role="button" class="copy-link" data-clipboard-text="{{p.permalink | full_link}}"><i class="fas fa-link"></i>Share</a></li>
+				<li class="list-inline-item"><a href="javascript:void(0);" role="button" class="copy-link" data-clipboard-text="http://drama2.github.io/?p={{p.id}}"><i class="fas fa-link"></i>Copy link</a></li>
 				{% if v %}
 				<li class="list-inline-item">
 					<a href="#" data-toggle="modal" data-target="#actionsModal">
@@ -485,18 +545,6 @@
 
 </div>
 
-{% if p.active_flags %}
-    <div id="flaggers" class="flaggers d-none">
-        <strong><i class="far fa-fw fa-flag"></i> Reported by:</strong>
-		<pre></pre>
-        <ul style="padding-left:20px; margin-bottom: 0;">
-            {% for f in p.ordered_flags %}
-            	<li><a style="font-weight:bold" href="{{f.user.url}}">@{{f.user.username}}</a>{% if f.reason %}: {{f.reason}}{% endif %}</li>
-            {% endfor %}
-        </ul>
-    </div>
-{% endif %}
-
 <div class="row border-md-0 comment-section pb-3">
 	<div class="col border-top">
 		<div class="comments-count py-3">
@@ -519,7 +567,7 @@
 				</div>
 				{% if linked_comment and p.comment_count >= 2%}
 					<pre></pre>
-					<div class="total"><a href="{{p.permalink}}">View entire discussion</a></div>
+					<div class="total"><a {% if v %}href="{{p.permalink}}"{% else %}href="/logged_out{{p.permalink}}"{% endif %}>View entire discussion</a></div>
 				{% endif %}
 			</div>
 		</div>
@@ -580,9 +628,9 @@
 
 	{% if p.replies %}
 	<div class="comment-section">
-	 {% with comments=p.replies %}
-	 {% include "comments.html" %}
-	 {% endwith %}
+	{% with comments=p.replies %}
+	{% include "comments.html" %}
+	{% endwith %}
  </div>
  {% elif not p.replies and p.deleted_utc == 0 %}
  <div class="comment-section text-center py-7">

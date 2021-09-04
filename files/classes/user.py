@@ -4,9 +4,11 @@ import pyotp
 
 from files.helpers.discord import delete_role
 from files.helpers.images import *
+from files.helpers.const import *
 from .alts import Alt
 from .submission import SaveRelationship
 from .comment import Notification
+from .award import AwardRelationship
 from .subscriptions import *
 from .userblock import *
 from .badges import *
@@ -15,23 +17,25 @@ from files.__main__ import Base, cache
 from files.helpers.security import *
 
 site = environ.get("DOMAIN").strip()
-
+defaulttheme = environ.get("DEFAULT_THEME", "light").strip()
+defaultcolor = environ.get("DEFAULT_COLOR", "fff").strip()
 class User(Base, Stndrd, Age_times):
 	__tablename__ = "users"
 	id = Column(Integer, primary_key=True)
 	username = Column(String)
-	namecolor = Column(String, default='ff66ac')
+	namecolor = Column(String, default=defaultcolor)
+	background = Column(String)
 	customtitle = Column(String)
 	customtitleplain = Column(String)
-	titlecolor = Column(String, default='ff66ac')
-	theme = Column(String, default='dark')
-	themecolor = Column(String, default='ff66ac')
+	titlecolor = Column(String, default=defaultcolor)
+	theme = Column(String, default=defaulttheme)
+	themecolor = Column(String, default=defaultcolor)
 	song = Column(String)
 	highres = Column(String)
 	profileurl = Column(String)
 	bannerurl = Column(String)
 	patron = Column(Integer, default=0)
-	animatedname = Column(Boolean, default=False)
+	verified = Column(Boolean)
 	email = Column(String)
 	css = deferred(Column(String))
 	profilecss = deferred(Column(String))
@@ -53,8 +57,8 @@ class User(Base, Stndrd, Age_times):
 	flairchanged = Column(Boolean, default=False)
 	newtab = Column(Boolean, default=False)
 	newtabexternal = Column(Boolean, default=True)
-	zzz = Column(Boolean, default=False)
 	oldreddit = Column(Boolean, default=False)
+	controversial = Column(Boolean, default=False)
 	submissions = relationship(
 		"Submission",
 		lazy="dynamic",
@@ -63,8 +67,8 @@ class User(Base, Stndrd, Age_times):
 		"Comment",
 		lazy="dynamic",
 		primaryjoin="Comment.author_id==User.id")
-	bio = Column(String, default="")
-	bio_html = Column(String, default="")
+	bio = Column(String)
+	bio_html = Column(String)
 	badges = relationship("Badge", lazy="dynamic")
 	notifications = relationship(
 		"Notification",
@@ -72,7 +76,7 @@ class User(Base, Stndrd, Age_times):
 
 	is_banned = Column(Integer, default=0)
 	unban_utc = Column(Integer, default=0)
-	ban_reason = Column(String, default="")
+	ban_reason = Column(String)
 	login_nonce = Column(Integer, default=0)
 	reserved = Column(String(256))
 	coins = Column(Integer, default=0)
@@ -82,10 +86,10 @@ class User(Base, Stndrd, Age_times):
 	stored_subscriber_count = Column(Integer, default=0)
 	defaultsortingcomments = Column(String, default="top")
 	defaultsorting = Column(String, default="hot")
-	defaulttime = Column(String, default="all")
+	defaulttime = Column(String, default="day")
 
 	is_nofollow = Column(Boolean, default=False)
-	custom_filter_list = Column(String(1000), default="")
+	custom_filter_list = Column(String(1000))
 	discord_id = Column(String(64))
 	ban_evade = Column(Integer, default=0)
 	original_username = deferred(Column(String(255)))
@@ -154,7 +158,7 @@ class User(Base, Stndrd, Age_times):
 	def strid(self):
 		return str(self.id)
 
-	@cache.memoize(300)
+	@cache.memoize()
 	def userpagelisting(self, v=None, page=1, sort="new", t="all"):
 
 		submissions = g.db.query(Submission).options(lazyload('*')).filter_by(author_id=self.id, is_pinned=False)
@@ -189,14 +193,14 @@ class User(Base, Stndrd, Age_times):
 		elif sort == "bottom":
 			submissions = sorted(submissions.all(), key=lambda x: x.score)
 		elif sort == "comments":
-			submissions = sorted(submissions.all(), key=lambda x: x.comment_count, reverse=True)
+			submissions = submissions.order_by(Submission.comment_count.desc()).all()
 
 		firstrange = 25 * (page - 1)
 		secondrange = firstrange + 26
 		listing = [x.id for x in submissions[firstrange:secondrange]]
 		return listing
 
-	@cache.memoize(300)
+	@cache.memoize()
 	def commentlisting(self, v=None, page=1, sort="new", t="all"):
 		comments = self.comments.options(lazyload('*')).filter(Comment.parent_submission != None).join(Comment.post)
 
@@ -317,13 +321,36 @@ class User(Base, Stndrd, Age_times):
 
 	@property
 	@lazy
+	def received_awards(self):
+
+		awards = {}
+
+		posts_idlist = g.db.query(Submission.id).filter_by(author_id=self.id).subquery()
+		comments_idlist = g.db.query(Comment.id).filter_by(author_id=self.id).subquery()
+
+		post_awards = g.db.query(AwardRelationship).filter(AwardRelationship.submission_id.in_(posts_idlist)).all()
+		comment_awards = g.db.query(AwardRelationship).filter(AwardRelationship.comment_id.in_(comments_idlist)).all()
+
+		total_awards = post_awards + comment_awards
+
+		for a in total_awards:
+			if a.kind in awards:
+				awards[a.kind]['count'] += 1
+			else:
+				awards[a.kind] = a.type
+				awards[a.kind]['count'] = 1
+
+		return sorted(list(awards.values()), key=lambda x: x['kind'], reverse=True)
+
+	@property
+	@lazy
 	def post_notifications_count(self):
 		return self.notifications.filter(Notification.read == False).join(Notification.comment).filter(
-			Comment.author_id == 2360).count()
+			Comment.author_id == AUTOJANNY_ACCOUNT).count()
 
 	def notification_subscriptions(self, page=1, all_=False):
 
-		notifications = self.notifications.join(Notification.comment).filter(Comment.author_id == 2360)
+		notifications = self.notifications.join(Notification.comment).filter(Comment.author_id == AUTOJANNY_ACCOUNT)
 
 		notifications = notifications.options(
 			contains_eager(Notification.comment)
@@ -344,7 +371,7 @@ class User(Base, Stndrd, Age_times):
 		notifications = self.notifications.join(Notification.comment).filter(
 			Comment.is_banned == False,
 			Comment.deleted_utc == 0,
-			Comment.author_id != 2360,
+			Comment.author_id != AUTOJANNY_ACCOUNT,
 		)
 
 		if not all_:
@@ -444,17 +471,18 @@ class User(Base, Stndrd, Age_times):
 	@property
 	def banner_url(self):
 		if self.bannerurl: return self.bannerurl
-		else: return f"https://{site}/assets/images/default_bg.png"
+		else: return f"https://{site}/assets/images/default_bg.gif"
 
-	@cache.memoize(0)
+	@cache.memoize()
 	def defaultpicture(self):
-		pic = random.randint(1, 50)
-		return f"https://{site}/assets/images/defaultpictures/{pic}.png"
+		pic = random.randint(1, 150)
+		return f"https://{site}/assets/images/defaultpictures/{pic}.gif"
 
 	@property
 	def profile_url(self):
 		if self.profileurl: return self.profileurl
-		else: return self.defaultpicture()
+		elif "rdrama" in site: return self.defaultpicture()
+		else: return f"https://{site}/assets/images/default-profile-pic.gif"
 
 	@property
 	def json_raw(self):
@@ -509,7 +537,7 @@ class User(Base, Stndrd, Age_times):
 			self.profileurl = None
 			delete_role(self, "linked")
 
-		self.is_banned = admin.id if admin else 2317
+		self.is_banned = admin.id if admin else AUTOJANNY_ACCOUNT
 		if reason: self.ban_reason = reason
 
 		g.db.add(self)

@@ -1,6 +1,7 @@
 from urllib.parse import urlencode
 from files.mail import *
 from files.__main__ import app, limiter
+from files.helpers.const import *
 
 valid_username_regex = re.compile("^[a-zA-Z0-9_\-]{3,25}$")
 valid_password_regex = re.compile("^.{8,100}$")
@@ -16,7 +17,6 @@ def login_get(v):
 
 	return render_template("login.html",
 						   failed=False,
-						   i=random_image(),
 						   redirect=redir)
 
 
@@ -40,12 +40,44 @@ def check_for_alts(current_id):
 		if not check1 and not check2:
 
 			try:
-				new_alt = Alt(user1=past_id,
-							  user2=current_id)
+				new_alt = Alt(user1=past_id, user2=current_id)
 				g.db.add(new_alt)
-
 			except BaseException:
 				pass
+
+		otheralts = g.db.query(Alt).filter(or_(Alt.user1 == past_id, Alt.user2 == past_id, Alt.user1 == current_id, Alt.user2 == current_id)).all()
+		for a in otheralts:
+			try:
+				new_alt = Alt(user1=a.user1, user2=past_id)
+				g.db.add(new_alt)
+				g.db.flush()
+			except Exception as e:
+				g.db.rollback()
+				continue
+		for a in otheralts:
+			try:
+				new_alt = Alt(user1=a.user1, user2=current_id)
+				g.db.add(new_alt)
+				g.db.flush()
+			except Exception as e:
+				g.db.rollback()
+				continue
+		for a in otheralts:
+			try:
+				new_alt = Alt(user1=a.user2, user2=past_id)
+				g.db.add(new_alt)
+				g.db.flush()
+			except Exception as e:
+				g.db.rollback()
+				continue
+		for a in otheralts:
+			try:
+				new_alt = Alt(user1=a.user2, user2=current_id)
+				g.db.add(new_alt)
+				g.db.flush()
+			except Exception as e:
+				g.db.rollback()
+				continue
 
 # login post procedure
 
@@ -56,6 +88,7 @@ def login_post():
 
 	username = request.form.get("username")
 
+	if not username: abort(400)
 	if "@" in username:
 		account = g.db.query(User).filter(
 			User.email.ilike(username)).first()
@@ -64,7 +97,7 @@ def login_post():
 
 	if not account:
 		time.sleep(random.uniform(0, 2))
-		return render_template("login.html", failed=True, i=random_image())
+		return render_template("login.html", failed=True)
 
 	# test password
 
@@ -72,7 +105,7 @@ def login_post():
 
 		if not account.verifyPass(request.form.get("password")):
 			time.sleep(random.uniform(0, 2))
-			return render_template("login.html", failed=True, i=random_image())
+			return render_template("login.html", failed=True)
 
 		if account.mfa_secret:
 			now = int(time.time())
@@ -81,7 +114,6 @@ def login_post():
 								   v=account,
 								   time=now,
 								   hash=hash,
-								   i=random_image(),
 								   redirect=request.form.get("redirect", "/")
 								   )
 	elif request.form.get("2fa_token", "x"):
@@ -103,7 +135,6 @@ def login_post():
 								   time=now,
 								   hash=hash,
 								   failed=True,
-								   i=random_image()
 								   )
 
 	else:
@@ -125,10 +156,7 @@ def login_post():
 	# check for previous page
 
 	redir = request.form.get("redirect", "/")
-	if redir:
-		return redirect(redir)
-	else:
-		return redirect(account.url)
+	return redirect(redir.replace("/logged_out", ""))
 
 
 @app.get("/me")
@@ -172,8 +200,7 @@ def sign_up_get(v):
 		ref_user = None
 
 	if ref_user and (ref_user.id in session.get("history", [])):
-		return render_template("sign_up_failed_ref.html",
-							   i=random_image())
+		return render_template("sign_up_failed_ref.html")
 
 	# Make a unique form key valid for one account creation
 	now = int(time.time())
@@ -196,7 +223,6 @@ def sign_up_get(v):
 	return render_template("sign_up.html",
 						   formkey=formkey,
 						   now=now,
-						   i=random_image(),
 						   redirect=redir,
 						   ref_user=ref_user,
 						   error=error,
@@ -273,14 +299,6 @@ def sign_up_post(v):
 	email = email.strip()
 	if not email: email = None
 
-	#counteract gmail username+2 and extra period tricks - convert submitted email to actual inbox
-	if email and email.endswith("@gmail.com"):
-		email=email.split('@')[0]
-		email=email.split('+')[0]
-		email=email.replace('.','')
-		email=f"{email}@gmail.com"
-
-
 	existing_account = get_user(username, graceful=True)
 	if existing_account and existing_account.reserved:
 		return redirect(existing_account.permalink)
@@ -322,8 +340,9 @@ def sign_up_post(v):
 			ref_user.refresh_selfset_badges()
 			g.db.add(ref_user)
 
-	users = g.db.query(User).count()
-	if users == 0: admin_level=6
+	id_1 = g.db.query(User).filter_by(id=1).count()
+	users_count = g.db.query(User).count() #paranoid
+	if id_1 == 0 and users_count < 6: admin_level=6
 	else: admin_level=0
 
 	# make new user
@@ -336,7 +355,7 @@ def sign_up_post(v):
 			email=email,
 			created_utc=int(time.time()),
 			referred_by=ref_id or None,
-			ban_evade =  int(any([x.is_banned for x in g.db.query(User).filter(User.id.in_(tuple(session.get("history", [])))).all() if x])),
+			ban_evade =  int(any([x.is_banned and not x.unban_utc for x in g.db.query(User).filter(User.id.in_(tuple(session.get("history", [])))).all() if x])),
 			agendaposter = any([x.agendaposter for x in g.db.query(User).filter(User.id.in_(tuple(session.get("history", [])))).all() if x])
 			)
 
@@ -346,7 +365,7 @@ def sign_up_post(v):
 		return new_signup("Please enter a valid email")
 
 	g.db.add(new_user)
-	g.db.commit()
+	g.db.flush()
 
 	# give a beta badge
 	beta_badge = Badge(user_id=new_user.id,
@@ -359,11 +378,10 @@ def sign_up_post(v):
 	check_for_alts(new_user.id)
 
 	# send welcome/verify email
-	if email:
-		send_verification_email(new_user)
+	if email: send_verification_email(new_user)
 
 	# send welcome message
-	send_notification(1046, new_user, "Dude bussy lmao")
+	if "rdrama" in request.host: send_notification(NOTIFICATIONS_ACCOUNT, new_user, "Dude bussy lmao")
 
 	session["user_id"] = new_user.id
 	session["session_id"] = token_hex(16)
@@ -375,7 +393,6 @@ def sign_up_post(v):
 def get_forgot():
 
 	return render_template("forgot_password.html",
-						   i=random_image()
 						   )
 
 
@@ -387,15 +404,18 @@ def post_forgot():
 
 	email=email.replace("_","\_")
 
-	if email.endswith("@gmail.com"):
+	user = g.db.query(User).filter(
+		User.username.ilike(username),
+		User.email.ilike(email)).first()
+
+	if not user and email.endswith("@gmail.com"):
 		email=email.split('@')[0]
 		email=email.split('+')[0]
 		email=email.replace('.','')
 		email=f"{email}@gmail.com"
-
-	user = g.db.query(User).filter(
-		User.username.ilike(username),
-		User.email.ilike(email)).first()
+		user = g.db.query(User).filter(
+			User.username.ilike(username),
+			User.email.ilike(email)).first()
 
 	if user:
 		# generate url
@@ -411,8 +431,7 @@ def post_forgot():
 				  )
 
 	return render_template("forgot_password.html",
-						   msg="If the username and email matches an account, you will be sent a password reset email. You have ten minutes to complete the password reset process.",
-						   i=random_image())
+						   msg="If the username and email matches an account, you will be sent a password reset email. You have ten minutes to complete the password reset process.")
 
 
 @app.get("/reset")
@@ -443,7 +462,6 @@ def get_reset():
 						   v=user,
 						   token=reset_token,
 						   time=timestamp,
-						   i=random_image()
 						   )
 
 
@@ -479,7 +497,6 @@ def post_reset(v):
 							   v=user,
 							   token=token,
 							   time=timestamp,
-							   i=random_image(),
 							   error="Passwords didn't match.")
 
 	user.passhash = hash_password(password)
@@ -495,7 +512,6 @@ def lost_2fa(v):
 
 	return render_template(
 		"lost_2fa.html",
-		i=random_image(),
 		v=v
 		)
 
@@ -512,16 +528,15 @@ def request_2fa_disable():
 
 
 	email=request.form.get("email")
-	if email and email.endswith("@gmail.com"):
+	if email != user.email and email.endswith("@gmail.com"):
 		email=email.split('@')[0]
 		email=email.split('+')[0]
 		email=email.replace('.','')
 		email=f"{email}@gmail.com"
-
-	if email != user.email:
-		return render_template("message.html",
-						   title="Removal request received",
-						   message="If username, password, and email match, we will send you an email.")
+		if email != user.email:
+			return render_template("message.html",
+							title="Removal request received",
+							message="If username, password, and email match, we will send you an email.")
 
 
 	password =request.form.get("password")
@@ -570,7 +585,6 @@ def reset_2fa():
 	user.mfa_secret=None
 
 	g.db.add(user)
-	g.db.commit()
 
 	return render_template("message_success.html",
 						   title="Two-factor authentication removed.",

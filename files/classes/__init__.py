@@ -12,7 +12,6 @@ from .images import *
 from .domains import *
 from .subscriptions import *
 from .agents import *
-from .lolwtf import *
+from files.__main__ import Base, app
 from .mod_logs import *
 from .award import *
-from .shop import *

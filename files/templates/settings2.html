@@ -8,29 +8,29 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<meta name="description" content="">
 	<meta name="author" content="">
-	<meta name="thumbnail" content="/assets/images/preview.png">
-	<link rel="icon" type="image/png" href="/assets/images/favicon.png">
+	<meta name="thumbnail" content="/assets/images/{{'SITE_NAME' | app_config}}/preview.gif">
+	<link rel="icon" type="image/png" href="/assets/images/{{'SITE_NAME' | app_config}}/icon.gif">
 
 	<meta property="og:type" content="article" />
-	<meta property="og:title" content="{{"SITE_NAME" | app_config}}" />
+	<meta property="og:title" content="{{'SITE_NAME' | app_config}}" />
 	<meta property="og:site_name" content="{{request.host}}" />
-	<meta property="og:image" content="{{'/assets/images/preview.png' | full_link}}" />
+	<meta property="og:image" content="{{'SITE_NAME' | app_config}}/assets/images/{{'SITE_NAME' | app_config}}/preview.gif" />
 	<meta property="og:url" content="{{request.path | full_link}}">
-	<meta property="og:description" name="description" content="Dude bussy lmao">
+	<meta property="og:description" name="description" content="{{'SLOGAN' | app_config}}">
 	<meta property="og:author" name="author" content="{{request.host_url}}" />
 	<meta property="og:site_name" content="{{request.host}}" />
 
 	<meta name="twitter:card" content="summary_large_image"/>
 	<meta name="twitter:site" content="{{request.host_url}}">
-	<meta name="twitter:title" content="{{"SITE_NAME" | app_config}}" />
+	<meta name="twitter:title" content="{{'SITE_NAME' | app_config}}" />
 	<meta name="twitter:creator" content="{{request.host_url}}">
-	<meta name="twitter:description" content="Dude bussy lmao" />
-	<meta name="twitter:image" content="/assets/images/preview.png" />
+	<meta name="twitter:description" content="{{'SLOGAN' | app_config}}" />
+	<meta name="twitter:image" content="/assets/images/{{'SITE_NAME' | app_config}}/preview.gif" />
 	<meta name="twitter:url" content="{{request.path | full_link}}" />
 
 
 
-	<title>{% block pagetitle %}{{"SITE_NAME" | app_config}}{% endblock %}</title>
+	<title>{% block pagetitle %}{{'SITE_NAME' | app_config}}{% endblock %}</title>
 
 	<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600&display=swap" rel="stylesheet">
 
@@ -38,12 +38,12 @@
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
 	integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
-	<!-- {{"SITE_NAME" | app_config}} CSS -->
+	<!-- {{'SITE_NAME' | app_config}} CSS -->
 
 	{% if v %}
 	<link id="css-link" rel="stylesheet" href="/assets/style/{{v.theme}}_{{v.themecolor}}.css">
 	{% else %}
-	<link id="css-link" rel="stylesheet" href="/assets/style/dark_ff66ac.css">
+	<link id="css-link" rel="stylesheet" href="/assets/style/{{'DEFAULT_THEME' | app_config}}.css">
 	{% endif %}
 
 	<!-- Font Awesome -->
@@ -57,7 +57,7 @@
 
 </head>
 
-<body id="settings-guild">
+<body id="settings-guild" style="overflow-x: hidden; {% if v and v.background %} background:url(/assets/images/backgrounds/{{v.background}}) no-repeat center center fixed !important; background-size: cover!important; background-color: #000!important;{% endif %}">
 
 	{% include "header.html" %}
 
@@ -98,7 +98,7 @@
 										<a class="nav-link{% if request.path.endswith('/leaderboard') %} active{% endif %}" href="/leaderboard"><i class="fas fa-trophy"></i>Leaderboard</a>
 									</li>
 									<li class="nav-item">
-										<a class="nav-link{% if request.path.endswith('/badmins') %} active{% endif %}" href="/badmins"><i class="fas fa-crown"></i>Badmins</a>
+										<a class="nav-link{% if request.path.endswith('/admins') %} active{% endif %}" href="/admins"><i class="fas fa-crown"></i>Admins</a>
 									</li>
 									<li class="nav-item">
 										<a class="nav-link{% if request.path.endswith('/log') %} active{% endif %}" href="/log"><i class="fas fa-scroll-old"></i>Moderation Log</a>
@@ -130,7 +130,7 @@
 							<a style="padding: 0.75rem 1rem;" class="nav-link{% if request.path.endswith('/leaderboard') %} active{% endif %}" href="/leaderboard"><i class="fas fa-trophy text-lg mr-0"></i></a>
 						</li>
 						<li class="nav-item">
-							<a style="padding: 0.75rem 1rem;" class="nav-link{% if request.path.endswith('/badmins') %} active{% endif %}" href="/badmins"><i class="fas fa-crown text-lg mr-0"></i></a>
+							<a style="padding: 0.75rem 1rem;" class="nav-link{% if request.path.endswith('/admins') %} active{% endif %}" href="/admins"><i class="fas fa-crown text-lg mr-0"></i></a>
 						</li>
 						<li class="nav-item">
 							<a style="padding: 0.75rem 1rem;" class="nav-link{% if request.path.endswith('/log') %} active{% endif %}" href="/log"><i class="fas fa-scroll-old text-lg mr-0"></i></a>
@@ -153,10 +153,10 @@
 	{% endblock %}
 
 	<!-- Settings content -->
-	<div class="{% if request.path == '/banned' or request.path == '/blocks' %}container-fluid{% else %}container{% endif %} mt-3 {% if request.path == '/leaderboard' %}px-0{% endif %}">
+	<div class="{% if request.path == '/banned' or request.path == '/blocks' %}container-fluid{% else %}container{% endif %} mt-3 {% if request.path in ['/leaderboard', '/paypigs'] %}px-0{% endif %}">
 
-	 {% block content %}
-	 {% endblock %}
+	{% block content %}
+	{% endblock %}
 
  </div>
 
@@ -226,7 +226,7 @@
 	});
 </script>
 
-<script src="/assets/js/all_js.js"></script>
+<script src="/assets/js/javascript.js"></script>
 
 	{% block scripts %}
 	{% endblock %}

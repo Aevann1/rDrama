@@ -234,13 +234,13 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 		<meta name="description" content="">
 		<meta name="author" content="">
-		<link rel="icon" type="image/png" href="/assets/images/favicon.png">
+		<link rel="icon" type="image/png" href="/assets/images/{{'SITE_NAME' | app_config}}/icon.gif">
 
 		{% include "emoji_modal.html" %}
 		{% include "gif_modal.html" %}
 
 		{% block title %}
-		<title>Create a post - {{"SITE_NAME" | app_config}}</title>
+		<title>Create a post - {{'SITE_NAME' | app_config}}</title>
 		{% endblock %}
 	
 
@@ -250,14 +250,14 @@
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
 		integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
-		<!-- {{"SITE_NAME" | app_config}} Board CSS -->
+		<!-- {{'SITE_NAME' | app_config}} Board CSS -->
 
 		{% block stylesheets %}
 		{% if v %}
 			<link rel="stylesheet" href="/assets/style/{{v.theme}}_{{v.themecolor}}.css">
 			{% if v.agendaposter %}<link rel="stylesheet" href="/assets/style/agendaposter.css">{% elif v.css %}<link rel="stylesheet" href="/@{{v.username}}/css">{% endif %}
 		{% else %}
-			<link rel="stylesheet" href="/assets/style/dark_ff66ac.css">
+			<link rel="stylesheet" href="/assets/style/{{'DEFAULT_THEME' | app_config}}.css">
 		{% endif %}
 		{% endblock %}
 
@@ -286,7 +286,7 @@
 
 </head>
 
-<body id="submit">
+<body id="submit" style="overflow-x: hidden; {% if v and v.background %} background:url(/assets/images/backgrounds/{{v.background}}) no-repeat center center fixed !important; background-size: cover!important; background-color: #000!important;{% endif %}">
 
 		<!-- Navigation -->
 		{% include "header.html" %}
@@ -381,7 +381,7 @@
 												
 												<div class="custom-control custom-checkbox">
 														<input type="checkbox" class="custom-control-input" id="privateCheck" name="private">
-														<label class="custom-control-label" for="privateCheck">Unlisted</label>
+														<label class="custom-control-label" for="privateCheck">Draft</label>
 												</div>
 										</div>
 
@@ -407,9 +407,9 @@
 
 		{% endblock %}
 
-		<!-- {{"SITE_NAME" | app_config}} JS -->
+		<!-- {{'SITE_NAME' | app_config}} JS -->
 
-		<script src="/assets/js/all_js.js"></script>
+		<script src="/assets/js/javascript.js"></script>
 
 		<!-- ClipboardJS -->
 

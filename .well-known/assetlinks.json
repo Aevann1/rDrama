@@ -2,7 +2,7 @@
   "relation": ["delegate_permission/common.handle_all_urls"],
   "target": {
     "namespace": "android_app",
-    "package_name": "net.rdrama",
+    "package_name": "files",
     "sha256_cert_fingerprints":
     ["ED:D9:72:9B:CD:61:52:18:AB:95:D0:21:BD:7F:04:6F:89:04:AC:B9:73:A2:2E:90:A5:2B:0C:13:F8:4A:EC:18"]
   }

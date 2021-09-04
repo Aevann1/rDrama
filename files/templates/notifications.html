@@ -14,32 +14,32 @@
 
 <div class="row border-bottom bg-white w-200 pr-0" style="overflow: visible;">
   <div class="col p-0 w-100">
-    <ul class="nav settings-nav" style="padding:0 30px;">
-      <li class="nav-item">
-        <a class="nav-link py-3{% if '/notifications?all=true' in request.full_path %} active{% endif %}" href="/notifications?all=true">
-          All
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link py-3{% if not '=' in request.full_path %} active{% endif %}" href="/notifications">
-          Unread
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link py-3{% if '/notifications?posts=true' in request.full_path %} active{% endif %}" href="/notifications?posts=true">
-          Posts{% if v.post_notifications_count %} <span class="text-purple font-weight-bold">({{v.post_notifications_count}})</span>{% endif %}
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link py-3{% if '/notifications?messages=true' in request.full_path %} active{% endif %}" href="/notifications?messages=true">
-          Messages
-        </a>
-      </li>
-    </ul>
+	<ul class="nav settings-nav" style="padding:0 30px;">
+	<li class="nav-item">
+		<a class="nav-link py-3{% if '/notifications?all=true' in request.full_path %} active{% endif %}" href="/notifications?all=true">
+		All
+		</a>
+	</li>
+	<li class="nav-item">
+		<a class="nav-link py-3{% if not '=' in request.full_path %} active{% endif %}" href="/notifications">
+		Unread
+		</a>
+	</li>
+	<li class="nav-item">
+		<a class="nav-link py-3{% if '/notifications?posts=true' in request.full_path %} active{% endif %}" href="/notifications?posts=true">
+		Posts{% if v.post_notifications_count %} <span class="text-purple font-weight-bold">({{v.post_notifications_count}})</span>{% endif %}
+		</a>
+	</li>
+	<li class="nav-item">
+		<a class="nav-link py-3{% if '/notifications?messages=true' in request.full_path %} active{% endif %}" href="/notifications?messages=true">
+		Messages
+		</a>
+	</li>
+	</ul>
   </div>
 </div>
 
-<div class="p-3 p-md-0">
+<div class="notifs p-3 p-md-0">
 
 	<h1 class="h3 d-md-none">Inbox</h1>
 

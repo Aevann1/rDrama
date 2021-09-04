@@ -17,7 +17,7 @@ enter_re=re.compile("(\n\r?\w+){3,}")
 
 class UserMention(SpanToken):
 
-	pattern = re.compile("(^|\s|\n)@(\w{1,25})")
+	pattern = re.compile("(^|\s|\n)@((\w|-){1,25})")
 	parse_inner = False
 
 	def __init__(self, match_obj):
@@ -34,7 +34,7 @@ class SubMention(SpanToken):
 		
 class RedditorMention(SpanToken):
 
-	pattern = re.compile("(^|\s|\n)u/(\w{3,25})")
+	pattern = re.compile("(^|\s|\n)u/((\w|-){3,25})")
 	parse_inner = False
 
 	def __init__(self, match_obj):
@@ -52,7 +52,7 @@ class SubMention2(SpanToken):
 		
 class RedditorMention2(SpanToken):
 
-	pattern = re.compile("(^|\s|\n)/u/(\w{3,25})")
+	pattern = re.compile("(^|\s|\n)/u/((\w|-){3,25})")
 	parse_inner = False
 
 	def __init__(self, match_obj):

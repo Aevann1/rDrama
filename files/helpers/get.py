@@ -1,9 +1,6 @@
 from files.classes import *
 from flask import g
-from sqlalchemy.orm import joinedload, aliased
-
-import re
-
+from sqlalchemy.orm import joinedload
 
 def get_user(username, v=None, graceful=False):
 
@@ -158,10 +155,7 @@ def get_posts(pids, v=None):
 			output[i]._is_blocking = query[i][2] or 0
 			output[i]._is_blocked = query[i][3] or 0
 	else:
-		output = g.db.query(
-			Submission,
-		).filter(Submission.id.in_(pids)
-		).all()
+		output = g.db.query(Submission,).filter(Submission.id.in_(pids)).all()
 
 	return sorted(output, key=lambda x: pids.index(x.id))
 

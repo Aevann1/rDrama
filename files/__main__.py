@@ -1,13 +1,13 @@
 import gevent.monkey
 gevent.monkey.patch_all()
 
-from os import environ, path
+from os import environ
 import secrets
 from flask import *
 from flask_caching import Cache
 from flask_limiter import Limiter
 from flask_compress import Compress
-
+from flask_limiter.util import get_ipaddr
 
 from flaskext.markdown import Markdown
 from sqlalchemy.ext.declarative import declarative_base
@@ -15,7 +15,6 @@ from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import sessionmaker, scoped_session, Query as _Query
 from sqlalchemy import *
 from sqlalchemy.pool import QueuePool
-import requests
 import redis
 import gevent
 
@@ -32,11 +31,13 @@ app.url_map.strict_slashes = False
 
 app.config["SITE_NAME"]=environ.get("SITE_NAME").strip()
 app.config["COINS_NAME"]=environ.get("COINS_NAME").strip()
+app.config["GUMROAD_LINK"]=environ.get("GUMROAD_LINK", "https://marsey1.gumroad.com/l/tfcvri").strip()
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['DATABASE_URL'] = environ.get("DATABASE_CONNECTION_POOL_URL",environ.get("DATABASE_URL"))
 
 app.config['SECRET_KEY'] = environ.get('MASTER_KEY')
 app.config["SERVER_NAME"] = environ.get("DOMAIN").strip()
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 86400
 
 app.config["SESSION_COOKIE_NAME"] = "session_" + environ.get("SITE_NAME").strip().lower()
 app.config["VERSION"] = "1.0.0"
@@ -46,6 +47,10 @@ app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 
 app.config["PERMANENT_SESSION_LIFETIME"] = 60 * 60 * 24 * 365
 app.config["SESSION_REFRESH_EACH_REQUEST"] = True
+
+app.config["SLOGAN"] = environ.get("SLOGAN", "").strip()
+app.config["DEFAULT_COLOR"] = environ.get("DEFAULT_COLOR", "ff0000").strip()
+app.config["DEFAULT_THEME"] = environ.get("DEFAULT_THEME", "light").strip() + "_" + environ.get("DEFAULT_COLOR", "ff0000").strip()
 
 app.config["FORCE_HTTPS"] = int(environ.get("FORCE_HTTPS", 1)) if ("localhost" not in app.config["SERVER_NAME"] and "127.0.0.1" not in app.config["SERVER_NAME"]) else 0
 
@@ -83,10 +88,8 @@ redispool=ConnectionPool(
 	) if app.config["CACHE_TYPE"]=="redis" else None
 app.config["CACHE_OPTIONS"]={'connection_pool':redispool} if app.config["CACHE_TYPE"]=="redis" else {}
 
-app.config["READ_ONLY"]=bool(int(environ.get("READ_ONLY", 0)))
+app.config["READ_ONLY"]=bool(int(environ.get("READ_ONLY", "0")))
 app.config["BOT_DISABLE"]=bool(int(environ.get("BOT_DISABLE", False)))
-
-app.config["TENOR_KEY"]=environ.get("TENOR_KEY",'').strip()
 
 
 Markdown(app)
@@ -101,13 +104,10 @@ app.config["RATELIMIT_DEFAULTS_EXEMPT_WHEN"]=lambda:False
 app.config["RATELIMIT_HEADERS_ENABLED"]=True
 
 
-def limiter_key_func(): return request.remote_addr
-
-
 limiter = Limiter(
 	app,
-	key_func=limiter_key_func,
-	default_limits=["100/minute"],
+	key_func=get_ipaddr,
+	#default_limits=["100/minute"],
 	headers_enabled=True,
 	strategy="fixed-window"
 )
@@ -124,10 +124,6 @@ def retry(f):
 	def wrapper(self, *args, **kwargs):
 		try:
 			return f(self, *args, **kwargs)
-		except OperationalError as e:
-			#self.session.rollback()
-			#raise(DatabaseOverload)
-			print("sex")
 		except:
 			self.session.rollback()
 			return f(self, *args, **kwargs)
@@ -213,7 +209,12 @@ def before_request():
 
 	g.timestamp = int(time.time())
 
-	session.permanent = True
+	#do not access session for static files
+	if not request.path.startswith("/assets"):
+		session.permanent = True
+
+		if not session.get("session_id"):
+			session["session_id"] = secrets.token_hex(16)
 
 	ua_banned, response_tuple = get_useragent_ban_response(
 		request.headers.get("User-Agent", "NoAgent"))
@@ -224,9 +225,6 @@ def before_request():
 			"http://") and "localhost" not in app.config["SERVER_NAME"]:
 		url = request.url.replace("http://", "https://", 1)
 		return redirect(url, code=301)
-
-	if not session.get("session_id"):
-		session["session_id"] = secrets.token_hex(16)
 
 	ua=request.headers.get("User-Agent","")
 	if "CriOS/" in ua:
@@ -254,24 +252,10 @@ def after_request(response):
 		print(e)
 		abort(500)
 
-	response.headers.add('Access-Control-Allow-Headers',
-	"Origin, X-Requested-With, Content-Type, Accept, x-auth"
-	)
-	response.headers.remove("Cache-Control")
-	response.headers.add("Cache-Control",
-	"public, maxage=600")
 	response.headers.add("Strict-Transport-Security", "max-age=31536000")
 	response.headers.add("Referrer-Policy", "same-origin")
-	response.headers.add("Feature-Policy",
-	"geolocation 'none'; midi 'none'; sync-xhr 'none'; microphone 'none'; camera 'none'; magnetometer 'none'; gyroscope 'none'; fullscreen 'none'; payment 'none';")
-	if not request.path.startswith("/embed/"):
-		response.headers.add("X-Frame-Options",
-		"deny")
+
+	response.headers.add("Feature-Policy", "geolocation 'none'; midi 'none'; notifications 'none'; push 'none'; sync-xhr 'none'; microphone 'none'; camera 'none'; magnetometer 'none'; gyroscope 'none'; vibrate 'none'; fullscreen 'none'; payment 'none';")
+	response.headers.add("X-Frame-Options", "deny")
 
 	return response
-
-
-@app.route("/<path:path>", subdomain="www")
-def www_redirect(path):
-
-	return redirect(f"https://{app.config['SERVER_NAME']}/{path}")

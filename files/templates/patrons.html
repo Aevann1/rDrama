@@ -13,15 +13,15 @@
 {% for user in users %}
 	<tr>
 		<td style="font-weight:bold;">{{users.index(user)+1}}</td>
-		<td><a {% if user.animatedname %}class="{% if user.patron %}patron{% else %}leaderboard{% endif %}"{% endif %} style="color:#{{user.namecolor}}; font-weight:bold;" href="/@{{user.username}}"><img src="/uid/{{user.id}}/pic/profile" class="profile-pic-20 mr-1">{{user.username}}</a></td>
+		<td><a style="color:#{{user.namecolor}};  font-weight:bold;" href="/@{{user.username}}"><img src="/uid/{{user.id}}/pic/profile" class="profile-pic-20 mr-1"><span {% if user.patron %}class="patron" style="background-color:#{{user.namecolor}};"{% endif %}>{{user.username}}</span></a></td>
 
 		<td><img style="width: 32px; height: 32px" src="/assets/images/badges/patron-{{user.patron}}.gif"></td>
 
 		<td style="font-weight:bold;">
 			{% for a in user.display_awards %}
 			<span class="d-inline-block mx-2 my-1">
-				<i class="{{ a['icon'] }} {{ a['color'] }} fa-fw" data-toggle="tooltip" data-placement="bottom" title="{{ a['title'] }} Awards owned"></i>
-				{{ a['count'] }}
+				<i class="{{a['icon']}} {{a['color']}} fa-fw" data-toggle="tooltip" data-placement="bottom" title="{{a['title']}} Awards owned"></i>
+				{{a['count']}}
 			</span>
 			{% endfor %}
 		</td>

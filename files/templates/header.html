@@ -1,8 +1,13 @@
 <!-- Navigation -->
 
 <nav class="navbar navbar-expand-md navbar-light shadow shadow-md fixed-top" id="navbar">
-	<div class="container-fluid">
-		<div class="flex-grow-1"><a href="/" class="navbar-brand"><img src="/assets/images/logo.gif" height="20"><span class="text-small-extra text-uppercase text-gray-400"> Sigma</span></a></div>
+	<div class="container-fluid" style="padding:0;">
+		<div class="flex-grow-1">
+			<a {% if v %}href="/"{% else %}href="/logged_out"{% endif %} class="navbar-brand">
+				<img height="30" src="/assets/images/{{'SITE_NAME' | app_config}}/icon.gif">
+				<img src="/assets/images/{{'SITE_NAME' | app_config}}/logo.gif" height="20">
+			</a>
+		</div>
 		<div class="flex-grow-1 d-fl d-none d-md-block">
 			<form class="form-inline search flex-nowrap mx-0 mx-lg-auto" action="/search/posts/" method="get">
 				<input class="form-control w-100" type="search" placeholder="Search" aria-label="Search" name="q" value="{{request.args.get('q', '')}}">
@@ -13,18 +18,18 @@
 				</span>
 			</form>
 		</div>
-		<a class="mobile-nav-icon d-block d-md-none" href="/random"><i class="fas fa-random align-middle text-gray-500"></i></a>
+		<a class="mobile-nav-icon d-block d-md-none" href="/random"><i class="fas fa-random align-middle text-gray-500 black"></i></a>
 		{% if v and v.admin_level > 0 %}
-		<a class="mobile-nav-icon d-block d-md-none" href="/admin"><i class="fas fa-crown align-middle text-gray-500"></i></a>
+		<a class="mobile-nav-icon d-block d-md-none" href="/admin"><i class="fas fa-crown align-middle text-gray-500 black"></i></a>
 		{% endif %}
 		{% if v %}
-		<a class="mobile-nav-icon d-block d-md-none" href="/submit"><i class="fas fa-feather-alt align-middle text-gray-500"></i></a>
+		<a class="mobile-nav-icon d-block d-md-none" href="/submit"><i class="fas fa-feather-alt align-middle text-gray-500 black"></i></a>
 		{% else %}
-		<a class="mobile-nav-icon d-block d-md-none" href="/login"><i class="fas fa-feather-alt align-middle text-gray-500"></i></a>
+		<a class="mobile-nav-icon d-block d-md-none" href="/login"><i class="fas fa-feather-alt align-middle text-gray-500 black"></i></a>
 		{% endif %}
 		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive"
 		aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
-		<span class="navbar-toggler-icon {% if v and v.notifications_count %}position-relative{% endif %}"><i class="fal fa-bars text-gray-500"></i>
+		<span class="navbar-toggler-icon {% if v and v.notifications_count %}position-relative{% endif %}"><i class="fal fa-bars text-gray-500 black"></i>
 			{% if v and v.notifications_count %}
 				<span class="badge-count font-weight-bolder" style="right: -6px; font-size:18px;">{{v.notifications_count}}</span>
 			{% endif %}
@@ -39,7 +44,7 @@
 
 			{% if v and v.admin_level==6 %}
 			<li class="nav-item d-flex align-items-center justify-content-center text-center mx-1">
-				<a class="nav-link" href="/admin/" data-toggle="tooltip" data-placement="bottom" title="Badmin tools"><i class="fas fa-crown{% if v.has_report_queue %} text-success{% endif %}"></i></a>
+				<a class="nav-link" href="/admin/" data-toggle="tooltip" data-placement="bottom" title="Admin tools"><i class="fas fa-crown{% if v.has_report_queue %} text-success{% endif %}"></i></a>
 			</li>
 			{% endif %}
 
@@ -82,7 +87,7 @@
 					<div class="d-flex">
 						<div><img src="{{v.profile_url}}" class="profile-pic-35"></div>
 						<div class="text-left pl-2">
-							<div style="color: #{{v.namecolor}}" class="text-small font-weight-bold {% if v.animatedname %}{% if v.patron %}patron{% else %}leaderboard{% endif %}{% endif %}">{{v.username}}</div>
+							<div style="color: #{{v.namecolor}}" class="text-small font-weight-bold {% if v.patron %}patron{% endif %}"><span {% if v.patron %}class="patron" style="background-color:#{{v.namecolor}};"{% endif %}>{{v.username}}</span></div>
 							<div class="text-small-extra text-purple"><i class="fad fa-coins mr-1"></i><span id="user-coins-amount">{{v.coins}}</span> {{"COINS_NAME" | app_config}}</div>
 						</div>
 					</div>
@@ -100,13 +105,13 @@
 						</div>
 						<hr class="my-2">
 						<div class="px-2">
-							<a class="dropdown-item" href="/assets/{{"SITE_NAME" | app_config}}.apk"><i class="fab fa-android fa-fw text-left mr-3"></i>Android app</a>
+							<a class="dropdown-item" href="/assets/{{'SITE_NAME' | app_config}}App.apk"><i class="fab fa-android fa-fw text-left mr-3"></i>Android app</a>
 							<a class="dropdown-item" href="/post/1xq/posting-guidelines-policies-legal-shit"><i class="fas fa-balance-scale fa-fw text-left mr-3"></i>Rules</a>
 							<a class="dropdown-item" href="/changelog"><i class="fas fa-clipboard fa-fw text-left mr-3"></i>Changelog</a>
-							<a class="dropdown-item" href="https://github.com/Aevann1/{{"SITE_NAME" | app_config}}"><i class="fab fa-github fa-fw text-left mr-3"></i>Source code</a>
+							<a class="dropdown-item" href="https://github.com/Aevann1/{{'SITE_NAME' | app_config}}"><i class="fab fa-github fa-fw text-left mr-3"></i>Source code</a>
 							<a class="dropdown-item" href="/discord"><i class="fab fa-discord fa-fw text-left mr-3"></i>Discord</a>
-							<a class="dropdown-item" href="https://rdrama.gumroad.com/l/tfcvri"><i class="fas fa-dollar-sign fa-fw text-left mr-3"></i>Gumroad</a>
-							<a class="dropdown-item" href="/archives"><i class="fas fa-book fa-fw text-left mr-3"></i>Subreddit Archives</a>
+							<a class="dropdown-item" href="{{'GUMROAD_LINK' | app_config}}"><i class="fas fa-dollar-sign fa-fw text-left mr-3"></i>Donate</a>
+							{% if 'rdrama' in request.host %}<a class="dropdown-item" href="/archives"><i class="fas fa-book fa-fw text-left mr-3"></i>Subreddit Archives</a>{% endif %}
 							<a class="dropdown-item" href="/contact"><i class="fas fa-file-signature fa-fw text-left mr-3"></i>Contact us</a>
 						</div>
 						<hr class="my-2">
@@ -118,20 +123,20 @@
 			</li>
 			{% else %}
 			<li class="nav-item d-flex align-items-center justify-content-center mx-1">
-			 <a class="btn btn-outline-purple" href="/contact">Contact us</a>
-		 </li>
+			<a class="btn btn-outline-purple" href="/contact">Contact us</a>
+		</li>
 			<li class="nav-item d-flex align-items-center justify-content-center mx-1">
-			 <a class="btn btn-outline-purple" href="/login?redirect={{request.path | urlencode}}">Sign in</a>
-		 </li>
-		 <li class="nav-item d-flex align-items-center justify-content-center mx-1">
-			 <a class="btn btn-outline-purple" href="/signup?redirect={{request.path | urlencode}}">Sign up</a>
-		 </li>
-		 {% endif %}
-	 </ul>
+			<a class="btn btn-outline-purple" href="/login?redirect={{request.path | urlencode}}">Sign in</a>
+		</li>
+		<li class="nav-item d-flex align-items-center justify-content-center mx-1">
+			<a class="btn btn-outline-purple" href="/signup?redirect={{request.path | urlencode}}">Sign up</a>
+		</li>
+		{% endif %}
+	</ul>
 
-	 <!-- Mobile Nav Menu -->
-	 <ul class="navbar-nav ml-auto d-flex d-md-none mt-3">
-		 <li class="nav-item pb-3">
+	<!-- Mobile Nav Menu -->
+	<ul class="navbar-nav ml-auto d-flex d-md-none mt-3">
+		<li class="nav-item pb-3">
 			<form id="searchform" class="form-inline search flex-nowrap mx-0 mx-lg-auto" action="/search/posts/" method="get">
 				<input class="form-control form-control-sm w-100" type="search" placeholder="Search" aria-label="Search" name="q">
 				<span class="input-group-append">
@@ -159,12 +164,12 @@
 		<li class="nav-item">
 			<a class="nav-link" href="/settings"><i class="fas fa-cog fa-fw mr-3"></i>My account</a>
 		</li>
-		<li class="nav-item"><a class="nav-link" href="/assets/{{"SITE_NAME" | app_config}}.apk"><i class="fab fa-android fa-fw mr-3"></i>Android app</a></li>
+		<li class="nav-item"><a class="nav-link" href="/assets/{{'SITE_NAME' | app_config}}App.apk"><i class="fab fa-android fa-fw mr-3"></i>Android app</a></li>
 		<li class="nav-item"><a class="nav-link" href="/post/1xq/posting-guidelines-policies-legal-shit"><i class="fas fa-balance-scale fa-fw mr-3"></i>Rules</a></li>
-		<li class="nav-item"><a class="nav-link" href="https://github.com/Aevann1/{{"SITE_NAME" | app_config}}"><i class="fab fa-github fa-fw mr-3"></i>Source code</a></li>
+		<li class="nav-item"><a class="nav-link" href="https://github.com/Aevann1/{{'SITE_NAME' | app_config}}"><i class="fab fa-github fa-fw mr-3"></i>Source code</a></li>
 		<li class="nav-item"><a class="nav-link" href="/discord"><i class="fab fa-discord fa-fw mr-3"></i>Discord</a></li>
-		<li class="nav-item"><a class="nav-link" href="https://rdrama.gumroad.com/l/tfcvri"><i class="fas fa-dollar-sign fa-fw mr-3"></i>Gumroad</a></li>
-		<li class="nav-item"><a class="nav-link" href="/archives"><i class="fas fa-book fa-fw mr-3"></i>Subreddit Archives</a></li>
+		<li class="nav-item"><a class="nav-link" href="{{'GUMROAD_LINK' | app_config}}"><i class="fas fa-dollar-sign fa-fw mr-3"></i>Donate</a></li>
+		{% if 'rdrama' in request.host %}<li class="nav-item"><a class="nav-link" href="/archives"><i class="fas fa-book fa-fw mr-3"></i>Subreddit Archives</a></li>{% endif %}
 		<li class="nav-item"><a class="nav-link" href="/contact"><i class="fas fa-file-signature fa-fw mr-3"></i>Contact us</a></li>
 
 		<li class="nav-item border-top border-bottom mt-2 pt-2">

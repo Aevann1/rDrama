@@ -14,8 +14,8 @@
 </thead>
 {% for user in users %}
 	<tr>
-		<td><a {% if user.animatedname %}class="{% if user.patron %}patron{% else %}leaderboard{% endif %}"{% endif %} style="font-weight:bold;color:#{{user.namecolor}};" href="/@{{user.username}}">{{user.username}}</a></td>
-		<td><a {% if targets[loop.index-1].animatedname %}class="{% if targets[loop.index-1].patron %}patron{% else %}leaderboard{% endif %}"{% endif %} style="font-weight:bold;color:#{{targets[loop.index-1].namecolor}};" href="/@{{targets[loop.index-1].username}}">{{targets[loop.index-1].username}}</a></td>
+		<td><a style="font-weight:bold;color:#{{user.namecolor}}; " href="/@{{user.username}}"><span {% if user.patron %}class="patron" style="background-color:#{{user.namecolor}};"{% endif %}>{{user.username}}</span></a></td>
+		<td><a style="font-weight:bold;color:#{{targets[loop.index-1].namecolor}}; " href="/@{{targets[loop.index-1].username}}"><span {% if targets[loop.index-1].patron %}class="patron" style="background-color:#{{targets[loop.index-1].namecolor}};"{% endif %}>{{targets[loop.index-1].username}}</span></a></td>
 	</tr>
 {% endfor %}
 </table>

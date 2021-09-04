@@ -14,22 +14,21 @@ services:
       - MASTER_KEY=${MASTER_KEY:-KTVciAUQFpFh2WdJ/oiHJlxl6FvzRZp8kYzAAv3l2OA=}
       - DOMAIN=localhost
       - SITE_NAME=Drama
-      - CLOUDFLARE_ZONE=vcxvdfgfc6r554etrgd
-      - CLOUDFLARE_KEY=vcxvdfgfc6r554etrgd
-      - TENOR_KEY=vcxvdfgfc6r554etrgd
-      - MAILGUN_KEY=vcxvdfgfc6r554etrgd
+      - CLOUDFLARE_ZONE=3435tdfsdudebussylmaoxxt43
+      - CLOUDFLARE_KEY=3435tdfsdudebussylmaoxxt43
+      - GIPHY_KEY=3435tdfsdudebussylmaoxxt43
+      - MAILGUN_KEY=3435tdfsdudebussylmaoxxt43
       - MAILGUN_DOMAIN=rdrama.net
       - FORCE_HTTPS=0
-      - DISCORD_SERVER_ID=vcxvdfgfc6r554etrgd
-      - DISCORD_CLIENT_ID=vcxvdfgfc6r554etrgd
-      - DISCORD_CLIENT_SECRET=vcxvdfgfc6r554etrgd
-      - DISCORD_BOT_TOKEN=vcxvdfgfc6r554etrgd
-      - IMGUR_KEY=vcxvdfgfc6r554etrgd
-      - FACEBOOK_TOKEN=vcxvdfgfc6r554etrgd
-     #- HCAPTCHA_SITEKEY=vcxvdfgfc6r554etrgd
-      - HCAPTCHA_SECRET=vcxvdfgfc6r554etrgd
-      - YOUTUBE_KEY=vcxvdfgfc6r554etrgd
-      - PUSHER_KEY=vcxvdfgfc6r554etrgd
+      - DISCORD_SERVER_ID=3435tdfsdudebussylmaoxxt43
+      - DISCORD_CLIENT_ID=3435tdfsdudebussylmaoxxt43
+      - DISCORD_CLIENT_SECRET=3435tdfsdudebussylmaoxxt43
+      - DISCORD_BOT_TOKEN=3435tdfsdudebussylmaoxxt43
+      - IMGUR_KEY=3435tdfsdudebussylmaoxxt43
+     #- HCAPTCHA_SITEKEY=3435tdfsdudebussylmaoxxt43
+      - HCAPTCHA_SECRET=3435tdfsdudebussylmaoxxt43
+      - YOUTUBE_KEY=3435tdfsdudebussylmaoxxt43
+      - PUSHER_KEY=3435tdfsdudebussylmaoxxt43
       - SPAM_SIMILARITY_THRESHOLD=0.5
       - SPAM_SIMILAR_COUNT_THRESHOLD=5
       - SPAM_URL_SIMILARITY_THRESHOLD=0.1
@@ -38,6 +37,11 @@ services:
       - READ_ONLY=0
       - BOT_DISABLE=0
       - COINS_NAME=Dramacoins
+      - DEFAULT_THEME=dark
+      - DEFAULT_COLOR=ff66ac
+      - SLOGAN=Dude bussy lmao
+      - GUMROAD_TOKEN=3435tdfsdudebussylmaoxxt43
+      - GUMROAD_LINK=https://marsey1.gumroad.com/l/tfcvri
     links:
       - "redis"
       - "postgres"

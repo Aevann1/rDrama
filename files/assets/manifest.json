@@ -1,8 +1,8 @@
 {
-  "name": "Drama",
-  "short_name": "Drama",
+  "name": "files",
+  "short_name": "files",
   "start_url": "https://rdrama.net",
   "display": "standalone",
   "background_color": "#FF66AC",
-  "description": "Drama"
+  "description": "files"
 }

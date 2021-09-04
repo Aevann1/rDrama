@@ -9,23 +9,23 @@
 		<meta name="description" content="Sign up in under 27 seconds.">
 		<meta name="author" content="">
 		<meta property="og:type" content="article" />
-		<meta property="og:title" content="{{"SITE_NAME" | app_config}}" />
+		<meta property="og:title" content="{{'SITE_NAME' | app_config}}" />
 		<meta property="og:site_name" content="{{request.host}}" />
-		<meta property="og:image" content="{{'/assets/images/preview.png' | full_link}}" />
+		<meta property="og:image" content="{{'SITE_NAME' | app_config}}/assets/images/{{'SITE_NAME' | app_config}}/preview.gif" />
 		<meta property="og:url" content="{{request.host}}">
-		<meta property="og:description" name="description" content="Sign up now! Dude bussy lmao">
+		<meta property="og:description" name="description" content="Sign up now! {{'SLOGAN' | app_config}}">
 		<meta property="og:author" name="author" content="{{request.host_url}}" />
 		<meta property="og:site_name" content="{{request.host}}" />
 
 		<meta name="twitter:card" content="summary_large_image"/>
 		<meta name="twitter:site" content="{{request.host_url}}">
-		<meta name="twitter:title" content="{{"SITE_NAME" | app_config}}" />
+		<meta name="twitter:title" content="{{'SITE_NAME' | app_config}}" />
 		<meta name="twitter:creator" content="{{request.host_url}}">
-		<meta name="twitter:description" content="Sign up now! Dude bussy lmao" />
-		<meta name="twitter:image" content="{{'/assets/images/preview.png' | full_link}}" />
+		<meta name="twitter:description" content="Sign up now! {{'SLOGAN' | app_config}}" />
+		<meta name="twitter:image" content="{{'SITE_NAME' | app_config}}/assets/images/{{'SITE_NAME' | app_config}}/preview.gif" />
 		<meta name="twitter:url" content="{{request.host}}" />
 
-		<title>{% if ref_user %}{{ref_user.username}} invites you to {{"SITE_NAME" | app_config}}{% else %}{{"SITE_NAME" | app_config}}{% endif %}</title>
+		<title>{% if ref_user %}{{ref_user.username}} invites you to {{'SITE_NAME' | app_config}}{% else %}{{'SITE_NAME' | app_config}}{% endif %}</title>
 
 		<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600&display=swap" rel="stylesheet">
 
@@ -36,12 +36,12 @@
 		<!-- Font Awesome -->
 		<link href="/assets/fontawesome/css/all.css" rel="stylesheet"> <!--load all styles -->
 
-		<script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/latest/js/all.js"
+		<script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/latest/js/javascript.js"
 		integrity="sha384-L469/ELG4Bg9sDQbl0hvjMq8pOcqFgkSpwhwnslzvVVGpDjYJ6wJJyYjvG3u8XW7"
 		crossorigin="anonymous"></script>
 
-		<!-- {{"SITE_NAME" | app_config}} CSS -->
-		<link rel="stylesheet" href="/assets/style/dark_ff66ac.css">
+		<!-- {{'SITE_NAME' | app_config}} CSS -->
+		<link rel="stylesheet" href="/assets/style/{{'DEFAULT_THEME' | app_config}}.css">
 
 </head>
 
@@ -69,7 +69,7 @@
 								<div class="col-10 col-md-7">
 
 										<div class="text-center mb-5">
-												<a href="/" class="text-decoration-none"><span class="h3 text-primary">{{"SITE_NAME" | app_config}}</span></a>
+												<a href="/" class="text-decoration-none"><span class="h3 text-primary">{{'SITE_NAME' | app_config}}</span></a>
 										</div>
 
 										<div id="register-form" class="">
@@ -95,7 +95,7 @@
 
 										<div class="splash-overlay"></div>
 
-										<img class="splash-img" src="{{i.path}}"></img>
+										<img class="splash-img" src="/assets/images/{{'SITE_NAME' | app_config}}/cover.gif"></img>
 								</div>
 
 						</div>
@@ -142,9 +142,9 @@
 });
 </script>
 
-<!-- {{"SITE_NAME" | app_config}} JS -->
+<!-- {{'SITE_NAME' | app_config}} JS -->
 
-<script src="/assets/js/all_js.js"></script>
+<script src="/assets/js/javascript.js"></script>
 
 </body>
 

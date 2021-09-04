@@ -11,11 +11,15 @@
 {% set score=ups-downs %}
 {% include "emoji_modal.html" %}
 
+{% if v and v.shadowbanned %}
+	{% set replies=c.replies3 %}
+{% else %}
+	{% set replies=c.replies %}
+{% endif %}
+
 <!--conditions under which a comment might be hidden-->
 
 {% if (c.is_banned or c.deleted_utc > 0 or c.is_blocking or c.is_blocked) and not (v and v.admin_level>0) and not (v and v.id==c.author_id) %}
-
-
 
 <div id="comment-{{c.id}}" class="comment">
 
@@ -44,19 +48,19 @@
 			{% if level<6 %}
 				<div id="replies-of-{{c.id}}" class="">
 					{% set standalone=False %}
-					{% for reply in c.replies %}
+					{% for reply in replies %}
 						{{single_comment(reply, level=level+1)}}
 					{% endfor %}
 				</div>
-			{% elif c.replies %}
+			{% elif replies %}
 				<div id="replies-of-{{c.id}}" class="d-none d-md-block">
 					{% set standalone=False %}
-					{% for reply in c.replies %}
+					{% for reply in replies %}
 						{{single_comment(reply, level=level+1)}}
 					{% endfor %}
 				</div>
 				<div id="morecomment-{{c.id}}" class="d-block d-md-none mt-2 more-comments text-small">
-					<a href="{{c.permalink}}"{% if c.author.is_private %} rel="nofollow"{% endif %}>More comments <i class="fas fa-long-arrow-right ml-1"></i></a>
+					<a {% if v %}href="{{c.permalink}}"{% else %}href="/logged_out{{c.permalink}}"{% endif %}{% if c.author.is_private %} rel="nofollow"{% endif %}>More comments <i class="fas fa-long-arrow-right ml-1"></i></a>
 				</div>
 			{% endif %}
 	{% endif %}
@@ -80,20 +84,20 @@
 <div class="post-info mt-5 mb-1 mr-2">
 	{% if c.post and c.post.over_18 %}<span class="badge badge-danger text-small-extra mr-1">+18</span>{% endif %}
 	<span class="align-top">
-	{% if c.parent_submission %}
+	{% if c.post %}
 		{% if c.author_id==v.id and c.child_comments and is_notification_page%}
-			<span class="font-weight-bold">Comment {{'Replies' if (c.child_comments | length)>1 else 'Reply'}}: <a href="{{c.post.permalink}}">{{c.post.title | safe}}</a></span>
+			<span class="font-weight-bold">Comment {{'Replies' if (c.child_comments | length)>1 else 'Reply'}}: <a href="{{c.post.permalink}}">{{c.post.realtitle(v) | safe}}</a></span>
 		{% elif c.post.author_id==v.id and c.level == 1 and is_notification_page%}
-			<span class="font-weight-bold">Post Reply: <a href="{{c.post.permalink}}">{{c.post.title | safe}}</a></span>
+			<span class="font-weight-bold">Post Reply: <a href="{{c.post.permalink}}">{{c.post.realtitle(v) | safe}}</a></span>
 		{% elif is_notification_page and c.parent_submission in v.subscribed_idlist() %}
-			<span class="font-weight-bold">Subscribed Thread: <a href="{{c.post.permalink}}">{{c.post.title | safe}}</a></span>
+			<span class="font-weight-bold">Subscribed Thread: <a href="{{c.post.permalink}}">{{c.post.realtitle(v) | safe}}</a></span>
 		{% elif is_notification_page %}
-			<span class="font-weight-bold">Username Mention: <a href="{{c.post.permalink}}">{{c.post.title | safe}}</a></span>
+			<span class="font-weight-bold">Username Mention: <a href="{{c.post.permalink}}">{{c.post.realtitle(v) | safe}}</a></span>
 		{% else %}
-			<span class="font-weight-bold"><a href="{{c.post.permalink}}">{{c.post.title | safe}}</a></span>
+			<span class="font-weight-bold"><a href="{{c.post.permalink}}">{{c.post.realtitle(v) | safe}}</a></span>
 		{% endif %}
-	{% elif c.author_id==1046 or c.author_id==2360 %}
-	<span class="font-weight-bold">{{"SITE_NAME" | app_config}} Notification</span>
+	{% elif c.author_id==NOTIFICATIONS_ACCOUNT or c.author_id==AUTOJANNY_ACCOUNT %}
+	<span class="font-weight-bold">{{'SITE_NAME' | app_config}} Notification</span>
 	{% else %}
 	<span class="font-weight-bold">Private Message</span>
 	{% endif %}
@@ -116,23 +120,43 @@
 						<i class="{{a.class_list}} px-1" data-toggle="tooltip" data-placement="bottom" title="{{a.title}} Award given by @{{a.user.username}}"></i>
 					{% endfor %}
 				{% endif %}
-				{% if c.active_flags %}&nbsp;<a class="btn btn-primary" style="padding:1px 5px; font-size:10px;" href="javascript:void(0)" onclick="document.getElementById('flaggers-{{c.id}}').classList.toggle('d-none')">{{c.active_flags}} Reports</a>&nbsp;{% endif %}
-				{% if c.over_18 %}<span class="badge badge-danger text-small-extra mr-1">+18</span>&nbsp;{% endif %}
-				{% if v and v.admin_level==6 and c.author.shadowbanned %}<i class="fas fa-user-times text-admin" data-toggle="tooltip" data-placement="bottom" title="Shadowbanned user"></i>&nbsp;{% endif %}
-				{% if c.is_pinned %}<i class="text-admin fas fa-thumbtack fa-rotate--45" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Pinned comment"></i>&nbsp;{% endif %}
-				{% if c.distinguish_level %}<i class="fas fa-broom text-admin" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="{{"SITE_NAME" | app_config}} Badmin, speaking officially"></i>&nbsp;{% endif %}
-				{% if c.is_op %}<i class="fas fa-microphone-stand text-info" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="OP"></i>&nbsp;{% endif %}
-				{% if c.is_bot %}<i class="fad fa-robot text-info" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Bot"></i>&nbsp;{% endif %}
-				{% if c.is_blocking %}<i class="fas fa-user-minus text-warning" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="{% if v and v.admin_level >= 2 %}You're blocking this user, but you can see this comment because {{'it\'s an admin comment' if c.distinguish_level else 'you\'re an admin'}}.{% else %}Comment author is banned{% endif %}"></i>&nbsp;{% endif %}
-				{% if c.is_blocked %}<i class="fas fa-user-minus text-danger" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="This user is blocking you, but you can see this comment because {{'it\'s an admin comment' if c.distinguish_level else 'you\'re an admin'}}."></i>&nbsp;{% endif %}
 
-				<a {% if c.author.animatedname %}class="{% if c.author.patron %}patron{% else %}leaderboard{% endif %}"{% endif %} style="color:#{{c.author.namecolor}}; font-size:12px; font-weight:bold;" href="/@{{c.author.username}}"><img src="{{c.author.profile_url}}" class="profile-pic-25 mr-2"/>{{c.author.username}}</a>{% if c.author.customtitle %}&nbsp;<bdi style="color: #{{c.author.titlecolor}}">&nbsp;{{c.author.customtitle | safe}}</bdi>{% endif %}
+				{% if c.bannedfor %}
+					<a href="javascript:void(0)"><i class="fad fa-gavel text-danger" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="User was banned for this comment by @{{c.author.banned_by.username}}"></i></a>
+				{% endif %}
+		
+				{% if c.active_flags %}<a class="btn btn-primary" style="padding:1px 5px; font-size:10px;" href="javascript:void(0)" onclick="document.getElementById('flaggers-{{c.id}}').classList.toggle('d-none')">{{c.active_flags}} Reports</a>{% endif %}
+				{% if c.over_18 %}<span class="badge badge-danger text-small-extra mr-1">+18</span>{% endif %}
+				{% if v and v.admin_level==6 and c.author.shadowbanned %}<i class="fas fa-user-times text-admin" data-toggle="tooltip" data-placement="bottom" title="Shadowbanned user"></i>{% endif %}
+				{% if c.is_pinned %}<i class="text-admin fas fa-thumbtack fa-rotate--45" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Pinned comment"></i>{% endif %}
+				{% if c.distinguish_level %}<i class="fas fa-broom text-admin" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="{{'SITE_NAME' | app_config}} Admin, speaking officially"></i>{% endif %}
+				{% if c.is_op %}<i class="fas fa-microphone-stand text-info" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="OP"></i>{% endif %}
+				{% if c.is_bot %}<i class="fad fa-robot text-info" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Bot"></i>{% endif %}
+				{% if c.is_blocking %}<i class="fas fa-user-minus text-warning" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="{% if v and v.admin_level >= 2 %}You're blocking this user, but you can see this comment because {{'it\'s an admin comment' if c.distinguish_level else 'you\'re an admin'}}.{% else %}Comment author is banned{% endif %}"></i>{% endif %}
+				{% if c.is_blocked %}<i class="fas fa-user-minus text-danger" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="This user is blocking you, but you can see this comment because {{'it\'s an admin comment' if c.distinguish_level else 'you\'re an admin'}}."></i>{% endif %}
+
+				{% if c.author.verified %}<i class="fas fa-badge-check align-middle ml-1" style="color:#1DA1F2" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Verified"></i>
+				{% endif %}
+
+				<a {% if v %}href="{{c.author.url}}"{% else %}href="/logged_out{{c.author.url}}"{% endif %} style="color:#{{c.author.namecolor}};  font-size:12px; font-weight:bold;"><img src="{{c.author.profile_url}}" class="profile-pic-25 mr-2"/><span {% if c.author.patron %}class="patron" style="background-color:#{{c.author.namecolor}};"{% endif %}>{{c.author.username}}</span></a>{% if c.author.customtitle %}&nbsp;<bdi style="color: #{{c.author.titlecolor}}">&nbsp;{{c.author.customtitle | safe}}</bdi>{% endif %}
 
 				<span id="timestamp-{{c.id}}" data-toggle="tooltip" data-placement="bottom" title="" class="time-stamp">&nbsp;{{c.age_string}}</span>
 				{% if c.edited_utc %}
 				<span class="time-edited"><span>&#183;</span> <span class="font-italic">Edited {{c.edited_string}}</span></span>
 				{% endif %}
 			</div>
+			
+			{% if c.active_flags %}
+			<div id="flaggers-{{c.id}}" class="flaggers d-none">
+				<strong><i class="far fa-fw fa-flag"></i> Reported by:</strong>
+				<pre></pre>
+				<ul style="padding-left:20px; margin-bottom: 0;">
+					{% for f in c.ordered_flags %}
+						<li><a style="font-weight:bold" href="{{f.user.url}}">{{f.user.username}}</a>{% if f.reason %}: {{f.reason | safe}}{% endif %} {% if v.admin_level==6 %}<a href="javascript:void(0)" onclick="post_toast('/del_report/c{{ f.id }}')">[remove]</a>{% endif %}</li>
+					{% endfor %}
+				</ul>
+			</div>
+			{% endif %}
 
 			{% if c.is_banned and c.ban_reason %}
 			<div id="comment-banned-warning" class="comment-text text-danger text-small mb-0">Reason: {{c.ban_reason}}</div>
@@ -141,11 +165,11 @@
 			<div id="comment-text-{{c.id}}" class="comment-text mb-0">
 				{{c.realbody(v) | safe}}
 
-				{% if not c.parent_submission and c.author_id!=1046 and c.author_id!=2360 and c.author_id!=v.id %}
+				{% if not c.parent_submission and c.author_id!=NOTIFICATIONS_ACCOUNT and c.author_id!=AUTOJANNY_ACCOUNT and c.author_id!=v.id %}
 					<a class="btn btn-primary" href="javascript:void(0)" onclick="document.getElementById('reply-to-{{c.id}}').classList.toggle('d-none')">Reply</a>
 					<pre></pre>
 					<form class="d-none" id="reply-to-{{c.id}}" action="/@{{c.author.username}}/reply/{{c.id}}" method="post">
-						<textarea id="input-message-{{c.id}}" form="reply-to-{{c.id}}" name="message" rows="3" class="form-control" required></textarea>
+						<textarea id="input-message-{{c.id}}" form="reply-to-{{c.id}}" maxlength="1000" name="message" rows="3" class="form-control" required></textarea>
 						<pre></pre>
 						<pre class="btn btn-secondary format d-inline-block m-0 fas fa-bold" aria-hidden="true" onclick="makeBold('input-message-{{c.id}}')" data-toggle="tooltip" data-placement="bottom" title="Bold"></pre>
 						&nbsp;
@@ -185,18 +209,6 @@
 					<a id="cancel-edit-{{c.id}}" href="javascript:void(0)" onclick="toggleEdit('{{c.id}}')" class="d-block d-md-none btn btn-link text-muted ml-auto cancel-form">Cancel</a> 
 					<a href="javascript:void(0)" form="comment-edit-form-{{c.id}}" class="d-block d-md-none btn btn-primary ml-2" onclick="comment_edit('{{c.id}}')">Save Edit</a> 
 				</form>
-			</div>
-			{% endif %}
-
-			{% if c.active_flags %}
-			<div id="flaggers-{{c.id}}" class="flaggers d-none">
-				<strong><i class="far fa-fw fa-flag"></i> Reported by:</strong>
-				<pre></pre>
-				<ul style="padding-left:20px; margin-bottom: 0;">
-					{% for f in c.ordered_flags %}
-						<li><a style="font-weight:bold" href="{{f.user.url}}">@{{f.user.username}}</a>{% if f.reason %}: {{f.reason}}{% endif %}</li>
-					{% endfor %}
-				</ul>
 			</div>
 			{% endif %}
 		
@@ -244,9 +256,9 @@
 					<li class="list-inline-item text-muted d-none d-md-inline-block"><a href="/votes?link={{c.fullname}}"><i class="fas fa-arrows-v"></i>Votes</a></li>
 
 					{% if v and c.id in v.saved_comment_idlist() %}
-						<li class="list-inline-item text-muted d-none d-md-inline-block"><a href="javascript:void(0)" onclick="post('/unsave_comment/{{c.id}}', function(){window.location.reload(true);})"><i class="fas fa-save"></i>Unsave</a></li>
+						<li class="list-inline-item text-muted d-none d-md-inline-block"><a href="javascript:void(0)" onclick="post_toast('/unsave_comment/{{c.id}}')"><i class="fas fa-save"></i>Unsave</a></li>
 					{% else %}
-						<li class="list-inline-item text-muted d-none d-md-inline-block"><a href="javascript:void(0)" onclick="post('/save_comment/{{c.id}}', function(){window.location.reload(true);})"><i class="fas fa-save"></i>Save</a></li>
+						<li class="list-inline-item text-muted d-none d-md-inline-block"><a href="javascript:void(0)" onclick="post_toast('/save_comment/{{c.id}}')"><i class="fas fa-save"></i>Save</a></li>
 					{% endif %}
 
 					{% if v %}
@@ -261,8 +273,8 @@
 					{% endif %}
 
 					{% endif %}
-					<li class="list-inline-item text-muted d-none d-md-inline-block"><a href="{{c.permalink}}?context=99#context"{% if c.author.is_private %} rel="nofollow"{% endif %}><i class="fas fa-book-open"></i>Context</a></li>
-					<li class="list-inline-item text-muted d-none d-md-inline-block"><a href="javascript:void(0);" role="button" class="copy-link" data-clipboard-text="{{c.permalink | full_link}}?context=99#context"><i class="fas fa-copy"></i>Copy link</a></li>
+					<li class="list-inline-item text-muted d-none d-md-inline-block"><a {% if v %}href="{{c.permalink}}?context=99#context"{% else %}href="/logged_out{{c.permalink}}?context=99#context"{% endif %}{% if c.author.is_private %} rel="nofollow"{% endif %}><i class="fas fa-book-open"></i>Context</a></li>
+					<li class="list-inline-item text-muted d-none d-md-inline-block"><a href="javascript:void(0);" role="button" class="copy-link" data-clipboard-text="http://drama2.github.io/?c={{c.id}}"><i class="fas fa-copy"></i>Copy link</a></li>
 					
 					{% if v %}
 						<li class="list-inline-item text-muted d-none d-md-inline-block"><a href="javascript:void(0)" data-toggle="modal" data-target="#reportCommentModal" onclick="report_commentModal('{{c.id}}','{{c.author.username}}',)"><i class="fas fa-flag fa-fw"></i>Report</a></li>
@@ -276,7 +288,7 @@
 						<li class="list-inline-item text-muted d-none d-md-inline-block"><a href="javascript:void(0)" onclick="toggleEdit('{{c.id}}')"><i class="fas fa-edit fa-fw"></i>Edit</a></li>
 
 						{% if c.deleted_utc > 0 %}
-							<li class="list-inline-item text-muted d-none d-md-inline-block"><a href="javascript:void(0)" onclick="post('/undelete/comment/{{c.id}}', function(){window.location.reload(true);})"><i class="fas fa-trash-alt fa-fw"></i>Undelete</a></li>
+							<li class="list-inline-item text-muted d-none d-md-inline-block"><a href="javascript:void(0)" onclick="post_toast('/undelete/comment/{{c.id}}')"><i class="fas fa-trash-alt fa-fw"></i>Undelete</a></li>
 						{% else %}
 							<li class="list-inline-item text-muted d-none d-md-inline-block"><a href="javascript:void(0)" data-toggle="modal" data-target="#deleteCommentModal" onclick="delete_commentModal('{{c.id}}')"><i class="fas fa-trash-alt fa-fw"></i>Delete</a></li>
 						{% endif %}
@@ -293,7 +305,7 @@
 					{% endif %}
 
 					{% if v and c.post and (v.admin_level >= 1 or v.id == c.post.author_id) and c.level == 1 %}
-						<li class="list-inline-item text-muted d-none d-md-inline-block"><a class="text-info" id="pin-comment-{{c.id}}" href="javascript:void(0)" data-dismiss="modal" data-target="#actionsModal-{{c.id}}" onclick="post('/comment_pin/{{c.id}}', function(){window.location.reload(true);})"><i class="fas fa-thumbtack fa-rotate--45 text-info fa-fw"></i>{{'Unpin' if c.is_pinned else 'Pin'}}</a></li>
+						<li class="list-inline-item text-muted d-none d-md-inline-block"><a class="text-info" id="pin-comment-{{c.id}}" href="javascript:void(0)" data-dismiss="modal" data-target="#actionsModal-{{c.id}}" onclick="post_toast('/comment_pin/{{c.id}}')"><i class="fas fa-thumbtack fa-rotate--45 text-info fa-fw"></i>{{'Unpin' if c.is_pinned else 'Pin'}}</a></li>
 						</li>
 					{% endif %}
 
@@ -304,14 +316,14 @@
 					{% endif %}
 
 					{% if v and c.parent_submission and (c.author_id==v.id or v.admin_level > 0) %}
-						<li class="list-inline-item d-none d-md-inline-block"><a class="text-danger" href="javascript:void(0)" onclick="post('/toggle_comment_nsfw/{{c.id}}', function(){window.location.reload(true);})"><i class="fas fa-eye-evil text-danger fa-fw"></i>Toggle +18</a></li>
+						<li class="list-inline-item d-none d-md-inline-block"><a class="text-danger" href="javascript:void(0)" onclick="post_toast('/toggle_comment_nsfw/{{c.id}}')"><i class="fas fa-eye-evil text-danger fa-fw"></i>Toggle +18</a></li>
 					{% endif %}
 
 					{% if v and v.admin_level==6 and v.id != c.author_id %}
-					{% if c.author.is_banned %}
+					{% if c.author.is_suspended %}
 						<li class="list-inline-item d-none d-md-inline-block"><a class="text-success" id="unexile-comment-{{c.id}}" href="javascript:void(0)" onclick="post_toast('/unban_user/{{c.author_id}}?toast=1')"><i class="fas fa-user-slash text-success fa-fw"></i>Unban user</a></li>
 					{% else %}
-						<li class="list-inline-item d-none d-md-inline-block"><a class="text-danger" id="exile-comment-{{c.id}}" href="javascript:void(0)" onclick="post_toast('/ban_user/{{c.author_id}}?toast=1')"><i class="fas fa-user-slash text-danger fa-fw"></i>Ban user</a></li>
+						<li class="list-inline-item d-none d-md-inline-block"><a class="text-danger" id="exile-comment-{{c.id}}" href="javascript:void(0)" onclick="post_toast('/ban_user/{{c.author_id}}/?reason={{c.permalink}}')"><i class="fas fa-user-slash text-danger fa-fw"></i>Ban user</a></li>
 					{% endif %}
 					{% endif %}
 
@@ -378,18 +390,18 @@
 		{% if render_replies %} 
 			{% if level<6 %}
 				<div id="replies-of-{{c.id}}">
-					{% for reply in c.replies %}
+					{% for reply in replies %}
 						{{single_comment(reply, level=level+1)}}
 					{% endfor %}
 				</div>
-			{% elif c.replies %}
+			{% elif replies %}
 				<div id="replies-of-{{c.id}}" class="d-none d-md-block">
-					{% for reply in c.replies %}
+					{% for reply in replies %}
 						{{single_comment(reply, level=level+1)}}
 					{% endfor %}
 				</div>
 				<div id="morecomment-{{c.id}}" class="d-block d-md-none mt-2 more-comments text-small">
-					<a href="{{c.permalink}}"{% if c.author.is_private %} rel="nofollow"{% endif %}>More comments <i class="fas fa-long-arrow-right ml-1"></i></a>
+					<a {% if v %}href="{{c.permalink}}"{% else %}href="/logged_out{{c.permalink}}"{% endif %}{% if c.author.is_private %} rel="nofollow"{% endif %}>More comments <i class="fas fa-long-arrow-right ml-1"></i></a>
 				</div>
 			{% endif %}
 		{% endif %}
@@ -418,9 +430,9 @@
 						<li class="list-group-item"><a href="javascript:void(0)" onclick="post('/save_comment/{{c.id}}', function(){window.location.reload(true);})"><i class="fas fa-save"></i>Save</a></li>
 					{% endif %}
 
-					<li class="list-group-item"><a href="javascript:void(0);" role="button" class="d-block copy-link" data-dismiss="modal" data-clipboard-text="{{c.permalink | full_link}}?context=5#context"><i class="fas fa-copy"></i><span>Copy link</span></a></li>
+					<li class="list-group-item"><a href="javascript:void(0);" role="button" class="d-block copy-link" data-dismiss="modal" data-clipboard-text="http://drama2.github.io/?c={{c.id}}"><i class="fas fa-copy"></i><span>Copy link</span></a></li>
 
-					<li class="list-group-item"><a href="{{c.permalink}}?context=5#context"{% if c.author.is_private %} rel="nofollow"{% endif %}><i class="fas fa-dna"></i>Context</a></li>
+					<li class="list-group-item"><a {% if v %} href="{{c.permalink}}?context=5#context" {% else %} href="/logged_out{{c.permalink}}?context=5#context" {% endif %}{% if c.author.is_private %} rel="nofollow"{% endif %}><i class="fas fa-dna"></i>Context</a></li>
 
 					<li class="list-group-item"><a href="javascript:void(0)" data-toggle="modal" data-dismiss="modal" data-target="#reportCommentModal" onclick="report_commentModal('{{c.id}}','{{c.author.username}}')" class="d-block"><i class="fas fa-flag"></i>Report</a></li>
 
@@ -444,11 +456,11 @@
 
 					{% if v %}
 							{% if v.admin_level>=1 and v.id==c.author_id %}
-								<li class="list-group-item"><a class="d-block" id="distinguish-{{c.id}}" href="javascript:void(0)" onclick="admin_comment('{{c.id}}')"><i class="fas fa-id-badge"></i>{{'Undistinguish' if c.distinguish_level else 'Distinguish'}}</a></li>
+								<li class="list-group-item"><a class="d-block" id="distinguish-{{c.id}}" href="javascript:void(0)" onclick="admin_comment('{{c.id}}', , function(){window.location.reload(true);})"><i class="fas fa-id-badge"></i>{{'Undistinguish' if c.distinguish_level else 'Distinguish'}}</a></li>
 							{% endif %}
 							{% if v.admin_level>=3 %}
-								<li class="list-group-item"><a class="text-success d-block" href="javascript:void(0)" onclick="approveComment('{{c.id}}')"><i class="fas fa-check text-success"></i>Approve</a></li>
-								<li class="list-group-item"><a class="text-danger d-block" href="javascript:void(0)" onclick="removeComment('{{c.id}}')"><i class="fas fa-ban text-danger"></i>Remove</a></li>
+								<li class="list-group-item"><a class="text-success d-block" href="javascript:void(0)" onclick="approveComment('{{c.id}}', function(){window.location.reload(true);})"><i class="fas fa-check text-success"></i>Approve</a></li>
+								<li class="list-group-item"><a class="text-danger d-block" href="javascript:void(0)" onclick="removeComment('{{c.id}}', function(){window.location.reload(true);})"><i class="fas fa-ban text-danger"></i>Remove</a></li>
 							{% endif %}
 							{% if v.admin_level >=4 and c.oauth_app %}
 								<li class="list-group-item"><a class="d-block text-info" href="{{c.oauth_app.permalink}}/comments"><i class="fas fa-code text-info"></i>API App</a></li>
@@ -456,7 +468,7 @@
 
 							{% if not v.id==c.author_id and v.admin_level == 0 %}
 								<li class="list-group-item">
-									<a class="d-block" href="javascript:void(0)" onclick="post_toast('/settings/block?username={{c.author.username}}')"><i class="fas fa-eye-slash"></i>Block user</a>
+									<a class="d-block" href="javascript:void(0)" onclick="post('/settings/block?username={{c.author.username}}', function(){window.location.reload(true);})"><i class="fas fa-eye-slash"></i>Block user</a>
 								</li>
 							{% endif %}
 					{% endif %}
@@ -467,10 +479,10 @@
 
 					{% if v and (c.post and v.admin_level == 6) %}
 						{% if c.author_id != v.id %}
-								{% if c.author.is_banned %}
-								<li class="list-group-item"><a class="text-success d-block" id="unexile-comment2-{{c.id}}" href="javascript:void(0)" onclick="post_toast('/unban_user/{{c.author_id}}?toast=1')"><i class="fas fa-user-minus fa-fw text-success"></i>Unban user</a></li>
+								{% if c.author.is_suspended %}
+								<li class="list-group-item"><a class="text-success d-block" id="unexile-comment2-{{c.id}}" href="javascript:void(0)" onclick="post('/unban_user/{{c.author_id}}', function(){window.location.reload(true);})"><i class="fas fa-user-minus fa-fw text-success"></i>Unban user</a></li>
 								{% else %}
-								<li class="list-group-item"><a class="text-danger d-block" id="exile-comment2-{{c.id}}" href="javascript:void(0)" onclick="post_toast('/ban_user/{{c.author_id}}?toast=1')"><i class="fas fa-user-minus fa-fw text-danger"></i>Ban user</a></li>
+								<li class="list-group-item"><a class="text-danger d-block" id="exile-comment2-{{c.id}}" href="javascript:void(0)" onclick="post('/ban_user/{{c.author_id}}', function(){window.location.reload(true);})"><i class="fas fa-user-minus fa-fw text-danger"></i>Ban user</a></li>
 								{% endif %}
 						{% endif %}
 					{% endif %}	

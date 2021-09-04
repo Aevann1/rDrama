@@ -1,8 +1,8 @@
 {% extends "default.html" %}
 
 {% block title %}
-<title>{{"SITE_NAME" | app_config}} - Contact</title>
-<meta name="description" content="Contact {{"SITE_NAME" | app_config}} Admins">
+<title>{{'SITE_NAME' | app_config}} - Contact</title>
+<meta name="description" content="Contact {{'SITE_NAME' | app_config}} Admins">
 {% endblock %}
 
 	
@@ -31,10 +31,10 @@
 		</div>
 		{% endif %}
 
-<h1 class="article-title">Contact {{"SITE_NAME" | app_config}} Admins</h1>
+<h1 class="article-title">Contact {{'SITE_NAME' | app_config}} Admins</h1>
 {% if v and v.is_activated and not v.is_suspended %}
 
-<p>Use this form to contact {{"SITE_NAME" | app_config}} Admins.</p>
+<p>Use this form to contact {{'SITE_NAME' | app_config}} Admins.</p>
 
 <label class="mt-3">Your Email</label>
 <input class="form-control" value="{{v.email}}" readonly="readonly" disabled>
@@ -50,7 +50,7 @@
 
 {% elif v and v.is_suspended %}
 
-<p>Your {{"SITE_NAME" | app_config}} account has been suspended. You are not permitted to use this form.</p>
+<p>Your {{'SITE_NAME' | app_config}} account has been suspended. You are not permitted to use this form.</p>
 
 
 {% elif v %}

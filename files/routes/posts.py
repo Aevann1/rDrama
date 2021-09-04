@@ -11,19 +11,20 @@ from files.helpers.session import *
 from files.helpers.thumbs import *
 from files.helpers.alerts import send_notification
 from files.helpers.discord import send_message
+from files.helpers.const import *
 from files.classes import *
 from flask import *
 from io import BytesIO
 from files.__main__ import app, limiter, cache
 from PIL import Image as PILimage
-from .front import frontlist
+from .front import frontlist, changeloglist
 
 site = environ.get("DOMAIN").strip()
 
 with open("snappy.txt", "r") as f: snappyquotes = f.read().split("{[para]}")
 
 @app.post("/publish/<pid>")
-@is_not_banned
+@auth_required
 @validate_formkey
 def publish(pid, v):
 	post = get_post(pid)
@@ -38,15 +39,22 @@ def publish(pid, v):
 @app.get("/submit")
 @auth_required
 def submit_get(v):
-	if v and v.is_banned and not v.unban_utc: return render_template("seized.html")
+
 		
 	return render_template("submit.html",
 						   v=v)
 
 @app.get("/post/<pid>")
 @app.get("/post/<pid>/<anything>")
+@app.get("/logged_out/post/<pid>")
+@app.get("/logged_out/post/<pid>/<anything>")
 @auth_desired
 def post_id(pid, anything=None, v=None):
+
+	if not v and "logged_out" not in request.path: return redirect(f"/logged_out/post/{pid}")
+
+	if v and "logged_out" in request.full_path: v = None
+
 	try: pid = int(pid)
 	except Exception as e: pass
 
@@ -201,7 +209,6 @@ def post_id(pid, anything=None, v=None):
 
 	post.views += 1
 	g.db.add(post)
-	g.db.commit()
 	if isinstance(session.get('over_18', 0), dict): session["over_18"] = 0
 	if post.over_18 and not (v and v.over_18) and not session.get('over_18', 0) >= int(time.time()):
 		if request.headers.get("Authorization"): return {"error":"Must be 18+ to view"}, 451
@@ -215,9 +222,11 @@ def post_id(pid, anything=None, v=None):
 
 
 @app.post("/edit_post/<pid>")
-@is_not_banned
+@auth_required
 @validate_formkey
 def edit_post(pid, v):
+
+	title = request.form.get("title")
 
 	p = get_post(pid)
 
@@ -228,9 +237,9 @@ def edit_post(pid, v):
 		abort(403)
 
 	body = request.form.get("body", "")
-	for i in re.finditer('^(https:\/\/.*\.(png|jpg|jpeg|gif|PNG|JPG|JPEG|GIF))', body, re.MULTILINE): body = body.replace(i.group(1), f'![]({i.group(1)})')
+	for i in re.finditer('^(https:\/\/.*\.(png|jpg|jpeg|gif|PNG|JPG|JPEG|GIF|9999))', body, re.MULTILINE): body = body.replace(i.group(1), f'![]({i.group(1)})')
 	with CustomRenderer() as renderer: body_md = renderer.render(mistletoe.Document(body))
-	body_html = sanitize(body_md, linkgen=True)
+	body_html = sanitize(body_md)
 
 	# Run safety filter
 	bans = filter_comment_html(body_html)
@@ -267,7 +276,7 @@ def edit_post(pid, v):
 		if badlink:
 			if badlink.autoban:
 				text = "Your account has been suspended for 1 day for the following reason:\n\n> Too much spam!"
-				send_notification(1046, v, text)
+				send_notification(NOTIFICATIONS_ACCOUNT, v, text)
 				v.ban(days=1, reason="spam")
 
 				return redirect('/notifications')
@@ -278,9 +287,8 @@ def edit_post(pid, v):
 
 	p.body = body
 	p.body_html = body_html
-	title = request.form.get("title")
 	p.title = title
-	p.title_html = sanitize(title, flair=True)
+	p.title_html = filter_title(title)
 
 	if int(time.time()) - p.created_utc > 60 * 3: p.edited_utc = int(time.time())
 	g.db.add(p)
@@ -292,7 +300,7 @@ def edit_post(pid, v):
 
 		g.db.add(p)
 
-		c_jannied = Comment(author_id=2317,
+		c_jannied = Comment(author_id=AUTOJANNY_ACCOUNT,
 			parent_submission=p.id,
 			level=1,
 			over_18=False,
@@ -305,12 +313,7 @@ def edit_post(pid, v):
 		g.db.add(c_jannied)
 		g.db.flush()
 
-		body = f"""Hi @{v.username},\n\nYour post has been automatically removed because you forgot
-				to include `trans lives matter`.\n\nDon't worry, we're here to help! We 
-				won't let you post or comment anything that doesn't express your love and acceptance towards 
-				the trans community. Feel free to resubmit your post with `trans lives matter` 
-				included. \n\n*This is an automated message; if you need help,
-				you can message us [here](/contact).*"""
+		body = AGENDAPOSTER_MSG.format(username=v.username)
 
 		with CustomRenderer(post_id=p.id) as renderer:
 			body_md = renderer.render(mistletoe.Document(body))
@@ -334,13 +337,13 @@ def edit_post(pid, v):
 		user = g.db.query(User).filter_by(username=username).first()
 		if user and not v.any_block_exists(user) and user.id != v.id: notify_users.add(user)
 		
-	for x in notify_users: send_notification(1046, x, f"@{v.username} has mentioned you: https://{site}{p.permalink}")
+	for x in notify_users: send_notification(NOTIFICATIONS_ACCOUNT, x, f"@{v.username} has mentioned you: https://{site}{p.permalink}")
 
 	return redirect(p.permalink)
 
 @app.get("/submit/title")
 @limiter.limit("6/minute")
-@is_not_banned
+@auth_required
 def get_post_title(v):
 
 	url = request.args.get("url", None)
@@ -483,28 +486,25 @@ def thumbs(new_post):
 
 	post.thumburl = upload_file(resize=True)
 	g.db.add(post)
-	g.db.commit()
 
 def archiveorg(url):
 	try: requests.get(f'https://web.archive.org/save/{url}', headers={'User-Agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'}, timeout=100)
 	except Exception as e: print(e)
 
+def filter_title(title):
+	title = title.strip()
+	title = title.replace("\n", "")
+	title = title.replace("\r", "")
+	title = title.replace("\t", "")
 
-@app.route("/embed/post/<pid>", methods=["GET"])
-def embed_post_pid(pid):
+	# sanitize title
+	title = bleach.clean(title, tags=[])
 
-    post = get_post(pid)
+	for i in re.finditer(':(.{1,30}?):', title):
+		if path.isfile(f'./files/assets/images/emojis/{i.group(1)}.gif'):
+			title = title.replace(f':{i.group(1)}:', f'<img data-toggle="tooltip" title="{i.group(1)}" delay="0" height=20 src="https://{site}/assets/images/emojis/{i.group(1)}.gif"<span>')
 
-    return render_template("embeds/post.html", p=post)
-
-
-@app.route("/embed/comment/<cid>", methods=["GET"])
-def embed_comment_cid(cid, pid=None):
-
-    comment = get_comment(cid)
-
-    return render_template("embeds/comment.html", c=comment)
-
+	return title
 
 @app.post("/submit")
 @limiter.limit("6/minute")
@@ -512,17 +512,20 @@ def embed_comment_cid(cid, pid=None):
 @validate_formkey
 def submit_post(v):
 
-
-	title = request.form.get("title", "").strip()
-
-	title = title.strip()
-	title = title.replace("\n", "")
-	title = title.replace("\r", "")
-	title = title.replace("\t", "")
-
+	title = request.form.get("title", "")
 	url = request.form.get("url", "")
-	
+
 	if url:
+		for rd in ["https://reddit.com/", "https://new.reddit.com/", "https://www.reddit.com/", "https://redd.it/"]:
+			url = url.replace(rd, "https://old.reddit.com/")
+				
+		url = url.replace("https://mobile.twitter.com", "https://twitter.com")
+		if url.startswith("https://streamable.com/") and not url.startswith("https://streamable.com/e/"):
+			url = url.replace("https://streamable.com/", "https://streamable.com/e/")
+
+		if "i.imgur.com" in url: url = url.replace(".png", "_d.png").replace(".jpg", "_d.jpg").replace(".jpeg", "_d.jpeg")
+		if "_d." in url: url += "?maxwidth=9999"
+
 		repost = g.db.query(Submission).join(Submission.submission_aux).filter(
 			SubmissionAux.url.ilike(url),
 			Submission.deleted_utc == 0,
@@ -543,7 +546,6 @@ def submit_post(v):
 		if request.headers.get("Authorization"): return {"error": "500 character limit for titles"}, 400
 		else: render_template("submit.html", v=v, error="500 character limit for titles.", title=title[:500], url=url, body=request.form.get("body", "")), 400
 
-
 	parsed_url = urlparse(url)
 	if not (parsed_url.scheme and parsed_url.netloc) and not request.form.get(
 			"body") and not request.files.get("file", None):
@@ -551,8 +553,6 @@ def submit_post(v):
 		if request.headers.get("Authorization"): return {"error": "`url` or `body` parameter required."}, 400
 		else: return render_template("submit.html", v=v, error="Please enter a url or some text.", title=title, url=url, body=request.form.get("body", "")), 400
 
-	# sanitize title
-	title = bleach.clean(title, tags=[])
 
 	# Force https for submitted urls
 
@@ -566,8 +566,6 @@ def submit_post(v):
 		url = urlunparse(new_url)
 	else:
 		url = ""
-
-	if "i.imgur.com" in url: url = url.replace(".png", "_d.png").replace(".jpg", "_d.jpg").replace(".jpeg", "_d.jpeg") + "?maxwidth=8888"
 	
 	body = request.form.get("body", "")
 	# check for duplicate
@@ -614,17 +612,10 @@ def submit_post(v):
 			if t: embed = f"https://youtube.com/embed/{yt_id}?start={t}"
 			else: embed = f"https://youtube.com/embed/{yt_id}"
 
-	elif "instagram.com" in domain:
-		embed = requests.get("https://graph.facebook.com/v9.0/instagram_oembed", params={"url":url,"access_token":environ.get("FACEBOOK_TOKEN","").strip(),"omitscript":'true'}, headers={"User-Agent": app.config["UserAgent"]}).json()["html"]
-
-	elif app.config['SERVER_NAME'] in domain:
-		try:
-			matches = re.match(re.compile(f"^.*{domain}/post/+\w+/(\w+)(/\w+/(\w+))?"), url)
-			post_id = matches.group(1)
-			comment_id = matches.group(3)
-			if comment_id: embed = f"https://{app.config['SERVER_NAME']}/embed/comment/{comment_id}"
-			else: embed = f"https://{app.config['SERVER_NAME']}/embed/post/{post_id}"
-		except: embed = None
+	elif app.config['SERVER_NAME'] in domain and "/post/" in url and "context" not in url:
+		id = url.split("/post/")[1]
+		if "/" in id: id = id.split("/")[0]
+		embed = id
 
 	else: embed = None
 
@@ -681,7 +672,7 @@ def submit_post(v):
 	if max(len(similar_urls), len(similar_posts)) >= threshold:
 
 		text = "Your account has been suspended for 1 day for the following reason:\n\n> Too much spam!"
-		send_notification(1046, v, text)
+		send_notification(NOTIFICATIONS_ACCOUNT, v, text)
 
 		v.ban(reason="Spamming.",
 			  days=1)
@@ -696,13 +687,12 @@ def submit_post(v):
 			post.ban_reason = "Automatic spam removal. This happened because the post's creator submitted too much similar content too quickly."
 			g.db.add(post)
 			ma=ModAction(
-					user_id=2317,
+					user_id=AUTOJANNY_ACCOUNT,
 					target_submission_id=post.id,
 					kind="ban_post",
 					note="spam"
 					)
 			g.db.add(ma)
-		g.db.commit()
 		return redirect("/notifications")
 
 	# catch too-long body
@@ -717,10 +707,10 @@ def submit_post(v):
 		else: return render_template("submit.html", v=v, error="2048 character limit for URLs.", title=title, url=url,body=request.form.get("body", "")), 400
 
 	# render text
-	for i in re.finditer('^(https:\/\/.*\.(png|jpg|jpeg|gif|PNG|JPG|JPEG|GIF))', body, re.MULTILINE): body = body.replace(i.group(1), f'![]({i.group(1)})')
+	for i in re.finditer('^(https:\/\/.*\.(png|jpg|jpeg|gif|PNG|JPG|JPEG|GIF|9999))', body, re.MULTILINE): body = body.replace(i.group(1), f'![]({i.group(1)})')
 	with CustomRenderer() as renderer:
 		body_md = renderer.render(mistletoe.Document(body))
-	body_html = sanitize(body_md, linkgen=True)
+	body_html = sanitize(body_md)
 
 	# Run safety filter
 	bans = filter_comment_html(body_html)
@@ -761,7 +751,7 @@ def submit_post(v):
 		if badlink:
 			if badlink.autoban:
 				text = "Your account has been suspended for 1 day for the following reason:\n\n> Too much spam!"
-				send_notification(1046, v, text)
+				send_notification(NOTIFICATIONS_ACCOUNT, v, text)
 				v.ban(days=1, reason="spam")
 
 				return redirect('/notifications')
@@ -783,14 +773,6 @@ def submit_post(v):
 	g.db.add(new_post)
 	g.db.flush()
 	
-	for rd in ["https://reddit.com/", "https://new.reddit.com/", "https://www.reddit.com/", "https://redd.it/"]:
-		url = url.replace(rd, "https://old.reddit.com/")
-			
-	url = url.replace("https://mobile.twitter.com", "https://twitter.com")
-	
-	# if url.startswith("https://old.reddit.com/") and '/comments/' in url and '?' not in url: url += "?sort=controversial" 
-
-	title_html = sanitize(title, linkgen=True, flair=True)
 
 	new_post_aux = SubmissionAux(id=new_post.id,
 								 url=url,
@@ -798,7 +780,7 @@ def submit_post(v):
 								 body_html=body_html,
 								 embed_url=embed,
 								 title=title,
-								 title_html=title_html
+								 title_html=filter_title(title)
 								 )
 	g.db.add(new_post_aux)
 	g.db.flush()
@@ -829,16 +811,11 @@ def submit_post(v):
 		new_post.url = upload_file(file)
 		g.db.add(new_post)
 		g.db.add(new_post.submission_aux)
-		g.db.commit()
 	
-	g.db.commit()
+	g.db.flush()
 
-    # spin off thumbnail generation and csam detection as  new threads
+	# spin off thumbnail generation and csam detection as  new threads
 	if (new_post.url or request.files.get('file')) and (v.is_activated or request.headers.get('cf-ipcountry')!="T1"): thumbs(new_post)
-
-	
-	cache.delete_memoized(User.userpagelisting)
-	g.db.commit()
 
 	notify_users = set()
 	
@@ -848,15 +825,15 @@ def submit_post(v):
 		user = g.db.query(User).filter_by(username=username).first()
 		if user and not v.any_block_exists(user) and user.id != v.id: notify_users.add(user)
 		
-	for x in notify_users: send_notification(1046, x, f"@{v.username} has mentioned you: https://{site}{new_post.permalink}")
+	for x in notify_users: send_notification(NOTIFICATIONS_ACCOUNT, x, f"@{v.username} has mentioned you: https://{site}{new_post.permalink}")
 		
 	if not new_post.private:
 		for follow in v.followers:
 			user = get_account(follow.user_id)
-			send_notification(2360, user, f"@{v.username} has made a new post: [{title}](https://{site}{new_post.permalink})")
+			send_notification(AUTOJANNY_ACCOUNT, user, f"@{v.username} has made a new post: [{title}](https://{site}{new_post.permalink})")
 
 	g.db.add(new_post)
-	g.db.commit()
+	g.db.flush()
 
 	if v.agendaposter and "trans lives matter" not in new_post_aux.body_html.lower():
 
@@ -865,7 +842,7 @@ def submit_post(v):
 
 		g.db.add(new_post)
 
-		c_jannied = Comment(author_id=2317,
+		c_jannied = Comment(author_id=AUTOJANNY_ACCOUNT,
 			parent_submission=new_post.id,
 			level=1,
 			over_18=False,
@@ -878,12 +855,7 @@ def submit_post(v):
 		g.db.add(c_jannied)
 		g.db.flush()
 
-		body = f"""Hi @{v.username},\n\nYour post has been automatically removed because you forgot
-				to include `trans lives matter`.\n\nDon't worry, we're here to help! We 
-				won't let you post or comment anything that doesn't express your love and acceptance towards 
-				the trans community. Feel free to resubmit your post with `trans lives matter` 
-				included. \n\n*This is an automated message; if you need help,
-				you can message us [here](/contact).*"""
+		body = AGENDAPOSTER_MSG.format(username=v.username)
 
 		with CustomRenderer(post_id=new_post.id) as renderer:
 			body_md = renderer.render(mistletoe.Document(body))
@@ -911,13 +883,19 @@ def submit_post(v):
 	g.db.add(c)
 	g.db.flush()
 
-	if v.id == 995: body = "fuck off carp"
-	else: body = random.choice(snappyquotes)
+	new_post.comment_count = g.db.query(Comment).filter_by(parent_submission=new_post.id).count()
+	g.db.add(new_post)
+
+	if "rdrama" in request.host:
+		if v.id == 995: body = "fuck off carp"
+		else: body = random.choice(snappyquotes)
+		body += "\n\n---\n\n"
+	else: body = ""
 	if new_post.url:
-		body += f"\n\n---\n\nSnapshots:\n\n* [reveddit.com](https://reveddit.com/{new_post.url})\n* [archive.org](https://web.archive.org/{new_post.url})\n* [archive.ph](https://archive.ph/?url={urllib.parse.quote(new_post.url)}&run=1) (click to archive)"
+		body += f"Snapshots:\n\n* [reveddit.com](https://reveddit.com/{new_post.url})\n* [archive.org](https://web.archive.org/{new_post.url})\n* [archive.ph](https://archive.ph/?url={urllib.parse.quote(new_post.url)}&run=1) (click to archive)"
 		gevent.spawn(archiveorg, new_post.url)
 	with CustomRenderer(post_id=new_post.id) as renderer: body_md = renderer.render(mistletoe.Document(body))
-	body_html = sanitize(body_md, linkgen=True)
+	body_html = sanitize(body_md)
 	c_aux = CommentAux(
 		id=c.id,
 		body_html=body_html,
@@ -927,13 +905,16 @@ def submit_post(v):
 	g.db.flush()
 	n = Notification(comment_id=c.id, user_id=v.id)
 	g.db.add(n)
-	g.db.commit()
-	send_message(f"https://{site}{new_post.permalink}")
+	g.db.flush()
 	
 	v.post_count = v.submissions.filter_by(is_banned=False, deleted_utc=0).count()
 	g.db.add(v)
 
+	cache.delete_memoized(User.userpagelisting, v)
 	cache.delete_memoized(frontlist)
+	if "[changelog]" in new_post.title or "(changelog)" in new_post.title:
+		send_message(f"https://{site}{new_post.permalink}")
+		cache.delete_memoized(changeloglist)
 
 	if request.headers.get("Authorization"): return new_post.json
 	else: return redirect(new_post.permalink)
@@ -973,7 +954,7 @@ def undelete_post_pid(pid, v):
 
 
 @app.post("/toggle_comment_nsfw/<cid>")
-@is_not_banned
+@auth_required
 @validate_formkey
 def toggle_comment_nsfw(cid, v):
 
@@ -984,7 +965,7 @@ def toggle_comment_nsfw(cid, v):
 	return "", 204
 	
 @app.post("/toggle_post_nsfw/<pid>")
-@is_not_banned
+@auth_required
 @validate_formkey
 def toggle_post_nsfw(pid, v):
 
@@ -1031,6 +1012,6 @@ def unsave_post(pid, v):
 
 	save=g.db.query(SaveRelationship).filter_by(user_id=v.id, submission_id=post.id, type=1).first()
 
-	g.db.delete(save)
+	if save: g.db.delete(save)
 	
 	return "", 204

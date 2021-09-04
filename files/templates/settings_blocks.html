@@ -1,6 +1,6 @@
 {% extends "settings.html" %}
 
-{% block pagetitle %}Block Settings - {{"SITE_NAME" | app_config}}{% endblock %}
+{% block pagetitle %}Block Settings - {{'SITE_NAME' | app_config}}{% endblock %}
 
 {% block content %}
 
@@ -68,7 +68,7 @@
 									<i class="fas fa-ellipsis-h text-muted"></i>
 								</a>
 								<div class="dropdown-menu border-0 shadow dropdown-menu-right mt-2" aria-labelledby="dropdownMoreLink" x-placement="bottom-end" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(21px, 18px, 0px);">
-									<a class="dropdown-item" href="javascript:void(0)" onclick="post('/settings/unblock?username={{block.target.username}}&formkey={{v.formkey}}', callback=function(){window.location.reload(true)})"><i class="fas fa-check"></i>Unblock</a>
+									<a class="dropdown-item" href="javascript:void(0)" onclick="post_toast('/settings/unblock?username={{block.target.username}}&formkey={{v.formkey}}')"><i class="fas fa-check"></i>Unblock</a>
 								</div>
 							</div>
 						</td>
@@ -90,7 +90,7 @@
 
 </div>
 
-<!-- Badmin Ban user Modal -->
+<!-- Admin Ban user Modal -->
 <div class="modal fade" id="guildmasterBanModal" tabindex="-1" role="dialog" aria-labelledby="guildmasterBanModalTitle" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered" role="document">
 		<form action="/settings/block" id="exile-form" method="post" onsubmit="return false;">

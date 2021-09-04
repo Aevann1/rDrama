@@ -1,23 +1,51 @@
 from sqlalchemy import *
 from sqlalchemy.orm import relationship
 from files.__main__ import Base
+from os import environ
 
-AWARDS = {
-	"ban": {
-		"kind": "ban",
-		"title": "1-Day Ban",
-		"description": "Ban the author for a day.",
-		"icon": "fas fa-gavel",
-		"color": "text-danger"
-	},
-	"shit": {
-		"kind": "shit",
-		"title": "Literal Shitpost",
-		"description": "Let OP know how much their post sucks ass. Flies will swarm their idiotic post. (flies only work on posts lol!!)",
-		"icon": "fas fa-poop",
-		"color": "text-black-50"
+site_name = environ.get("SITE_NAME").strip()
+
+if site_name == "Drama":
+	AWARDS = {
+		"ban": {
+			"kind": "ban",
+			"title": "One-Day Ban",
+			"description": "Ban the author for a day.",
+			"icon": "fas fa-gavel",
+			"color": "text-danger"
+		},
+		"shit": {
+			"kind": "shit",
+			"title": "Shitpost",
+			"description": "Let OP know how much their post sucks ass. Flies will swarm their idiotic post. (flies only work on posts lol!!)",
+			"icon": "fas fa-poop",
+			"color": "text-black-50"
+		},
+		"gold": {
+			"kind": "gold",
+			"title": "Gold",
+			"description": "A positive award because we need a positive award. Puts annoying sparkles in the post.",
+			"icon": "fas fa-sparkles",
+			"color": "text-warning"
+		}
 	}
-}
+else:
+	AWARDS = {
+		"shit": {
+			"kind": "shit",
+			"title": "Shitpost",
+			"description": "Let OP know how much their post sucks ass. Flies will swarm their idiotic post. (flies only work on posts lol!!)",
+			"icon": "fas fa-poop",
+			"color": "text-black-50"
+		},
+		"gold": {
+			"kind": "gold",
+			"title": "Gold",
+			"description": "A positive award because we need a positive award. Puts annoying sparkles in the post.",
+			"icon": "fas fa-sparkles",
+			"color": "text-warning"
+		}
+	}
 
 
 class AwardRelationship(Base):

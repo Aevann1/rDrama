@@ -10,7 +10,7 @@
 {% endif %}
 
 {% block title %}
-<title>{{p.title}}</title>
+<title>{{p.realtitle(v)}}</title>
 {% if p.is_banned %}
 <meta name="description" content="[removed by admins]">
 {% else %}
@@ -55,7 +55,7 @@
 												<div id="post-{{p.id}}" class="card d-flex flex-row-reverse flex-nowrap justify-content-end border-0 p-0 {% if voted==1 %} upvoted{% elif voted==-1 %} downvoted{% endif %}">
 														<div class="card-block my-md-auto{% if p.is_banned %} banned{% endif %}">
 																<div class="post-meta text-left d-block d-md-none mb-1">{% if p.over_18 %}<span class="badge badge-danger">+18</span> {% endif %}{% if p.is_banned %}[Removed by admins]{% else %}[Deleted by user]{% endif %}</div>
-																<h5 class="card-title post-title text-left mb-0 mb-md-1">{{p.title}}</h5>
+																<h5 class="card-title post-title text-left mb-0 mb-md-1">{{p.realtitle(v)}}</h5>
 																<div class="post-meta text-left d-none d-md-block">{% if p.over_18 %}<span class="badge badge-danger">+18</span> {% endif %}{% if p.is_banned %}[Removed by admins]{% else %}[Deleted by user]{% endif %}</div>
 
 														</div>
@@ -91,7 +91,7 @@
 
 												<div class="post-actions d-none d-md-block">
 														<ul class="list-inline text-left mb-2">
-																<li class="list-inline-item"><a href="{{p.permalink}}"><i
+																<li class="list-inline-item"><a {% if v %}href="{{p.permalink}}"{% else %}href="/logged_out{{p.permalink}}"{% endif %}><i
 																						class="fas fa-comment-dots"></i>{{p.comment_count}} Comment{{'s' if p.comment_count != 1 else ''}}</a>
 																</li>
 
@@ -103,10 +103,10 @@
 								</div>
 
 		<div class="comment-section">
-		 {% with comments=p.replies %}
+		{% with comments=p.replies %}
 			{% include "comments.html" %}
-		 {% endwith %}
-	 </div>
+		{% endwith %}
+	</div>
 
 
 

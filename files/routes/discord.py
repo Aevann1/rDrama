@@ -101,7 +101,6 @@ def discord_redirect(v):
 
 	v.discord_id=x["id"]
 	g.db.add(v)
-	g.db.commit()
 
 	url=f"https://discord.com/api/guilds/{SERVER_ID}/members/{x['id']}"
 
@@ -121,6 +120,8 @@ def discord_redirect(v):
 		
 		time.sleep(0.1)
 		
+		if v.patron: add_role(v, str(v.patron))
+
 		add_role(v, "feedback")
 
 		time.sleep(0.1)

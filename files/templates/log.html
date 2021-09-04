@@ -8,7 +8,7 @@
 	<link rel="stylesheet" href="/assets/style/{{v.theme}}_{{v.themecolor}}.css">
 	{% if v.agendaposter %}<link rel="stylesheet" href="/assets/style/agendaposter.css">{% elif v.css %}<link rel="stylesheet" href="/@{{v.username}}/css">{% endif %}
 {% else %}
-	<link rel="stylesheet" href="/assets/style/dark_ff66ac.css">
+	<link rel="stylesheet" href="/assets/style/{{'DEFAULT_THEME' | app_config}}.css">
 {% endif %}
 
 {% endblock %}
@@ -31,24 +31,24 @@
 
 				<div id="action-{{ma.id}}" class="position-relative d-flex justify-content-between flex-wrap align-items-center h-min-16 px-3 py-3 mb-3 mb-md-2 bg-white{% if loop.index > 1 %} border-top{% endif %}">
 
-				 <div class="d-flex flex-grow-1 align-items-center">
+				<div class="d-flex flex-grow-1 align-items-center">
 					<div class="d-flex align-items-center justify-content-center {{ma.color}} mr-3 rounded-lg flex-shrink-0" style="width: 32px;height: 32px;"><i class="far text-center {{ma.icon}} text-lg text-white fa-fw"></i></div>
 					<div class="d-flex align-items-center">
 						<span class="rounded">
-						 <img src="{{ma.user.profile_url}}" alt="avatar" style="width: 42px;height: 42px;" class="rounded-circle">
-					 </span>
-						 <div class="text-muted pl-3">
+						<img src="{{ma.user.profile_url}}" alt="avatar" style="width: 42px;height: 42px;" class="rounded-circle">
+					</span>
+						<div class="text-muted pl-3">
 							<div>
 								<a href="{{ma.user.url}}" class="font-weight-bold text-black" target="_self">@{{ma.user.username}}</a>
 
-							 <span>{{ma.string | safe}}</span>
-						 </div>
+							<span>{{ma.string | safe}}</span>
+						</div>
 
-						 <div class="text-gray-500">{{ma.age_string}} <a href="{{ma.permalink}}"><i class="far fa-link ml-1 text-muted"></i></a> <a href="javascript:void(0)" class="copy-link" role="button"data-clipboard-text="{{ma.permalink | full_link}}"><i class="far fa-copy ml-1 text-muted"></i></a></div>
+						<div class="text-gray-500">{{ma.age_string}} <a href="{{ma.permalink}}"><i class="far fa-link ml-1 text-muted"></i></a> <a href="javascript:void(0)" class="copy-link" role="button"data-clipboard-text="{{ma.permalink | full_link}}"><i class="far fa-copy ml-1 text-muted"></i></a></div>
 
-					 </div>
-				 </div>
-			 </div>
+					</div>
+				</div>
+			</div>
 			</div>
 
 

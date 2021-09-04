@@ -14,7 +14,7 @@ def slash_post():
 @auth_required
 def notifications(v):
 
-	if v and v.is_banned and not v.unban_utc: return render_template("seized.html")
+
 
 	page = int(request.args.get('page', 1))
 	all_ = request.args.get('all', False)
@@ -72,29 +72,10 @@ def notifications(v):
 						   render_replies=True,
 						   is_notification_page=True)
 
-@cache.memoize(timeout=1500)
-def frontlist(v=None, sort="hot", page=1,t="all", ids_only=True, filter_words='', **kwargs):
+@cache.memoize()
+def frontlist(v=None, sort="hot", page=1, t="all", ids_only=True, filter_words='', **kwargs):
 
-	posts = g.db.query(Submission).options(lazyload('*')).filter_by(is_banned=False,stickied=False,private=False).filter(Submission.deleted_utc == 0)
-	if v and v.admin_level == 0:
-		blocking = g.db.query(
-			UserBlock.target_id).filter_by(
-			user_id=v.id).subquery()
-		blocked = g.db.query(
-			UserBlock.user_id).filter_by(
-			target_id=v.id).subquery()
-		posts = posts.filter(
-			Submission.author_id.notin_(blocking),
-			Submission.author_id.notin_(blocked)
-		)
-
-	if not (v and v.changelogsub):
-		posts=posts.join(Submission.submission_aux)
-		posts=posts.filter(not_(SubmissionAux.title.ilike(f'%[changelog]%')))
-
-	if v and filter_words:
-		for word in filter_words:
-			posts=posts.filter(not_(SubmissionAux.title.ilike(f'%{word}%')))
+	posts = g.db.query(Submission).options(lazyload('*'))
 
 	if t != 'all':
 		cutoff = 0
@@ -110,6 +91,28 @@ def frontlist(v=None, sort="hot", page=1,t="all", ids_only=True, filter_words=''
 		elif t == 'year':
 			cutoff = now - 31536000
 		posts = posts.filter(Submission.created_utc >= cutoff)
+
+	posts = posts.filter_by(is_banned=False,stickied=False,private=False).filter(Submission.deleted_utc == 0)
+
+	if v and v.admin_level == 0:
+		blocking = g.db.query(
+			UserBlock.target_id).filter_by(
+			user_id=v.id).subquery()
+		blocked = g.db.query(
+			UserBlock.user_id).filter_by(
+			target_id=v.id).subquery()
+		posts = posts.filter(
+			Submission.author_id.notin_(blocking),
+			Submission.author_id.notin_(blocked)
+		)
+
+	if not (v and v.changelogsub):
+		posts=posts.join(Submission.submission_aux)
+		posts=posts.filter(not_(SubmissionAux.title.ilike(f'[changelog]%')))
+
+	if v and filter_words:
+		for word in filter_words:
+			posts=posts.filter(not_(SubmissionAux.title.ilike(f'%{word}%')))
 
 	gt = kwargs.get("gt")
 	lt = kwargs.get("lt")
@@ -133,14 +136,14 @@ def frontlist(v=None, sort="hot", page=1,t="all", ids_only=True, filter_words=''
 	elif sort == "bottom":
 		posts = sorted(posts.all(), key=lambda x: x.score)
 	elif sort == "comments":
-		posts = sorted(posts.all(), key=lambda x: x.comment_count, reverse=True)
+		posts = posts.order_by(Submission.comment_count.desc()).all()
 	elif sort == "random":
 		posts = posts.all()
 		posts = random.sample(posts, k=len(posts))
 	else:
 		abort(400)
 
-	firstrange = 25 * (page - 1)
+	firstrange = 50 * (page - 1)
 	secondrange = firstrange+1000
 	posts = posts[firstrange:secondrange]
 
@@ -172,18 +175,26 @@ def frontlist(v=None, sort="hot", page=1,t="all", ids_only=True, filter_words=''
 				post.views = post.views + random.randint(7,10)
 				g.db.add(post)
 
-	posts = [x for x in posts if not (x.author and x.author.shadowbanned) or (v and v.id == x.author_id)][:26]
+	posts = [x for x in posts if not (x.author and x.author.shadowbanned) or (v and v.id == x.author_id)][:51]
 
-	if ids_only:
-		posts = [x.id for x in posts]
-		return posts
-	return posts
+	next_exists = (len(posts) == 51)
+
+	posts = posts[:50]
+
+	if ids_only: posts = [x.id for x in posts]
+
+	return posts, next_exists
 
 @app.get("/")
+@app.get("/logged_out")
 @auth_desired
 def front_all(v):
 
-	if v and v.is_banned and not v.unban_utc: return render_template("seized.html")
+
+
+	if not v and request.path == "/": return redirect("/logged_out")
+
+	if v and "logged_out" in request.full_path: v = None
 
 	try: page = int(request.args.get("page") or 1)
 	except: abort(400)
@@ -201,7 +212,7 @@ def front_all(v):
 	sort=request.args.get("sort", defaultsorting)
 	t=request.args.get('t', defaulttime)
 
-	ids = frontlist(sort=sort,
+	ids, next_exists = frontlist(sort=sort,
 					page=page,
 					t=t,
 					v=v,
@@ -210,20 +221,15 @@ def front_all(v):
 					filter_words=v.filter_words if v else [],
 					)
 
-	# check existence of next page
-	next_exists = (len(ids) == 26)
-	ids = ids[:25]
-
-	# check if ids exist
 	posts = get_posts(ids, v=v)
 
 	if request.headers.get("Authorization"): return {"data": [x.json for x in posts], "next_exists": next_exists}
 	else: return render_template("home.html", v=v, listing=posts, next_exists=next_exists, sort=sort, t=t, page=page)
 
-@cache.memoize(timeout=1500)
+@cache.memoize()
 def changeloglist(v=None, sort="new", page=1 ,t="all", **kwargs):
 
-	posts = g.db.query(Submission).options(lazyload('*')).filter_by(is_banned=False,stickied=False,private=False,).filter(Submission.deleted_utc == 0)
+	posts = g.db.query(Submission).options(lazyload('*')).filter_by(is_banned=False, private=False,).filter(Submission.deleted_utc == 0)
 
 	if v and v.admin_level == 0:
 		blocking = g.db.query(
@@ -238,7 +244,7 @@ def changeloglist(v=None, sort="new", page=1 ,t="all", **kwargs):
 		)
 
 	posts=posts.join(Submission.submission_aux).join(Submission.author)
-	posts=posts.filter(SubmissionAux.title.ilike(f'%[changelog]%', User.admin_level == 6))
+	posts=posts.filter(SubmissionAux.title.ilike(f'_changelog%', User.admin_level == 6))
 
 	if t != 'all':
 		cutoff = 0
@@ -277,15 +283,15 @@ def changeloglist(v=None, sort="new", page=1 ,t="all", **kwargs):
 	elif sort == "bottom":
 		posts = sorted(posts.all(), key=lambda x: x.score)
 	elif sort == "comments":
-		posts = sorted(posts.all(), key=lambda x: x.comment_count, reverse=True)
+		posts = posts.order_by(Submission.comment_count.desc()).all()
 	elif sort == "random":
 		posts = posts.all()
 		posts = random.sample(posts, k=len(posts))
 	else:
 		abort(400)
 
-	firstrange = 25 * (page - 1)
-	secondrange = firstrange+26
+	firstrange = 50 * (page - 1)
+	secondrange = firstrange+51
 	posts = posts[firstrange:secondrange]
 
 	posts = [x.id for x in posts]
@@ -294,7 +300,7 @@ def changeloglist(v=None, sort="new", page=1 ,t="all", **kwargs):
 @app.get("/changelog")
 @auth_desired
 def changelog(v):
-	if v and v.is_banned and not v.unban_utc: return render_template("seized.html")
+
 
 	page = int(request.args.get("page") or 1)
 	page = max(page, 1)
@@ -311,8 +317,8 @@ def changelog(v):
 					)
 
 	# check existence of next page
-	next_exists = (len(ids) == 26)
-	ids = ids[:25]
+	next_exists = (len(ids) == 51)
+	ids = ids[:50]
 
 	# check if ids exist
 	posts = get_posts(ids, v=v)
@@ -324,7 +330,7 @@ def changelog(v):
 @app.get("/random")
 @auth_desired
 def random_post(v):
-	if v and v.is_banned and not v.unban_utc: return render_template("seized.html")
+
 
 	x = g.db.query(Submission).filter(Submission.deleted_utc == 0, Submission.is_banned == False)
 
@@ -334,7 +340,7 @@ def random_post(v):
 	post = x.order_by(Submission.id.asc()).offset(n).limit(1).first()
 	return redirect(post.permalink)
 
-@cache.memoize(600)
+@cache.memoize()
 def comment_idlist(page=1, v=None, nsfw=False, sort="new", t="all", **kwargs):
 
 	posts = g.db.query(Submission).options(lazyload('*'))
@@ -398,7 +404,7 @@ def comment_idlist(page=1, v=None, nsfw=False, sort="new", t="all", **kwargs):
 @app.get("/comments")
 @auth_desired
 def all_comments(v):
-	if v and v.is_banned and not v.unban_utc: return render_template("seized.html")
+
 
 	page = int(request.args.get("page", 1))
 

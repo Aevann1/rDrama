@@ -14,6 +14,12 @@ ROLES={
 	"feedback": "850716291714383883",
 	"newuser": "854783259229421589",
 	"norep": "850971811918512208",
+	"1": "868129042346414132",
+	"2": "875569477671067688",
+	"3": "869434199575236649",
+	"4": "868140288013664296",
+	"5": "880445545771044884",
+	"8": "868140288013664296",
 	}
 
 def discord_wrap(f):
@@ -61,7 +67,7 @@ def set_nick(user, nick):
 	requests.patch(url, headers=headers, json=data)
 
 def send_message(message):
-	url=f"https://discordapp.com/api/channels/850266802449678366/messages"
+	url=f"https://discordapp.com/api/channels/851846904283267094/messages"
 	headers = {"Authorization": f"Bot {BOT_TOKEN}"}
 	data={"content": message}
 	requests.post(url, headers=headers, data=data)

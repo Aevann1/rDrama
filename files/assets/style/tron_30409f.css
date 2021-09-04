@@ -23652,12 +23652,12 @@ body.using-mouse :focus {
 }
 
 #thread .custom-gutters {
-  padding: 0 15px;
+  padding: 0 10px;
 }
 
 .custom-gutters {
-  padding-left: 15px;
-  padding-right: 15px;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 .sticky {
@@ -23746,11 +23746,11 @@ ol > li::before {
 }
 
 [data-toggle=collapse] .fa:before {
-  content: "";
+  content: "\f139";
 }
 
 [data-toggle=collapse].collapsed .fa:before {
-  content: "";
+  content: "\f13a";
 }
 
 .btn {
@@ -24353,8 +24353,8 @@ th {
 }
 
 #thread .voting {
-  min-width: 15px;
-  margin-right: 15px;
+  min-width: 10px;
+  margin-right: 10px;
   overflow-wrap: normal;
 }
 
@@ -24378,11 +24378,11 @@ th {
 
 .arrow-up::before {
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 1.3rem;
   color: #30409f;
   font-family: "Font Awesome 5 Pro";
   font-weight: 900;
-  content: "";
+  content: "\f357";
 }
 
 .arrow-up:hover::before {
@@ -24396,11 +24396,11 @@ th {
 
 .arrow-down::before {
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 1.3rem;
   color: #30409f;
   font-family: "Font Awesome 5 Pro";
   font-weight: 900;
-  content: "";
+  content: "\f354";
 }
 
 .arrow-down:hover::before {
@@ -24524,8 +24524,8 @@ a:hover .link-arrow {
 }
 
 #frontpage .pseudo-submit-form.card .card-body, #search .search-results.card .card-body, #guild .pseudo-submit-form.card .card-body {
-  padding-left: 15px;
-  padding-right: 15px;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 #frontpage .pseudo-submit-form.card .card-body .form-control, #guild .pseudo-submit-form.card .card-body .form-control {
@@ -24675,7 +24675,7 @@ a:hover .link-arrow {
   color: #30409f;
   font-family: "Font Awesome 5 Pro";
   font-weight: 900;
-  content: "";
+  content: "\f348";
 }
 
 .sidebar-left.sidebar-collapsed .collapsed-toggle::before {
@@ -24684,7 +24684,7 @@ a:hover .link-arrow {
   color: #f0f0f0;
   font-family: "Font Awesome 5 Pro";
   font-weight: 900;
-  content: "";
+  content: "\f347";
 }
 
 @media (max-width: 1199.98px) {
@@ -25703,7 +25703,7 @@ div:hover .thumb-img-link-overlay {
   display: flex;
   position: relative;
   margin-top: 2rem;
-  padding-left: 13px;
+  padding-left: 12px;
 }
 
 #notifications .comment, #userpage .comment {
@@ -25953,7 +25953,7 @@ ul.comment-section {
 }
 
 .comment.collapsed .comment-collapse::before {
-  content: "";
+  content: "\f055";
   font-family: "Font Awesome 5 Pro";
   font-weight: 900;
   border-left: none;
@@ -27115,7 +27115,7 @@ pre .clo, pre .opn, pre .pun, code .clo, code .opn, code .pun {
   }
 
   .custom-gutters {
-    padding-left: 8px;
+    padding-left: 0;
     padding-right: 0;
   }
 
@@ -27238,7 +27238,7 @@ pre .clo, pre .opn, pre .pun, code .clo, code .opn, code .pun {
 
   */
   .jumbotron-guild {
-    height: 115px;
+    height: 110px;
   }
 
   #thread .card {
@@ -27322,7 +27322,7 @@ pre .clo, pre .opn, pre .pun, code .clo, code .opn, code .pun {
   }
 
   .arrow-up::before, .arrow-down::before, .arrow-up:hover::before, .arrow-down:hover::before {
-    font-size: 1.25rem;
+    font-size: 1.3rem;
     color: #30409f;
     opacity: 1;
   }
@@ -27352,7 +27352,7 @@ pre .clo, pre .opn, pre .pun, code .clo, code .opn, code .pun {
   }
 
   .comment-section > .comment {
-    padding-left: 13px;
+    padding-left: 12px;
   }
 
   .comment {
@@ -27360,7 +27360,7 @@ pre .clo, pre .opn, pre .pun, code .clo, code .opn, code .pun {
   }
 
   .comment .comment-collapse {
-    padding-right: 15px;
+    padding-right: 10px;
   }
 
   .comment.collapsed .user-info {
@@ -27368,7 +27368,7 @@ pre .clo, pre .opn, pre .pun, code .clo, code .opn, code .pun {
   }
 
   .comment .comment-collapse::before {
-    content: "";
+    content: "\f056";
     position: static;
     font-size: 10px;
     font-weight: 900;
@@ -27715,6 +27715,29 @@ img.emoji {
   animation: None !important;
 }
 
+.patron {
+  padding: 2px 5px 3px 5px !important;
+  border-radius: 5px !important;
+  color: white !important;
+}
+
+.container, .container-fluid, .container-sm, .container-md, .container-lg, .container-xl {
+  background-color: #00001f !important;
+  border-radius: 5px !important;
+}
+
+.btn {
+  background-color: #00001f !important;
+}
+
+.nobackground {
+  background: None !important;
+}
+
+.navbar {
+  padding: 0.5rem 0.5rem 0.5rem 0.7rem;
+}
+
 #frontpage .post-title a:visited {
   color: #f0f0f0;
 }
@@ -27757,6 +27780,14 @@ img.emoji {
 
 .badge-count {
   color: #00001f;
+}
+
+.transparent {
+  background: None !important;
+}
+
+.btn-danger.disabled, .btn-danger:disabled {
+  color: #30409f !important;
 }
 
 /*# sourceMappingURL=tron_30409f.css.map */

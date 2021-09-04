@@ -1,7 +1,10 @@
+import re
+from urllib.parse import urlencode, urlparse, parse_qs
 from flask import *
 from sqlalchemy import *
 from sqlalchemy.orm import relationship, deferred
 from files.helpers.lazy import lazy
+from files.helpers.const import SLURS
 from files.__main__ import Base
 from .mix_ins import *
 from .flags import CommentFlag
@@ -35,7 +38,7 @@ class Comment(Base, Age_times, Scores, Stndrd, Fuzzing):
 	created_utc = Column(Integer, default=0)
 	edited_utc = Column(Integer, default=0)
 	is_banned = Column(Boolean, default=False)
-	shadowbanned = Column(Boolean, default=False)
+	bannedfor = Column(Boolean)
 	distinguish_level = Column(Integer, default=0)
 	deleted_utc = Column(Integer, default=0)
 	is_approved = Column(Integer, default=0)
@@ -108,12 +111,12 @@ class Comment(Base, Age_times, Scores, Stndrd, Fuzzing):
 		if self.parent_comment_id: return f"t3_{self.parent_comment_id}"
 		elif self.parent_submission: return f"t2_{self.parent_submission}"
 
-
 	@property
+	@lazy
 	def replies(self):
-
 		r = self.__dict__.get("replies", None)
-		if not r and r != []: r = sorted([x for x in self.child_comments], key=lambda x: x.score, reverse=True)
+		if r: r = [x for x in r if not x.author.shadowbanned]
+		if not r and r != []:  r = sorted([x for x in self.child_comments if not x.author.shadowbanned], key=lambda x: x.score, reverse=True)
 		return r
 
 	@replies.setter
@@ -127,6 +130,13 @@ class Comment(Base, Age_times, Scores, Stndrd, Fuzzing):
 	@replies2.setter
 	def replies2(self, value):
 		self.__dict__["replies2"] = value
+
+	@property
+	@lazy
+	def replies3(self):
+		r = self.__dict__.get("replies", None)
+		if not r and r != []:  r = sorted([x for x in self.child_comments], key=lambda x: x.score, reverse=True)
+		return r
 
 	@property
 	@lazy
@@ -168,6 +178,8 @@ class Comment(Base, Age_times, Scores, Stndrd, Fuzzing):
 
 		return data
 
+	def award_count(self, kind) -> int:
+		return len([x for x in self.awards if x.kind == kind])
 
 	@property
 	def json_core(self):
@@ -243,8 +255,24 @@ class Comment(Base, Age_times, Scores, Stndrd, Fuzzing):
 
 	def realbody(self, v):
 		body = self.comment_aux.body_html
-		if not v or v.slurreplacer: body = body.replace(" nigger"," 🏀").replace(" Nigger"," 🏀").replace(" NIGGER"," 🏀").replace(" pedo"," libertarian").replace(" Pedo"," Libertarian ").replace(" PEDO"," LIBERTARIAN ").replace(" tranny"," 🚄").replace(" Tranny"," 🚄").replace(" TRANNY"," 🚄").replace("  fag","  cute twink").replace("  Fag","  Cute twink").replace("  FAG","  CUTE TWINK").replace(" faggot"," cute twink").replace(" Faggot"," Cute twink").replace(" FAGGOT"," CUTE TWINK").replace(" trump"," DDR").replace(" Trump"," DDR").replace(" TRUMP"," DDR").replace(" biden"," DDD").replace(" Biden"," DDD").replace(" BIDEN"," DDD").replace(" steve akins"," penny verity oaken").replace(" Steve Akins"," Penny Verity Oaken").replace(" STEVE AKINS"," PENNY VERITY OAKEN").replace(" RETARD"," RSLUR").replace(" rapist"," male feminist").replace(" Rapist"," Male feminist").replace(" RAPIST"," MALE FEMINIST").replace(" RETARD"," RSLUR").replace(" rapist"," male feminist").replace(" Rapist"," Male feminist").replace(" RAPIST"," MALE FEMINIST").replace(" RETARD"," RSLUR").replace(" rapist"," male feminist").replace(" Rapist"," Male feminist").replace(" RAPIST"," MALE FEMINIST").replace(" kill yourself"," keep yourself safe").replace(" KILL YOURSELF"," KEEP YOURSELF SAFE").replace(" trannie"," 🚄").replace(" Trannie"," 🚄").replace(" TRANNIE"," 🚄").replace(" troon"," 🚄").replace(" Troon"," 🚄").replace(" TROON"," 🚄")
+
+		if not v or v.slurreplacer: 
+			for s,r in SLURS.items(): body = body.replace(s, r) 
+
 		if v and not v.oldreddit: body = body.replace("old.reddit.com", "reddit.com")
+
+		if v and v.controversial:
+			for i in re.finditer('(/comments/.*?)"', body):
+				url = i.group(1)
+				p = urlparse(url).query
+				p = parse_qs(p)
+
+				if 'sort' not in p:
+					p['sort'] = ['controversial']
+
+				url_noquery = url.split('?')[0]
+				body = body.replace(url, f"{url_noquery}?{urlencode(p, True)}")
+
 		return body
 
 	@property

@@ -12,16 +12,16 @@ def feeds_user(sort='hot', t='all'):
 
 	page = int(request.args.get("page", 1))
 
-	posts = frontlist(
+	ids, next_exists = frontlist(
 		sort=sort,
 		page=page,
 		t=t,
 		v=None,
 		)
+	
+	posts = get_posts(ids)
 
-	domain = environ.get(
-	"domain", environ.get(
-		"SERVER_NAME", None)).strip()
+	domain = environ.get("DOMAIN").strip()
 
 	doc, tag, text = Doc().tagtext()
 
