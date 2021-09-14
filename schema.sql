@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 12.8 (Ubuntu 12.8-0ubuntu0.20.04.1)
+-- Dumped from database version 12.8
 -- Dumped by pg_dump version 12.8 (Ubuntu 12.8-0ubuntu0.20.04.1)
 
 SET statement_timeout = 0;
@@ -63,7 +63,7 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
--- Name: alts; Type: TABLE; Schema: public; Owner: postgres
+-- Name: alts; Type: TABLE; Schema: public; Owner: aevann
 --
 
 CREATE TABLE public.alts (
@@ -74,10 +74,10 @@ CREATE TABLE public.alts (
 );
 
 
-ALTER TABLE public.alts OWNER TO postgres;
+ALTER TABLE public.alts OWNER TO aevann;
 
 --
--- Name: alts_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: alts_id_seq; Type: SEQUENCE; Schema: public; Owner: aevann
 --
 
 CREATE SEQUENCE public.alts_id_seq
@@ -89,17 +89,17 @@ CREATE SEQUENCE public.alts_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.alts_id_seq OWNER TO postgres;
+ALTER TABLE public.alts_id_seq OWNER TO aevann;
 
 --
--- Name: alts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: alts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: aevann
 --
 
 ALTER SEQUENCE public.alts_id_seq OWNED BY public.alts.id;
 
 
 --
--- Name: award_relationships; Type: TABLE; Schema: public; Owner: postgres
+-- Name: award_relationships; Type: TABLE; Schema: public; Owner: aevann
 --
 
 CREATE TABLE public.award_relationships (
@@ -111,10 +111,10 @@ CREATE TABLE public.award_relationships (
 );
 
 
-ALTER TABLE public.award_relationships OWNER TO postgres;
+ALTER TABLE public.award_relationships OWNER TO aevann;
 
 --
--- Name: award_relationships_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: award_relationships_id_seq; Type: SEQUENCE; Schema: public; Owner: aevann
 --
 
 CREATE SEQUENCE public.award_relationships_id_seq
@@ -126,17 +126,17 @@ CREATE SEQUENCE public.award_relationships_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.award_relationships_id_seq OWNER TO postgres;
+ALTER TABLE public.award_relationships_id_seq OWNER TO aevann;
 
 --
--- Name: award_relationships_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: award_relationships_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: aevann
 --
 
 ALTER SEQUENCE public.award_relationships_id_seq OWNED BY public.award_relationships.id;
 
 
 --
--- Name: badge_defs; Type: TABLE; Schema: public; Owner: postgres
+-- Name: badge_defs; Type: TABLE; Schema: public; Owner: aevann
 --
 
 CREATE TABLE public.badge_defs (
@@ -149,10 +149,10 @@ CREATE TABLE public.badge_defs (
 );
 
 
-ALTER TABLE public.badge_defs OWNER TO postgres;
+ALTER TABLE public.badge_defs OWNER TO aevann;
 
 --
--- Name: badge_list_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: badge_list_id_seq; Type: SEQUENCE; Schema: public; Owner: aevann
 --
 
 CREATE SEQUENCE public.badge_list_id_seq
@@ -164,17 +164,17 @@ CREATE SEQUENCE public.badge_list_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.badge_list_id_seq OWNER TO postgres;
+ALTER TABLE public.badge_list_id_seq OWNER TO aevann;
 
 --
--- Name: badge_list_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: badge_list_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: aevann
 --
 
 ALTER SEQUENCE public.badge_list_id_seq OWNED BY public.badge_defs.id;
 
 
 --
--- Name: badges; Type: TABLE; Schema: public; Owner: postgres
+-- Name: badges; Type: TABLE; Schema: public; Owner: aevann
 --
 
 CREATE TABLE public.badges (
@@ -186,10 +186,10 @@ CREATE TABLE public.badges (
 );
 
 
-ALTER TABLE public.badges OWNER TO postgres;
+ALTER TABLE public.badges OWNER TO aevann;
 
 --
--- Name: badges_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: badges_id_seq; Type: SEQUENCE; Schema: public; Owner: aevann
 --
 
 CREATE SEQUENCE public.badges_id_seq
@@ -201,17 +201,17 @@ CREATE SEQUENCE public.badges_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.badges_id_seq OWNER TO postgres;
+ALTER TABLE public.badges_id_seq OWNER TO aevann;
 
 --
--- Name: badges_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: badges_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: aevann
 --
 
 ALTER SEQUENCE public.badges_id_seq OWNED BY public.badges.id;
 
 
 --
--- Name: badlinks; Type: TABLE; Schema: public; Owner: postgres
+-- Name: badlinks; Type: TABLE; Schema: public; Owner: aevann
 --
 
 CREATE TABLE public.badlinks (
@@ -222,10 +222,10 @@ CREATE TABLE public.badlinks (
 );
 
 
-ALTER TABLE public.badlinks OWNER TO postgres;
+ALTER TABLE public.badlinks OWNER TO aevann;
 
 --
--- Name: badlinks_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: badlinks_id_seq; Type: SEQUENCE; Schema: public; Owner: aevann
 --
 
 CREATE SEQUENCE public.badlinks_id_seq
@@ -237,17 +237,17 @@ CREATE SEQUENCE public.badlinks_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.badlinks_id_seq OWNER TO postgres;
+ALTER TABLE public.badlinks_id_seq OWNER TO aevann;
 
 --
--- Name: badlinks_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: badlinks_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: aevann
 --
 
 ALTER SEQUENCE public.badlinks_id_seq OWNED BY public.badlinks.id;
 
 
 --
--- Name: badpics; Type: TABLE; Schema: public; Owner: postgres
+-- Name: badpics; Type: TABLE; Schema: public; Owner: aevann
 --
 
 CREATE TABLE public.badpics (
@@ -259,10 +259,10 @@ CREATE TABLE public.badpics (
 );
 
 
-ALTER TABLE public.badpics OWNER TO postgres;
+ALTER TABLE public.badpics OWNER TO aevann;
 
 --
--- Name: badpics_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: badpics_id_seq; Type: SEQUENCE; Schema: public; Owner: aevann
 --
 
 CREATE SEQUENCE public.badpics_id_seq
@@ -274,17 +274,17 @@ CREATE SEQUENCE public.badpics_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.badpics_id_seq OWNER TO postgres;
+ALTER TABLE public.badpics_id_seq OWNER TO aevann;
 
 --
--- Name: badpics_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: badpics_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: aevann
 --
 
 ALTER SEQUENCE public.badpics_id_seq OWNED BY public.badpics.id;
 
 
 --
--- Name: banneddomains; Type: TABLE; Schema: public; Owner: postgres
+-- Name: banneddomains; Type: TABLE; Schema: public; Owner: aevann
 --
 
 CREATE TABLE public.banneddomains (
@@ -294,10 +294,10 @@ CREATE TABLE public.banneddomains (
 );
 
 
-ALTER TABLE public.banneddomains OWNER TO postgres;
+ALTER TABLE public.banneddomains OWNER TO aevann;
 
 --
--- Name: client_auths; Type: TABLE; Schema: public; Owner: postgres
+-- Name: client_auths; Type: TABLE; Schema: public; Owner: aevann
 --
 
 CREATE TABLE public.client_auths (
@@ -308,10 +308,10 @@ CREATE TABLE public.client_auths (
 );
 
 
-ALTER TABLE public.client_auths OWNER TO postgres;
+ALTER TABLE public.client_auths OWNER TO aevann;
 
 --
--- Name: client_auths_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: client_auths_id_seq; Type: SEQUENCE; Schema: public; Owner: aevann
 --
 
 CREATE SEQUENCE public.client_auths_id_seq
@@ -323,17 +323,17 @@ CREATE SEQUENCE public.client_auths_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.client_auths_id_seq OWNER TO postgres;
+ALTER TABLE public.client_auths_id_seq OWNER TO aevann;
 
 --
--- Name: client_auths_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: client_auths_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: aevann
 --
 
 ALTER SEQUENCE public.client_auths_id_seq OWNED BY public.client_auths.id;
 
 
 --
--- Name: commentflags; Type: TABLE; Schema: public; Owner: postgres
+-- Name: commentflags; Type: TABLE; Schema: public; Owner: aevann
 --
 
 CREATE TABLE public.commentflags (
@@ -344,10 +344,10 @@ CREATE TABLE public.commentflags (
 );
 
 
-ALTER TABLE public.commentflags OWNER TO postgres;
+ALTER TABLE public.commentflags OWNER TO aevann;
 
 --
--- Name: commentflags_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: commentflags_id_seq; Type: SEQUENCE; Schema: public; Owner: aevann
 --
 
 CREATE SEQUENCE public.commentflags_id_seq
@@ -359,17 +359,17 @@ CREATE SEQUENCE public.commentflags_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.commentflags_id_seq OWNER TO postgres;
+ALTER TABLE public.commentflags_id_seq OWNER TO aevann;
 
 --
--- Name: commentflags_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: commentflags_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: aevann
 --
 
 ALTER SEQUENCE public.commentflags_id_seq OWNED BY public.commentflags.id;
 
 
 --
--- Name: comments; Type: TABLE; Schema: public; Owner: postgres
+-- Name: comments; Type: TABLE; Schema: public; Owner: aevann
 --
 
 CREATE TABLE public.comments (
@@ -398,25 +398,25 @@ CREATE TABLE public.comments (
 );
 
 
-ALTER TABLE public.comments OWNER TO postgres;
+ALTER TABLE public.comments OWNER TO aevann;
 
 --
--- Name: comments_aux; Type: TABLE; Schema: public; Owner: postgres
+-- Name: comments_aux; Type: TABLE; Schema: public; Owner: aevann
 --
 
 CREATE TABLE public.comments_aux (
     id integer,
     body character varying(10000),
-    body_html character varying(20000),
+    body_html character varying(40000),
     ban_reason character varying(128),
     key_id integer NOT NULL
 );
 
 
-ALTER TABLE public.comments_aux OWNER TO postgres;
+ALTER TABLE public.comments_aux OWNER TO aevann;
 
 --
--- Name: comments_aux_key_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: comments_aux_key_id_seq; Type: SEQUENCE; Schema: public; Owner: aevann
 --
 
 CREATE SEQUENCE public.comments_aux_key_id_seq
@@ -428,17 +428,17 @@ CREATE SEQUENCE public.comments_aux_key_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.comments_aux_key_id_seq OWNER TO postgres;
+ALTER TABLE public.comments_aux_key_id_seq OWNER TO aevann;
 
 --
--- Name: comments_aux_key_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: comments_aux_key_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: aevann
 --
 
 ALTER SEQUENCE public.comments_aux_key_id_seq OWNED BY public.comments_aux.key_id;
 
 
 --
--- Name: comments_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: comments_id_seq; Type: SEQUENCE; Schema: public; Owner: aevann
 --
 
 CREATE SEQUENCE public.comments_id_seq
@@ -450,17 +450,17 @@ CREATE SEQUENCE public.comments_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.comments_id_seq OWNER TO postgres;
+ALTER TABLE public.comments_id_seq OWNER TO aevann;
 
 --
--- Name: comments_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: comments_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: aevann
 --
 
 ALTER SEQUENCE public.comments_id_seq OWNED BY public.comments.id;
 
 
 --
--- Name: commentvotes; Type: TABLE; Schema: public; Owner: postgres
+-- Name: commentvotes; Type: TABLE; Schema: public; Owner: aevann
 --
 
 CREATE TABLE public.commentvotes (
@@ -473,10 +473,10 @@ CREATE TABLE public.commentvotes (
 );
 
 
-ALTER TABLE public.commentvotes OWNER TO postgres;
+ALTER TABLE public.commentvotes OWNER TO aevann;
 
 --
--- Name: commentvotes_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: commentvotes_id_seq; Type: SEQUENCE; Schema: public; Owner: aevann
 --
 
 CREATE SEQUENCE public.commentvotes_id_seq
@@ -488,17 +488,17 @@ CREATE SEQUENCE public.commentvotes_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.commentvotes_id_seq OWNER TO postgres;
+ALTER TABLE public.commentvotes_id_seq OWNER TO aevann;
 
 --
--- Name: commentvotes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: commentvotes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: aevann
 --
 
 ALTER SEQUENCE public.commentvotes_id_seq OWNED BY public.commentvotes.id;
 
 
 --
--- Name: domains_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: domains_id_seq; Type: SEQUENCE; Schema: public; Owner: aevann
 --
 
 CREATE SEQUENCE public.domains_id_seq
@@ -510,17 +510,17 @@ CREATE SEQUENCE public.domains_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.domains_id_seq OWNER TO postgres;
+ALTER TABLE public.domains_id_seq OWNER TO aevann;
 
 --
--- Name: domains_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: domains_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: aevann
 --
 
 ALTER SEQUENCE public.domains_id_seq OWNED BY public.banneddomains.id;
 
 
 --
--- Name: flags; Type: TABLE; Schema: public; Owner: postgres
+-- Name: flags; Type: TABLE; Schema: public; Owner: aevann
 --
 
 CREATE TABLE public.flags (
@@ -531,10 +531,10 @@ CREATE TABLE public.flags (
 );
 
 
-ALTER TABLE public.flags OWNER TO postgres;
+ALTER TABLE public.flags OWNER TO aevann;
 
 --
--- Name: flags_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: flags_id_seq; Type: SEQUENCE; Schema: public; Owner: aevann
 --
 
 CREATE SEQUENCE public.flags_id_seq
@@ -546,17 +546,17 @@ CREATE SEQUENCE public.flags_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.flags_id_seq OWNER TO postgres;
+ALTER TABLE public.flags_id_seq OWNER TO aevann;
 
 --
--- Name: flags_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: flags_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: aevann
 --
 
 ALTER SEQUENCE public.flags_id_seq OWNED BY public.flags.id;
 
 
 --
--- Name: follows; Type: TABLE; Schema: public; Owner: postgres
+-- Name: follows; Type: TABLE; Schema: public; Owner: aevann
 --
 
 CREATE TABLE public.follows (
@@ -566,10 +566,10 @@ CREATE TABLE public.follows (
 );
 
 
-ALTER TABLE public.follows OWNER TO postgres;
+ALTER TABLE public.follows OWNER TO aevann;
 
 --
--- Name: follows_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: follows_id_seq; Type: SEQUENCE; Schema: public; Owner: aevann
 --
 
 CREATE SEQUENCE public.follows_id_seq
@@ -581,17 +581,17 @@ CREATE SEQUENCE public.follows_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.follows_id_seq OWNER TO postgres;
+ALTER TABLE public.follows_id_seq OWNER TO aevann;
 
 --
--- Name: follows_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: follows_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: aevann
 --
 
 ALTER SEQUENCE public.follows_id_seq OWNED BY public.follows.id;
 
 
 --
--- Name: images; Type: TABLE; Schema: public; Owner: postgres
+-- Name: images; Type: TABLE; Schema: public; Owner: aevann
 --
 
 CREATE TABLE public.images (
@@ -603,10 +603,10 @@ CREATE TABLE public.images (
 );
 
 
-ALTER TABLE public.images OWNER TO postgres;
+ALTER TABLE public.images OWNER TO aevann;
 
 --
--- Name: images_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: images_id_seq; Type: SEQUENCE; Schema: public; Owner: aevann
 --
 
 CREATE SEQUENCE public.images_id_seq
@@ -618,17 +618,17 @@ CREATE SEQUENCE public.images_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.images_id_seq OWNER TO postgres;
+ALTER TABLE public.images_id_seq OWNER TO aevann;
 
 --
--- Name: images_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: images_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: aevann
 --
 
 ALTER SEQUENCE public.images_id_seq OWNED BY public.images.id;
 
 
 --
--- Name: modactions; Type: TABLE; Schema: public; Owner: postgres
+-- Name: modactions; Type: TABLE; Schema: public; Owner: aevann
 --
 
 CREATE TABLE public.modactions (
@@ -643,10 +643,10 @@ CREATE TABLE public.modactions (
 );
 
 
-ALTER TABLE public.modactions OWNER TO postgres;
+ALTER TABLE public.modactions OWNER TO aevann;
 
 --
--- Name: modactions_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: modactions_id_seq; Type: SEQUENCE; Schema: public; Owner: aevann
 --
 
 CREATE SEQUENCE public.modactions_id_seq
@@ -658,17 +658,17 @@ CREATE SEQUENCE public.modactions_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.modactions_id_seq OWNER TO postgres;
+ALTER TABLE public.modactions_id_seq OWNER TO aevann;
 
 --
--- Name: modactions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: modactions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: aevann
 --
 
 ALTER SEQUENCE public.modactions_id_seq OWNED BY public.modactions.id;
 
 
 --
--- Name: notifications; Type: TABLE; Schema: public; Owner: postgres
+-- Name: notifications; Type: TABLE; Schema: public; Owner: aevann
 --
 
 CREATE TABLE public.notifications (
@@ -683,10 +683,10 @@ CREATE TABLE public.notifications (
 );
 
 
-ALTER TABLE public.notifications OWNER TO postgres;
+ALTER TABLE public.notifications OWNER TO aevann;
 
 --
--- Name: notifications_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: notifications_id_seq; Type: SEQUENCE; Schema: public; Owner: aevann
 --
 
 CREATE SEQUENCE public.notifications_id_seq
@@ -698,17 +698,17 @@ CREATE SEQUENCE public.notifications_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.notifications_id_seq OWNER TO postgres;
+ALTER TABLE public.notifications_id_seq OWNER TO aevann;
 
 --
--- Name: notifications_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: notifications_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: aevann
 --
 
 ALTER SEQUENCE public.notifications_id_seq OWNED BY public.notifications.id;
 
 
 --
--- Name: oauth_apps; Type: TABLE; Schema: public; Owner: postgres
+-- Name: oauth_apps; Type: TABLE; Schema: public; Owner: aevann
 --
 
 CREATE TABLE public.oauth_apps (
@@ -721,10 +721,10 @@ CREATE TABLE public.oauth_apps (
 );
 
 
-ALTER TABLE public.oauth_apps OWNER TO postgres;
+ALTER TABLE public.oauth_apps OWNER TO aevann;
 
 --
--- Name: oauth_apps_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: oauth_apps_id_seq; Type: SEQUENCE; Schema: public; Owner: aevann
 --
 
 CREATE SEQUENCE public.oauth_apps_id_seq
@@ -736,17 +736,17 @@ CREATE SEQUENCE public.oauth_apps_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.oauth_apps_id_seq OWNER TO postgres;
+ALTER TABLE public.oauth_apps_id_seq OWNER TO aevann;
 
 --
--- Name: oauth_apps_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: oauth_apps_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: aevann
 --
 
 ALTER SEQUENCE public.oauth_apps_id_seq OWNED BY public.oauth_apps.id;
 
 
 --
--- Name: save_relationship; Type: TABLE; Schema: public; Owner: postgres
+-- Name: save_relationship; Type: TABLE; Schema: public; Owner: aevann
 --
 
 CREATE TABLE public.save_relationship (
@@ -757,10 +757,10 @@ CREATE TABLE public.save_relationship (
 );
 
 
-ALTER TABLE public.save_relationship OWNER TO postgres;
+ALTER TABLE public.save_relationship OWNER TO aevann;
 
 --
--- Name: save_relationship_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: save_relationship_id_seq; Type: SEQUENCE; Schema: public; Owner: aevann
 --
 
 CREATE SEQUENCE public.save_relationship_id_seq
@@ -772,17 +772,17 @@ CREATE SEQUENCE public.save_relationship_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.save_relationship_id_seq OWNER TO postgres;
+ALTER TABLE public.save_relationship_id_seq OWNER TO aevann;
 
 --
--- Name: save_relationship_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: save_relationship_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: aevann
 --
 
 ALTER SEQUENCE public.save_relationship_id_seq OWNED BY public.save_relationship.id;
 
 
 --
--- Name: submissions; Type: TABLE; Schema: public; Owner: postgres
+-- Name: submissions; Type: TABLE; Schema: public; Owner: aevann
 --
 
 CREATE TABLE public.submissions (
@@ -814,10 +814,10 @@ CREATE TABLE public.submissions (
 );
 
 
-ALTER TABLE public.submissions OWNER TO postgres;
+ALTER TABLE public.submissions OWNER TO aevann;
 
 --
--- Name: submissions_aux; Type: TABLE; Schema: public; Owner: postgres
+-- Name: submissions_aux; Type: TABLE; Schema: public; Owner: aevann
 --
 
 CREATE TABLE public.submissions_aux (
@@ -833,10 +833,10 @@ CREATE TABLE public.submissions_aux (
 );
 
 
-ALTER TABLE public.submissions_aux OWNER TO postgres;
+ALTER TABLE public.submissions_aux OWNER TO aevann;
 
 --
--- Name: submissions_aux_key_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: submissions_aux_key_id_seq; Type: SEQUENCE; Schema: public; Owner: aevann
 --
 
 CREATE SEQUENCE public.submissions_aux_key_id_seq
@@ -848,17 +848,17 @@ CREATE SEQUENCE public.submissions_aux_key_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.submissions_aux_key_id_seq OWNER TO postgres;
+ALTER TABLE public.submissions_aux_key_id_seq OWNER TO aevann;
 
 --
--- Name: submissions_aux_key_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: submissions_aux_key_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: aevann
 --
 
 ALTER SEQUENCE public.submissions_aux_key_id_seq OWNED BY public.submissions_aux.key_id;
 
 
 --
--- Name: submissions_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: submissions_id_seq; Type: SEQUENCE; Schema: public; Owner: aevann
 --
 
 CREATE SEQUENCE public.submissions_id_seq
@@ -870,17 +870,17 @@ CREATE SEQUENCE public.submissions_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.submissions_id_seq OWNER TO postgres;
+ALTER TABLE public.submissions_id_seq OWNER TO aevann;
 
 --
--- Name: submissions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: submissions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: aevann
 --
 
 ALTER SEQUENCE public.submissions_id_seq OWNED BY public.submissions.id;
 
 
 --
--- Name: subscriptions; Type: TABLE; Schema: public; Owner: postgres
+-- Name: subscriptions; Type: TABLE; Schema: public; Owner: aevann
 --
 
 CREATE TABLE public.subscriptions (
@@ -891,10 +891,10 @@ CREATE TABLE public.subscriptions (
 );
 
 
-ALTER TABLE public.subscriptions OWNER TO postgres;
+ALTER TABLE public.subscriptions OWNER TO aevann;
 
 --
--- Name: subscriptions_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: subscriptions_id_seq; Type: SEQUENCE; Schema: public; Owner: aevann
 --
 
 CREATE SEQUENCE public.subscriptions_id_seq
@@ -906,55 +906,17 @@ CREATE SEQUENCE public.subscriptions_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.subscriptions_id_seq OWNER TO postgres;
+ALTER TABLE public.subscriptions_id_seq OWNER TO aevann;
 
 --
--- Name: subscriptions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: subscriptions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: aevann
 --
 
 ALTER SEQUENCE public.subscriptions_id_seq OWNED BY public.subscriptions.id;
 
 
 --
--- Name: useragents; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.useragents (
-    id integer NOT NULL,
-    kwd character varying(128),
-    banned_by integer,
-    reason character varying(256),
-    mock character varying(256),
-    status_code integer
-);
-
-
-ALTER TABLE public.useragents OWNER TO postgres;
-
---
--- Name: useragents_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE public.useragents_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.useragents_id_seq OWNER TO postgres;
-
---
--- Name: useragents_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
---
-
-ALTER SEQUENCE public.useragents_id_seq OWNED BY public.useragents.id;
-
-
---
--- Name: userblocks; Type: TABLE; Schema: public; Owner: postgres
+-- Name: userblocks; Type: TABLE; Schema: public; Owner: aevann
 --
 
 CREATE TABLE public.userblocks (
@@ -964,10 +926,10 @@ CREATE TABLE public.userblocks (
 );
 
 
-ALTER TABLE public.userblocks OWNER TO postgres;
+ALTER TABLE public.userblocks OWNER TO aevann;
 
 --
--- Name: userblocks_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: userblocks_id_seq; Type: SEQUENCE; Schema: public; Owner: aevann
 --
 
 CREATE SEQUENCE public.userblocks_id_seq
@@ -979,17 +941,17 @@ CREATE SEQUENCE public.userblocks_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.userblocks_id_seq OWNER TO postgres;
+ALTER TABLE public.userblocks_id_seq OWNER TO aevann;
 
 --
--- Name: userblocks_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: userblocks_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: aevann
 --
 
 ALTER SEQUENCE public.userblocks_id_seq OWNED BY public.userblocks.id;
 
 
 --
--- Name: users; Type: TABLE; Schema: public; Owner: postgres
+-- Name: users; Type: TABLE; Schema: public; Owner: aevann
 --
 
 CREATE TABLE public.users (
@@ -1059,14 +1021,16 @@ CREATE TABLE public.users (
     received_award_count integer,
     highlightcomments boolean,
     club_banned boolean DEFAULT false,
-    nitter boolean
+    nitter boolean,
+    truecoins integer,
+    club_allowed boolean DEFAULT false
 );
 
 
-ALTER TABLE public.users OWNER TO postgres;
+ALTER TABLE public.users OWNER TO aevann;
 
 --
--- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: aevann
 --
 
 CREATE SEQUENCE public.users_id_seq
@@ -1078,17 +1042,17 @@ CREATE SEQUENCE public.users_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.users_id_seq OWNER TO postgres;
+ALTER TABLE public.users_id_seq OWNER TO aevann;
 
 --
--- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: aevann
 --
 
 ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
 
 
 --
--- Name: viewers; Type: TABLE; Schema: public; Owner: postgres
+-- Name: viewers; Type: TABLE; Schema: public; Owner: aevann
 --
 
 CREATE TABLE public.viewers (
@@ -1099,10 +1063,10 @@ CREATE TABLE public.viewers (
 );
 
 
-ALTER TABLE public.viewers OWNER TO postgres;
+ALTER TABLE public.viewers OWNER TO aevann;
 
 --
--- Name: viewers_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: viewers_id_seq; Type: SEQUENCE; Schema: public; Owner: aevann
 --
 
 CREATE SEQUENCE public.viewers_id_seq
@@ -1114,17 +1078,17 @@ CREATE SEQUENCE public.viewers_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.viewers_id_seq OWNER TO postgres;
+ALTER TABLE public.viewers_id_seq OWNER TO aevann;
 
 --
--- Name: viewers_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: viewers_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: aevann
 --
 
 ALTER SEQUENCE public.viewers_id_seq OWNED BY public.viewers.id;
 
 
 --
--- Name: votes; Type: TABLE; Schema: public; Owner: postgres
+-- Name: votes; Type: TABLE; Schema: public; Owner: aevann
 --
 
 CREATE TABLE public.votes (
@@ -1137,10 +1101,10 @@ CREATE TABLE public.votes (
 );
 
 
-ALTER TABLE public.votes OWNER TO postgres;
+ALTER TABLE public.votes OWNER TO aevann;
 
 --
--- Name: votes_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: votes_id_seq; Type: SEQUENCE; Schema: public; Owner: aevann
 --
 
 CREATE SEQUENCE public.votes_id_seq
@@ -1152,206 +1116,199 @@ CREATE SEQUENCE public.votes_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.votes_id_seq OWNER TO postgres;
+ALTER TABLE public.votes_id_seq OWNER TO aevann;
 
 --
--- Name: votes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: votes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: aevann
 --
 
 ALTER SEQUENCE public.votes_id_seq OWNED BY public.votes.id;
 
 
 --
--- Name: alts id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: alts id; Type: DEFAULT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.alts ALTER COLUMN id SET DEFAULT nextval('public.alts_id_seq'::regclass);
 
 
 --
--- Name: award_relationships id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: award_relationships id; Type: DEFAULT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.award_relationships ALTER COLUMN id SET DEFAULT nextval('public.award_relationships_id_seq'::regclass);
 
 
 --
--- Name: badge_defs id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: badge_defs id; Type: DEFAULT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.badge_defs ALTER COLUMN id SET DEFAULT nextval('public.badge_list_id_seq'::regclass);
 
 
 --
--- Name: badges id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: badges id; Type: DEFAULT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.badges ALTER COLUMN id SET DEFAULT nextval('public.badges_id_seq'::regclass);
 
 
 --
--- Name: badlinks id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: badlinks id; Type: DEFAULT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.badlinks ALTER COLUMN id SET DEFAULT nextval('public.badlinks_id_seq'::regclass);
 
 
 --
--- Name: badpics id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: badpics id; Type: DEFAULT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.badpics ALTER COLUMN id SET DEFAULT nextval('public.badpics_id_seq'::regclass);
 
 
 --
--- Name: banneddomains id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: banneddomains id; Type: DEFAULT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.banneddomains ALTER COLUMN id SET DEFAULT nextval('public.domains_id_seq'::regclass);
 
 
 --
--- Name: client_auths id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: client_auths id; Type: DEFAULT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.client_auths ALTER COLUMN id SET DEFAULT nextval('public.client_auths_id_seq'::regclass);
 
 
 --
--- Name: commentflags id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: commentflags id; Type: DEFAULT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.commentflags ALTER COLUMN id SET DEFAULT nextval('public.commentflags_id_seq'::regclass);
 
 
 --
--- Name: comments id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: comments id; Type: DEFAULT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.comments ALTER COLUMN id SET DEFAULT nextval('public.comments_id_seq'::regclass);
 
 
 --
--- Name: comments_aux key_id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: comments_aux key_id; Type: DEFAULT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.comments_aux ALTER COLUMN key_id SET DEFAULT nextval('public.comments_aux_key_id_seq'::regclass);
 
 
 --
--- Name: commentvotes id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: commentvotes id; Type: DEFAULT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.commentvotes ALTER COLUMN id SET DEFAULT nextval('public.commentvotes_id_seq'::regclass);
 
 
 --
--- Name: flags id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: flags id; Type: DEFAULT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.flags ALTER COLUMN id SET DEFAULT nextval('public.flags_id_seq'::regclass);
 
 
 --
--- Name: follows id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: follows id; Type: DEFAULT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.follows ALTER COLUMN id SET DEFAULT nextval('public.follows_id_seq'::regclass);
 
 
 --
--- Name: images id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: images id; Type: DEFAULT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.images ALTER COLUMN id SET DEFAULT nextval('public.images_id_seq'::regclass);
 
 
 --
--- Name: modactions id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: modactions id; Type: DEFAULT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.modactions ALTER COLUMN id SET DEFAULT nextval('public.modactions_id_seq'::regclass);
 
 
 --
--- Name: notifications id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: notifications id; Type: DEFAULT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.notifications ALTER COLUMN id SET DEFAULT nextval('public.notifications_id_seq'::regclass);
 
 
 --
--- Name: oauth_apps id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: oauth_apps id; Type: DEFAULT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.oauth_apps ALTER COLUMN id SET DEFAULT nextval('public.oauth_apps_id_seq'::regclass);
 
 
 --
--- Name: save_relationship id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: save_relationship id; Type: DEFAULT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.save_relationship ALTER COLUMN id SET DEFAULT nextval('public.save_relationship_id_seq'::regclass);
 
 
 --
--- Name: submissions id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: submissions id; Type: DEFAULT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.submissions ALTER COLUMN id SET DEFAULT nextval('public.submissions_id_seq'::regclass);
 
 
 --
--- Name: submissions_aux key_id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: submissions_aux key_id; Type: DEFAULT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.submissions_aux ALTER COLUMN key_id SET DEFAULT nextval('public.submissions_aux_key_id_seq'::regclass);
 
 
 --
--- Name: subscriptions id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: subscriptions id; Type: DEFAULT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.subscriptions ALTER COLUMN id SET DEFAULT nextval('public.subscriptions_id_seq'::regclass);
 
 
 --
--- Name: useragents id; Type: DEFAULT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.useragents ALTER COLUMN id SET DEFAULT nextval('public.useragents_id_seq'::regclass);
-
-
---
--- Name: userblocks id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: userblocks id; Type: DEFAULT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.userblocks ALTER COLUMN id SET DEFAULT nextval('public.userblocks_id_seq'::regclass);
 
 
 --
--- Name: users id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: users id; Type: DEFAULT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_id_seq'::regclass);
 
 
 --
--- Name: viewers id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: viewers id; Type: DEFAULT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.viewers ALTER COLUMN id SET DEFAULT nextval('public.viewers_id_seq'::regclass);
 
 
 --
--- Name: votes id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: votes id; Type: DEFAULT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.votes ALTER COLUMN id SET DEFAULT nextval('public.votes_id_seq'::regclass);
 
 
 --
--- Name: alts alts_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: alts alts_pkey; Type: CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.alts
@@ -1359,7 +1316,7 @@ ALTER TABLE ONLY public.alts
 
 
 --
--- Name: award_relationships award_constraint; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: award_relationships award_constraint; Type: CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.award_relationships
@@ -1367,7 +1324,7 @@ ALTER TABLE ONLY public.award_relationships
 
 
 --
--- Name: award_relationships award_relationships_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: award_relationships award_relationships_pkey; Type: CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.award_relationships
@@ -1375,7 +1332,7 @@ ALTER TABLE ONLY public.award_relationships
 
 
 --
--- Name: badge_defs badge_defs_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: badge_defs badge_defs_pkey; Type: CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.badge_defs
@@ -1383,7 +1340,7 @@ ALTER TABLE ONLY public.badge_defs
 
 
 --
--- Name: badge_defs badge_list_icon_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: badge_defs badge_list_icon_key; Type: CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.badge_defs
@@ -1391,7 +1348,7 @@ ALTER TABLE ONLY public.badge_defs
 
 
 --
--- Name: badges badges_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: badges badges_pkey; Type: CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.badges
@@ -1399,7 +1356,7 @@ ALTER TABLE ONLY public.badges
 
 
 --
--- Name: badlinks badlinks_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: badlinks badlinks_pkey; Type: CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.badlinks
@@ -1407,7 +1364,7 @@ ALTER TABLE ONLY public.badlinks
 
 
 --
--- Name: badpics badpics_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: badpics badpics_pkey; Type: CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.badpics
@@ -1415,7 +1372,7 @@ ALTER TABLE ONLY public.badpics
 
 
 --
--- Name: client_auths client_auths_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: client_auths client_auths_pkey; Type: CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.client_auths
@@ -1423,7 +1380,7 @@ ALTER TABLE ONLY public.client_auths
 
 
 --
--- Name: commentflags commentflags_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: commentflags commentflags_pkey; Type: CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.commentflags
@@ -1431,7 +1388,7 @@ ALTER TABLE ONLY public.commentflags
 
 
 --
--- Name: comments_aux comments_aux_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: comments_aux comments_aux_pkey; Type: CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.comments_aux
@@ -1439,7 +1396,7 @@ ALTER TABLE ONLY public.comments_aux
 
 
 --
--- Name: comments comments_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: comments comments_pkey; Type: CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.comments
@@ -1447,7 +1404,7 @@ ALTER TABLE ONLY public.comments
 
 
 --
--- Name: commentvotes commentvotes_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: commentvotes commentvotes_pkey; Type: CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.commentvotes
@@ -1455,7 +1412,7 @@ ALTER TABLE ONLY public.commentvotes
 
 
 --
--- Name: banneddomains domains_domain_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: banneddomains domains_domain_key; Type: CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.banneddomains
@@ -1463,7 +1420,7 @@ ALTER TABLE ONLY public.banneddomains
 
 
 --
--- Name: banneddomains domains_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: banneddomains domains_pkey; Type: CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.banneddomains
@@ -1471,7 +1428,7 @@ ALTER TABLE ONLY public.banneddomains
 
 
 --
--- Name: flags flags_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: flags flags_pkey; Type: CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.flags
@@ -1479,7 +1436,7 @@ ALTER TABLE ONLY public.flags
 
 
 --
--- Name: follows follow_membership_unique; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: follows follow_membership_unique; Type: CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.follows
@@ -1487,7 +1444,7 @@ ALTER TABLE ONLY public.follows
 
 
 --
--- Name: follows follows_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: follows follows_pkey; Type: CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.follows
@@ -1495,7 +1452,7 @@ ALTER TABLE ONLY public.follows
 
 
 --
--- Name: images images_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: images images_pkey; Type: CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.images
@@ -1503,7 +1460,7 @@ ALTER TABLE ONLY public.images
 
 
 --
--- Name: modactions modactions_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: modactions modactions_pkey; Type: CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.modactions
@@ -1511,7 +1468,7 @@ ALTER TABLE ONLY public.modactions
 
 
 --
--- Name: notifications notifications_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: notifications notifications_pkey; Type: CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.notifications
@@ -1519,7 +1476,7 @@ ALTER TABLE ONLY public.notifications
 
 
 --
--- Name: oauth_apps oauth_apps_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: oauth_apps oauth_apps_pkey; Type: CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.oauth_apps
@@ -1527,7 +1484,7 @@ ALTER TABLE ONLY public.oauth_apps
 
 
 --
--- Name: users one_discord_account; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: users one_discord_account; Type: CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.users
@@ -1535,7 +1492,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- Name: notifications one_notif; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: notifications one_notif; Type: CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.notifications
@@ -1543,7 +1500,7 @@ ALTER TABLE ONLY public.notifications
 
 
 --
--- Name: commentvotes onecvote; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: commentvotes onecvote; Type: CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.commentvotes
@@ -1551,7 +1508,7 @@ ALTER TABLE ONLY public.commentvotes
 
 
 --
--- Name: votes onevote; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: votes onevote; Type: CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.votes
@@ -1559,7 +1516,7 @@ ALTER TABLE ONLY public.votes
 
 
 --
--- Name: save_relationship save_constraint; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: save_relationship save_constraint; Type: CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.save_relationship
@@ -1567,7 +1524,7 @@ ALTER TABLE ONLY public.save_relationship
 
 
 --
--- Name: save_relationship save_relationship_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: save_relationship save_relationship_pkey; Type: CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.save_relationship
@@ -1575,7 +1532,7 @@ ALTER TABLE ONLY public.save_relationship
 
 
 --
--- Name: submissions_aux submissions_aux_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: submissions_aux submissions_aux_pkey; Type: CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.submissions_aux
@@ -1583,7 +1540,7 @@ ALTER TABLE ONLY public.submissions_aux
 
 
 --
--- Name: submissions submissions_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: submissions submissions_pkey; Type: CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.submissions
@@ -1591,7 +1548,7 @@ ALTER TABLE ONLY public.submissions
 
 
 --
--- Name: subscriptions subscriptions_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: subscriptions subscriptions_pkey; Type: CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.subscriptions
@@ -1599,7 +1556,7 @@ ALTER TABLE ONLY public.subscriptions
 
 
 --
--- Name: client_auths unique_access; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: client_auths unique_access; Type: CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.client_auths
@@ -1607,7 +1564,7 @@ ALTER TABLE ONLY public.client_auths
 
 
 --
--- Name: oauth_apps unique_id; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: oauth_apps unique_id; Type: CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.oauth_apps
@@ -1615,7 +1572,7 @@ ALTER TABLE ONLY public.oauth_apps
 
 
 --
--- Name: badges user_badge_constraint; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: badges user_badge_constraint; Type: CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.badges
@@ -1623,23 +1580,7 @@ ALTER TABLE ONLY public.badges
 
 
 --
--- Name: useragents useragents_kwd_key; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.useragents
-    ADD CONSTRAINT useragents_kwd_key UNIQUE (kwd);
-
-
---
--- Name: useragents useragents_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.useragents
-    ADD CONSTRAINT useragents_pkey PRIMARY KEY (id);
-
-
---
--- Name: userblocks userblocks_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: userblocks userblocks_pkey; Type: CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.userblocks
@@ -1647,7 +1588,7 @@ ALTER TABLE ONLY public.userblocks
 
 
 --
--- Name: alts userpair; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: alts userpair; Type: CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.alts
@@ -1655,7 +1596,7 @@ ALTER TABLE ONLY public.alts
 
 
 --
--- Name: users users_email_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: users users_email_key; Type: CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.users
@@ -1663,7 +1604,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- Name: users users_original_username_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: users users_original_username_key; Type: CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.users
@@ -1671,7 +1612,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.users
@@ -1679,7 +1620,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- Name: users users_username_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: users users_username_key; Type: CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.users
@@ -1687,7 +1628,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- Name: viewers viewers_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: viewers viewers_pkey; Type: CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.viewers
@@ -1695,7 +1636,7 @@ ALTER TABLE ONLY public.viewers
 
 
 --
--- Name: votes votes_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: votes votes_pkey; Type: CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.votes
@@ -1703,532 +1644,532 @@ ALTER TABLE ONLY public.votes
 
 
 --
--- Name: alts_user1_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: alts_user1_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX alts_user1_idx ON public.alts USING btree (user1);
 
 
 --
--- Name: alts_user2_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: alts_user2_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX alts_user2_idx ON public.alts USING btree (user2);
 
 
 --
--- Name: award_comment_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: award_comment_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX award_comment_idx ON public.award_relationships USING btree (comment_id);
 
 
 --
--- Name: award_post_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: award_post_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX award_post_idx ON public.award_relationships USING btree (submission_id);
 
 
 --
--- Name: award_user_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: award_user_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX award_user_idx ON public.award_relationships USING btree (user_id);
 
 
 --
--- Name: badgedef_qual_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: badgedef_qual_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX badgedef_qual_idx ON public.badge_defs USING btree (qualification_expr);
 
 
 --
--- Name: badges_badge_id_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: badges_badge_id_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX badges_badge_id_idx ON public.badges USING btree (badge_id);
 
 
 --
--- Name: badges_user_index; Type: INDEX; Schema: public; Owner: postgres
+-- Name: badges_user_index; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX badges_user_index ON public.badges USING btree (user_id);
 
 
 --
--- Name: badlink_link_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: badlink_link_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX badlink_link_idx ON public.badlinks USING btree (link);
 
 
 --
--- Name: badpic_phash_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: badpic_phash_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX badpic_phash_idx ON public.badpics USING btree (phash);
 
 
 --
--- Name: badpic_phash_trgm_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: badpic_phash_trgm_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX badpic_phash_trgm_idx ON public.badpics USING gin (phash public.gin_trgm_ops);
 
 
 --
--- Name: badpics_phash_index; Type: INDEX; Schema: public; Owner: postgres
+-- Name: badpics_phash_index; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX badpics_phash_index ON public.badpics USING gin (phash public.gin_trgm_ops);
 
 
 --
--- Name: block_target_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: block_target_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX block_target_idx ON public.userblocks USING btree (target_id);
 
 
 --
--- Name: block_user_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: block_user_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX block_user_idx ON public.userblocks USING btree (user_id);
 
 
 --
--- Name: cflag_user_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: cflag_user_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX cflag_user_idx ON public.commentflags USING btree (user_id);
 
 
 --
--- Name: comment_body_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: comment_body_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX comment_body_idx ON public.comments_aux USING btree (body) WHERE (octet_length((body)::text) <= 2704);
 
 
 --
--- Name: comment_body_trgm_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: comment_body_trgm_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX comment_body_trgm_idx ON public.comments_aux USING gin (body public.gin_trgm_ops);
 
 
 --
--- Name: comment_parent_index; Type: INDEX; Schema: public; Owner: postgres
+-- Name: comment_parent_index; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX comment_parent_index ON public.comments USING btree (parent_comment_id);
 
 
 --
--- Name: comment_post_id_index; Type: INDEX; Schema: public; Owner: postgres
+-- Name: comment_post_id_index; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX comment_post_id_index ON public.comments USING btree (parent_submission);
 
 
 --
--- Name: commentflag_comment_index; Type: INDEX; Schema: public; Owner: postgres
+-- Name: commentflag_comment_index; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX commentflag_comment_index ON public.commentflags USING btree (comment_id);
 
 
 --
--- Name: comments_aux_id_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: comments_aux_id_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX comments_aux_id_idx ON public.comments_aux USING btree (id);
 
 
 --
--- Name: comments_parent_id_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: comments_parent_id_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX comments_parent_id_idx ON public.comments USING btree (parent_comment_id);
 
 
 --
--- Name: comments_user_index; Type: INDEX; Schema: public; Owner: postgres
+-- Name: comments_user_index; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX comments_user_index ON public.comments USING btree (author_id);
 
 
 --
--- Name: commentsaux_body_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: commentsaux_body_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX commentsaux_body_idx ON public.comments_aux USING gin (to_tsvector('english'::regconfig, (body)::text));
 
 
 --
--- Name: commentvotes_comments_id_index; Type: INDEX; Schema: public; Owner: postgres
+-- Name: commentvotes_comments_id_index; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX commentvotes_comments_id_index ON public.commentvotes USING btree (comment_id);
 
 
 --
--- Name: commentvotes_comments_type_index; Type: INDEX; Schema: public; Owner: postgres
+-- Name: commentvotes_comments_type_index; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX commentvotes_comments_type_index ON public.commentvotes USING btree (vote_type);
 
 
 --
--- Name: cvote_user_index; Type: INDEX; Schema: public; Owner: postgres
+-- Name: cvote_user_index; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX cvote_user_index ON public.commentvotes USING btree (user_id);
 
 
 --
--- Name: discord_id_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: discord_id_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX discord_id_idx ON public.users USING btree (discord_id);
 
 
 --
--- Name: domain_ref_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: domain_ref_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX domain_ref_idx ON public.submissions USING btree (domain_ref);
 
 
 --
--- Name: domains_domain_trgm_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: domains_domain_trgm_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX domains_domain_trgm_idx ON public.banneddomains USING gin (domain public.gin_trgm_ops);
 
 
 --
--- Name: flag_user_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: flag_user_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX flag_user_idx ON public.flags USING btree (user_id);
 
 
 --
--- Name: flags_post_index; Type: INDEX; Schema: public; Owner: postgres
+-- Name: flags_post_index; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX flags_post_index ON public.flags USING btree (post_id);
 
 
 --
--- Name: follow_target_id_index; Type: INDEX; Schema: public; Owner: postgres
+-- Name: follow_target_id_index; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX follow_target_id_index ON public.follows USING btree (target_id);
 
 
 --
--- Name: follow_user_id_index; Type: INDEX; Schema: public; Owner: postgres
+-- Name: follow_user_id_index; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX follow_user_id_index ON public.follows USING btree (user_id);
 
 
 --
--- Name: modaction_action_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: modaction_action_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX modaction_action_idx ON public.modactions USING btree (kind);
 
 
 --
--- Name: modaction_cid_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: modaction_cid_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX modaction_cid_idx ON public.modactions USING btree (target_comment_id);
 
 
 --
--- Name: modaction_id_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: modaction_id_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX modaction_id_idx ON public.modactions USING btree (id DESC);
 
 
 --
--- Name: modaction_pid_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: modaction_pid_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX modaction_pid_idx ON public.modactions USING btree (target_submission_id);
 
 
 --
--- Name: notification_read_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: notification_read_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX notification_read_idx ON public.notifications USING btree (read);
 
 
 --
--- Name: notifications_comment_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: notifications_comment_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX notifications_comment_idx ON public.notifications USING btree (comment_id);
 
 
 --
--- Name: notifications_user_index; Type: INDEX; Schema: public; Owner: postgres
+-- Name: notifications_user_index; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX notifications_user_index ON public.notifications USING btree (user_id);
 
 
 --
--- Name: notifs_user_read_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: notifs_user_read_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX notifs_user_read_idx ON public.notifications USING btree (user_id, read);
 
 
 --
--- Name: post_18_index; Type: INDEX; Schema: public; Owner: postgres
+-- Name: post_18_index; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX post_18_index ON public.submissions USING btree (over_18);
 
 
 --
--- Name: post_app_id_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: post_app_id_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX post_app_id_idx ON public.submissions USING btree (app_id);
 
 
 --
--- Name: post_author_index; Type: INDEX; Schema: public; Owner: postgres
+-- Name: post_author_index; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX post_author_index ON public.submissions USING btree (author_id);
 
 
 --
--- Name: sub_user_index; Type: INDEX; Schema: public; Owner: postgres
+-- Name: sub_user_index; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX sub_user_index ON public.subscriptions USING btree (user_id);
 
 
 --
--- Name: subimssion_binary_group_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: subimssion_binary_group_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX subimssion_binary_group_idx ON public.submissions USING btree (is_banned, deleted_utc, over_18);
 
 
 --
--- Name: submission_aux_url_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: submission_aux_url_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX submission_aux_url_idx ON public.submissions_aux USING btree (url);
 
 
 --
--- Name: submission_aux_url_trgm_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: submission_aux_url_trgm_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX submission_aux_url_trgm_idx ON public.submissions_aux USING gin (url public.gin_trgm_ops);
 
 
 --
--- Name: submission_domainref_index; Type: INDEX; Schema: public; Owner: postgres
+-- Name: submission_domainref_index; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX submission_domainref_index ON public.submissions USING btree (domain_ref);
 
 
 --
--- Name: submission_isbanned_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: submission_isbanned_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX submission_isbanned_idx ON public.submissions USING btree (is_banned);
 
 
 --
--- Name: submission_isdeleted_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: submission_isdeleted_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX submission_isdeleted_idx ON public.submissions USING btree (deleted_utc);
 
 
 --
--- Name: submission_new_sort_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: submission_new_sort_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX submission_new_sort_idx ON public.submissions USING btree (is_banned, deleted_utc, created_utc DESC, over_18);
 
 
 --
--- Name: submission_pinned_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: submission_pinned_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX submission_pinned_idx ON public.submissions USING btree (is_pinned);
 
 
 --
--- Name: submissions_author_index; Type: INDEX; Schema: public; Owner: postgres
+-- Name: submissions_author_index; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX submissions_author_index ON public.submissions USING btree (author_id);
 
 
 --
--- Name: submissions_aux_id_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: submissions_aux_id_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX submissions_aux_id_idx ON public.submissions_aux USING btree (id);
 
 
 --
--- Name: submissions_aux_title_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: submissions_aux_title_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX submissions_aux_title_idx ON public.submissions_aux USING btree (title);
 
 
 --
--- Name: submissions_created_utc_desc_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: submissions_created_utc_desc_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX submissions_created_utc_desc_idx ON public.submissions USING btree (created_utc DESC);
 
 
 --
--- Name: submissions_over18_index; Type: INDEX; Schema: public; Owner: postgres
+-- Name: submissions_over18_index; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX submissions_over18_index ON public.submissions USING btree (over_18);
 
 
 --
--- Name: submissions_sticky_index; Type: INDEX; Schema: public; Owner: postgres
+-- Name: submissions_sticky_index; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX submissions_sticky_index ON public.submissions USING btree (stickied);
 
 
 --
--- Name: submissions_title_trgm_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: submissions_title_trgm_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX submissions_title_trgm_idx ON public.submissions_aux USING gin (title public.gin_trgm_ops);
 
 
 --
--- Name: subscription_board_index; Type: INDEX; Schema: public; Owner: postgres
+-- Name: subscription_board_index; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX subscription_board_index ON public.subscriptions USING btree (board_id);
 
 
 --
--- Name: subscription_user_index; Type: INDEX; Schema: public; Owner: postgres
+-- Name: subscription_user_index; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX subscription_user_index ON public.subscriptions USING btree (user_id);
 
 
 --
--- Name: user_banned_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: user_banned_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX user_banned_idx ON public.users USING btree (is_banned);
 
 
 --
--- Name: user_privacy_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: user_privacy_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX user_privacy_idx ON public.users USING btree (is_private);
 
 
 --
--- Name: user_private_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: user_private_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX user_private_idx ON public.users USING btree (is_private);
 
 
 --
--- Name: userblocks_both_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: userblocks_both_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX userblocks_both_idx ON public.userblocks USING btree (user_id, target_id);
 
 
 --
--- Name: users_created_utc_index; Type: INDEX; Schema: public; Owner: postgres
+-- Name: users_created_utc_index; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX users_created_utc_index ON public.users USING btree (created_utc);
 
 
 --
--- Name: users_original_username_trgm_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: users_original_username_trgm_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX users_original_username_trgm_idx ON public.users USING gin (original_username public.gin_trgm_ops);
 
 
 --
--- Name: users_subs_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: users_subs_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX users_subs_idx ON public.users USING btree (stored_subscriber_count);
 
 
 --
--- Name: users_unbanutc_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: users_unbanutc_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX users_unbanutc_idx ON public.users USING btree (unban_utc DESC);
 
 
 --
--- Name: users_username_trgm_idx; Type: INDEX; Schema: public; Owner: postgres
+-- Name: users_username_trgm_idx; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX users_username_trgm_idx ON public.users USING gin (username public.gin_trgm_ops);
 
 
 --
--- Name: vote_user_index; Type: INDEX; Schema: public; Owner: postgres
+-- Name: vote_user_index; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX vote_user_index ON public.votes USING btree (user_id);
 
 
 --
--- Name: votes_submission_id_index; Type: INDEX; Schema: public; Owner: postgres
+-- Name: votes_submission_id_index; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX votes_submission_id_index ON public.votes USING btree (submission_id);
 
 
 --
--- Name: votes_type_index; Type: INDEX; Schema: public; Owner: postgres
+-- Name: votes_type_index; Type: INDEX; Schema: public; Owner: aevann
 --
 
 CREATE INDEX votes_type_index ON public.votes USING btree (vote_type);
 
 
 --
--- Name: badges badges_badge_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: badges badges_badge_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.badges
@@ -2236,7 +2177,7 @@ ALTER TABLE ONLY public.badges
 
 
 --
--- Name: commentflags commentflags_comment_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: commentflags commentflags_comment_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.commentflags
@@ -2244,7 +2185,7 @@ ALTER TABLE ONLY public.commentflags
 
 
 --
--- Name: flags flags_post_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: flags flags_post_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.flags
@@ -2252,11 +2193,18 @@ ALTER TABLE ONLY public.flags
 
 
 --
--- Name: notifications notifications_comment_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: notifications notifications_comment_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: aevann
 --
 
 ALTER TABLE ONLY public.notifications
     ADD CONSTRAINT notifications_comment_id_fkey FOREIGN KEY (comment_id) REFERENCES public.comments(id);
+
+
+--
+-- Name: FUNCTION pg_stat_statements_reset(userid oid, dbid oid, queryid bigint); Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT ALL ON FUNCTION public.pg_stat_statements_reset(userid oid, dbid oid, queryid bigint) TO doadmin WITH GRANT OPTION;
 
 
 --
