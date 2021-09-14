@@ -560,6 +560,7 @@ def u_username_comments(username, v=None):
 	if request.headers.get("Authorization"): return {"data": [c.json for c in listing]}
 	else: return render_template("userpage_comments.html", u=user, v=v, listing=listing, page=page, sort=sort, t=t,next_exists=next_exists, is_following=is_following, standalone=True)
 
+
 @app.get("/@<username>/info")
 @auth_desired
 def u_username_info(username, v=None):

@@ -212,6 +212,9 @@ def get_comments(cids, v=None, load_parent=False):
 			blocked.c.id,
 		).filter(Comment.id.in_(cids))
  
+		if not (v and v.shadowbanned) and not (v and v.admin_level == 6):
+			comments = comments.join(Comment.author).filter(User.shadowbanned == False)
+
 		comments = comments.join(
 			votes,
 			votes.c.comment_id == Comment.id,
@@ -229,14 +232,13 @@ def get_comments(cids, v=None, load_parent=False):
 		output = []
 		for c in comments:
 			comment = c[0]
-			if comment.author and comment.author.shadowbanned and not (v and v.id == comment.author_id): continue
 			comment.voted = c[1] or 0
 			comment._is_blocking = c[2] or 0
 			comment._is_blocked = c[3] or 0
 			output.append(comment)
 
 	else:
-		output = g.db.query(Comment).filter(Comment.id.in_(cids)).all()
+		output = g.db.query(Comment).join(Comment.author).filter(Comment.id.in_(cids), User.shadowbanned == False).all()
 
 	if load_parent:
 		parents = [x.parent_comment_id for x in output if x.parent_comment_id]

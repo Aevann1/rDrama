@@ -184,6 +184,9 @@ class User(Base, Stndrd, Age_times):
 	@cache.memoize(timeout=86400)
 	def userpagelisting(self, v=None, page=1, sort="new", t="all"):
 
+		if self.shadowbanned and not (v and (v.admin_level >= 3 or v.id == self.id)):
+			return []
+
 		submissions = g.db.query(Submission).options(lazyload('*')).filter_by(author_id=self.id, is_pinned=False)
 
 		if not (v and (v.admin_level >= 3 or v.id == self.id)):

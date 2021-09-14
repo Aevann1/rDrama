@@ -94,6 +94,10 @@ def post_pid_comment_cid(cid, pid=None, anything=None, v=None):
 			blocking.c.id,
 			blocked.c.id,
 		)
+
+		if not (v and v.shadowbanned) and not (v and v.admin_level == 6):
+			comments = comments.join(Comment.author).filter(User.shadowbanned == False)
+		
 		if v.admin_level >=4:
 			comments=comments.options(joinedload(Comment.oauth_app))
  
@@ -115,7 +119,6 @@ def post_pid_comment_cid(cid, pid=None, anything=None, v=None):
 
 		for c in comments:
 			comment = c[0]
-			if comment.author and comment.author.shadowbanned and not (v and v.id == comment.author_id): continue
 			comment.voted = c[1] or 0
 			comment._is_blocking = c[2] or 0
 			comment._is_blocked = c[3] or 0

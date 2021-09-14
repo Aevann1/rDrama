@@ -185,22 +185,22 @@ def frontlist(v=None, sort="hot", page=1, t="all", ids_only=True, filter_words='
 	secondrange = firstrange+100
 	posts = posts[firstrange:secondrange]
 
-	if random.random() < 0.004:
-		for post in posts:
-			if post.author and post.author.shadowbanned:
-				rand = random.randint(5,20)
-				if post.score > rand: continue
-				rand = random.randint(500,1400)
-				vote = Vote(user_id=rand,
-					vote_type=random.choice([-1, 1, 1, 1, 1]),
-					submission_id=post.id)
-				g.db.add(vote)
-				try: g.db.flush()
-				except: g.db.rollback()
-				post.upvotes = g.db.query(Vote).filter_by(submission_id=post.id, vote_type=1).count()
-				post.downvotes = g.db.query(Vote).filter_by(submission_id=post.id, vote_type=-1).count()
-				post.views = post.views + random.randint(7,10)
-				g.db.add(post)
+	# if random.random() < 0.004:
+	# 	for post in posts:
+	# 		if post.author and post.author.shadowbanned:
+	# 			rand = random.randint(5,20)
+	# 			if post.score > rand: continue
+	# 			rand = random.randint(500,1400)
+	# 			vote = Vote(user_id=rand,
+	# 				vote_type=random.choice([-1, 1, 1, 1, 1]),
+	# 				submission_id=post.id)
+	# 			g.db.add(vote)
+	# 			try: g.db.flush()
+	# 			except: g.db.rollback()
+	# 			post.upvotes = g.db.query(Vote).filter_by(submission_id=post.id, vote_type=1).count()
+	# 			post.downvotes = g.db.query(Vote).filter_by(submission_id=post.id, vote_type=-1).count()
+	# 			post.views = post.views + random.randint(7,10)
+	# 			g.db.add(post)
 
 	next_exists = (len(posts) > 25)
 
@@ -423,12 +423,10 @@ def comment_idlist(page=1, v=None, nsfw=False, sort="new", t="all", **kwargs):
 		comments = sorted(comments.all(), key=lambda x: x.score)
 
 	firstrange = 25 * (page - 1)
-	secondrange = firstrange+100
+	secondrange = firstrange+26
 	comments = comments[firstrange:secondrange]
 
-	comments = [x.id for x in comments if not (x.author and x.author.shadowbanned) or (v and v.id == x.author_id)]
-
-	return comments[:26]
+	return [x.id for x in comments]
 
 @app.get("/comments")
 @auth_desired

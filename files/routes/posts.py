@@ -111,6 +111,10 @@ def post_id(pid, anything=None, v=None):
 			blocking.c.id,
 			blocked.c.id,
 		)
+
+		if not (v and v.shadowbanned) and not (v and v.admin_level == 6):
+			comments = comments.join(Comment.author).filter(User.shadowbanned == False)
+
 		if v.admin_level >=4:
 			comments=comments.options(joinedload(Comment.oauth_app))
  
@@ -149,7 +153,6 @@ def post_id(pid, anything=None, v=None):
 		output = []
 		for c in comments:
 			comment = c[0]
-			if comment.author and comment.author.shadowbanned and not (v and v.id == comment.author_id): continue
 			comment.voted = c[1] or 0
 			comment._is_blocking = c[2] or 0
 			comment._is_blocked = c[3] or 0
@@ -180,23 +183,23 @@ def post_id(pid, anything=None, v=None):
 		else:
 			abort(422)
 
-		if random.random() < 0.02:
-			for comment in comments:
-				if comment.author and comment.author.shadowbanned:
-					rand = random.randint(5,20)
-					if comment.score > rand: continue
-					rand = random.randint(500,1400)
-					vote = CommentVote(user_id=rand,
-						vote_type=random.choice([-1, 1, 1, 1, 1]),
-						comment_id=comment.id)
-					g.db.add(vote)
-					try: g.db.flush()
-					except: g.db.rollback()
-					comment.upvotes = g.db.query(CommentVote).filter_by(comment_id=comment.id, vote_type=1).count()
-					comment.downvotes = g.db.query(CommentVote).filter_by(comment_id=comment.id, vote_type=-1).count()
-					g.db.add(comment)
+		# if random.random() < 0.02:
+		# 	for comment in comments:
+		# 		if comment.author and comment.author.shadowbanned:
+		# 			rand = random.randint(5,20)
+		# 			if comment.score > rand: continue
+		# 			rand = random.randint(500,1400)
+		# 			vote = CommentVote(user_id=rand,
+		# 				vote_type=random.choice([-1, 1, 1, 1, 1]),
+		# 				comment_id=comment.id)
+		# 			g.db.add(vote)
+		# 			try: g.db.flush()
+		# 			except: g.db.rollback()
+		# 			comment.upvotes = g.db.query(CommentVote).filter_by(comment_id=comment.id, vote_type=1).count()
+		# 			comment.downvotes = g.db.query(CommentVote).filter_by(comment_id=comment.id, vote_type=-1).count()
+		# 			g.db.add(comment)
 
-		post.preloaded_comments = [x for x in comments if not (x.author and x.author.shadowbanned) or (v and v.id == x.author_id)]
+		post.preloaded_comments = comments
 
 	if not v or v.highlightcomments:
 		last_view_utc = session.get(str(post.id))
@@ -890,11 +893,11 @@ def submit_post(v):
 							}
 						)
 				if tag:
-					thumb_candidate_urls.append(expand_url(post.url, tag['content']))
+					thumb_candidate_urls.append(expand_url(new_post.url, tag['content']))
 
 			#parse html doc for <img> elements
 			for tag in soup.find_all("img", attrs={'src':True}):
-				thumb_candidate_urls.append(expand_url(post.url, tag['src']))
+				thumb_candidate_urls.append(expand_url(new_post.url, tag['src']))
 
 
 			#now we have a list of candidate urls to try

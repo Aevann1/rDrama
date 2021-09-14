@@ -81,10 +81,16 @@
 
 		function collapse_comment(comment_id) {
 
-			var comment = "comment-" + comment_id;
+            const OFFSET = window.innerHeight / 3
 
-			document.getElementById(comment).classList.toggle("collapsed");
-
+			const comment = "comment-" + comment_id;
+			const element = document.getElementById(comment)
+            const closed = element.classList.toggle("collapsed");
+            const top = element.getBoundingClientRect().y
+            if (closed && top < OFFSET) {
+                element.scrollIntoView()
+                window.scrollBy(0, - OFFSET)
+            }
 		};
 
 		//Commenting form

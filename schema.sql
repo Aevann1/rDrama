@@ -2094,16 +2094,3 @@ ALTER TABLE ONLY public.flags
 
 ALTER TABLE ONLY public.notifications
     ADD CONSTRAINT notifications_comment_id_fkey FOREIGN KEY (comment_id) REFERENCES public.comments(id);
-
-
---
--- Name: FUNCTION pg_stat_statements_reset(userid oid, dbid oid, queryid bigint); Type: ACL; Schema: public; Owner: -
---
-
-GRANT ALL ON FUNCTION public.pg_stat_statements_reset(userid oid, dbid oid, queryid bigint) TO doadmin WITH GRANT OPTION;
-
-
---
--- PostgreSQL database dump complete
---
-
