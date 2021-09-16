@@ -1,6 +1,7 @@
 from files.__main__ import app
 from files.helpers.wrappers import *
 from files.classes.shop import *
+from collections import OrderedDict
 
 
 @app.get("/shop")
@@ -8,49 +9,6 @@ from files.classes.shop import *
 def shop_index(v):
 
     return render_template("shop/shop.html", v=v)
-
-
-@app.get("/shop/edit/<iid>")
-@auth_required
-def get_shop_item_edit(iid, v):
-
-    if v.admin_level < 6:
-        abort(403)
-
-    item = g.db.query(ShopItemDef).filter_by(id=iid).first()
-
-    if not item:
-        abort(404)
-
-    cats = g.db.query(ShopCategory).options(lazyload('*')).filter(ShopCategory.id != item.category_id).all()
-
-    return render_template("shop/shop-edit.html", item=item, cats=cats, v=v)
-
-
-@app.post("/api/edit_item/<iid>")
-@auth_required
-def shop_item_edit(iid, v):
-
-    if v.admin_level < 6:
-        abort(403)
-
-    item = g.db.query(ShopItemDef).filter_by(id=iid).first()
-
-    if not item:
-        abort(404)
-
-    item.name = request.form.get("name", item.name).strip()
-    item.description = request.form.get("description", item.description).strip()
-    item.icon_url = request.form.get("icon-url", item.icon_url).strip()
-    item.price = int(request.form.get("price", item.price))
-    item.discount_price = int(request.form.get("discount-price", "0"))
-    item.category_id = int(request.form.get("category", 1))
-
-    g.db.add(item)
-
-    cats = g.db.query(ShopCategory).options(lazyload('*')).filter(ShopCategory.id != item.category_id).all()
-
-    return render_template("shop/shop-edit.html", item=item, cats=cats, v=v)
 
 
 @app.get("/api/items/all")
@@ -61,27 +19,25 @@ def shop_items_get():
     # option to load only categories without items
     if cats_only:
 
-        # don't need to load related items here - overwrite default load with lazy load
-        queer = g.db.query(ShopCategory).options(lazyload('*')).all()
+        return jsonify(list(CATEGORIES))
 
-        return jsonify([x.json_noitems for x in queer])
+    # group items into cats
+    data = OrderedDict()
+    for x in list(ITEMS.values()):
 
-    queer = g.db.query(ShopCategory).all()
-    data = [x.json for x in queer]
+        _cat = CATEGORIES[x["category"]]
 
-    # option to auto-add a featured section
+        if _cat in data:
+            data[_cat].append(x)
+        else:
+            data[_cat] = [x]
+
+    # featured
     if 'with_featured' in request.args:
-        queer2 = g.db.query(ShopItemDef).filter_by(featured=True).all()
 
-        featured = {
-            "id": 0,
-            "name": "New & Noteworthy",
-            "description": "These items are now being featured.",
-            "items": [x.json for x in queer2]
-        }
+        _f = [x for x in list(ITEMS.values()) if x["featured"]]
 
-        data.append(featured)
-        data = sorted(data, key=lambda x: x['id'])
+        data = {"Featured": _f, **data}
 
     return jsonify(data)
 
@@ -89,17 +45,26 @@ def shop_items_get():
 @app.get("/api/items/featured")
 def shop_items_featured():
 
-    queer = g.db.query(ShopItemDef).filter_by(featured=True).all()
-
-    return jsonify([x.json for x in queer])
+    return jsonify([x for x in ITEMS.values() if x['featured']])
 
 
 @app.get("/api/items/consumables")
-def shop_items_consumables():
+@auth_required
+def shop_items_consumables(v):
 
-    queer = g.db.query(ShopItemDef).filter_by(consumable=True).all()
+    queer = g.db.query(func.count(ShopItem.item_id).label("owned"), ShopItemDef)\
+        .join(ShopItem.item)\
+        .filter(ShopItem.user_id == v.id)\
+        .group_by(ShopItem.item_id, ShopItemDef.id)\
+        .all()
 
-    return jsonify([x.json for x in queer])
+    data = []
+    for owned, item in queer:
+        _json = item.json
+        _json["owned"] = owned
+        data.append(_json)
+
+    return jsonify(data)
 
 
 @app.get("/api/items/mine")
