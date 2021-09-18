@@ -1,23 +1,5 @@
-<div v-for="(item, index) in cat.items" :key="index" class="card h-100 shadow-lg m-3" :class="{ disabled: item.cost > coins }">
-	<!-- Product tag -->
-	<div v-if="item.discount" class="badge bg-danger text-white position-absolute" style="top: -0.5rem; left: -0.5rem;z-index: 1;padding: 4px 6px;font-size: 0.875rem;">
-		On sale
-	</div>
+<div v-for="(item, index) in value" :key="index" class="card h-100 shadow-lg m-3" :class="{ disabled: item.cost > coins }">
 
-	<div v-if="item.new" class="badge bg-primary text-white position-absolute" style="top: -0.5rem; right: -0.5rem;z-index: 1;padding: 4px 6px;font-size: 0.875rem;">
-		NEW!
-	</div>
-	<!-- Product meta (top) -->
-	<!--<div class="hidden align-items-center justify-content-between w-100" style="background: rgba(0, 0, 0, 0.9);padding: 0.75rem;">
-
-		<div class="font-weight-bold text-uppercase h5 mb-0 text-white" style="line-height: 1rem;">
-			[[ item.name ]]
-		</div>
-
-		<div class="text-small text-uppercase font-weight-light text-white-50" style="letter-spacing: 1px;line-height: 1px;">
-			[[ item.category_name ]]
-		</div>
-	</div>-->
 	<!-- Product image -->
 	<div class="position-relative">
 		<img class="card-img-top bg-gray-100" :src="item.icon" alt="...">
@@ -26,10 +8,6 @@
 			<!-- Product name -->
 			<div class="font-weight-bold text-uppercase h5 mb-0 text-white" style="line-height: 1rem;">
 				[[ item.name ]]
-			</div>
-			<!-- Product category -->
-			<div class="text-small text-uppercase font-weight-light text-white-50" style="letter-spacing: 1px;line-height: 1rem;">
-				[[ item.category_name ]]
 			</div>
 		</div>
 	</div>
@@ -50,32 +28,7 @@
 	<div class="card-footer px-2 py-3 pt-0">
 		<div class="text-center font-weight-bold">
 			<i class="fas fa-diamond text-primary text-small fa-sm mr-2"></i>
-			<span v-if="item.discount">
-				<del>[[ item.price ]]</del> [[ item.cost ]]
-			</span>
-			<span v-else>[[ item.cost ]]</span>
+			<span>[[ item.cost ]]</span>
 		</div>
 	</div>
-	<!-- Product settings -->
-	{% if v and v.admin_level == 6 %}
-	<div v-if="settings" class="px-2 py-3 pt-0 border-top">
-		<div class="text-uppercase text-muted font-weight-bold h6 mx-3 mb-0">
-			<i class="far fa-fw fa-cog"></i> Manage
-		</div>
-		<ul class="nav nav-pills flex-column mb-auto mt-1">
-			<li class="nav-item">
-				<a href="#" class="nav-link text-muted" aria-current="page" @click.prevent="feature(item)">
-					<i class="fas fa-star fa-fw mr-2"></i>
-					[[ item.featured ? 'Remove from Featured' : 'Add to Featured' ]]
-				</a>
-			</li>
-			<li class="nav-item">
-				<a :href="`/shop/edit/${item.id}`" class="nav-link text-muted" aria-current="page">
-					<i class="fas fa-pencil fa-fw mr-2"></i>
-					Edit
-				</a>
-			</li>
-		</ul>
-	</div>
-	{% endif %}
 </div>

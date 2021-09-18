@@ -1,13 +1,9 @@
 <div class="row">
-	<div v-if="loaded" v-for="(cat, index) in items" :key="index" class="container-fluid mt-3">
+	<div v-if="loaded" v-for="[key, value] of Object.entries(items)" :key="key" class="container-fluid mt-3">
 		<!-- Section title -->
 		<div class="text-uppercase font-weight-bold h4 mb-0">
-			[[ cat.name ]]
+			[[ key ]]
 		</div>
-		<!-- Section description -->
-		<p class="mt-1 form-text text-muted">
-			[[ cat.description ]]
-		</p>
 		<!-- Section divider -->
 		<hr class="border-gray-400">
 

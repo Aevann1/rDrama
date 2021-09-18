@@ -2,13 +2,6 @@
 {% block content %}
 <div id="shop" class="col-md-9 mx-auto">
 
-	{% if v and v.admin_level == 6 %}
-	<div class="custom-control custom-switch">
-		<input type="checkbox" class="custom-control-input" id="toggle-settings" v-model="settings">
-		<label class="custom-control-label" for="toggle-settings">Show item settings</label>
-	</div>
-	{% endif %}
-
 	<!-- shop-header.html goes here -->
 	{% include "shop/shop-header.html" %}
 
@@ -39,17 +32,11 @@
 		delimiters: ['[[', ']]'],
 		data: {
 			coins: {{ v.coins }},
-			settings: false,
 			items: [],
 			loaded: false,
 			selected: {},
 		},
 		methods: {
-			feature(item) {
-				req = request_toast("PATCH", `/api/items/${item.id}/featured`, callback = function(xhr){});
-				// console.log(req);
-				item.featured = !item.featured;
-			},
 			pick(item) {
 				this.selected = {...item};
 				// lmao vue won't mount on larger scopes
@@ -59,12 +46,12 @@
 				$("#item-modal-img").attr("src", this.selected.icon);
 				$("#item-modal-icon").attr("src", this.selected.icon);
 				$("#item-modal-cost").html(this.selected.cost);
-				$("#item-modal-submit").attr("onclick", `post_toast("/api/items/mine/${this.selected.id}")`);
+				$("#item-modal-submit").attr("onclick", `post_toast("/api/purchase/${this.selected.kind}")`);
 				itemModal.show();
 			}
 		},
 		mounted() {
-			fetch('/api/items/all?with_featured')
+			fetch('/api/items/all')
 			.then(response => response.json())
 			.then(json => {
 				this.items = json;
