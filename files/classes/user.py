@@ -54,7 +54,8 @@ class User(Base, Stndrd, Age_times):
 	over_18 = Column(Boolean, default=False)
 	hidevotedon = Column(Boolean, default=False)
 	slurreplacer = Column(Boolean, default=True)
-	flairchanged = Column(Boolean, default=False)
+	_flair_locked = Column(Boolean, default=False)
+	flair_locked_until = Column(Integer, default=0)
 	newtab = Column(Boolean, default=False)
 	newtabexternal = Column(Boolean, default=True)
 	oldreddit = Column(Boolean, default=False)
@@ -128,6 +129,13 @@ class User(Base, Stndrd, Age_times):
 		kwargs["created_utc"] = int(time.time())
 
 		super().__init__(**kwargs)
+
+	@property
+	def flairchanged(self):
+		if self.flair_locked_until > 0:
+			return self._flair_locked and self.flair_locked_until > int(time.time())
+		else:
+			return self._flair_locked
 
 	@property
 	@lazy

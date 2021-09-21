@@ -46,7 +46,7 @@
 				$("#item-modal-img").attr("src", this.selected.icon);
 				$("#item-modal-icon").attr("src", this.selected.icon);
 				$("#item-modal-cost").html(this.selected.cost);
-				$("#item-modal-submit").attr("onclick", `post_toast("/api/purchase/${this.selected.kind}")`);
+				$("#item-modal-submit").attr("onclick", `post_toast("/api/purchase?kind=${this.selected.kind}")`);
 				itemModal.show();
 			}
 		},
