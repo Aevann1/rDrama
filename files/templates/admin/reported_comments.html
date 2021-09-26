@@ -1,0 +1,24 @@
+{% extends "admin/reported_posts.html" %}
+
+
+
+{% block listing %}
+
+
+		<div class="posts">
+			{% with comments=listing %}
+				{% include "comments.html" %}
+			{% endwith %}
+			{% if not listing %}
+			<div class="row no-gutters">	
+				<div class="col">			
+					<div class="text-center py-7">
+						<div class="h4 p-2">There are no comments here (yet).</div>
+					</div>			
+				</div>	
+			</div>
+				{% endif %}
+		</div>
+
+{% endblock %}
+

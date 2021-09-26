@@ -1,9 +1,5 @@
-from random import vonmisesvariate
-from sqlalchemy.sql import visitors
-from werkzeug.wrappers.response import Response as RespObj
 from .get import *
 from .alerts import send_notification
-from files.__main__ import app
 from files.helpers.const import *
 
 
@@ -13,7 +9,7 @@ def get_logged_in_user():
 		token = request.headers.get("Authorization")
 		if not token: return None
 
-		client = g.db.query(ClientAuth).filter(ClientAuth.access_token == token).first()
+		client = g.db.query(ClientAuth).options(lazyload('*')).filter(ClientAuth.access_token == token).first()
 
 		x = (client.user, client) if client else (None, None)
 
@@ -23,7 +19,10 @@ def get_logged_in_user():
 		uid = session.get("user_id")
 		nonce = session.get("login_nonce", 0)
 		if not uid: x= (None, None)
-		v = g.db.query(User).filter_by(id=uid).first()
+		try:
+			if g.db: v = g.db.query(User).options(lazyload('*')).filter_by(id=uid).first()
+			else: v = None
+		except: v = None
 
 		if v and v.agendaposter_expires_utc and v.agendaposter_expires_utc < g.timestamp:
 			v.agendaposter_expires_utc = 0
@@ -51,14 +50,14 @@ def check_ban_evade(v):
 		v.ban(reason="ban evasion")
 		send_notification(NOTIFICATIONS_ACCOUNT, v, "Your account has been permanently suspended for the following reason:\n\n> ban evasion")
 
-		for post in g.db.query(Submission).filter_by(author_id=v.id).all():
+		for post in g.db.query(Submission).options(lazyload('*')).filter_by(author_id=v.id).all():
 			if post.is_banned:
 				continue
 
 			post.is_banned=True
 			post.ban_reason="ban evasion"
 			g.db.add(post)
-
+			
 			ma=ModAction(
 				kind="ban_post",
 				user_id=AUTOJANNY_ACCOUNT,
@@ -67,9 +66,7 @@ def check_ban_evade(v):
 				)
 			g.db.add(ma)
 
-		g.db.flush()
-
-		for comment in g.db.query(Comment).filter_by(author_id=v.id).all():
+		for comment in g.db.query(Comment).options(lazyload('*')).filter_by(author_id=v.id).all():
 			if comment.is_banned:
 				continue
 
@@ -77,23 +74,24 @@ def check_ban_evade(v):
 			comment.ban_reason="ban evasion"
 			g.db.add(comment)
 
-			ma=ModAction(
+			try:
+				ma=ModAction(
 				kind="ban_comment",
 				user_id=AUTOJANNY_ACCOUNT,
 				target_comment_id=comment.id,
 				note="ban evasion"
 				)
-			g.db.add(ma)
+				g.db.add(ma)
+			except: pass
 
-		g.db.flush()
 		try: abort(403)
 		except Exception as e: print(e)
 
 	else:
 		v.ban_evade +=1
 		g.db.add(v)
-		g.db.flush()
 
+	g.db.commit()
 
 
 
@@ -169,9 +167,6 @@ def admin_level_required(x):
 			if not v:
 				abort(401)
 
-			if v.is_banned:
-				abort(403)
-
 			if v.admin_level < x:
 				abort(403)
 
@@ -209,47 +204,3 @@ def validate_formkey(f):
 
 	wrapper.__name__ = f.__name__
 	return wrapper
-
-def api(*scopes, no_ban=False):
-
-	def wrapper_maker(f):
-
-		def wrapper(*args, **kwargs):
-
-			if request.path.startswith(('/api/v1','/api/v2')):
-
-				v = kwargs.get('v')
-
-				result = f(*args, **kwargs)
-
-				if isinstance(result, dict):
-					resp = result['api']()
-				else:
-					resp = result
-
-				if not isinstance(resp, RespObj):
-					resp = make_response(resp)
-
-				return resp
-
-			else:
-
-				result = f(*args, **kwargs)
-
-				if not isinstance(result, dict):
-					return result
-
-				try:
-					if request.path.startswith('/inpage/'):
-						return result['inpage']()
-					elif request.path.startswith(('/api/vue/','/test/')):
-						return result['api']()
-					else:
-						return result['html']()
-				except KeyError:
-					return result
-
-		wrapper.__name__ = f.__name__
-		return wrapper
-
-	return wrapper_maker

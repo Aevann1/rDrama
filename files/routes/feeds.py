@@ -10,7 +10,7 @@ from files.__main__ import app
 @app.get('/rss/<sort>/<t>')
 def feeds_user(sort='hot', t='all'):
 
-	page = int(request.args.get("page", 1))
+	page = int(request.values.get("page", 1))
 
 	ids, next_exists = frontlist(
 		sort=sort,
@@ -48,8 +48,6 @@ def feeds_user(sort='hot', t='all'):
 				with tag("published"):
 					text(datetime.utcfromtimestamp(post.created_utc).isoformat())
 				
-				doc.stag("link", href=post.url)
-
 				with tag("author"):
 					with tag("name"):
 						text(post.author.username)
@@ -64,6 +62,6 @@ def feeds_user(sort='hot', t='all'):
 
 				if len(post.body_html) > 0:
 					with tag("content", type="html"):
-						text(html.escape(f"<img src={image_url}/><br/>{post.body_html}"))
+						text(html.escape(f'<img loading="lazy" src={image_url}/><br/>{post.body_html}'))
 
 	return Response( "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"+ doc.getvalue(), mimetype="application/xml")

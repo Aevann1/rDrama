@@ -1,3 +1,39 @@
+<script>
+	for(let el of document.getElementsByClassName('expandable-image')) {
+		el.onclick = function(event) {
+
+			if (event.which != 1) {
+				return
+			}
+			event.preventDefault();
+
+			let source = (event.target || event.srcElement).parentNode;
+			var url= source.dataset.bsUrl;
+
+			expandDesktopImage(url);
+		}
+	}
+
+	// Expand Images on Desktop
+
+	function expandDesktopImage(image) {
+
+		// Link text
+
+		var linkText = document.getElementById("desktop-expanded-image-link");
+		var imgLink = document.getElementById("desktop-expanded-image-wrap-link");
+
+		var inlineImage = document.getElementById("desktop-expanded-image");
+
+		inlineImage.src = image.replace("100w.webp", "giphy.webp");
+		linkText.href = image;
+		imgLink.href=image;
+
+		linkText.textContent = 'View original';
+	};
+
+</script>
+
 <!-- Expand Desktop Image Modal -->
 
 <div class="modal desktop-expanded-image-modal" id="expandImageModal" tabindex="-1" role="dialog" aria-labelledby="expandImageModalTitle" aria-hidden="true">
@@ -6,11 +42,11 @@
 
 			<div class="modal-body text-center p-0">
 				<div class="d-inline-block position-relative">
-					<a href="" ref="nofollow noopener" target="_blank" id="desktop-expanded-image-wrap-link">
-						<img src="" class="img-fluid rounded" id="desktop-expanded-image" style="min-width: 250px;">
+					<a href="" rel="nofollow noopener noreferrer" target="_blank" id="desktop-expanded-image-wrap-link">
+						<img loading="lazy" src="" class="img-fluid rounded" id="desktop-expanded-image" style="min-width: 250px;">
 					</a>
 					<div class="position-absolute d-flex justify-content-between align-items-center w-100 mt-1">
-						<a href="" ref="nofollow noopener" target="_blank" class="text-gray-500 font-weight-bold text-left" id="desktop-expanded-image-link">View original</a>
+						<a href="" rel="nofollow noopener noreferrer" target="_blank" class="text-gray-500 font-weight-bold text-left" id="desktop-expanded-image-link">View original</a>
 					</div>
 				</div>
 			</div>

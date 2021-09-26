@@ -10,18 +10,18 @@
 		<th style="font-weight:bold;">Awards</th>
 	</tr>
 </thead>
-{% for user in users %}
+{% for uid,row in result.items() %}
 	<tr>
-		<td style="font-weight:bold;">{{users.index(user)+1}}</td>
-		<td><a style="color:#{{user.namecolor}};  font-weight:bold;" href="/@{{user.username}}"><img src="/uid/{{user.id}}/pic/profile" class="profile-pic-20 mr-1"><span {% if user.patron %}class="patron" style="background-color:#{{user.namecolor}};"{% endif %}>{{user.username}}</span></a></td>
+		<td style="font-weight:bold;">{{loop.index}}</td>
+		<td><a style="color:#{{row['namecolor']}};  font-weight:bold;" href="/@{{row['username']}}"><img loading="lazy" src="/uid/{{uid}}/pic/profile" class="profile-pic-20 mr-1"><span {% if row['patron'] %}class="patron" style="background-color:#{{row['namecolor']}};"{% endif %}>{{row['username']}}</span></a></td>
 
-		<td><img style="width: 32px; height: 32px" src="/assets/images/badges/patron-{{user.patron}}.gif"></td>
+		<td><img loading="lazy" style="width: 32px; height: 32px" src="/assets/images/badges/patron-{{row['patron']}}.webp"></td>
 
 		<td style="font-weight:bold;">
-			{% for a in user.display_awards %}
+			{% for (a,count) in row['awards'].values() %}
 			<span class="d-inline-block mx-2 my-1">
-				<i class="{{a['icon']}} {{a['color']}} fa-fw" data-toggle="tooltip" data-placement="bottom" title="{{a['title']}} Awards owned"></i>
-				{{a['count']}}
+				<i class="{{a['icon']}} {{a['color']}} fa-fw" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{a['title']}} Awards owned"></i>
+				{{count}}
 			</span>
 			{% endfor %}
 		</td>

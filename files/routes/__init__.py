@@ -2,7 +2,7 @@ from .admin import *
 from .comments import *
 from .discord import *
 from .errors import *
-from .flagging import *
+from .reporting import *
 from .front import *
 from .login import *
 from .oauth import *

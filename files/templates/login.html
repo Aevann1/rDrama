@@ -15,19 +15,11 @@
 		
 		<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600&display=swap" rel="stylesheet">
 
-		<!-- Bootstrap core CSS -->
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
-		integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-
 		<!-- Font Awesome -->
-		<link href="/assets/style/fa.css" rel="stylesheet"> <!--load all styles -->
-
-		<script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/latest/js/javascript.js"
-		integrity="sha384-L469/ELG4Bg9sDQbl0hvjMq8pOcqFgkSpwhwnslzvVVGpDjYJ6wJJyYjvG3u8XW7"
-		crossorigin="anonymous"></script>
+		<link href="/assets/css/fa.css" rel="stylesheet"> <!--load all styles -->
 
 		<!-- {{'SITE_NAME' | app_config}} CSS -->
-		<link rel="stylesheet" href="/assets/style/{{'DEFAULT_THEME' | app_config}}.css">
+		<link rel="stylesheet" href="/assets/css/{{'DEFAULT_THEME' | app_config}}.css">
 
 </head>
 
@@ -36,7 +28,7 @@
 		<!-- Navigation -->
 		<nav class="navbar navbar-expand-lg navbar-dark bg-transparent fixed-top border-0">
 				<div class="container-fluid">
-						<button class="navbar-toggler d-none" type="button" data-toggle="collapse" data-target="#navbarResponsive"
+						<button class="navbar-toggler d-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive"
 						aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
 						<span class="navbar-toggler-icon"></span>
 				</button>
@@ -74,7 +66,7 @@
 															<br>
 															<a href="/forgot" class="alert-link">Forgot password?</a>
 													</div>
-													<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+													<button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
 														<span aria-hidden="true">&times;</span>
 												</button>
 												</div>
@@ -120,7 +112,7 @@
 
 								<div class="splash-overlay"></div>
 
-								<img class="splash-img" src="/assets/images/{{'SITE_NAME' | app_config}}/cover.gif"></img>
+								<img loading="lazy" class="splash-img" src="/assets/images/{{'SITE_NAME' | app_config}}/cover.webp"></img>
 						</div>
 
 				</div>
@@ -128,9 +120,16 @@
 		</div>
 </div>
 
-{% include "bootstrap.html" %}
 
-<script src="/assets/js/javascript.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/assets/js/general40.js"></script>
+
+
+<pre>
+
+
+
+</pre>
 
 </body>
 

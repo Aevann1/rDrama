@@ -13,7 +13,7 @@
 	{% if not '/users/' in request.path %}
 		<div class="mt-5 d-flex align-items-center">
 			<div class="dropdown dropdown-actions">
-				<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 					{% if t=="day" %}<i class="fas fa-calendar-day mr-1"></i>{% endif %}
 					{% if t=="week" %}<i class="fas fa-calendar-week mr-1"></i>{% endif %}
 					{% if t=="month" %}<i class="fas fa-calendar-alt mr-1"></i>{% endif %}
@@ -32,24 +32,22 @@
 			</div>
 
 			<div class="dropdown dropdown-actions">
-				<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 					{% if sort=="top" %}<i class="fas fa-arrow-alt-circle-up mr-1"></i>{% endif %}
 					{% if sort=="bottom" %}<i class="fas fa-arrow-alt-circle-down mr-1"></i>{% endif %}
 					{% if sort=="new" %}<i class="fas fa-sparkles mr-1"></i>{% endif %}
 					{% if sort=="old" %}<i class="fas fa-book mr-1"></i>{% endif %}
 					{% if sort=="controversial" %}<i class="fas fa-bullhorn mr-1"></i>{% endif %}
 					{% if sort=="comments" %}<i class="fas fa-comments mr-1"></i>{% endif %}
-					{% if sort=="random" %}<i class="fas fa-random mr-1"></i>{% endif %}
 					{{sort | capitalize}}
 				</button>
 				<div class="dropdown-menu" aria-labelledby="dropdownMenuButton" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 31px, 0px);">
-					{% if not sort=="top" %}<a class="dropdown-item" href="?q={{query | urlencode}}&sort=top&t={{t}}"><i class="fas fa-arrow-alt-circle-up mr-2"></i>Top</a>{% endif %}
-					{% if not sort=="bottom" %}<a class="dropdown-item" href="?q={{query | urlencode}}&sort=bottom&t={{t}}"><i class="fas fa-arrow-alt-circle-down mr-2"></i>Bottom</a>{% endif %}
-					{% if not sort=="new" %}<a class="dropdown-item" href="?q={{query | urlencode}}&sort=new&t={{t}}"><i class="fas fa-sparkles mr-2"></i>New</a>{% endif %}
-					{% if not sort=="old" %}<a class="dropdown-item" href="?q={{query | urlencode}}&sort=old&t={{t}}"><i class="fas fa-book mr-2"></i>Old</a>{% endif %}
-					{% if not sort=="controversial" %}<a class="dropdown-item" href="?q={{query | urlencode}}&sort=controversial&t={{t}}"><i class="fas fa-bullhorn mr-2"></i>Controversial</a>{% endif %}
-					{% if not sort=="comments" %}<a class="dropdown-item" href="?q={{query | urlencode}}&sort=comments&t={{t}}"><i class="fas fa-comments mr-2"></i>Comments</a>{% endif %}
-					{% if not sort=="random" %}<a class="dropdown-item" href="?q={{query | urlencode}}&sort=random&t={{t}}"><i class="fas fa-random mr-2"></i>Random</a>{% endif %}
+					{% if sort != "top" %}<a class="dropdown-item" href="?q={{query | urlencode}}&sort=top&t={{t}}"><i class="fas fa-arrow-alt-circle-up mr-2"></i>Top</a>{% endif %}
+					{% if sort != "bottom" %}<a class="dropdown-item" href="?q={{query | urlencode}}&sort=bottom&t={{t}}"><i class="fas fa-arrow-alt-circle-down mr-2"></i>Bottom</a>{% endif %}
+					{% if sort != "new" %}<a class="dropdown-item" href="?q={{query | urlencode}}&sort=new&t={{t}}"><i class="fas fa-sparkles mr-2"></i>New</a>{% endif %}
+					{% if sort != "old" %}<a class="dropdown-item" href="?q={{query | urlencode}}&sort=old&t={{t}}"><i class="fas fa-book mr-2"></i>Old</a>{% endif %}
+					{% if sort != "controversial" %}<a class="dropdown-item" href="?q={{query | urlencode}}&sort=controversial&t={{t}}"><i class="fas fa-bullhorn mr-2"></i>Controversial</a>{% endif %}
+					{% if sort != "comments" and "/posts/" in request.path %}<a class="dropdown-item" href="?q={{query | urlencode}}&sort=comments&t={{t}}"><i class="fas fa-comments mr-2"></i>Comments</a>{% endif %}
 				</div>
 			</div>
 		</div>
@@ -142,7 +140,9 @@
 
 			<div class="posts" id="posts">
 
-				{% block listing_template %}{% include "submission_listing.html" %}{% endblock %}
+				{% block listing_template %}
+					{% include "submission_listing.html" %}
+				{% endblock %}
 
 			</div>
 		</div>
@@ -150,18 +150,22 @@
 	{% endblock %}
 
 	{% block pagenav %}
-	{% if listing %}
-	<nav aria-label="Page navigation">
-		<ul class="pagination pagination-sm mb-0">
-			<li class="page-item{% if page==1 %} disabled{% endif %}">
+		<nav aria-label="Page navigation">
+			<ul class="pagination pagination-sm mb-0">
+				<li class="page-item{% if page==1 %} disabled{% endif %}">
 
-				<small><a class="page-link" href="?sort={{sort}}&q={{query | urlencode}}&t={{t}}&page={{page-1}}" tabindex="-1"{% if page==1 %} aria-disabled="true"{% endif %}>Back</a></small>
-			</li>
-			<li class="page-item{% if not next_exists %} disabled{% endif %}">
-				<small><a class="page-link" href="?sort={{sort}}&q={{query | urlencode}}&t={{t}}&page={{page+1}}">Next</a></small>
+					<small><a class="page-link" href="?sort={{sort}}&q={{query | urlencode}}&t={{t}}&page={{page-1}}" tabindex="-1"{% if page==1 %} aria-disabled="true"{% endif %}>Back</a></small>
+				</li>
+				<li class="page-item{% if not next_exists %} disabled{% endif %}">
+					<small><a class="page-link" href="?sort={{sort}}&q={{query | urlencode}}&t={{t}}&page={{page+1}}">Next</a></small>
 
-			</li>
-		</ul>
-	</nav>
-	{% endif %}
+				</li>
+			</ul>
+		</nav>
+		<pre>
+
+
+
+
+		</pre>
 	{% endblock %}

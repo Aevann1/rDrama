@@ -8,29 +8,42 @@
 {% block content %}
 <pre></pre>
 <pre></pre>
-<h4>&nbsp;Admin Tools</h4>
+<h3>&nbsp;Admin Tools</h3>
 {% filter markdown %}
-* [Grant User Award](/admin/user_award)
-* [Advanced Stats](/user_stat_data)
-* [Banned Domains](/admin/banned_domains)
-* [Shadowbanned Users](/admin/shadowbanned)
-* [Users with Agendaposter Theme](/admin/agendaposters)
-* [Flagged Posts](/admin/flagged/posts)
-* [Flagged Comments](/admin/flagged/comments)
+#### Content
+* [Reported Posts](/admin/reported/posts)
+* [Reported Comments](/admin/reported/comments)
 * [Image Posts](/admin/image_posts)
 * [Removed Posts](/admin/removed)
+
+#### Users
+* [Shadowbanned Users](/admin/shadowbanned)
+* [Users with Agendaposter Theme](/admin/agendaposters)
 * [Users Feed](/admin/users)
-* [Remove image from imgur and from cloudflare cache](/admin/image_purge)
+
+#### Safety
+* [Banned Domains](/admin/banned_domains)
 * [Perceptive Hash Image Ban](/admin/image_ban)
 * [Multi Vote Analysis](/admin/alt_votes)
-* [Apps](/admin/apps)
+
+#### Grant
+* [Give User Award](/admin/user_award)
 * [Badges](/admin/badge_grant)
-* [Content Stats](/admin/content_stats)
+
+#### API Access Control
+* [Apps](/admin/apps)
+
+#### Statistics
+* [Content Stats](/stats)
+* [Stat Chart](/chart)
+
+#### Configuration
+* [Site Rules](/admin/rules)
 
 {% endfilter %}
 
 <div class="custom-control custom-switch">
-	<input type="checkbox" class="custom-control-input" id="disablesignups" name="disablesignups" {% if x == "yes" %}checked{% endif %} onchange="post('/admin/disablesignups');">
+	<input type="checkbox" class="custom-control-input" id="disablesignups" name="disablesignups" {% if x == "yes" %}checked{% endif %} onchange="post_toast('/admin/disablesignups');">
 	<label class="custom-control-label" for="disablesignups">Disable signups</label>
 </div>
 

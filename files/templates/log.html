@@ -5,15 +5,31 @@
 {% block stylesheets %}
 
 {% if v %}
-	<link rel="stylesheet" href="/assets/style/{{v.theme}}_{{v.themecolor}}.css">
-	{% if v.agendaposter %}<link rel="stylesheet" href="/assets/style/agendaposter.css">{% elif v.css %}<link rel="stylesheet" href="/@{{v.username}}/css">{% endif %}
+	<link rel="stylesheet" href="/assets/css/{{v.theme}}_{{v.themecolor}}.css">
+	{% if v.agendaposter %}<link rel="stylesheet" href="/assets/css/agendaposter.css">{% elif v.css %}<link rel="stylesheet" href="/@{{v.username}}/css">{% endif %}
 {% else %}
-	<link rel="stylesheet" href="/assets/style/{{'DEFAULT_THEME' | app_config}}.css">
+	<link rel="stylesheet" href="/assets/css/{{'DEFAULT_THEME' | app_config}}.css">
 {% endif %}
 
 {% endblock %}
 
 {% block content %}
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js"></script>
+
+<script>
+	var clipboard = new ClipboardJS('.copy-link');
+	clipboard.on('success', function(e) {
+			var myToast = new bootstrap.Toast(document.getElementById('toast-success'));
+			myToast.show();
+			console.log(e);
+	});
+	clipboard.on('error', function(e) {
+			var myToast = new bootstrap.Toast(document.getElementById('toast-error'));
+			myToast.show();
+			console.log(e);
+	});
+</script>
+
 <div class="row justify-content-around">
 
 	<div class="col h-100">
@@ -35,7 +51,7 @@
 					<div class="d-flex align-items-center justify-content-center {{ma.color}} mr-3 rounded-lg flex-shrink-0" style="width: 32px;height: 32px;"><i class="far text-center {{ma.icon}} text-lg text-white fa-fw"></i></div>
 					<div class="d-flex align-items-center">
 						<span class="rounded">
-						<img src="{{ma.user.profile_url}}" alt="avatar" style="width: 42px;height: 42px;" class="rounded-circle">
+						<img loading="lazy" src="{{ma.user.profile_url}}" alt="avatar" style="width: 42px;height: 42px;" class="rounded-circle">
 					</span>
 						<div class="text-muted pl-3">
 							<div>
@@ -53,7 +69,7 @@
 
 
 			{% else %}
-			<div>There's nothing here right now.</div>
+				<div>There's nothing here right now.</div>
 			{% endfor %}
 		</div>
 
@@ -61,18 +77,18 @@
 		<nav aria-label="Page navigation" class="mb-5">
 			<ul class="pagination pagination-sm mb-0">
 				{% if page>1 %}
-				<li class="page-item">
-					<small><a class="page-link" href="?page={{page-1}}" tabindex="-1">Prev</a></small>
-				</li>
+					<li class="page-item">
+						<small><a class="page-link" href="?page={{page-1}}" tabindex="-1">Prev</a></small>
+					</li>
 				{% else %}
-				<li class="page-item disabled"><span class="page-link">Prev</span></li>
+					<li class="page-item disabled"><span class="page-link">Prev</span></li>
 				{% endif %}
 				{% if next_exists %}
 				<li class="page-item">
 					<small><a class="page-link" href="?page={{page+1}}">Next</a></small>
 				</li>
 				{% else %}
-				<li class="page-item disabled"><span class="page-link">Next</span></li>
+					<li class="page-item disabled"><span class="page-link">Next</span></li>
 				{% endif %}
 			</ul>
 		</nav>

@@ -1,0 +1,20 @@
+{% extends "default.html" %}
+
+{% block title %}
+<title>{{'SITE_NAME' | app_config}} Rules</title>
+<meta name="description" content="{{'SITE_NAME' | app_config}} Rules">
+{% endblock %}
+
+{% block content %}
+<pre>
+
+
+</pre>
+<div class="mx-4 mt-2 mb-6">
+    <h5 class="text-muted text-uppercase">{{'SITE_NAME'|app_config}} Rules{% if v and v.admin_level == 6 %} <a href="/admin/rules" class="btn btn-link text-lowercase"><i class="far fa-fw fa-pencil"></i> Edit rules</a>{% endif %}</h5>
+
+    <div id="rules" class="my-3">
+        {{ rules | safe }}
+    </div>
+</div>
+{% endblock %}

@@ -6,81 +6,56 @@ from urllib.parse import urlparse
 from files.helpers.lazy import lazy
 from files.helpers.const import SLURS
 from files.__main__ import Base
-from .mix_ins import *
 from .flags import *
 from os import environ
+import time
 
 site = environ.get("DOMAIN").strip()
 site_name = environ.get("SITE_NAME").strip()
 
-class SubmissionAux(Base):
 
-	__tablename__ = "submissions_aux"
-
-	key_id = Column(BigInteger, primary_key=True)
-	id = Column(BigInteger, ForeignKey("submissions.id"))
-	title = Column(String(500))
-	title_html = Column(String(500))
-	url = Column(String(500))
-	body = Column(String(10000))
-	body_html = Column(String(20000))
-	ban_reason = Column(String(128))
-	embed_url = Column(String(256))
-
-
-class Submission(Base, Stndrd, Age_times, Scores, Fuzzing):
+class Submission(Base):
 
 	__tablename__ = "submissions"
 
 	id = Column(BigInteger, primary_key=True)
-	submission_aux = relationship(
-		"SubmissionAux",
-		lazy="joined",
-		uselist=False,
-		innerjoin=True,
-		primaryjoin="Submission.id==SubmissionAux.id")
 	author_id = Column(BigInteger, ForeignKey("users.id"))
 	edited_utc = Column(BigInteger, default=0)
 	created_utc = Column(BigInteger, default=0)
-	thumburl = Column(String)
+	thumburl = Column(String(255))
 	is_banned = Column(Boolean, default=False)
+	removed_by = Column(Integer)
 	bannedfor = Column(Boolean)
+	processing = Column(Boolean, default=False)
 	views = Column(Integer, default=0)
 	deleted_utc = Column(Integer, default=0)
 	distinguish_level = Column(Integer, default=0)
 	created_str = Column(String(255))
-	stickied = Column(Boolean, default=False)
+	stickied = Column(String(255))
 	is_pinned = Column(Boolean, default=False)
 	private = Column(Boolean, default=False)
+	club = Column(Boolean, default=False)
 	comment_count = Column(Integer, default=0)
-	comments = relationship(
-		"Comment",
-		lazy="joined",
-		primaryjoin="Comment.parent_submission==Submission.id",
-		)
-	flags = relationship("Flag", lazy="dynamic")
+	comments = relationship("Comment", primaryjoin="Comment.parent_submission==Submission.id", viewonly=True)
+	flags = relationship("Flag", lazy="dynamic", viewonly=True)
 	is_approved = Column(Integer, ForeignKey("users.id"), default=0)
 	over_18 = Column(Boolean, default=False)
-	author = relationship(
-		"User",
-		lazy="joined",
-		innerjoin=True,
-		primaryjoin="Submission.author_id==User.id")
-	is_pinned = Column(Boolean, default=False)
+	author = relationship("User", primaryjoin="Submission.author_id==User.id")
 	is_bot = Column(Boolean, default=False)
-
 	upvotes = Column(Integer, default=1)
 	downvotes = Column(Integer, default=0)
-
 	app_id=Column(Integer, ForeignKey("oauth_apps.id"))
-	oauth_app=relationship("OauthApp")
+	title = Column(String(500))
+	title_html = Column(String(500))
+	url = Column(String(500))
+	body = deferred(Column(String(10000)))
+	body_html = deferred(Column(String(20000)))
+	ban_reason = Column(String(128))
+	embed_url = Column(String(256))
 
-	approved_by = relationship(
-		"User",
-		uselist=False,
-		primaryjoin="Submission.is_approved==User.id")
-
-	awards = relationship("AwardRelationship", lazy="joined")
+	oauth_app = relationship("OauthApp", viewonly=True)
+	approved_by = relationship("User", uselist=False, primaryjoin="Submission.is_approved==User.id", viewonly=True)
+	awards = relationship("AwardRelationship", viewonly=True)
 
 	def __init__(self, *args, **kwargs):
 
@@ -96,6 +71,82 @@ class Submission(Base, Stndrd, Age_times, Scores, Fuzzing):
 	def __repr__(self):
 		return f"<Submission(id={self.id})>"
 
+
+	@property
+	@lazy
+	def created_datetime(self):
+		return str(time.strftime("%d/%B/%Y %H:%M:%S UTC", time.gmtime(self.created_utc)))
+
+	@property
+	@lazy
+	def age_string(self):
+
+		age = int(time.time()) - self.created_utc
+
+		if age < 60:
+			return "just now"
+		elif age < 3600:
+			minutes = int(age / 60)
+			return f"{minutes}m ago"
+		elif age < 86400:
+			hours = int(age / 3600)
+			return f"{hours}hr ago"
+		elif age < 2678400:
+			days = int(age / 86400)
+			return f"{days}d ago"
+
+		now = time.gmtime()
+		ctd = time.gmtime(self.created_utc)
+
+		# compute number of months
+		months = now.tm_mon - ctd.tm_mon + 12 * (now.tm_year - ctd.tm_year)
+		# remove a month count if current day of month < creation day of month
+		if now.tm_mday < ctd.tm_mday:
+			months -= 1
+
+		if months < 12:
+			return f"{months}mo ago"
+		else:
+			years = int(months / 12)
+			return f"{years}yr ago"
+
+	@property
+	@lazy
+	def edited_string(self):
+
+		if not self.edited_utc: return "never"
+
+		age = int(time.time()) - self.edited_utc
+
+		if age < 60:
+			return "just now"
+		elif age < 3600:
+			minutes = int(age / 60)
+			return f"{minutes}m ago"
+		elif age < 86400:
+			hours = int(age / 3600)
+			return f"{hours}hr ago"
+		elif age < 2678400:
+			days = int(age / 86400)
+			return f"{days}d ago"
+
+		now = time.gmtime()
+		ctd = time.gmtime(self.edited_utc)
+		months = now.tm_mon - ctd.tm_mon + 12 * (now.tm_year - ctd.tm_year)
+
+		if months < 12:
+			return f"{months}mo ago"
+		else:
+			years = now.tm_year - ctd.tm_year
+			return f"{years}yr ago"
+
+
+	@property
+	@lazy
+	def edited_datetime(self):
+		return str(time.strftime("%d/%B/%Y %H:%M:%S UTC", time.gmtime(self.edited_utc)))
+
+
 	@property
 	@lazy
 	def score(self):
@@ -103,23 +154,18 @@ class Submission(Base, Stndrd, Age_times, Scores, Fuzzing):
 
 	@property
 	@lazy
-	def hotscore(self):
-		return 10000000*(self.upvotes - self.downvotes + 1)/(((self.age+3600)/1000)**(1.35))
-
-	@property
-	@lazy
-	def score_disputed(self):
-		return (self.upvotes+1) * (self.downvotes+1)
-
-
-	@property
-	@lazy
 	def fullname(self):
 		return f"t2_{self.id}"	
-		
+
+	@property
+	@lazy
+	def shortlink(self):
+		return f"https://{site}/post/{self.id}"
+
 	@property
 	@lazy
 	def permalink(self):
+		if self.club: return f"/post/{self.id}"
 
 		output = self.title.lower()
 
@@ -130,34 +176,26 @@ class Submission(Base, Stndrd, Age_times, Scores, Fuzzing):
 
 		output = '-'.join(output)
 
-		if not output:
-			output = '-'
+		if not output: output = '-'
 
 		return f"/post/{self.id}/{output}"
 
-	def rendered_page(self, sort=None, comment=None, comment_info=None, v=None):
+	@lazy
+	def rendered_page(self, sort=None, last_view_utc=None, comment=None, comment_info=None, v=None):
 
-		# check for banned
-		if v and (v.admin_level >= 3 or self.author_id == v.id):
-			template = "submission.html"
-		elif self.is_banned:
-			template = "submission_banned.html"
-		else:
-			template = "submission.html"
+		if self.is_banned and not (v and (v.admin_level >= 3 or self.author_id == v.id)): template = "submission_banned.html"
+		else: template = "submission.html"
 
-		# load and tree comments
-		# calling this function with a comment object will do a comment
-		# permalink thing
-		if "replies" not in self.__dict__ and "preloaded_comments" in self.__dict__:
-			self.tree_comments(comment=comment)
+		self.tree_comments(comment=comment)
 
 		return render_template(template,
 							   v=v,
 							   p=self,
+							   last_view_utc=last_view_utc,
 							   sort=sort,
 							   linked_comment=comment,
 							   comment_info=comment_info,
-							   render_replies=True,
+							   render_replies=True
 							   )
 
 	@property
@@ -171,9 +209,8 @@ class Submission(Base, Stndrd, Age_times, Scores, Fuzzing):
 
 	def tree_comments(self, comment=None, v=None):
 
-		comments = self.__dict__.get('preloaded_comments',[])
-		if not comments:
-			return
+		comments = self.__dict__.get('preloaded_comments', [])
+		if not comments: return
 
 		pinned_comment=[]
 
@@ -181,33 +218,28 @@ class Submission(Base, Stndrd, Age_times, Scores, Fuzzing):
 		for c in comments:
 
 			if c.is_pinned and c.parent_fullname==self.fullname:
-				pinned_comment+=[c]
+				pinned_comment += [c]
 				continue
 
-			if c.parent_fullname in index:
-				index[c.parent_fullname].append(c)
-			else:
-				index[c.parent_fullname] = [c]
+			if c.parent_fullname in index: index[c.parent_fullname].append(c)
+			else: index[c.parent_fullname] = [c]
 
-		for c in comments:
-			c.__dict__["replies"] = index.get(c.fullname, [])
+		for c in comments: c.__dict__["replies"] = index.get(c.fullname, [])
 
-		if comment:
-			self.__dict__["replies"] = [comment]
-		else:
-			self.__dict__["replies"] = pinned_comment + index.get(self.fullname, [])
+		if comment: self.__dict__["replies"] = [comment]
+		else: self.__dict__["replies"] = pinned_comment + index.get(self.fullname, [])
 
 	@property
 	@lazy
 	def thumb_url(self):
-		if self.over_18: return f"https://{site}/assets/images/nsfw.gif"
-		elif not self.url: return f"https://{site}/assets/images/{site_name}/default_thumb_text.gif"
+		if self.over_18: return f"https://{site}/assets/images/nsfw.webp"
+		elif not self.url: return f"https://{site}/assets/images/{site_name}/default_thumb_text.webp"
 		elif self.thumburl: return self.thumburl
-		elif "youtu.be" in self.domain or "youtube.com" in self.domain: return f"https://{site}/assets/images/default_thumb_yt.gif"
-		else: return f"https://{site}/assets/images/default_thumb_link.gif"
+		elif "youtu.be" in self.domain or "youtube.com" in self.domain: return f"https://{site}/assets/images/default_thumb_yt.webp"
+		else: return f"https://{site}/assets/images/default_thumb_link.webp"
 
 	@property
-
+	@lazy
 	def json_raw(self):
 		flags = {}
 		for f in self.flags: flags[f.user.username] = f.reason
@@ -229,9 +261,9 @@ class Submission(Base, Stndrd, Age_times, Scores, Fuzzing):
 				'created_utc': self.created_utc,
 				'edited_utc': self.edited_utc or 0,
 				'comment_count': self.comment_count,
-				'score': self.score_fuzzed,
-				'upvotes': self.upvotes_fuzzed,
-				'downvotes': self.downvotes_fuzzed,
+				'score': self.score,
+				'upvotes': self.upvotes,
+				'downvotes': self.downvotes,
 				'stickied': self.stickied,
 				'distinguish_level': self.distinguish_level,
 				#'award_count': self.award_count,
@@ -245,6 +277,7 @@ class Submission(Base, Stndrd, Age_times, Scores, Fuzzing):
 		return data
 
 	@property
+	@lazy
 	def json_core(self):
 
 		if self.is_banned:
@@ -266,6 +299,7 @@ class Submission(Base, Stndrd, Age_times, Scores, Fuzzing):
 		return self.json_raw
 
 	@property
+	@lazy
 	def json(self):
 
 		data=self.json_core
@@ -288,24 +322,7 @@ class Submission(Base, Stndrd, Age_times, Scores, Fuzzing):
 	def award_count(self, kind) -> int:
 		return len([x for x in self.awards if x.kind == kind])
 
-	@property
-	def title(self):
-		return self.submission_aux.title
-
-	@title.setter
-	def title(self, x):
-		self.submission_aux.title = x
-		g.db.add(self.submission_aux)
-
-	@property
-	def url(self):
-		return self.submission_aux.url
-
-	@url.setter
-	def url(self, x):
-		self.submission_aux.url = x
-		g.db.add(self.submission_aux)
-
+	@lazy
 	def realurl(self, v):
 		if v and v.agendaposter and random.randint(1, 10) < 4:
 			return 'https://secure.actblue.com/donate/ms_blm_homepage_2019'
@@ -316,89 +333,47 @@ class Submission(Base, Stndrd, Age_times, Scores, Fuzzing):
 				if "?" in url: url += "&sort=controversial" 
 				else: url += "?sort=controversial"
 			return url
-		elif self.url: return self.url
+		elif self.url:
+			if v and v.nitter: return self.url.replace("www.twitter.com", "nitter.net").replace("twitter.com", "nitter.net")
+			return self.url
 		else: return ""
  
-	@property
-	def body(self):
-		return self.submission_aux.body
-
-	@body.setter
-	def body(self, x):
-		self.submission_aux.body = x
-		g.db.add(self.submission_aux)
-
-	@property
-	def body_html(self):
-		return self.submission_aux.body_html
-
-	@body_html.setter
-	def body_html(self, x):
-		self.submission_aux.body_html = x
-		g.db.add(self.submission_aux)
-
 	def realbody(self, v):
-		body = self.submission_aux.body_html
+		if self.club and not (v and v.paid_dues): return "COUNTRY CLUB ONLY"
+		body = self.body_html
 
 		if not v or v.slurreplacer: 
 			for s,r in SLURS.items(): 
 				body = body.replace(s, r) 
 
 		if v and not v.oldreddit: body = body.replace("old.reddit.com", "reddit.com")
+		if v and v.nitter: body = body.replace("www.twitter.com", "nitter.net").replace("twitter.com", "nitter.net")
 		return body
 
-	@property
-	def title_html(self):
-		return self.submission_aux.title_html
-
-	@title_html.setter
-	def title_html(self, x):
-		self.submission_aux.title_html = x
-		g.db.add(self.submission_aux)
-
+	@lazy
 	def realtitle(self, v):
-		if self.title_html: title = self.title_html
+		if self.club and not (v and v.paid_dues) and not (v and v.admin_level == 6): return 'COUNTRY CLUB MEMBERS ONLY'
+		elif self.title_html: title = self.title_html
 		else: title = self.title
 
-		if not v or v.slurreplacer: 
+		if not v or v.slurreplacer:
 			for s,r in SLURS.items(): title = title.replace(s, r) 
 
 		return title
 
 	@property
-	def ban_reason(self):
-		return self.submission_aux.ban_reason
-
-	@ban_reason.setter
-	def ban_reason(self, x):
-		self.submission_aux.ban_reason = x
-		g.db.add(self.submission_aux)
-
-	@property
-	def embed_url(self):
-		return self.submission_aux.embed_url
-
-	@embed_url.setter
-	def embed_url(self, x):
-		self.submission_aux.embed_url = x
-		g.db.add(self.submission_aux)
-	
-	@property
-	def is_blocked(self):
-		return self.__dict__.get('_is_blocked', False)
-
-	@property
-	def is_blocking(self):
-		return self.__dict__.get('_is_blocking', False)
-
-	#@property
-	#def award_count(self):
-		#return len(self.awards)
-
-	@property
+	@lazy
 	def is_image(self):
-		if self.url: return self.url.lower().endswith('.jpg') or self.url.lower().endswith('.png') or self.url.lower().endswith('.gif') or self.url.lower().endswith('.jpeg') or self.url.lower().endswith('?maxwidth=9999')
+		if self.url: return self.url.lower().endswith('.webp') or self.url.lower().endswith('.jpg') or self.url.lower().endswith('.png') or self.url.lower().endswith('.gif') or self.url.lower().endswith('.jpeg') or self.url.lower().endswith('?maxwidth=9999')
 		else: return False
+
+	@property
+	@lazy
+	def is_video(self) -> bool:
+		if self.url:
+			return self.url.startswith("https://i.imgur.com") and self.url.lower().endswith('.mp4')
+		else:
+			return False
 
 	@property
 	@lazy
@@ -409,7 +384,7 @@ class Submission(Base, Stndrd, Age_times, Scores, Fuzzing):
 	def ordered_flags(self): return self.flags.order_by(Flag.id).all()
 
 
-class SaveRelationship(Base, Stndrd):
+class SaveRelationship(Base):
 
 	__tablename__="save_relationship"
 

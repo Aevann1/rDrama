@@ -12,6 +12,79 @@
 
 				<div class="settings">
 
+
+
+					<h2 class="h5">Email</h2>
+
+					<p class="text-small text-muted">Change the email address used to sign in to your account.</p>
+		
+					<div class="settings-section rounded">
+		
+						<form	action="/settings/security" method="post">
+							<input type="hidden" name="formkey" value="{{v.formkey}}">
+		
+							<div class="body">
+		
+								<div class="d-lg-flex">
+		
+									<label for="new-email" class="w-lg-25">Email</label>
+		
+									<div class="w-lg-100">
+		
+										<input class="form-control" id="new_email" {% if v.email %}placeholder="{{v.email}}"{% else %}placeholder="Your email"{% endif %}
+										aria-describedby="new_email" type="email" name="new_email" required>
+										{% if v.email and not v.is_activated %}
+											<div class="text-danger text-small-extra mt-1" id="email-verify-text">Email not verified. You will not be able to recover your account with this email until you verify it. <u><a href="javascript:void(0)" onclick="post_toast('/verify_email');emailVerifyText();" class="text-danger">Verify now.</a></u></div>
+										{% elif not v.email %}
+											<div class="text-danger text-small-extra mt-1" id="email-verify-text">Add an email to secure your account in case you forget your password.</div>
+										{% endif %}
+		
+									</div>
+		
+								</div>
+		
+								<div class="d-lg-flex mt-3">
+		
+								<label for="email-password" class="w-lg-25 d-none" id="email-password-label">Password</label>
+		
+								<div class="w-lg-100">
+		
+									<input autocomplete="new-password" type="password" class="form-control mb-2 d-none" id="email-password" name="password" autocomplete="off" required>
+		
+									<small id="emailpasswordRequired" class="form-text font-weight-bold text-danger d-none mt-1">Password required to update your email.</small>
+		
+								</div>
+		
+							</div>
+		
+							<small id="emailpasswordRequired" class="form-text font-weight-bold text-danger d-none mt-1">Password required to update your email.</small>
+		
+						</div>
+		
+						<div class="footer">
+		
+							<div class="d-flex">
+								<a class="btn btn-success" href="javascript:void(0)" onclick="post_toast('/settings/gumroad')">Claim paypig rewards</a>
+								{% if v.email %}
+								<input class="btn btn-primary ml-auto"
+								type="submit" value="Update email">
+								{% else %}
+								<input class="btn btn-primary ml-auto"
+								type="submit" value="Add email">
+								{% endif %}
+		
+							</div>
+							<span class="text-small-extra text-muted pl-1">Must be same email as gumroad</span>
+						</div>
+		
+					</form>
+		
+				</div>
+		
+		
+
+
+
 					<h2 class="h5">Password</h2>
 
 					<p class="text-small text-muted">Change your account password.</p>
@@ -88,73 +161,6 @@
 
 			</div>
 
-			<h2 class="h5">Email</h2>
-
-			<p class="text-small text-muted">Change the email address used to sign in to your account.</p>
-
-			<div class="settings-section rounded">
-
-				<form	action="/settings/security" method="post">
-					<input type="hidden" name="formkey" value="{{v.formkey}}">
-
-					<div class="body">
-
-						<div class="d-lg-flex">
-
-							<label for="new-email" class="w-lg-25">Email</label>
-
-							<div class="w-lg-100">
-
-								<input class="form-control" id="new_email" {% if v.email %}placeholder="{{v.email}}"{% else %}placeholder="Your email"{% endif %}
-								aria-describedby="new_email" type="email" name="new_email" required>
-								{% if v.email and not v.is_activated %}
-									<div class="text-danger text-small-extra mt-1" id="email-verify-text">Email not verified. You will not be able to recover your account with this email until you verify it. <u><a href="javascript:void(0)" onclick="post_toast('/verify_email');emailVerifyText();" class="text-danger">Verify now.</a></u></div>
-								{% elif not v.email %}
-									<div class="text-danger text-small-extra mt-1" id="email-verify-text">Add an email to secure your account in case you forget your password.</div>
-								{% endif %}
-
-							</div>
-
-						</div>
-
-						<div class="d-lg-flex mt-3">
-
-						<label for="email-password" class="w-lg-25 d-none" id="email-password-label">Password</label>
-
-						<div class="w-lg-100">
-
-							<input autocomplete="new-password" type="password" class="form-control mb-2 d-none" id="email-password" name="password" autocomplete="off" required>
-
-							<small id="emailpasswordRequired" class="form-text font-weight-bold text-danger d-none mt-1">Password required to update your email.</small>
-
-						</div>
-
-					</div>
-
-					<small id="emailpasswordRequired" class="form-text font-weight-bold text-danger d-none mt-1">Password required to update your email.</small>
-
-				</div>
-
-				<div class="footer">
-
-					<div class="d-flex">
-						<a class="btn btn-success" href="javascript:void(0)" onclick="post_toast('/settings/gumroad')">Claim paypig rewards</a>
-						{% if v.email %}
-						<input class="btn btn-primary ml-auto"
-						type="submit" value="Update email">
-						{% else %}
-						<input class="btn btn-primary ml-auto"
-						type="submit" value="Add email">
-						{% endif %}
-
-					</div>
-					<span class="text-small-extra text-muted pl-1">Must be same email as gumroad</span>
-				</div>
-
-			</form>
-
-		</div>
-
 
 		<h2 class="h5">Two-Factor Authentication</h2>
 
@@ -171,7 +177,7 @@
 				<div class="body w-lg-100">
 
 					<div class="custom-control custom-switch">
-					<input type="checkbox" class="custom-control-input" id="2faToggle" name="2faToggle" onchange="$('#2faModal').modal('toggle')" {% if not mfa_secret %}checked=""{% endif %}>
+					<input type="checkbox" class="custom-control-input" id="2faToggle" name="2faToggle" onchange="document.getElementById('2faModal').modal('toggle')" {% if not mfa_secret %}checked=""{% endif %}>
 					<label class="custom-control-label" for="2faToggle"></label>
 					</div>
 
@@ -242,7 +248,7 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title">Delete your {{'SITE_NAME' | app_config}} account</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true"><i class="far fa-times"></i></span>
 				</button>
 			</div>
@@ -289,10 +295,6 @@
 
 						</div>
 
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-link text-muted" data-dismiss="modal">Cancel</button>
-						<input type="submit" id="deleteAccountBUtton" class="btn btn-danger" value="Delete my account"></button>
 					</div>
 				</form>
 			</div>

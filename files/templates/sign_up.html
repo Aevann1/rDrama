@@ -2,13 +2,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-		{% include "bootstrap.html" %}
+		
+		
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"></script>
+		<script src="/assets/js/general40.js"></script>
+
 		<script>
 		
 			//Signup js
 			// Display username and password requirements on input
 
-			$('#password-register').on('input', function () {
+			document.getElementById('password-register').addEventListener('input', function () {
 
 				var charCount = document.getElementById("password-register").value;
 				var id = document.getElementById("passwordHelpRegister");
@@ -27,7 +31,7 @@
 		
 			// Check username length, special chars
 
-			$('#username-register').on('input', function () {
+			document.getElementById('username-register').addEventListener('input', function () {
 
 				var charCount = document.getElementById("username-register").value;
 				var id = document.getElementById("usernameHelpRegister");
@@ -71,9 +75,9 @@
 		<meta property="og:type" content="article" />
 		<meta property="og:title" content="{{'SITE_NAME' | app_config}}" />
 		<meta property="og:site_name" content="{{request.host}}" />
-		<meta property="og:image" content="{{'SITE_NAME' | app_config}}/assets/images/{{'SITE_NAME' | app_config}}/preview.gif" />
+		<meta property="og:image" content="{{'SITE_NAME' | app_config}}/assets/images/{{'SITE_NAME' | app_config}}/preview.webp" />
 		<meta property="og:url" content="{{request.host}}">
-		<meta property="og:description" name="description" content="Sign up now! {{'SLOGAN' | app_config}}">
+		<meta property="og:description" name="description" content="{{'SITE_NAME' | app_config}} - {{'SLOGAN' | app_config}}">
 		<meta property="og:author" name="author" content="{{request.host_url}}" />
 		<meta property="og:site_name" content="{{request.host}}" />
 
@@ -81,27 +85,16 @@
 		<meta name="twitter:site" content="{{request.host_url}}">
 		<meta name="twitter:title" content="{{'SITE_NAME' | app_config}}" />
 		<meta name="twitter:creator" content="{{request.host_url}}">
-		<meta name="twitter:description" content="Sign up now! {{'SLOGAN' | app_config}}" />
-		<meta name="twitter:image" content="{{'SITE_NAME' | app_config}}/assets/images/{{'SITE_NAME' | app_config}}/preview.gif" />
+		<meta name="twitter:description" content="{{'SITE_NAME' | app_config}} - {{'SLOGAN' | app_config}}" />
+		<meta name="twitter:image" content="{{'SITE_NAME' | app_config}}/assets/images/{{'SITE_NAME' | app_config}}/preview.webp" />
 		<meta name="twitter:url" content="{{request.host}}" />
 
 		<title>{% if ref_user %}{{ref_user.username}} invites you to {{'SITE_NAME' | app_config}}{% else %}Sign up - {{'SITE_NAME' | app_config}}{% endif %}</title>
 
 		<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600&display=swap" rel="stylesheet">
 
-		<!-- Bootstrap core CSS -->
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
-		integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-
-		<!-- Font Awesome -->
-		<link href="/assets/fontawesome/css/all.css" rel="stylesheet"> <!--load all styles -->
-
-		<script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/latest/js/javascript.js"
-		integrity="sha384-L469/ELG4Bg9sDQbl0hvjMq8pOcqFgkSpwhwnslzvVVGpDjYJ6wJJyYjvG3u8XW7"
-		crossorigin="anonymous"></script>
-
 		<!-- {{'SITE_NAME' | app_config}} CSS -->
-		<link rel="stylesheet" href="/assets/style/{{'DEFAULT_THEME' | app_config}}.css">
+		<link rel="stylesheet" href="/assets/css/{{'DEFAULT_THEME' | app_config}}.css">
 
 </head>
 
@@ -110,7 +103,7 @@
 		<!-- Navigation -->
 		<nav class="navbar navbar-expand-lg navbar-dark bg-transparent fixed-top border-0">
 				<div class="container-fluid">
-						<button class="navbar-toggler d-none" type="button" data-toggle="collapse" data-target="#navbarResponsive"
+						<button class="navbar-toggler d-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive"
 						aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
 						<span class="navbar-toggler-icon"></span>
 				</button>
@@ -181,15 +174,23 @@
 														<input class="form-control" id="password_confirm"
 														aria-describedby="passwordConfirmHelp" type="password" name="password_confirm"
 														required="">
-
-														<div class="custom-control custom-checkbox mt-4">
+														
+														{% if "rdrama" in request.host %}
+															<div class="custom-control custom-checkbox mt-4">
+																	<input type="checkbox" class="custom-control-input" id="termsCheck" required>
+																	<label class="custom-control-label terms" for="termsCheck">I accept the <a
+																			href="/post/2510/posting-guidelines-policies-legal-shit" target="_blank">terms and conditions</a></label>
+															</div>
+														{% elif "pcm" in request.host %}
+															<div class="custom-control custom-checkbox mt-4">
 																<input type="checkbox" class="custom-control-input" id="termsCheck" required>
 																<label class="custom-control-label terms" for="termsCheck">I accept the <a
-																		href="/post/1xq/posting-guidelines-policies-legal-shit" target="_blank">terms and conditions</a></label>
-														</div>
+																		style="color:lightgreen" href="/post/94/hi-welcome-to-pcmemesnet-im-your" target="_blank">terms and conditions</a></label>
+															</div>
+														{% endif %}
 
 														{% if hcaptcha %}
-																<div class="h-captcha" data-sitekey="{{hcaptcha}}"></div>
+																<div class="h-captcha" data-bs-sitekey="{{hcaptcha}}"></div>
 																<script src="https://hcaptcha.com/1/api.js" async defer></script>
 														{% endif %}
 
@@ -215,7 +216,7 @@
 
 								<div class="splash-overlay"></div>
 
-								<img class="splash-img" src="/assets/images/{{'SITE_NAME' | app_config}}/cover.gif"></img>
+								<img loading="lazy" class="splash-img" src="/assets/images/{{'SITE_NAME' | app_config}}/cover.webp"></img>
 						</div>
 
 				</div>
@@ -225,7 +226,13 @@
 
 <!-- {{'SITE_NAME' | app_config}} JS -->
 
-<script src="/assets/js/javascript.js"></script>
+
+
+<pre>
+
+
+
+</pre>
 
 </body>
 

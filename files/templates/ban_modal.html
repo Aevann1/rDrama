@@ -1,0 +1,61 @@
+
+<script>
+		const banModal = function(link, id, name) {
+			document.getElementById("banModalTitle").innerHTML = `Ban @${name}`;
+			document.getElementById("ban-modal-link").value = link;
+			document.getElementById("banUserButton").innerHTML = `Ban @${name}`;
+
+			document.getElementById("banUserButton").onclick = function() {
+				let fd = new FormData(document.getElementById("banModalForm"));
+				fd.append("formkey", formkey());
+
+				let xhr = new XMLHttpRequest();
+				xhr.open("POST", `/ban_user/${id}?form`, true);
+				xhr.withCredentials = true;
+
+				xhr.onload = function(){
+					var myToast = new bootstrap.Toast(document.getElementById('toast-post-success'));
+					myToast.show();
+					document.getElementById('toast-post-success-text').innerHTML = `@${name} banned`;
+				}
+
+				xhr.send(fd);
+			}
+		};
+</script>
+
+<div class="modal fade" id="banModal" tabindex="-1" role="dialog" aria-labelledby="banModalTitle" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content">
+			<div class="modal-header pt-3">
+				<h5 id="banModalTitle"></h5>
+				<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true"><i class="far fa-times"></i></span>
+				</button>
+			</div>
+			<div class="modal-body" id="ban-modal-body">
+
+				<form id="banModalForm">
+
+					<input type="hidden" name="formkey" value="{{v.formkey}}" />
+
+					<label for="ban-modal-link">Public ban reason (optional)</label>
+					<textarea name="reason" form="banModalForm" class="form-control" id="ban-modal-link" aria-label="With textarea" placeholder="Enter reason"></textarea>
+
+					<label for="days" class="mt-3">Duration days</label>
+					<input type="number" step="any" name="days" id="days" class="form-control" placeholder="leave blank for permanent" />
+
+					<div class="custom-control custom-switch mt-3">
+						<input type="checkbox" class="custom-control-input" id="alts" name="alts">
+						<label class="custom-control-label" for="alts">Ban known alts</label>
+					</div>
+
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-link text-muted" data-bs-dismiss="modal">Cancel</button>
+				<button type="button" id="banUserButton" class="btn btn-danger" data-bs-dismiss="modal"></button>
+			</div>
+		</div>
+	</div>
+</div>

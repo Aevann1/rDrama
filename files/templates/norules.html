@@ -1,0 +1,26 @@
+{% extends "default.html" %}
+
+{% block title %}
+<title>Not configured</title>
+{% endblock %}
+
+{% block pagetype %}message{% endblock %}
+
+{% block customPadding %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+	<div class="col-10 col-md-5">
+		<div class="text-center py-7 py-md-8">
+
+			<div class="mb-3">
+            	<i class="fas text-gray-600 fa-exclamation-triangle" style="font-size: 5rem!important;"></i>
+			</div>
+
+			<h1 class="h5">You haven't set up your rules page yet</h1>
+			<div class="text-small text-muted mb-3">Your rules will be publicly available here.</div>
+			<a href="/admin/rules" class="btn btn-primary ">Set up rules</a>
+		</div>
+	</div>
+</div>
+{% endblock %}

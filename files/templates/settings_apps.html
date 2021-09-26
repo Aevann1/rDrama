@@ -45,7 +45,7 @@
 		</div>
 		<div class="footer">
 			<div class="d-flex">
-				<a href="javascript:void(0)" class="btn btn-secondary ml-auto" onclick="post_toast('/oauth/reroll/{{app.id}}', callback=function(xhr){document.getElementById('edit-{{app.id}}-client-id').value=JSON.parse(xhr.response)['id'];document.getElementById('edit-{{app.id}}-client-secret').value=JSON.parse(xhr.response)['secret'];})">Reroll Client ID</a>
+				<a href="javascript:void(0)" class="btn btn-secondary ml-auto" onclick="post_toast('/oauth/reroll/{{app.id}}','1')">Reroll Client ID</a>
 				<input type="submit" class="btn btn-primary ml-2" value="Save Changes">
 			</div>
 		</div>
@@ -111,7 +111,7 @@
 		</div>
 		<div class="footer">
 			<div class="d-flex">
-				<a href="javascript:void(0)" class="btn btn-primary ml-auto text-white" onclick="post_toast('/oauth/rescind/{{auth.id}}', callback=function(xhr){document.getElementById('auth-{{auth.id}}').classList.add('d-none')})">Revoke</a>
+				<a href="javascript:void(0)" class="btn btn-primary ml-auto text-white" onclick="post_toast('/oauth/rescind/{{auth.id}}')">Revoke</a>
 			</div>
 		</div>
 	</div>
@@ -150,13 +150,13 @@
 
 
 {% block clipboard %}
-<div class="toast clipboard" id="toast-success" role="alert" aria-live="assertive" aria-atomic="true" data-animation="true" data-autohide="true" data-delay="5000">
+<div class="toast clipboard" id="toast-success" role="alert" aria-live="assertive" aria-atomic="true" data-bs-animation="true" data-bs-autohide="true" data-bs-delay="5000">
 	<div class="toast-body text-center">
 		<i class="fas fa-check-circle text-success mr-2"></i>Token copied to clipboard
 	</div>
 </div>
 
-<div class="toast clipboard" id="toast-error" role="alert" aria-live="assertive" aria-atomic="true" data-animation="true" data-autohide="true" data-delay="5000">
+<div class="toast clipboard" id="toast-error" role="alert" aria-live="assertive" aria-atomic="true" data-bs-animation="true" data-bs-autohide="true" data-bs-delay="5000">
 	<div class="toast-body text-center">
 		<i class="fas fa-exclamation-circle text-danger mr-2"></i>Unable to copy data
 	</div>

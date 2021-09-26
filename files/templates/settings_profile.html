@@ -26,9 +26,9 @@
 						<div class="body w-lg-100">
 							<p>Choose your quadrant.</p>
 							<div class="input-group mb2">
-								<select id='quadrant' class="form-control" form="profile-settings" name="quadrant" onchange="post('/settings/profile?quadrant='+document.getElementById('quadrant').value, function(){window.location.reload(true);})">
-								{% for entry in ["Centrist", "AuthRight", "AuthLeft", "LibLeft", "LibRight", "AuthCenter", "Left", "LibCenter", "Right", "LibRight"] %}
-									<option value="{{entry}}">
+								<select id='quadrant' class="form-control" form="profile-settings" name="quadrant" onchange="post_toast('/settings/profile?quadrant='+document.getElementById('quadrant').value, '1')">
+								{% for entry in ["Centrist", "LibLeft", "LibRight", "AuthLeft", "AuthRight", "LibCenter", "AuthCenter", "Left", "Right"] %}
+									<option value="{{entry}}" {% if v.quadrant==entry %} selected {% endif %}>
 										{{entry}}
 									</option>
 								{% endfor %}
@@ -46,6 +46,46 @@
 			<div class="settings-section rounded">
 
 					<div class="d-lg-flex border-bottom">
+
+						<div class="title w-lg-25">
+							<label for="cardview">Card View</label>
+						</div>
+
+						<div class="body w-lg-100">
+
+							<div class="custom-control custom-switch">
+								<input type="checkbox" class="custom-control-input" id="cardview" name="cardview"{% if v.cardview %} checked{% endif %} onchange="post_toast('/settings/profile?cardview='+document.getElementById('cardview').checked);">
+								<label class="custom-control-label" for="cardview"></label>
+							</div>
+
+							<span class="text-small-extra text-muted">Enable if you would like to display images and videos in full size on the frontpage.</span>
+
+						</div>
+
+					</div>
+
+
+					<div class="d-lg-flex border-bottom">
+
+						<div class="title w-lg-25">
+							<label for="highlightcomments">Highlight New Comments</label>
+						</div>
+
+						<div class="body w-lg-100">
+
+							<div class="custom-control custom-switch">
+								<input type="checkbox" class="custom-control-input" id="highlightcomments" name="highlightcomments"{% if v.highlightcomments %} checked{% endif %} onchange="post_toast('/settings/profile?highlightcomments='+document.getElementById('highlightcomments').checked);">
+								<label class="custom-control-label" for="highlightcomments"></label>
+							</div>
+
+							<span class="text-small-extra text-muted">Enable if you would like to have a red dot on comments made after the last time you visited a thread.</span>
+
+						</div>
+
+					</div>
+
+
+					<div class="d-lg-flex border-bottom">
 						<div class="title w-lg-25">
 							<label for="theme">Website Theme</label>
 						</div>
@@ -53,7 +93,7 @@
 						<div class="body w-lg-100">
 							<p>Change the theme for the website.</p>
 							<div class="input-group mb2">
-								<select id='theme' class="form-control" form="profile-settings" name="theme" onchange="post('/settings/profile?theme='+document.getElementById('theme').value, function(){window.location.reload(true);})">
+								<select id='theme' class="form-control" form="profile-settings" name="theme" onchange="post_toast('/settings/profile?theme='+document.getElementById('theme').value, '1')">
 								{% if v.background %}
 									{% set entries = ["transparent", "win98", "dark", "light", "coffee", "tron", "4chan", "midnight"] %}
 								{% else %}
@@ -73,7 +113,7 @@
 				
 				<div class="body d-lg-flex border-bottom">
 
-				<label for="bio" class="text-black w-lg-25">Theme Color</label>
+				<label class="text-black w-lg-25">Theme Color</label>
 
 				<div class="d-flex">
 
@@ -129,47 +169,48 @@
 								folder: "fantasy",
 								backgrounds: 
 								[
-									"1.gif",
-									"2.gif",
-									"3.gif",
-									"4.gif",
-									"5.gif",
+									"1.webp",
+									"2.webp",
+									"3.webp",
+									"4.webp",
+									"5.webp",
+									"6.webp",
 								]
 							},
 							{
 								folder: "solarpunk",
 								backgrounds: 
 								[
-									"1.gif",
-									"2.gif",
-									"3.gif",
-									"4.gif",
-									"5.gif",
-									"6.gif",
-									"7.gif",
-									"8.gif",
-									"9.gif",
-									"10.gif",
-									"11.gif",
-									"12.gif",
-									"13.gif",
-									"14.gif",
-									"15.gif",
-									"16.gif",
-									"17.gif",
-									"18.gif",
-									"19.gif",
+									"1.webp",
+									"2.webp",
+									"3.webp",
+									"4.webp",
+									"5.webp",
+									"6.webp",
+									"7.webp",
+									"8.webp",
+									"9.webp",
+									"10.webp",
+									"11.webp",
+									"12.webp",
+									"13.webp",
+									"14.webp",
+									"15.webp",
+									"16.webp",
+									"17.webp",
+									"18.webp",
+									"19.webp",
 								]
 							},
 							{
 							folder: "pixelart",
 							backgrounds:
 							[
-								"1.gif",
-								"2.gif",
-								"3.gif",
-								"4.gif",
-								"5.gif",
+								"1.webp",
+								"2.webp",
+								"3.webp",
+								"4.webp",
+								"5.webp",
 							]
 							}
 						]
@@ -179,7 +220,7 @@
 							let bgsDir = backgrounds[bgselector.selectedIndex].folder;
 							for (i=0; i < bgsToDisplay.length; i++) {
 								let onclickPost = bgsDir + "/" + bgsToDisplay[i];
-								str += `<button class="btn btn-secondary m-1 p-0" style="width:15rem; overflow: hidden;"><img style="padding:0.25rem; width: 15rem" src="/assets/images/backgrounds/${bgsDir}/${bgsToDisplay[i]}" alt="${bgsToDisplay[i]}-background" onclick="post('/settings/profile?background=${onclickPost}', function(){window.location.reload(true);})"/></button>`;
+								str += `<button class="btn btn-secondary m-1 p-0" style="width:15rem; overflow: hidden;"><img loading="lazy" style="padding:0.25rem; width: 15rem" src="/assets/images/backgrounds/${bgsDir}/${bgsToDisplay[i]}" alt="${bgsToDisplay[i]}-background" onclick="post('/settings/profile?background=${onclickPost}', function(){window.location.reload(true);})"/></button>`;
 							}
 							bgContainer.innerHTML = str;
 						}
@@ -197,7 +238,7 @@
 					</div>
 					{% if v.background %}
 						<div class="d-flex mt-2">
-							<a class="btn btn-primary ml-auto" href="javascript:void(0)" onclick="post('/settings/removebackground', function(){window.location.reload(true);})">Remove Background</a>
+							<a class="btn btn-primary ml-auto" href="javascript:void(0)" onclick="post_toast('/settings/removebackground','1')">Remove Background</a>
 							<pre></pre>
 						</div>
 					{% endif %}
@@ -214,7 +255,7 @@
 				<div class="d-flex">
 
 					<div class="title w-lg-25 text-md-center">
-						<img src="{{v.profile_url}}" class="profile-pic-75">
+						<img loading="lazy" src="{{v.profile_url}}" class="profile-pic-75">
 					</div>
 
 					<div class="body w-lg-100 my-auto">
@@ -257,7 +298,7 @@
 				<div class="d-flex">
 
 					<div class="title w-lg-75 text-md-center">
-						<img src="{{v.banner_url}}" class="banner-pic-135">
+						<img loading="lazy" src="{{v.banner_url}}" class="banner-pic-135">
 					</div>
 
 					<div class="body w-lg-100 my-auto">
@@ -313,7 +354,7 @@
 
 							<input type="text" readonly="" class="form-control copy-link" id="referral_code" value="{{request.host_url}}signup?ref={{v.username}}" data-clipboard-text="{{request.host_url}}signup?ref={{v.username}}">
 
-							<span class="input-group-append" data-toggle="tooltip" data-placement="top" title="You have referred {{v.referral_count}} user{{'s' if v.referral_count != 1 else ''}} so far. {% if v.referral_count==0 %}¯\_(ツ)_/¯{% elif v.referral_count>10%}Wow!{% endif %}">
+							<span class="input-group-append" data-bs-toggle="tooltip" data-bs-placement="top" title="You have referred {{v.referral_count}} user{{'s' if v.referral_count != 1 else ''}} so far. {% if v.referral_count==0 %}¯\_(ツ)_/¯{% elif v.referral_count>10%}Wow!{% endif %}">
 								<span class="input-group-text text-primary border-0">
 									<i class="far fa-user mr-1" aria-hidden="true"></i>{{v.referral_count}}</span>
 								</span>
@@ -390,7 +431,7 @@
 
 							<div class="body d-lg-flex border-bottom">
 
-								<label for="bio" class="text-black w-lg-25">Username</label>
+								<label class="text-black w-lg-25">Username</label>
 
 								<div class="w-lg-100">
 									<p>Your original username will always stay reserved for you: <code>{{v.original_username}}</code></p>
@@ -409,7 +450,7 @@
 							
 							<div class="body d-lg-flex border-bottom">
 
-								<label for="bio" class="text-black w-lg-25">Profile Anthem</label>
+								<label class="text-black w-lg-25">Profile Anthem</label>
 
 								<div class="w-lg-100">
 									<p>Must be a youtube video link.</p>
@@ -428,7 +469,7 @@
 							
 							<div class="body d-lg-flex border-bottom">
 
-								<label for="bio" class="text-black w-lg-25">Name Color</label>
+								<label class="text-black w-lg-25">Name Color</label>
 
 								<div class="d-flex">
 
@@ -470,7 +511,7 @@
 							{% if not v.flairchanged %}
 							<div class="body d-lg-flex border-bottom">
 
-								<label for="bio" class="text-black w-lg-25">Flair</label>
+								<label class="text-black w-lg-25">Flair</label>
 
 								<div class="w-lg-100">
 
@@ -478,7 +519,7 @@
 										<input type="hidden" name="formkey" value="{{v.formkey}}">
 										<input id="customtitlebody" type="text" name="title" class="form-control" placeholder='Enter a flair here' value="{% if v.customtitleplain %}{{v.customtitleplain}}{% endif %}">
 										<div class="d-flex mt-2">
-											<small class="format"><i class="btn btn-secondary format d-inline-block m-0 fas fa-smile-beam" onclick="loadEmojis('customtitlebody')" aria-hidden="true" data-toggle="modal" data-target="#emojiModal" data-toggle="tooltip" data-placement="bottom"  title="Add Emoji"></i></small>
+											<small class="format"><i class="btn btn-secondary format d-inline-block m-0 fas fa-smile-beam" onclick="loadEmojis('customtitlebody')" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#emojiModal" data-bs-toggle="tooltip" data-bs-placement="bottom"  title="Add Emoji"></i></small>
 											&nbsp;&nbsp;&nbsp;
 											<small>Limit of 100 characters</small>
 											<input class="btn btn-primary ml-auto" id="titleSave" type="submit" value="Change Flair">
@@ -491,7 +532,7 @@
 
 							<div class="body d-lg-flex border-bottom">
 
-							<label for="bio" class="text-black w-lg-25">Flair Color</label>
+							<label class="text-black w-lg-25">Flair Color</label>
 
 							<div class="d-flex">
 
@@ -532,30 +573,31 @@
 
 							<div class="body d-lg-flex border-bottom">
 
-								<label for="bio" class="text-black w-lg-25">Bio</label>
+								<label class="text-black w-lg-25">Bio</label>
 
 								<div class="w-lg-100">
 
-
-									<form id="profile-bio" action="/settings/profile" method="post">
+									<form id="profile-bio" action="/settings/profile" method="post" enctype="multipart/form-data">
 										<input type="hidden" name="formkey" value="{{v.formkey}}">
 										<div class="input-group mb-2">
-											<textarea class="form-control rounded" id="bio-text" aria-label="With textarea"
-											placeholder="Tell the community a bit about yourself."
-											rows="3" name="bio" form="profile-bio" maxlength="1500">{{v.bio}}</textarea>
+											<textarea class="form-control rounded" id="bio-text" aria-label="With textarea" placeholder="Tell the community a bit about yourself." rows="3" name="bio" form="profile-bio" maxlength="1500">{{v.bio}}</textarea>
 										</div>
 										
 										<div class="d-flex">
-											<pre class="btn btn-secondary format d-inline-block m-0 fas fa-bold" aria-hidden="true" onclick="makeBold('bio-text')" data-toggle="tooltip" data-placement="bottom" title="Bold"></pre>
+											<pre style="padding-top:0.7rem" class="btn btn-secondary format d-inline-block m-0 fas fa-bold" aria-hidden="true" onclick="makeBold('bio-text')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Bold"></pre>
 											&nbsp;
-											<pre class="btn btn-secondary format d-inline-block m-0 fas fa-italic" aria-hidden="true" onclick="makeItalics('bio-text')" data-toggle="tooltip" data-placement="bottom" title="Italicize"></pre>
+											<pre style="padding-top:0.7rem" class="btn btn-secondary format d-inline-block m-0 fas fa-italic" aria-hidden="true" onclick="makeItalics('bio-text')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Italicize"></pre>
 											&nbsp;
-											<pre class="btn btn-secondary format d-inline-block m-0 fas fa-quote-right" aria-hidden="true" onclick="makeQuote('bio-text')" data-toggle="tooltip" data-placement="bottom" title="Quote"></pre>
+											<pre style="padding-top:0.7rem" class="btn btn-secondary format d-inline-block m-0 fas fa-quote-right" aria-hidden="true" onclick="makeQuote('bio-text')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Quote"></pre>
 											&nbsp;
-											<pre style="line-height:1;" class="btn btn-secondary format d-inline-block m-0 font-weight-bolder text-uppercase" onclick="commentForm('bio-text');getGif()" aria-hidden="true" data-toggle="modal" data-target="#gifModal" data-toggle="tooltip" data-placement="bottom" title="Add GIF">GIF</pre>
+											<pre style="padding-top:0.7rem;line-height:1;" class="btn btn-secondary format d-inline-block m-0 font-weight-bolder text-uppercase" onclick="commentForm('bio-text');getGif()" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#gifModal" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add GIF">GIF</pre>
 											&nbsp;
-											<pre class="btn btn-secondary format d-inline-block m-0 fas fa-smile-beam" onclick="loadEmojis('bio-text')" aria-hidden="true" data-toggle="modal" data-target="#emojiModal" data-toggle="tooltip" data-placement="bottom" title="Add Emoji"></pre>
+											<pre style="padding-top:0.7rem" class="btn btn-secondary format d-inline-block m-0 fas fa-smile-beam" onclick="loadEmojis('bio-text')" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#emojiModal" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add Emoji"></pre>
 											&nbsp;
+											<label class="btn btn-secondary format d-inline-block m-0">
+												<div id="filename-show"><i class="far fa-image"></i></div>
+												<input id="file-upload" type="file" name="file" accept="image/*" onchange="document.getElementById('filename-show').innerHTML='image';" hidden>
+											</label>					
 										</div>
 										
 										<pre></pre>
@@ -568,19 +610,6 @@
 								</div>
 
 							</div>
-							
-							<div class="body d-lg-flex border-bottom">
-								<label class="text-black w-lg-25">Badges</label>
-
-								<div class="w-lg-100">
-									<p><a href="/badges">Profile badges</a> show off all of your site achievements. If your badges look not quite up to date, use this tool to refresh them.</p>
-									<div class="d-flex">
-										<a class="btn btn-primary ml-auto" id="badgeUpdate" href="javascript:void(0)" onclick="post_toast('/settings/badges')">Refresh badges</a>
-									</div>
-
-							</div>
-
-						</div>
 
 						<div class="d-lg-flex border-bottom">
 

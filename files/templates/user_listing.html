@@ -3,9 +3,9 @@
 
 <div class="col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3 mb-4">
 	<div id="user-{{u.id}}" class="card h-100">
-		<div style="position: relative;"><img src="{{u.banner_url}}" class="card-img-top" alt="@{{u.username}} user banner" style="height: 175px; object-fit: cover">
+		<div style="position: relative;"><img loading="lazy" src="{{u.banner_url}}" class="card-img-top" alt="@{{u.username}} user banner" style="height: 175px; object-fit: cover">
 
-			<img src="{{u.profile_url}}" class="profile-pic-50 border-3 border-white" style="position: absolute; left: 15px; bottom: 15px; box-sizing: content-box;"></div>
+			<img loading="lazy" src="{{u.profile_url}}" class="profile-pic-50 border-3 border-white" style="position: absolute; left: 15px; bottom: 15px; box-sizing: content-box;"></div>
 			<div class="card-body" style="word-wrap: break-word;">
 				<div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
 
@@ -13,11 +13,12 @@
 
 					{% if v %}
 						{% if v.id!=u.id and not u.is_private and not u.is_nofollow %}
-						<div id="button-sub-{{u.id}}" style="z-index: 2" class="{% if u.has_follower(v) %}d-none{% endif %}"><a class="btn btn-primary btn-sm" href="javascript:void(0)" onclick="post_toast('/follow/{{u.username}}', callback=function(){document.getElementById('button-unsub-{{u.id}}').classList.toggle('d-none');document.getElementById('button-sub-{{u.id}}').classList.toggle('d-none');})">Follow</a></div>
-						<div id="button-unsub-{{u.id}}" style="z-index: 2" class="{% if not u.has_follower(v) %} d-none{% endif %}"><a class="btn btn-secondary btn-sm" href="javascript:void(0)" onclick="post_toast('/unfollow/{{u.username}}', callback=function(){document.getElementById('button-unsub-{{u.id}}').classList.toggle('d-none');document.getElementById('button-sub-{{u.id}}').classList.toggle('d-none');})">Unfollow</a></div>
+						<div id="button-sub-{{u.id}}" style="z-index: 2" class="{% if u.has_follower(v) %}d-none{% endif %}"><a class="btn btn-primary " href="javascript:void(0)" onclick="post_toast2('/follow/{{u.username}}','button-sub-{{u.id}}','button-unsub-{{u.id}}')">Follow</a></div>
+
+						{% if u.id != 995 %}<div id="button-unsub-{{u.id}}" style="z-index: 2" class="{% if not u.has_follower(v) %} d-none{% endif %}"><a class="btn btn-secondary " href="javascript:void(0)" onclick="post_toast2('/unfollow/{{u.username}}','button-sub-{{u.id}}','button-unsub-{{u.id}}')">Unfollow</a></div>{% endif %}
 						{% endif %}
 					{% else %}
-					<div id="button-sub-{{u.id}}" style="z-index: 2" "><a class="btn btn-primary btn-sm" href="/signup?redirect={{request.path}}">Follow</a></div>
+					<div id="button-sub-{{u.id}}" style="z-index: 2" "><a class="btn btn-primary " href="/signup?redirect={{request.path}}">Follow</a></div>
 					{% endif %}
 				</div>
 

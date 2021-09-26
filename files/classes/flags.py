@@ -1,9 +1,10 @@
 from sqlalchemy import *
 from sqlalchemy.orm import relationship
 from files.__main__ import Base
-from .mix_ins import *
+from files.helpers.lazy import lazy
+import time
 
-class Flag(Base, Stndrd):
+class Flag(Base):
 
 	__tablename__ = "flags"
 
@@ -12,14 +13,24 @@ class Flag(Base, Stndrd):
 	user_id = Column(Integer, ForeignKey("users.id"))
 	reason = Column(String(100))
 	
-	user = relationship("User", lazy = "joined", primaryjoin = "Flag.user_id == User.id", uselist = False)
+	user = relationship("User", primaryjoin = "Flag.user_id == User.id", uselist = False, viewonly=True)
 
 	def __repr__(self):
 
 		return f"<Flag(id={self.id})>"
 
+	@property
+	@lazy
+	def created_date(self):
+		return time.strftime("%d %B %Y", time.gmtime(self.created_utc))
 
-class CommentFlag(Base, Stndrd):
+	@property
+	@lazy
+	def created_datetime(self):
+		return str(time.strftime("%d/%B/%Y %H:%M:%S UTC", time.gmtime(self.created_utc)))
+
+
+class CommentFlag(Base):
 
 	__tablename__ = "commentflags"
 
@@ -28,8 +39,18 @@ class CommentFlag(Base, Stndrd):
 	comment_id = Column(Integer, ForeignKey("comments.id"))
 	reason = Column(String(100))
 	
-	user = relationship("User", lazy = "joined", primaryjoin = "CommentFlag.user_id == User.id", uselist = False)
+	user = relationship("User", primaryjoin = "CommentFlag.user_id == User.id", uselist = False, viewonly=True)
 
 	def __repr__(self):
 
 		return f"<CommentFlag(id={self.id})>"
+
+	@property
+	@lazy
+	def created_date(self):
+		return time.strftime("%d %B %Y", time.gmtime(self.created_utc))
+
+	@property
+	@lazy
+	def created_datetime(self):
+		return str(time.strftime("%d/%B/%Y %H:%M:%S UTC", time.gmtime(self.created_utc)))

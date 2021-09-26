@@ -14,7 +14,7 @@
 			<span>
 				{{error}}
 			</span>
-			<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+			<button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
 				<span aria-hidden="true"><i class="far fa-times"></i></span>
 			</button>
 		</div>
@@ -32,11 +32,11 @@
 		<div class="d-md-flex justify-content-between mb-3">
 
 			<div>
-				<h2 class="h5" name="guild_name">Users you block</h2>
+				<h2 class="h5" >Users you block</h2>
 				<p class="text-small text-muted mb-md-0">You have blocked the following users. They cannot reply to your content or notify you with a username mention.</p>
 			</div>
 			<div class="mt-auto">
-				<button class="btn btn-primary" data-toggle="modal" data-target="#guildmasterBanModal">Block user</button>
+				<button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#blockmodal">Block user</button>
 			</div>
 		</div>
 
@@ -57,14 +57,14 @@
 				<tr>
 					<td>
 						<a href="{{block.target.permalink}}">
-							<img src="{{block.target.profile_url}}" class="profile-pic-20 align-top mr-2">@{{block.target.username}}</a>
+							<img loading="lazy" src="{{block.target.profile_url}}" class="profile-pic-20 align-top mr-2">@{{block.target.username}}</a>
 					</td>
 
 					<td>{{block.created_date}}</td>
 
 						<td>
 							<div class="dropdown float-right dropdown-actions">
-								<a href="#" role="button" id="dropdownMoreLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="line-height: 0;">
+								<a href="#" role="button" id="dropdownMoreLink" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="line-height: 0;">
 									<i class="fas fa-ellipsis-h text-muted"></i>
 								</a>
 								<div class="dropdown-menu border-0 shadow dropdown-menu-right mt-2" aria-labelledby="dropdownMoreLink" x-placement="bottom-end" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(21px, 18px, 0px);">
@@ -91,23 +91,22 @@
 </div>
 
 <!-- Admin Ban user Modal -->
-<div class="modal fade" id="guildmasterBanModal" tabindex="-1" role="dialog" aria-labelledby="guildmasterBanModalTitle" aria-hidden="true">
+<div class="modal fade" id="blockmodal" tabindex="-1" role="dialog" aria-labelledby="blockmodal" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered" role="document">
 		<form action="/settings/block" id="exile-form" method="post" onsubmit="return false;">
 			<div class="modal-content">
 				<div class="modal-header">
 					<h5 class="modal-title">Block users</h5>
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true"><i class="far fa-times"></i></span>
 					</button>
 				</div>
 				<div class="modal-body">
-					<p>Users you block will not be told, but they may figure it out if they try to reply to your content.</p>
 					<input type="hidden" name="formkey" value="{{v.formkey}}">
 					<input type="text" name="username" placeholder="enter username" id="exile-username" class="form-control" maxlength=25 required>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-link text-muted" data-dismiss="modal">Cancel</button>
+					<button type="button" class="btn btn-link text-muted" data-bs-dismiss="modal">Cancel</button>
 					<button type="button" class="btn btn-primary" id="exileUserButton" onclick="block_user()">Block user</button>
 				</div>
 			</div>
@@ -115,10 +114,49 @@
 	</div>
 </div>
 
-<div class="toast error" id="toast-exile-error" role="alert" aria-live="assertive" aria-atomic="true" data-animation="true" data-autohide="true" data-delay="5000">
+<div class="toast error" id="toast-exile-error" role="alert" aria-live="assertive" aria-atomic="true" data-bs-animation="true" data-bs-autohide="true" data-bs-delay="5000">
 	<div class="toast-body text-center">
 		<i class="fas fa-exclamation-circle text-danger mr-2"></i><span id="toast-error-message">Error. Please try again.</span>
 	</div>
 </div>
 
 {% endblock %}
+
+<script>
+	block_user=function() {
+
+		var exileForm = document.getElementById("exile-form");
+
+		var exileError = document.getElementById("toast-error-message");
+
+		var usernameField = document.getElementById("exile-username");
+
+		var isValidUsername = usernameField.checkValidity();
+
+		username = usernameField.value;
+
+		if (isValidUsername) {
+
+			var xhr = new XMLHttpRequest();
+			xhr.open("post", "/settings/block");
+			xhr.withCredentials=true;
+			f=new FormData();
+			f.append("username", username);
+			f.append("formkey", formkey());
+			xhr.onload=function(){
+				if (xhr.status<300) {
+					window.location.reload(true);
+				}
+				else {
+					var myToast = new bootstrap.Toast(document.getElementById('toast-post-success'));
+					myToast.hide();
+					var myToast = new bootstrap.Toast(document.getElementById('toast-post-error'));
+					myToast.show();
+					
+					exileError.textContent = JSON.parse(xhr.response)["error"];
+				}
+			}
+			xhr.send(f)
+		}
+	}
+</script>

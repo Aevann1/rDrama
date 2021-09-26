@@ -12,7 +12,7 @@
 			<div class="d-flex align-items-center sortingbarmargin">
 				<div class="text-small font-weight-bold mr-2">‎</div>
 				<div class="dropdown dropdown-actions">
-					<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 						{% if t=="day" %}<i class="fas fa-calendar-day mr-1"></i>{% endif %}
 						{% if t=="week" %}<i class="fas fa-calendar-week mr-1"></i>{% endif %}
 						{% if t=="month" %}<i class="fas fa-calendar-alt mr-1"></i>{% endif %}
@@ -32,7 +32,7 @@
 
 				<div class="text-small font-weight-bold ml-3 mr-2">‎</div>
 				<div class="dropdown dropdown-actions">
-					<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 						{% if sort=="hot" %}<i class="fas fa-fire mr-1"></i>{% endif %}
 						{% if sort=="top" %}<i class="fas fa-arrow-alt-circle-up mr-1"></i>{% endif %}
 						{% if sort=="bottom" %}<i class="fas fa-arrow-alt-circle-down mr-1"></i>{% endif %}
@@ -50,7 +50,6 @@
 						{% if sort != "old" %}<a class="dropdown-item" href="?sort=old&t={{t}}"><i class="fas fa-book mr-2"></i>Old</a>{% endif %}
 						{% if sort != "controversial" %}<a class="dropdown-item" href="?sort=controversial&t={{t}}"><i class="fas fa-bullhorn mr-2"></i>Controversial</a>{% endif %}
 						{% if sort != "comments" %}<a class="dropdown-item" href="?sort=comments&t={{t}}"><i class="fas fa-comments mr-2"></i>Comments</a>{% endif %}
-						{% if sort != "random" %}<a class="dropdown-item" href="?sort=random&t={{t}}"><i class="fas fa-random mr-2"></i>Random</a>{% endif %}
 					</div>
 				</div>
 			</div>

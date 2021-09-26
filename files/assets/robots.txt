@@ -1,18 +1,7 @@
-User-Agent: *
-Disallow: /admin/*
-Disallow: /submit
-Disallow: /settings
-Disallow: /me
-
-User-Agent: DotBot
-User-Agent: TurnitinBot
-User-Agent: Huaweisymantecspider
-User-Agent: SiteSnagger
-User-Agent: TeleportPro
-User-Agent: Xaldon_WebSpider
-User-Agent: MJ12bot
-User-Agent: SEMrushBot
-User-Agent: AhrefsBot
-User-Agent: CCBot
-User-agent: SBSearch
+User-agent: *
+Allow: /$
+Allow: /@
+Allow: /comment
+Allow: /post
+Allow: /logged_out
 Disallow: /

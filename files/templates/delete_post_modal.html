@@ -1,10 +1,33 @@
+<script>
+	function delete_postModal(id) {
+
+		// Passed data for modal
+
+		document.getElementById("deletePostButton-mobile").addEventListener("click", delete_post);
+
+		document.getElementById("deletePostButton").addEventListener("click", delete_post);
+
+		function delete_post(){	
+
+			this.innerHTML='<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Deleting post';	
+			this.disabled = true; 
+			post('/delete_post/' + id,
+				callback = function() {
+
+					location.reload();
+				}
+				)
+		}
+	};
+</script>
+
 <!-- Delete Post Modal -->
 <div class="modal fade modal-sm-bottom" id="deletePostModal" tabindex="-1" role="dialog" aria-labelledby="deletePostModalTitle" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered" role="document">
 		<div class="modal-content">
 			<div class="modal-header d-none d-md-flex">
 				<h5 class="modal-title">Delete post?</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true"><i class="far fa-times"></i></span>
 				</button>
 			</div>
@@ -22,22 +45,22 @@
 
 				<div class="h4 d-md-none">Delete post?</div>
 
-				<p class="d-none d-md-block">Your post will be removed everywhere on {{'SITE_NAME' | app_config}}.</p>
+				<p class="d-none d-md-block">Your post will be removed everywhere on {{'SITE_NAME' | app_config}}. This action can be undone.</p>
 
-				<p class="text-muted d-md-none">Your post will be removed everywhere on {{'SITE_NAME' | app_config}}.</p>
+				<p class="text-muted d-md-none">Your post will be removed everywhere on {{'SITE_NAME' | app_config}}. This action can be undone.</p>
 
 				<div class="d-md-none">
 
 					<button type="button" id="deletePostButton-mobile" class="btn btn-danger btn-block btn-lg">Delete post</button>
 
-					<button type="button" class="btn btn-secondary btn-block btn-lg" data-dismiss="modal">Cancel</button>
+					<button type="button" class="btn btn-secondary btn-block btn-lg" data-bs-dismiss="modal">Cancel</button>
 
 				</div>
 
 			</div>
 			
 			<div class="modal-footer d-none d-md-flex">
-				<button type="button" class="btn btn-link text-muted" data-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-link text-muted" data-bs-dismiss="modal">Cancel</button>
 				<button type="button" id="deletePostButton" class="btn btn-danger">Delete post</button>
 			</div>
 			

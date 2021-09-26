@@ -1,6 +1,155 @@
-<script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
+<script>
+	// Voting
 
-<input type="hidden" id="awardTarget" value="" />
+	function post_vote(url, callback) {
+		var xhr = new XMLHttpRequest();
+		xhr.open("POST", url, true);
+		var form = new FormData()
+		form.append("formkey", formkey());
+		xhr.withCredentials=true;
+		xhr.send(form);
+	}
+
+	var upvote = function(event) {
+
+		var type = event.target.dataset.bsContentType;
+		var id = event.target.dataset.bsIdUp;
+
+		var downvoteButton = document.getElementsByClassName(type + '-' + id + '-down');
+		var upvoteButton = document.getElementsByClassName(type + '-' + id + '-up');
+		var scoreText = document.getElementsByClassName(type + '-score-' + id);
+
+		for (var j = 0; j < upvoteButton.length && j < downvoteButton.length && j < scoreText.length; j++) {
+
+			var thisUpvoteButton = upvoteButton[j];
+			var thisDownvoteButton = downvoteButton[j];
+			var thisScoreText = scoreText[j];
+			var thisScore = Number(thisScoreText.textContent);
+
+			if (thisUpvoteButton.classList.contains('active')) {
+				thisUpvoteButton.classList.remove('active')
+				thisScoreText.textContent = thisScore - 1
+				voteDirection = "0"
+			} else if (thisDownvoteButton.classList.contains('active')) {
+				thisUpvoteButton.classList.add('active')
+				thisDownvoteButton.classList.remove('active')
+				thisScoreText.textContent = thisScore + 2
+				voteDirection = "1"
+			} else {
+				thisUpvoteButton.classList.add('active')
+				thisScoreText.textContent = thisScore + 1
+				voteDirection = "1"
+			}
+
+			if (thisUpvoteButton.classList.contains('active')) {
+				thisScoreText.classList.add('score-up')
+				thisScoreText.classList.remove('score-down')
+				thisScoreText.classList.remove('score')
+			} else if (thisDownvoteButton.classList.contains('active')) {
+				thisScoreText.classList.add('score-down')
+				thisScoreText.classList.remove('score-up')
+				thisScoreText.classList.remove('score')
+			} else {
+				thisScoreText.classList.add('score')
+				thisScoreText.classList.remove('score-up')
+				thisScoreText.classList.remove('score-down')
+			}
+		}
+
+		post_vote("/vote/" + type + "/" + id + "/" + voteDirection);
+		
+	}
+
+	var downvote = function(event) {
+
+		var type = event.target.dataset.bsContentType;
+		var id = event.target.dataset.bsIdDown;
+
+		var downvoteButton = document.getElementsByClassName(type + '-' + id + '-down');
+		var upvoteButton = document.getElementsByClassName(type + '-' + id + '-up');
+		var scoreText = document.getElementsByClassName(type + '-score-' + id);
+
+		for (var j = 0; j < upvoteButton.length && j < downvoteButton.length && j < scoreText.length; j++) {
+
+			var thisUpvoteButton = upvoteButton[j];
+			var thisDownvoteButton = downvoteButton[j];
+			var thisScoreText = scoreText[j];
+			var thisScore = Number(thisScoreText.textContent);
+
+			if (thisDownvoteButton.classList.contains('active')) {
+				thisDownvoteButton.classList.remove('active')
+				thisScoreText.textContent = thisScore + 1
+				voteDirection = "0"
+			} else if (thisUpvoteButton.classList.contains('active')) {
+				thisDownvoteButton.classList.add('active')
+				thisUpvoteButton.classList.remove('active')
+				thisScoreText.textContent = thisScore - 2
+				voteDirection = "-1"
+			} else {
+				thisDownvoteButton.classList.add('active')
+				thisScoreText.textContent = thisScore - 1
+				voteDirection = "-1"
+			}
+
+			if (thisUpvoteButton.classList.contains('active')) {
+				thisScoreText.classList.add('score-up')
+				thisScoreText.classList.remove('score-down')
+				thisScoreText.classList.remove('score')
+			} else if (thisDownvoteButton.classList.contains('active')) {
+				thisScoreText.classList.add('score-down')
+				thisScoreText.classList.remove('score-up')
+				thisScoreText.classList.remove('score')
+			} else {
+				thisScoreText.classList.add('score')
+				thisScoreText.classList.remove('score-up')
+				thisScoreText.classList.remove('score-down')
+			}
+		}
+
+		post_vote("/vote/" + type + "/" + id + "/" + voteDirection);
+		
+	}
+
+
+	var upvoteButtons = document.getElementsByClassName('upvote-button')
+
+	var downvoteButtons = document.getElementsByClassName('downvote-button')
+
+	var voteDirection = 0
+
+	for (var i = 0; i < upvoteButtons.length; i++) {
+		upvoteButtons[i].addEventListener('click', upvote, false);
+		upvoteButtons[i].addEventListener('keydown', function(event) {
+			if (event.keyCode === 13) {
+				upvote(event)
+			}
+		}, false)
+	};
+
+	for (var i = 0; i < downvoteButtons.length; i++) {
+		downvoteButtons[i].addEventListener('click', downvote, false);
+		downvoteButtons[i].addEventListener('keydown', function(event) {
+			if (event.keyCode === 13) {
+				downvote(event)
+			}
+		}, false)
+	};
+
+	// award modal
+
+	function awardModal(link) {
+		var target = document.getElementById("awardTarget");
+		target.action = link;
+	}
+
+	function bruh(kind) {
+		document.getElementById('giveaward').disabled=false;
+		document.getElementById('kind').value=kind;
+		try {document.getElementsByClassName('picked')[0].classList.toggle('picked');} catch(e) {}
+		document.getElementById(kind).classList.toggle('picked')
+	}
+</script>
+
 <div class="modal fade" id="awardModal" tabindex="-1" role="dialog" aria-labelledby="awardModalTitle" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered" role="document">
 		<div class="modal-content">
@@ -11,47 +160,28 @@
 				</button>
 			</div>
 			<div id="awardModalBody" class="modal-body">
-				<form v-if="loaded" id="sex" class="pt-3 pb-0">
+				<form id="awardTarget" class="pt-3 pb-0" action="" method="post">
 					<div class="card-columns awards-wrapper">
-						<div v-for="(award, index) in awards" :key="index">
-							<input type="radio" :id="index" :value="index" v-model="picked" :disabled="award.owned < 1">
-							<label class="card" :for="index" :class="{ disabled: award.owned < 1 }">
-								<i :class="award.icon+' '+award.color"></i><br />
-								<span class="d-block pt-2" style="font-weight: bold; font-size: 14px;">[[ award.title ]]</span>
-								<span class="text-muted">[[ award.owned ]] owned</span>
-							</label>
-						</div>
+						{% for award in v.user_awards %}
+							{% if award.owned %}
+								<a href="javascript:void(0)" id="{{award.kind}}" class="card" onclick="bruh('{{award.kind}}')">
+							{% else %}
+								<a href="javascript:void(0)" id="{{award.kind}}" class="card disabled">
+							{% endif %}
+								<i class="{{award.icon}} {{award.color}}"></i><br />
+								<span class="d-block pt-2" style="font-weight: bold; font-size: 14px; color:#E1E1E1">{{award.title}}</span>
+								<span class="text-muted">{{award.owned}} owned</span>
+							</a>
+						{% endfor %}
 					</div>
-					<div v-if="picked !== null">
-						<div class="award-desc p-3">
-							<i style="font-size: 35px;" :class="pickedAward.icon+' '+pickedAward.color"></i>
-							<div style="margin-left: 15px;">
-								<strong>[[ pickedAward.title ]] Award</strong><br />
-								<span class="text-muted">[[ pickedAward.description ]]</span>
-							</div>
-						</div>
-						<label for="note" class="pt-4">Note (optional):</label>
-						<textarea id="note" name="note" v-model="note" class="form-control" placeholder="Note to include in award notification"></textarea>
-					</div>
+					<label for="note" class="pt-4">Note (optional):</label>
+					<input id="kind" name="kind" value="" hidden>
+					<textarea id="note" name="note" class="form-control" placeholder="Note to include in award notification"></textarea>
+					<input id="giveaward" class="btn btn-primary" style="float:right" type="submit" value="Give Award" disabled>
 				</form>
-				<div v-else-if="error" class="p-5 text-center">
-					<h4>Failed to fetch awards</h4>
-					<button class="btn btn-primary">Retry</button>
-				</div>
-				<div v-else class="p-5 text-center">
-					<h4>Loading...</h4>
-				</div>
 			</div>
-		<div class="modal-footer">
-			<button type="button" class="btn btn-link text-muted" data-dismiss="modal">Cancel</button>
-			<button v-if="pending" class="btn btn-warning" type="button" disabled>
-  				<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-  				Gifting...
-			</button>
-			<button v-else type="submit" class="btn btn-warning" id="awardButton" @click="submit" :disabled="pickedAward === null">Give Award</button>
 		</div>
 	</div>
-</div>
 </div>
 
 <style>
@@ -59,94 +189,26 @@
 		display: none;
 	}
 
-	.awards-wrapper label {
+	.awards-wrapper a {
 		cursor: pointer;
 		padding: 15px;
 		text-align: center;
 		text-transform: none!important;
 	}
 
-	.awards-wrapper label i {
+	.awards-wrapper a i {
 		font-size: 45px;
 	}
 
-	.awards-wrapper label.disabled {
+	.awards-wrapper a.disabled {
 		opacity: 0.6;
 	}
 
-	.awards-wrapper label:hover {
-		/*background-color: rgba(173, 226, 255, 0.7)!important;*/
+	.awards-wrapper a:hover, .picked {
 		background-color: var(--primary)!important;
-		background-opacity: 0.4;
 	}
 
-	.awards-wrapper input[type="radio"]:checked+label {
-		/*background-color: rgba(173, 226, 255, 0.9)!important;*/
+	.awards-wrapper input[type="radio"]:checked+a {
 		background-color: var(--primary)!important;
-		background-opacity: 0.9;
-	}
-
-	.award-desc {
-		border-radius: 5px;
-		background-color: rgba(221, 221, 221, 0.23);
-		display: flex;
 	}
 </style>
-
-<script>
-	new Vue({
-		el: "#awardModal",
-		delimiters: ['[[', ']]'],
-		data: {
-			loaded: false,
-			error: false,
-			pending: false,
-			awards: [],
-			picked: null,
-			note: ""
-		},
-		computed: {
-			pickedAward: function() {
-				if (this.picked !== null) {
-					return this.awards[this.picked];
-				} else {
-					return null;
-				}
-			}
-		},
-		methods: {
-			async submit() {
-				this.pending = true;
-
-				const target = document.getElementById("awardTarget").value;
-
-				const f = new FormData();
-				f.append("formkey", formkey());
-				f.append("kind", this.pickedAward.kind || "");
-				f.append("note", this.note)
-
-				let response = await fetch(target, {
-					method: "PUT",
-					body: f
-				});
-
-				if (response.ok) {
-					location.reload();
-				} else {
-					this.pending = false;
-					let s = await response.json();
-					alert(s.error);
-				}
-			}
-		},
-		mounted() {
-			fetch('/awards')
-				.then(response => response.json())
-				.then(json => {
-					this.awards = json;
-				});
-
-			this.loaded = true;
-		}
-	})
-</script>

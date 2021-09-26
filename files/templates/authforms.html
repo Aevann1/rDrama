@@ -12,23 +12,13 @@
 
 		<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600&display=swap" rel="stylesheet">
 
-		<!-- Bootstrap core CSS -->
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
-				integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-
-		<!-- Font Awesome -->
-		<link href="/assets/fontawesome/css/all.css" rel="stylesheet"> <!--load all styles -->
-
-		<script data-search-pseudo-elements defer src="https://use.fontawesome.com/releases/latest/js/javascript.js"
-				integrity="sha384-L469/ELG4Bg9sDQbl0hvjMq8pOcqFgkSpwhwnslzvVVGpDjYJ6wJJyYjvG3u8XW7"
-				crossorigin="anonymous"></script>
 
 		<!-- {{'SITE_NAME' | app_config}} CSS -->
 		{% if v %}
-			<link rel="stylesheet" href="/assets/style/{{v.theme}}_{{v.themecolor}}.css">
-			{% if v.agendaposter %}<link rel="stylesheet" href="/assets/style/agendaposter.css">{% elif v.css %}<link rel="stylesheet" href="/@{{v.username}}/css">{% endif %}
+			<link rel="stylesheet" href="/assets/css/{{v.theme}}_{{v.themecolor}}.css">
+			{% if v.agendaposter %}<link rel="stylesheet" href="/assets/css/agendaposter.css">{% elif v.css %}<link rel="stylesheet" href="/@{{v.username}}/css">{% endif %}
 		{% else %}
-			<link rel="stylesheet" href="/assets/style/{{'DEFAULT_THEME' | app_config}}.css">
+			<link rel="stylesheet" href="/assets/css/{{'DEFAULT_THEME' | app_config}}.css">
 		{% endif %}
 
 </head>
@@ -38,7 +28,7 @@
 		<!-- Navigation -->
 		<nav class="navbar navbar-expand-lg navbar-dark bg-transparent fixed-top border-0">
 				<div class="container-fluid">
-						<button class="navbar-toggler d-none" type="button" data-toggle="collapse" data-target="#navbarResponsive"
+						<button class="navbar-toggler d-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive"
 								aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
 								<span class="navbar-toggler-icon"></span>
 						</button>
@@ -70,7 +60,7 @@
 													<span>
 													{{error}}
 													</span>
-													<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+													<button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
 														<span aria-hidden="true"><i class="far fa-times"></i></span>
 												</button>
 								</div>
@@ -81,7 +71,7 @@
 													<span>
 													{{msg}}
 													</span>
-													<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+													<button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
 														<span aria-hidden="true"><i class="far fa-times"></i></span>
 												</button>
 								</div>
@@ -102,7 +92,7 @@
 
 										<div class="splash-overlay"></div>
 
-										<img class="splash-img" src="/assets/images/{{'SITE_NAME' | app_config}}/cover.gif"></img>
+										<img loading="lazy" class="splash-img" src="/assets/images/{{'SITE_NAME' | app_config}}/cover.webp"></img>
 								</div>
 
 						</div>
@@ -110,18 +100,13 @@
 				</div>
 		</div>
 
-		<!-- Bootstrap core JavaScript -->
-		<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-				integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-				crossorigin="anonymous"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
-				integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-				crossorigin="anonymous"></script>
-		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
-				integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-				crossorigin="anonymous"></script>
+
+<pre>
 
 
+
+</pre>
+				
 </body>
 
 </html>

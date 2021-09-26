@@ -10,7 +10,7 @@ from files.__main__ import app
 def admin_vote_info_get(v):
 
 
-	link = request.args.get("link")
+	link = request.values.get("link")
 	if not link: return render_template("votes.html", v=v)
 
 	try:
@@ -69,22 +69,25 @@ def api_vote_post(post_id, new, v):
 	post = get_post(post_id)
 
 	# check for existing vote
-	existing = g.db.query(Vote).filter_by(user_id=v.id, submission_id=post.id).first()
+	existing = g.db.query(Vote).options(lazyload('*')).filter_by(user_id=v.id, submission_id=post.id).first()
 
 	if existing and existing.vote_type == new: return "", 204
 
 	if existing:
 		if existing.vote_type == 0 and new != 0:
 			post.author.coins += 1
+			post.author.truecoins += 1
 			g.db.add(post.author)
 		elif existing.vote_type != 0 and new == 0:
 			post.author.coins -= 1
+			post.author.truecoins -= 1
 			g.db.add(post.author)
 		existing.vote_type = new
 		g.db.add(existing)
 	else:
 		if new != 0:
 			post.author.coins += 1
+			post.author.truecoins += 1
 			g.db.add(post.author)
 		vote = Vote(user_id=v.id,
 					vote_type=new,
@@ -93,11 +96,13 @@ def api_vote_post(post_id, new, v):
 					)
 		g.db.add(vote)
 	
-	try: g.db.flush()
+	try:
+		g.db.flush()
+		post.upvotes = g.db.query(Vote).options(lazyload('*')).filter_by(submission_id=post.id, vote_type=1).count()
+		post.downvotes = g.db.query(Vote).options(lazyload('*')).filter_by(submission_id=post.id, vote_type=-1).count()
+		g.db.add(post)
+		g.db.commit()
 	except: g.db.rollback()
-	post.upvotes = g.db.query(Vote).filter_by(submission_id=post.id, vote_type=1).count()
-	post.downvotes = g.db.query(Vote).filter_by(submission_id=post.id, vote_type=-1).count()
-	g.db.add(post)
 	return "", 204
 
 @app.post("/vote/comment/<comment_id>/<new>")
@@ -119,22 +124,25 @@ def api_vote_comment(comment_id, new, v):
 	comment = get_comment(comment_id)
 
 	# check for existing vote
-	existing = g.db.query(CommentVote).filter_by(user_id=v.id, comment_id=comment.id).first()
+	existing = g.db.query(CommentVote).options(lazyload('*')).filter_by(user_id=v.id, comment_id=comment.id).first()
 
 	if existing and existing.vote_type == new: return "", 204
 
 	if existing:
 		if existing.vote_type == 0 and new != 0:
 			comment.author.coins += 1
+			comment.author.truecoins += 1
 			g.db.add(comment.author)
 		elif existing.vote_type != 0 and new == 0:
 			comment.author.coins -= 1
+			comment.author.truecoins -= 1
 			g.db.add(comment.author)
 		existing.vote_type = new
 		g.db.add(existing)
 	else:
 		if new != 0:
 			comment.author.coins += 1
+			comment.author.truecoins += 1
 			g.db.add(comment.author)
 		vote = CommentVote(user_id=v.id,
 						   vote_type=new,
@@ -143,10 +151,12 @@ def api_vote_comment(comment_id, new, v):
 						   )
 
 		g.db.add(vote)
-		
-	try: g.db.flush()
+
+	try:
+		g.db.flush()
+		comment.upvotes = g.db.query(CommentVote).options(lazyload('*')).filter_by(comment_id=comment.id, vote_type=1).count()
+		comment.downvotes = g.db.query(CommentVote).options(lazyload('*')).filter_by(comment_id=comment.id, vote_type=-1).count()
+		g.db.add(comment)
+		g.db.commit()
 	except: g.db.rollback()
-	comment.upvotes = g.db.query(CommentVote).filter_by(comment_id=comment.id, vote_type=1).count()
-	comment.downvotes = g.db.query(CommentVote).filter_by(comment_id=comment.id, vote_type=-1).count()
-	g.db.add(comment)
 	return "", 204

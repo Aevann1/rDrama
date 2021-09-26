@@ -16,13 +16,8 @@
   <div class="col p-0 w-100">
 	<ul class="nav settings-nav" style="padding:0 30px;">
 	<li class="nav-item">
-		<a class="nav-link py-3{% if '/notifications?all=true' in request.full_path %} active{% endif %}" href="/notifications?all=true">
-		All
-		</a>
-	</li>
-	<li class="nav-item">
 		<a class="nav-link py-3{% if not '=' in request.full_path %} active{% endif %}" href="/notifications">
-		Unread
+		All
 		</a>
 	</li>
 	<li class="nav-item">
@@ -35,6 +30,13 @@
 		Messages
 		</a>
 	</li>
+	{% if v.admin_level==6 %}
+		<li class="nav-item">
+			<a class="nav-link py-3{% if '/notifications?modmail=true' in request.full_path %} active{% endif %}" href="/notifications?modmail=true">
+			Modmail
+			</a>
+		</li>
+	{% endif %}
 	</ul>
   </div>
 </div>
@@ -58,7 +60,7 @@
 
 		<div class="h5">No unread messages</div>
 		<div class="text-small text-muted mb-3">When someone comments or replies, it will show up here.</div>
-		<a href="/notifications?all=true" class="btn btn-primary btn-sm">View entire inbox</a>
+		<a href="/notifications" class="btn btn-primary ">View entire inbox</a>
 	</div>
 
 	{% endif %}
@@ -114,7 +116,4 @@
 {% endblock %}
 
 {% block GIFpicker %}
-{% if v %}
-{% include "gif_modal.html" %}
-{% endif %}
 {% endblock %}

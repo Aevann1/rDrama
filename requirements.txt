@@ -17,8 +17,9 @@ pyotp
 qrcode
 redis
 requests
-SQLAlchemy==1.3.19
+SQLAlchemy
 psycopg2-binary
 pusher_push_notifications
 youtube-dl
 yattag
+webptools

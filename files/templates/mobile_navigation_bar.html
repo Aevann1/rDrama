@@ -1,9 +1,68 @@
+<style>
+	.btn-dead:hover, .active.btn-dead:hover, .active.btn-dead {
+		border: 1px solid var(--primary)!important;
+	}
+</style>
+
+<script>
+	// Mobile bottom navigation bar
+
+	window.onload = function () {
+		var prevScrollpos = window.pageYOffset;
+		window.onscroll = function () {
+			var currentScrollPos = window.pageYOffset;
+
+			var topBar = document.getElementById("fixed-bar-mobile");
+
+			var bottomBar = document.getElementById("mobile-bottom-navigation-bar");
+
+			var dropdown = document.getElementById("mobileSortDropdown");
+
+			var navbar = document.getElementById("navbar");
+
+			if (bottomBar != null) {
+				if (prevScrollpos > currentScrollPos && (window.innerHeight + currentScrollPos) < (document.body.offsetHeight - 65)) {
+					bottomBar.style.bottom = "0px";
+				} 
+				else if (currentScrollPos <= 125 && (window.innerHeight + currentScrollPos) < (document.body.offsetHeight - 65)) {
+					bottomBar.style.bottom = "0px";
+				}
+				else if (prevScrollpos > currentScrollPos && (window.innerHeight + currentScrollPos) >= (document.body.offsetHeight - 65)) {
+					bottomBar.style.bottom = "-50px";
+				}
+				else {
+					bottomBar.style.bottom = "-50px";
+				}
+			}
+
+			// Execute if bottomBar exists
+
+			if (topBar != null && dropdown != null) {
+				if (prevScrollpos > currentScrollPos) {
+					topBar.style.top = "48px";
+					navbar.classList.remove("shadow");
+				} 
+				else if (currentScrollPos <= 125) {
+					topBar.style.top = "48px";
+					navbar.classList.remove("shadow");
+				}
+				else {
+					topBar.style.top = "-48px";
+					dropdown.classList.remove('show');
+					navbar.classList.add("shadow");
+				}
+			}
+			prevScrollpos = currentScrollPos;
+		}
+	}
+</script>
+
 <div class="container d-inline-flex d-lg-none">
 
 		<div class="row fixed-bottom bg-white border-top p-2" id="mobile-bottom-navigation-bar"
 		style="z-index: 100; bottom: 0px; transition: bottom cubic-bezier(0, 0, 0.2, 1) 220ms;">
 
-				<button type="button" class="col px-0 pl-2 btn btn-dead m-0" style="border-color: transparent !important;">
+				<button type="button" class="col px-0 ml-3 btn btn-dead m-0" style="background: None !important; border: None;">
 						<a href="/" class="text-decoration-none" role="button">
 								<div class="text-center {% if request.path=='/' and request.full_path!='/?sort=hot&t=all' and request.full_path!='/?sort=new&t=all' %}text-purple{% else %}text-muted{% endif %}">
 										<i class="fas fa-home-alt text-lg d-block"></i>
@@ -12,7 +71,7 @@
 						</a>
 				</button>
 {% if v and v.defaultsorting == 'new' %}
-				<button type="button" class="col px-0 btn btn-dead m-0" style="border-color: transparent !important;">
+				<button type="button" class="col px-0 btn btn-dead m-0" style="background: None !important; border: None;">
 						<a href="/?sort=hot&t=all" class="text-decoration-none" role="button">
 								<div class="text-center {% if request.full_path=='/?sort=hot&t=all' %}text-purple{% else %}text-muted{% endif %}">
 										<i class="fas fa-fire text-lg d-block"></i>
@@ -21,7 +80,7 @@
 						</a>
 				</button>
 {% else %}
-				<button type="button" class="col px-0 btn btn-dead m-0" style="border-color: transparent !important;">
+				<button type="button" class="col px-0 btn btn-dead m-0" style="background: None !important; border: None;">
 						<a href="/?sort=new&t=all" class="text-decoration-none" role="button">
 								<div class="text-center {% if request.full_path=='/?sort=new&t=all' %}text-purple{% else %}text-muted{% endif %}">
 										<i class="fas fa-sparkles text-lg d-block"></i>
@@ -30,7 +89,7 @@
 						</a>
 				</button>
 {% endif %}
-				<button type="button" class="col px-2 btn btn-dead m-0" style="border-color: transparent !important;">
+				<button type="button" class="col px-2 btn btn-dead m-0" style="background: None !important; border: None;">
 						<a href="/comments" class="text-decoration-none" role="button">
 								<div class="text-center {% if request.path=='/comments' %}text-purple{% else %}text-muted{% endif %}">
 										<i class="fas fa-comment-dots text-lg d-block"></i>
@@ -38,7 +97,7 @@
 								</div>
 						</a>
 				</button>
-				<button type="button" class="col px-0 btn btn-dead m-0" style="border-color: transparent !important;">
+				<button type="button" class="col px-0 btn btn-dead m-0" style="background: None !important; border: None;">
 						<a href="/leaderboard" class="text-decoration-none" role="button">
 								<div class="text-center {% if request.path=='/leaderboard' %}text-purple{% else %}text-muted{% endif %}">
 										<i class="fas fa-trophy text-lg d-block"></i>
@@ -47,7 +106,7 @@
 						</a>
 				</button>
 {% if v %}
-				<button type="button" class="col px-0 pr-2 btn btn-dead m-0" style="border-color: transparent !important;">
+				<button type="button" class="col px-0 mr-3 btn btn-dead m-0" style="background: None !important; border: None;">
 						<a href="{{v.url}}" class="text-decoration-none" role="button">
 								<div class="text-center {% if request.path==v.url %}text-purple{% else %}text-muted{% endif %}">
 										<i class="fas fa-user-circle text-lg d-block"></i>
@@ -56,7 +115,7 @@
 						</a>
 				</button>
 {% else %}
-				<button type="button" class="col px-0 pr-2 btn btn-dead m-0" style="border-color: transparent !important;">
+				<button type="button" class="col px-0 mr-3 btn btn-dead m-0" style="background: None !important; border: None;">
 						<a href="/signup" class="text-decoration-none" role="button">
 								<div class="text-center text-muted">
 										<i class="fas fa-user-plus text-lg d-block"></i>

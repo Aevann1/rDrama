@@ -3,10 +3,10 @@
 {% if u and u.profilecss %}
 	{% block stylesheets %}
 		{% if v %}
-			<link rel="stylesheet" href="/assets/style/{{v.theme}}_{{v.themecolor}}.css">
-			{% if v.agendaposter %}<link rel="stylesheet" href="/assets/style/agendaposter.css">{% elif v.css %}<link rel="stylesheet" href="/@{{v.username}}/css">{% endif %}
+			<link rel="stylesheet" href="/assets/css/{{v.theme}}_{{v.themecolor}}.css">
+			{% if v.agendaposter %}<link rel="stylesheet" href="/assets/css/agendaposter.css">{% elif v.css %}<link rel="stylesheet" href="/@{{v.username}}/css">{% endif %}
 		{% else %}
-			<link rel="stylesheet" href="/assets/style/{{'DEFAULT_THEME' | app_config}}.css">
+			<link rel="stylesheet" href="/assets/css/{{'DEFAULT_THEME' | app_config}}.css">
 		{% endif %}
 		{% if u and u.profilecss %}
 			<link rel="stylesheet" href="/@{{u.username}}/profilecss">
@@ -25,10 +25,10 @@
 <meta property="og:article:author" content="@{{u.username}}" />
 <meta property="article:section" content="{{u.username}}'s profile - {{'SITE_NAME' | app_config}}" />
 <meta property="article:published_time" content="{{u.created_date}}" />
-<meta property="og:description" name="description" content="{{u.coins}} {{"COINS_NAME" | app_config}} - Joined {{u.created_date}} - {% if u.stored_subscriber_count >=1 and not u.is_private and not u.is_nofollow %}{{u.stored_subscriber_count}} Followers - {% endif %}{% if not u.is_private %}{{u.post_count}} Posts - {{u.comment_count}} Comments - {% endif %}{{u.bio}}" />
+<meta property="og:description" name="description" content="{{u.coins}} {{'COINS_NAME' | app_config}} - Joined {{u.created_date}} - {% if u.stored_subscriber_count >=1 and not u.is_private and not u.is_nofollow %}{{u.stored_subscriber_count}} Followers - {% endif %}{% if not u.is_private %}{{u.post_count}} Posts - {{u.comment_count}} Comments - {% endif %}{{u.bio}}" />
 <meta property="og:author" name="author" content="@{{u.username}}" />
 <meta property="og:title" content="{{u.username}}" />
-<meta property="og:image" content="{% if u.bannerurl %}{{u.banner_url}}{% else %}{{'SITE_NAME' | app_config}}/assets/images/{{'SITE_NAME' | app_config}}/preview.gif{% endif %}" />
+<meta property="og:image" content="{{u.banner_url}}" />
 <meta property="og:url" content="{{u.url | full_link}}" />
 <meta property="og:site_name" content="{{request.host}}" />
 
@@ -36,48 +36,118 @@
 <meta name="twitter:site" content="{{request.host_url}}">
 <meta name="twitter:title" content="{{u.username}}'s profile - {{'SITE_NAME' | app_config}}" />
 <meta name="twitter:creator" content="@{{u.username}}">
-<meta name="twitter:description" content="{{u.coins}} {{"COINS_NAME" | app_config}} - Joined {{u.created_date}} - {% if u.stored_subscriber_count >=1 and not u.is_private and not u.is_nofollow %}{{u.stored_subscriber_count}} Followers -{% endif %} {% if not u.is_private %} {{u.post_count}} Posts - {{u.comment_count}} Comments -{% endif %} {{u.bio}}" />
-<meta name="twitter:image" content="{% if u.bannerurl %}{{u.banner_url}}{% else %}{{'SITE_NAME' | app_config}}/assets/images/{{'SITE_NAME' | app_config}}/preview.gif{% endif %}" />
+<meta name="twitter:description" content="{{u.coins}} {{'COINS_NAME' | app_config}} - Joined {{u.created_date}} - {% if u.stored_subscriber_count >=1 and not u.is_private and not u.is_nofollow %}{{u.stored_subscriber_count}} Followers -{% endif %} {% if not u.is_private %} {{u.post_count}} Posts - {{u.comment_count}} Comments -{% endif %} {{u.bio}}" />
+<meta name="twitter:image" content="{{u.banner_url}}" />
 <meta name="twitter:url" content="{{u.url | full_link}}" />
 {% endblock %}
 
 {% block desktopUserBanner %}
 <!-- Desktop -->
 <script>
-	var userid = document.getElementById("userid").value;
-	if (userid != "nosong")
-	{
-		var audio = new Audio(`/songs/${userid}`);
-		audio.loop=true;
-		audio.play();
-		document.getElementById('userpage').addEventListener('click', () => {
-			if (audio.paused) audio.play(); 
-		}, {once : true});
+	function post_toast_callback(url, data, callback) {
+		var xhr = new XMLHttpRequest();
+		xhr.open("POST", url, true);
+		var form = new FormData()
+
+		if(typeof data === 'object' && data !== null) {
+			for(let k of Object.keys(data)) {
+				form.append(k, data[k]);
+			}
+		}
+
+		form.append("formkey", formkey());
+		xhr.withCredentials=true;
+
+		xhr.onload = function() {
+			let result = callback(xhr);
+				
+			if (xhr.status >= 200 && xhr.status < 300) {
+				var myToast = new bootstrap.Toast(document.getElementById('toast-post-error'));
+				myToast.hide();
+
+				var myToast = new bootstrap.Toast(document.getElementById('toast-post-success'));
+				myToast.show();
+
+				try {
+					if(typeof result == "string") {
+						document.getElementById('toast-post-success-text').innerText = result;
+					} else {
+						document.getElementById('toast-post-success-text').innerText = JSON.parse(xhr.response)["message"];
+					}
+				} catch(e) {
+					document.getElementById('toast-post-success-text').innerText = "Action successful!";
+				}
+
+				return true;
+			} else {
+				var myToast = new bootstrap.Toast(document.getElementById('toast-post-success'));
+				myToast.hide();
+
+				var myToast = new bootstrap.Toast(document.getElementById('toast-post-error'));
+				myToast.show();
+
+				try {
+					if(typeof result == "string") {
+						document.getElementById('toast-post-error-text').innerText = result;
+					} else {
+						document.getElementById('toast-post-error-text').innerText = JSON.parse(xhr.response)["error"];
+					}
+					return false
+				} catch(e) {
+					document.getElementById('toast-post-error-text').innerText = "Error. Try again later.";
+				}
+
+				return false;
+			}
+		};
+
+		xhr.send(form);
+
 	}
+
+    const TRANSFER_TAX = 0.01;
+
+    window.addEventListener( 'load', function() {
+		var userid = document.getElementById("userid").value;
+		if (userid != "nosong")
+		{
+			var audio = new Audio(`/songs/${userid}`);
+			audio.loop=true;
+			audio.play();
+			document.getElementById('userpage').addEventListener('click', () => {
+				if (audio.paused) audio.play(); 
+			}, {once : true});
+		}
+	}, false );
 
 	function transferCoins(mobile=false) {
 		let t = event.target;
 		t.disabled = true;
 
-		post_toast("/@{{u.username}}/transfer_coins",
-			xhr => {
-				if(xhr.status == 200) {
-					fetch("/@{{u.username}}/coins")
-						.then(r => r.json())
-						.then(m => {
-							document.getElementById("profile-coins-amount").innerText = m["coins"];
-							document.getElementById("profile-coins-amount-mobile").innerText = m["coins"];
-						})
+		let amount = parseInt(document.getElementById("coins-transfer-amount").value);
+		let transferred = amount - Math.ceil(amount*TRANSFER_TAX);
 
-					fetch("/@{{v.username}}/coins")
-						.then(r => r.json())
-						.then(m => document.getElementById(`user-coins-amount`).innerText = m["coins"])
-				}
-			},
-			{"amount": document.getElementById(mobile ? "coins-transfer-amount-mobile" : "coins-transfer-amount").value}
+		post_toast_callback("/@{{u.username}}/transfer_coins",
+			{"amount": document.getElementById(mobile ? "coins-transfer-amount-mobile" : "coins-transfer-amount").value},
+		    (xhr) => {
+			if(xhr.status == 200) {
+			    document.getElementById("user-coins-amount").innerText = parseInt(document.getElementById("user-coins-amount").innerText) - amount;
+			    document.getElementById("profile-coins-amount-mobile").innerText = parseInt(document.getElementById("profile-coins-amount-mobile").innerText) + transferred;
+			    document.getElementById("profile-coins-amount").innerText = parseInt(document.getElementById("profile-coins-amount").innerText) + transferred;
+			}
+		    }
 		);
 
 		setTimeout(_ => t.disabled = false, 2000);
+	}
+
+	function updateTax(mobile=false) {
+	    let suf = mobile ? "-mobile" : "";
+	    let amount = parseInt(document.getElementById("coins-transfer-amount" + suf).value);
+	    if(isNaN(amount) || amount < 0) {
+		amount = 0;
+	    }
+	    document.getElementById("coins-transfer-taxed" + suf).innerText = amount - Math.ceil(amount*TRANSFER_TAX);
 	}
 
 	function toggleElement(group, id) {
@@ -90,6 +160,7 @@
 		document.getElementById(id).classList.toggle('d-none');
 	}
 </script>
+
 <textarea id="userid" style="display: none;">{% if u.song %}{{u.id}}{% else %}nosong{% endif %}</textarea>
 <div class="row d-none d-md-block">
 	<div class="col px-0">
@@ -99,7 +170,7 @@
 				<div class="container-fluid nobackground">
 					<div class="d-md-flex text-center text-md-left">
 						<div>
-							<a href="{% if u.highres %}{{u.highres}}{% else %}{{u.profile_url}}{% endif %}"><img src="{{u.profile_url}}" class="profile-pic profile-pic-100 mb-5"></a>
+							<a rel="nofollow noopener noreferrer" href="{% if u.highres %}{{u.highres}}{% else %}{{u.profile_url}}{% endif %}"><img loading="lazy" src="{{u.profile_url}}" class="profile-pic profile-pic-100 mb-5"></a>
 						</div>
 						<div class="ml-3 w-100">
 							{% if u.is_suspended %}
@@ -111,26 +182,26 @@
 								<h1 class="font-weight-bolder h3 mb-0" style="color: #{{u.namecolor}}"><span {% if u.patron %}class="patron" style="background-color:#{{u.namecolor}};"{% endif %}>{{u.username}}</span></h1>
 								{% if u.username != u.original_username %}
 								<span>
-									<i class="fad fa-user-tag text-info align-middle ml-2" data-toggle="tooltip" data-placement="bottom" title="Original Username: @{{u.original_username}}"></i>
+									<i class="fad fa-user-tag text-info align-middle ml-2" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Original Username: @{{u.original_username}}"></i>
 								</span>
 								{% endif %}
-								{% if u.verified %}<span><i class="fas fa-badge-check align-middle ml-1" style="color:#1DA1F2" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Verified"></i></span>{% endif %}
+								{% if u.verified %}<span><i class="fas fa-badge-check align-middle ml-1" style="color:#1DA1F2" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{u.verified}}"></i></span>{% endif %}
 								{% if u.admin_level > 1 or (u.admin_level == 1 and (not v or v.admin_level < 2)) %}
 								<span>
-									<i class="fas fa-broom text-admin align-middle ml-2" data-toggle="tooltip" data-placement="bottom" title="Admin"></i>
+									<i class="fas fa-broom text-admin align-middle ml-2" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Admin"></i>
 								</span>
 								{% elif u.admin_level == 1 %}
 								<span>
-									<i class="fas fa-broom align-middle ml-2" data-toggle="tooltip" data-placement="bottom" title="Fake Admin"></i>
+									<i class="fas fa-broom align-middle ml-2" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Fake Admin"></i>
 								</span>
 								{% endif %}
 								{% if v and v.has_follower(u) %}
-									<span class="text-primary badge badge-secondary text-small align-middle ml-2">Follows you</span>
+									<span class="followsyou text-primary badge badge-secondary text-small align-middle ml-2">Follows you</span>
 								{% endif %}
 								<div class="profile-actions align-middle d-none ml-2">
 								{% if v and v.id != u.id %}
 								<div class="dropdown show d-none">
-									<a href="#" role="button" data-toggle="dropdown"
+									<a href="#" role="button" data-bs-toggle="dropdown"
 									aria-haspopup="true" aria-expanded="false">
 									<i class="far fa-ellipsis-h text-lg align-middle text-gray-600"></i>
 								</a>
@@ -138,7 +209,7 @@
 							{% endif %}
 							{% if v and v.id == u.id %}
 							<div class="dropdown show d-none">
-								<a href="#" role="button" id="dropdownProfileActionsLink" data-toggle="dropdown"
+								<a href="#" role="button" id="dropdownProfileActionsLink" data-bs-toggle="dropdown"
 								aria-haspopup="true" aria-expanded="false">
 								<i class="far fa-ellipsis-h text-lg align-middle text-gray-600"></i>
 							</a>
@@ -152,12 +223,18 @@
 					</div> 
 				</div>
 
-				{% if u.customtitle %}<p class="font-weight-bolder" style="color: #{{u.titlecolor}}">{{u.customtitle | safe}}</p>{% endif %}
+				{% if u.customtitle %}<p class="font-weight-bolder" style="color: #{{u.titlecolor}}">{% if u.quadrant %}<img loading="lazy" height="20" src="/assets/images/PCM/quadrants/{{u.quadrant}}.webp">{% endif %}{{u.customtitle | safe}}</p>{% endif %}
 				
 				<div class="font-weight-bolder">
-					<span id="profile-coins-amount">{{u.coins}}</span> {{"COINS_NAME" | app_config}}&nbsp;&nbsp; {% if u.stored_subscriber_count >=1 and not u.is_nofollow %}<a href="/@{{u.username}}/followers">{{u.stored_subscriber_count}} follower{{'s' if u.stored_subscriber_count != 1 else ''}}</a>&nbsp;&nbsp; {% endif %}joined <span data-toggle="tooltip" data-placement="bottom" title="" data-original-title="{{u.created_datetime}}">{{u.created_date}}</span>
+					<span id="profile-coins-amount">{{u.coins}}</span>
+					
+					&nbsp;<img data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{'COINS_NAME' | app_config}}" height="20" src="https://rdrama.net/assets/images/emojis/marseybux.webp">&nbsp;&nbsp;
 
+					{% if u.stored_subscriber_count >=1 and not u.is_nofollow %}<a href="/@{{u.username}}/followers">{{u.stored_subscriber_count}} follower{{'s' if u.stored_subscriber_count != 1 else ''}}</a>&nbsp;&nbsp; {% endif %}
+					
+					joined <span data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{u.created_datetime}}">{{u.created_date}}</span>
 				</div>
+				{% if "pcm" in request.host %}<p class="text-muted">Based Count: {{u.basedcount}}</p>{% endif %}
 				{% if u.bio_html %}
 				<pre></pre>
 				<div class="text-muted font-weight-bolder">{{u.bio_html | safe}}</div>
@@ -172,7 +249,7 @@
 					<p class="text-uppercase my-0" style="font-weight: bold; font-size: 12px;">Awards received</p>
 					{% for a in u.received_awards %}
 					<span class="d-inline-block mx-1">
-						<i class="{{a['icon']}} {{a['color']}} fa-fw" data-toggle="tooltip" data-placement="bottom" title="{{a['title']}} Awards received"></i>
+						<i class="{{a['icon']}} {{a['color']}} fa-fw" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{a['title']}} Awards received"></i>
 						x{{a['count']}}
 					</span>
 					{% endfor %}
@@ -182,32 +259,64 @@
 				<div class="d-flex justify-content-between align-items-center">
 					<div>
 					{% if v and v.id != u.id %}
-						<a id="button-unsub" class="btn btn-secondary {% if not is_following %}d-none{% endif %}" href="javascript:void(0)" onclick="post_toast('/unfollow/{{u.username}}', callback=function(){document.getElementById('button-unsub').classList.toggle('d-none');document.getElementById('button-sub').classList.toggle('d-none');})">Unfollow</a>
-						<a id="button-sub" class="btn btn-primary {% if is_following or u.is_nofollow or u.is_blocked %}d-none{% endif %}" href="javascript:void(0)" onclick="post_toast('/follow/{{u.username}}', callback=function(){document.getElementById('button-sub').classList.toggle('d-none');document.getElementById('button-unsub').classList.toggle('d-none');})">Follow</a>						
+						{% if u.id != 995 %}<a id="button-unsub" class="btn btn-secondary {% if not is_following %}d-none{% endif %}" href="javascript:void(0)" onclick="post_toast2('/unfollow/{{u.username}}','button-unsub','button-sub')">Unfollow</a>{% endif %}
+						<a id="button-sub" class="btn btn-primary {% if is_following or u.is_nofollow or u.is_blocked %}d-none{% endif %}" href="javascript:void(0)" onclick="post_toast2('/follow/{{u.username}}','button-unsub','button-sub')">Follow</a>						
 						
 						<a class="btn btn-primary" href="javascript:void(0)" onclick="toggleElement('profile-toggleable', 'message')">Message</a>
 
 						<a class="btn btn-primary" href="javascript:void(0)" onclick="post_toast('/@{{u.username}}/suicide')">Get them help</a>
-						<a class="btn btn-primary" href="javascript:void(0)" onclick="toggleElement('profile-toggleable', 'coin-transfer')">Gift {{"COINS_NAME" | app_config}}</a>
+						<a class="btn btn-primary" href="javascript:void(0)" onclick="toggleElement('profile-toggleable', 'coin-transfer')">Gift {{'COINS_NAME' | app_config}}</a>
+
+						{% if 'pcm' in request.host and v.admin_level == 6 %} 
+							{% if u.admin_level == 0 %}
+								<a class="btn btn-primary" href="javascript:void(0)" onclick="post_toast('/@{{u.username}}/make_admin')">Make admin</a>
+							{% elif v.id == 10 %}
+								<a class="btn btn-primary" href="javascript:void(0)" onclick="post_toast('/@{{u.username}}/remove_admin')">Remove admin</a>
+								<a class="btn btn-primary" href="javascript:void(0)" onclick="post_toast('/@{{u.username}}/revert_actions')">Revert admin actions</a>
+							{% endif %}
+						{% endif %}
+
+						{% if 'rdrama' in request.host and v.id in [1,12,28,29,747,995,1480] %} 
+							<a id="admin" class="{% if u.admin_level %}d-none{% endif %} btn btn-primary" href="javascript:void(0)" onclick="post_toast2('/@{{u.username}}/make_admin','admin','unadmin')">Make admin</a>
+							<a id="unadmin" class="{% if not u.admin_level %}d-none{% endif %} btn btn-primary" href="javascript:void(0)" onclick="post_toast2('/@{{u.username}}/remove_admin','admin','unadmin')">Remove admin</a>
+
+							<a id="fakeadmin" class="{% if u.admin_level == 1%}d-none{% endif %} btn btn-primary" href="javascript:void(0)" onclick="post_toast2('/@{{u.username}}/make_fake_admin','fakeadmin','unfakeadmin')">Make fake admin</a>
+							<a id="unfakeadmin" class="{% if u.admin_level != 1 %}d-none{% endif %} btn btn-primary" href="javascript:void(0)" onclick="post_toast2('/@{{u.username}}/remove_fake_admin','fakeadmin','unfakeadmin')">Remove fake admin</a>
+
+							{% if u.admin_level == 6 %}
+								<a class="btn btn-primary" href="javascript:void(0)" onclick="post_toast('/@{{u.username}}/revert_actions')">Revert admin actions</a>
+							{% endif %}
+						{% endif %}
+
+						{% if 'rdrama' not in request.host and 'pcm' not in request.host and v.admin_level == 6 %}
+							<a id="admin" class="{% if u.admin_level %}d-none{% endif %} btn btn-primary" href="javascript:void(0)" onclick="post_toast2('/@{{u.username}}/make_admin','admin','unadmin')">Make admin</a>
+							<a id="unadmin" class="{% if not u.admin_level %}d-none{% endif %} btn btn-primary" href="javascript:void(0)" onclick="post_toast2('/@{{u.username}}/remove_admin','admin','unadmin')">Remove admin</a>
+
+							{% if u.admin_level %}
+								<a class="btn btn-primary" href="javascript:void(0)" onclick="post_toast('/@{{u.username}}/revert_actions')">Revert admin actions</a>
+							{% endif %}
+						{% endif %}
+
 						<form class="d-none profile-toggleable" id="message" action="/@{{u.username}}/message" method="post">
 							<pre></pre>
 							<textarea id="input-message" form="message" name="message" rows="3" maxlength="1000" class="form-control" required></textarea>
 							<pre></pre>
-							<pre class="btn btn-secondary format d-inline-block m-0 fas fa-bold" aria-hidden="true" onclick="makeBold('input-message')" data-toggle="tooltip" data-placement="bottom" title="Bold"></pre>
+							<pre class="btn btn-secondary format d-inline-block m-0 fas fa-bold" aria-hidden="true" onclick="makeBold('input-message')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Bold"></pre>
 							&nbsp;
-							<pre class="btn btn-secondary format d-inline-block m-0 fas fa-italic" aria-hidden="true" onclick="makeItalics('input-message')" data-toggle="tooltip" data-placement="bottom" title="Italicize"></pre>
+							<pre class="btn btn-secondary format d-inline-block m-0 fas fa-italic" aria-hidden="true" onclick="makeItalics('input-message')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Italicize"></pre>
 							&nbsp;
-							<pre class="btn btn-secondary format d-inline-block m-0 fas fa-quote-right" aria-hidden="true" onclick="makeQuote('input-message')" data-toggle="tooltip" data-placement="bottom" title="Quote"></pre>
+							<pre class="btn btn-secondary format d-inline-block m-0 fas fa-quote-right" aria-hidden="true" onclick="makeQuote('input-message')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Quote"></pre>
 							&nbsp;
-							<pre style="line-height:1;" class="btn btn-secondary format d-inline-block m-0 font-weight-bolder text-uppercase" onclick="commentForm('input-message');getGif()" aria-hidden="true" data-toggle="modal" data-target="#gifModal" data-toggle="tooltip" data-placement="bottom" title="Add GIF">GIF</pre>
+							<pre style="line-height:1;" class="btn btn-secondary format d-inline-block m-0 font-weight-bolder text-uppercase" onclick="commentForm('input-message');getGif()" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#gifModal" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add GIF">GIF</pre>
 							&nbsp;
-							<pre class="btn btn-secondary format d-inline-block m-0 fas fa-smile-beam" onclick="loadEmojis('input-message')" aria-hidden="true" data-toggle="modal" data-target="#emojiModal" data-toggle="tooltip" data-placement="bottom" title="Add Emoji"></pre>
+							<pre class="btn btn-secondary format d-inline-block m-0 fas fa-smile-beam" onclick="loadEmojis('input-message')" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#emojiModal" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add Emoji"></pre>
 							&nbsp;
 							<input type="submit" value="Submit" class="btn btn-primary mt-3">
 						</form>
 
 						<div class="d-none mt-3 profile-toggleable" id="coin-transfer">
-							<input id="coins-transfer-amount" class="form-control" name="amount" type="number">
+							<input autocomplete="off" id="coins-transfer-amount" class="form-control" name="amount" type="number" oninput="updateTax()">
+							<div>{{u.username}} will receive <span id="coins-transfer-taxed">0</span> {{'COINS_NAME' | app_config}}</div>
 							<button class="btn btn-primary mt-3" onclick="transferCoins()">Gift</button>
 						</div>
 
@@ -215,7 +324,7 @@
 						<a href="/settings/profile" class="btn btn-secondary">Edit profile</a>
 						<a href="/views" class="btn btn-secondary">Profile views</a>
 					{% endif %}
-					{% if v and v.id != u.id and v.admin_level > 1 and u.admin_level <= 1 %}
+					{% if v and v.id != u.id and v.admin_level > 1 %}
 						<br><br>
 						<div class="body d-lg-flex border-bottom">
 							<div class="w-lg-100">
@@ -224,7 +333,7 @@
 									<input type="hidden" name="formkey" value="{{v.formkey}}">
 									<input id="customtitlebody" type="text" name="title" class="form-control" placeholder='Enter a flair here' value="{% if u.customtitleplain %}{{u.customtitleplain}}{% endif %}">
 									<div class="d-flex mt-2">
-										<small class="format"><i class="btn btn-secondary format d-inline-block m-0 fas fa-smile-beam" onclick="loadEmojis('customtitlebody')" aria-hidden="true" data-toggle="modal" data-target="#emojiModal" data-toggle="tooltip" data-placement="bottom"  title="Add Emoji"></i></small>
+										<small class="format"><i class="btn btn-secondary format d-inline-block m-0 fas fa-smile-beam" onclick="loadEmojis('customtitlebody')" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#emojiModal" data-bs-toggle="tooltip" data-bs-placement="bottom"  title="Add Emoji"></i></small>
 										&nbsp;&nbsp;&nbsp;
 										<div class="custom-control custom-checkbox">
 											<input type="checkbox" class="custom-control-input" id="locked" name="locked" {% if u.flairchanged %}checked{% endif %}>
@@ -241,6 +350,7 @@
 						{% if u.is_suspended %}
 							<form action="/unban_user/{{u.id}}/" method="post" action="">
 								<input type="hidden" name="formkey" value="{{v.formkey}}">
+								<input type="hidden" name="redir" value="true">
 								<div class="custom-control custom-checkbox">
 									<input type="checkbox" id="alts-1-desktop" class="custom-control-input" name="alts" value="1">
 									<label class="custom-control-label" for="alts-1-desktop">Include alts</label>
@@ -250,8 +360,9 @@
 						{% else %}
 							<form action="/ban_user/{{u.id}}" method="post" action="">
 								<input type="hidden" name="formkey" value="{{v.formkey}}">
+								<input type="hidden" name="redir" value="true">
 								<input style="font-size:11px;" type="text" class="form-control" name="reason" placeholder="Ban Reason" onchange="document.getElementById('user-ban-submit').disabled=false">
-								<input style="font-size:11px;" type="number" class="form-control" name="days" placeholder="Days (blank = permanent)">
+								<input style="font-size:11px;" type="number" step="any" class="form-control" name="days" placeholder="Days (blank = permanent)">
 								<div class="custom-control custom-checkbox">
 									<input type="checkbox" id="alts-2-desktop" class="custom-control-input" name="alts" value="1">
 									<label class="custom-control-label" for="alts-2-desktop">Include alts</label>
@@ -262,23 +373,25 @@
 						
 						<pre></pre>
 
-						{% if u.agendaposter %}
-							<a class="btn btn-success" href="javascript:void(0)" onclick="post_toast('/agendaposter/{{u.id}}?toast')">Disable Agendaposter Theme</a>
-						{% else %}
-							<form action="/agendaposter/{{u.id}}" method="post">
-								<input type="hidden" name="formkey", value="{{v.formkey}}">
-								<input type="number" name="days" class="form-control" placeholder="Days (0 or blank = permanent)" />
-								<input type="submit" class="btn btn-danger" value="Lock Agendaposter Theme" />
-							</form>
-						{% endif %}
-						
+						<form id="agendaposter" class="{% if u.agendaposter %}d-none{% endif %}" action="/agendaposter/{{u.id}}" method="post">
+							<input type="hidden" name="formkey", value="{{v.formkey}}">
+							<input type="number" step="any" name="days" class="form-control" placeholder="Days (0 or blank = permanent)" />
+							<input type="submit" class="btn btn-danger" value="Lock Agendaposter Theme" />
+						</form>
+					
+						<a id="unagendaposter" class="{% if not u.agendaposter %}d-none{% endif %} btn btn-success" href="javascript:void(0)" onclick="post_toast2('/agendaposter/{{u.id}}','agendaposter','unagendaposter')">Disable Agendaposter Theme</a>
+
 						<pre></pre>
 
-						{% if u.shadowbanned %} 
-							<a class="btn btn-success" href="javascript:void(0)" onclick="post_toast('/unshadowban/{{u.id}}')">Unshadowban</a>
-						{% else %}
-							<a class="btn btn-danger" href="javascript:void(0)" onclick="post_toast('/shadowban/{{u.id}}')">Shadowban</a>
-						{% endif %}
+						<a id="shadowban" class="{% if u.shadowbanned %}d-none{% endif %} btn btn-danger" href="javascript:void(0)" onclick="post_toast2('/shadowban/{{u.id}}','shadowban','unshadowban')">Shadowban</a>
+
+						<a id="unshadowban" class="{% if not u.shadowbanned %}d-none{% endif %} btn btn-success" href="javascript:void(0)" onclick="post_toast2('/unshadowban/{{u.id}}','shadowban','unshadowban')">Unshadowban</a>
+
+
+						<pre></pre>
+
+						<a id="verify" class="{% if u.verified %}d-none{% endif %} btn btn-success" href="javascript:void(0)" onclick="post_toast2('/admin/verify/{{u.id}}','verify','unverify')">Verify</a>
+						<a id="unverify" class="{% if not u.verified %}d-none{% endif %} btn btn-success" href="javascript:void(0)" onclick="post_toast2('/admin/unverify/{{u.id}}','verify','unverify')">Unverify</a>
 
 						<pre></pre>
 						<form action="/admin/unnuke_user" method="post">
@@ -292,7 +405,10 @@
 							<input type="hidden" name="user" value="{{u.username}}">
 							<input type="submit" class="btn btn-danger" value="Remove User's Content">
 						</form>
-					{% endif %}
+
+						<button id="grant2" class="{% if u.paid_dues %}d-none{% endif %} btn btn-success" onclick="post_toast2('/@{{u.username}}/club_allow','grant2','bar2')">Grant club access</button>
+						<button id="bar2" class="{% if u.club_banned %}d-none{% endif %} btn btn-danger" onclick="post_toast2('/@{{u.username}}/club_ban','grant2','bar2')">Bar from club</button>
+						{% endif %}
 					<pre></pre>
 					<p>User ID: {{u.id}}</p>
 					{% if v and v.admin_level >=4 %}
@@ -301,10 +417,11 @@
 						{% endif %}
 						<span>Alts:</span>
 						<ul>
-							{% for account in u.alts %}
+							{% for account in u.alts_unique %}
 								<li><a href="{{account.url}}">@{{account.username}}</a>{% if account._is_manual %} [m]{% endif %}</li>
 							{% endfor %}
 						</ul>
+						True score: {{u.truecoins}}
 					{% endif %}
 					{% if u.is_suspended %}
 						<p>Banned by: <a href="{{u.banned_by.url}}">@{{u.banned_by.username}}</a></p>
@@ -314,9 +431,9 @@
 					<div>
 						{% for b in u.badges %}
 							{% if b.url %}
-								<a href="{{b.url}}"><img style="width: 60px; height: 60px" src="{{b.path}}" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="{{b.name}} - {{b.text}}"></a>
+								<a rel="nofollow noopener noreferrer" href="{{b.url}}"><img width="60" loading="lazy" src="{{b.path}}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{b.name}} - {{b.text}}"></a>
 							{% else %}
-								<img style="width: 60px; height: 60px" src="{{b.path}}" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="{{b.name}} - {{b.text}}">
+								<img width="60" loading="lazy" src="{{b.path}}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{b.name}} - {{b.text}}">
 							{% endif %}
 						{% endfor %}
 					</div>
@@ -337,42 +454,54 @@
 <div class="container-fluid text-center bg-white d-md-none">
 	<div class="row">
 		<div class="col px-0">
-			<img src="{{u.banner_url}}" style="width: 100%; height: 65px; object-fit: cover;">
+			<a rel="nofollow noopener noreferrer" href="{{u.banner_url}}" {% if not v or v.newtabexternal %}target="_blank"{% endif %}>
+				<img height="100" width="100%" loading="lazy" src="{{u.banner_url}}" style="object-fit: cover;">
+			</a>
 		</div>
 	</div>
 	<div class="row border-bottom">
 		<div class="col">
 			<div style="margin-top: -34px;">
-				<a href="{% if u.highres %}{{u.highres}}{% else %}{{u.profile_url}}{% endif %}"><img src="{{u.profile_url}}" class="profile-pic-65 bg-white border-2 border-white mb-2"></a>
+				<a rel="nofollow noopener noreferrer" href="{% if u.highres %}{{u.highres}}{% else %}{{u.profile_url}}{% endif %}"><img loading="lazy" src="{{u.profile_url}}" class="profile-pic-65 bg-white border-2 border-white mb-2"></a>
 			</div>
 			<div class="mt-n3 py-3">
 				{% if u.is_suspended %}
 					<h5 style="color:#ff66ac;">BANNED USER{% if u.ban_reason %}: {{u.ban_reason}}{% endif %}</h5>
 					{% if u.unban_utc %}<h5 style="color:#ff66ac;">{{u.unban_string}}</h5>{% endif %}
 				{% endif %}
+				{% if u.verified %}<span><i class="fas fa-badge-check align-middle ml-1" style="color:#1DA1F2" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{u.verified}}"></i></span>&nbsp;{% endif %}
 				<a class="text-black"><h1 class="h5 d-inline-block" style="color: #{{u.namecolor}}"><span {% if u.patron %}class="patron" style="background-color:#{{u.namecolor}};"{% endif %}>{{u.username}}</span></h1></a>
 				
 				{% if u.username != u.original_username %}
 					<span>
-						<i class="fad fa-user-tag text-info align-middle ml-2" data-toggle="tooltip" data-placement="bottom" title="Original Username: @{{u.original_username}}"></i>
+						<i class="fad fa-user-tag text-info align-middle ml-2" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Original Username: @{{u.original_username}}"></i>
 					</span>
 				{% endif %}
-				{% if u.verified %}<span><i class="fas fa-badge-check align-middle ml-1" style="color:#1DA1F2" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Verified"></i></span>{% endif %}
 				{% if u.admin_level > 1 or (u.admin_level == 1 and (not v or v.admin_level < 2)) %}
 				<span>
-					<i class="fas fa-broom text-admin align-middle ml-2" data-toggle="tooltip" data-placement="bottom" title="Admin"></i>
+					<i class="fas fa-broom text-admin align-middle ml-2" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Admin"></i>
 				</span>
 				{% elif u.admin_level == 1 %}
 				<span>
-					<i class="fas fa-broom align-middle ml-2" data-toggle="tooltip" data-placement="bottom" title="Fake Admin"></i>
+					<i class="fas fa-broom align-middle ml-2" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Fake Admin"></i>
 				</span>
 				{% endif %}
 				{% if v and v.has_follower(u) and not v.is_nofollow %}
-					<span class="text-primary badge badge-secondary text-small align-middle mx-1">Follows you</span>
+					<span class="followsyou text-primary badge badge-secondary text-small align-middle mx-1">Follows you</span>
 				{% endif %}
-				{% if u.customtitle %}<p style="color: #{{u.titlecolor}}">{{u.customtitle | safe}}</p>{% endif %}
+				{% if u.customtitle %}<p style="color: #{{u.titlecolor}}">{% if u.quadrant %}<img loading="lazy" height="20" src="/assets/images/PCM/quadrants/{{u.quadrant}}.webp">{% endif %}{{u.customtitle | safe}}</p>{% endif %}
 				<div class="font-weight-normal">
-					<span id="profile-coins-amount-mobile" class="font-weight-bold">{{u.coins}}</span> {{"COINS_NAME" | app_config}}&nbsp;&nbsp;{% if u.stored_subscriber_count >=1 and not u.is_nofollow %}<a href="/@{{u.username}}/followers" class="font-weight-bold">{{u.stored_subscriber_count}} follower{{'s' if u.stored_subscriber_count != 1 else ''}}</a>&nbsp;&nbsp; {% endif %}<br>joined <span data-toggle="tooltip" data-placement="bottom" title="" data-original-title="{{u.created_datetime}}" class="font-weight-bold">{{u.created_date}}</span>
+					<span id="profile-coins-amount-mobile" class="font-weight-bold">{{u.coins}}</span>
+
+					&nbsp;<img data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{'COINS_NAME' | app_config}}" height="15" src="https://rdrama.net/assets/images/emojis/marseybux.webp">&nbsp;&nbsp;
+					
+					{% if u.stored_subscriber_count >=1 and not u.is_nofollow %}<a href="/@{{u.username}}/followers" class="font-weight-bold">{{u.stored_subscriber_count}} follower{{'s' if u.stored_subscriber_count != 1 else ''}}</a>&nbsp;&nbsp; {% endif %}
+					
+					{% if "pcm" in request.host %}
+						<br>Based count: {{u.basedcount}}
+					{% endif %}
+
+					<br>joined <span data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{u.created_datetime}}" class="font-weight-bold">{{u.created_date}}</span>
 				</div>
 				{% if u.bio_html %}
 				<p class="text-muted text-break">{{u.bio_html | safe}}</p>
@@ -383,7 +512,7 @@
 					<p class="text-uppercase my-0" style="font-weight: bold; font-size: 12px;">Awards received</p>
 					{% for a in u.received_awards %}
 					<span class="d-inline-block mx-1">
-						<i class="{{a['icon']}} {{a['color']}} fa-fw" data-toggle="tooltip" data-placement="bottom" title="{{a['title']}} Awards received"></i>
+						<i class="{{a['icon']}} {{a['color']}} fa-fw" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{a['title']}} Awards received"></i>
 						x{{a['count']}}
 					</span>
 					{% endfor %}
@@ -393,47 +522,83 @@
 				<div class="mb-3">
 					{% for b in u.badges %}
 						{% if b.url %}
-							<a href="{{b.url}}"><img style="width: 32px; height: 32px" src="{{b.path}}" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="{{b.name}} - {{b.text}}"></a>
+							<a rel="nofollow noopener noreferrer" href="{{b.url}}"><img width="32" loading="lazy" src="{{b.path}}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{b.name}} - {{b.text}}"></a>
 						{% else %}
-							<img style="width: 32px; height: 32px" src="{{b.path}}" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="{{b.name}} - {{b.text}}">
+							<img width="32" loading="lazy" src="{{b.path}}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{b.name}} - {{b.text}}">
 						{% endif %}
 					{% endfor %}
 				</div>
 				{% if v and v.id == u.id %}
-					<a href="/settings/profile" class="btn btn-secondary btn-sm">Edit profile</a>
-					<a href="/views" class="btn btn-secondary btn-sm">Profile views</a>
-				{% endif %}
+					<a href="/settings/profile" class="btn btn-secondary ">Edit profile</a>
+					<a href="/views" class="btn btn-secondary">Profile views</a>
+					{% endif %}
 				{% if v and v.id != u.id %}
-					<a id="button-unsub2" class="btn btn-secondary {% if not is_following %}d-none{% endif %}" href="javascript:void(0)" onclick="post_toast('/unfollow/{{u.username}}', callback=function(){document.getElementById('button-unsub2').classList.toggle('d-none');document.getElementById('button-sub2').classList.toggle('d-none');})">Unfollow</a>
-					<a id="button-sub2" class="btn btn-primary {% if is_following or u.is_nofollow or u.is_blocked %}d-none{% endif %}" href="javascript:void(0)" onclick="post_toast('/follow/{{u.username}}', callback=function(){document.getElementById('button-sub2').classList.toggle('d-none');document.getElementById('button-unsub2').classList.toggle('d-none');})">Follow</a>						
+					{% if u.id != 995 %}<a id="button-unsub2" class="btn btn-secondary {% if not is_following %}d-none{% endif %}" href="javascript:void(0)" onclick="post_toast2('/unfollow/{{u.username}}','button-unsub2','button-sub2')">Unfollow</a>{% endif %}
+					<a id="button-sub2" class="btn btn-primary {% if is_following or u.is_nofollow or u.is_blocked %}d-none{% endif %}" href="javascript:void(0)" onclick="post_toast2('/follow/{{u.username}}','button-unsub2','button-sub2')">Follow</a>						
 					
 					<a class="btn btn-primary" href="javascript:void(0)" onclick="toggleElement('profile-toggleable-mobile', 'message-mobile')">Message</a>
 					<a class="btn btn-primary" href="javascript:void(0)" onclick="post_toast('/@{{u.username}}/suicide')">Get them help</a>
-					<a class="btn btn-primary" href="javascript:void(0)" onclick="toggleElement('profile-toggleable-mobile', 'coin-transfer-mobile')">Gift {{"COINS_NAME" | app_config}}</a>
+					<a class="btn btn-primary" href="javascript:void(0)" onclick="toggleElement('profile-toggleable-mobile', 'coin-transfer-mobile')">Gift {{'COINS_NAME' | app_config}}</a>
+
+					{% if 'pcm' in request.host and v.admin_level == 6 %} 
+						{% if u.admin_level == 0 %}
+							<a class="btn btn-primary" href="javascript:void(0)" onclick="post_toast('/@{{u.username}}/make_admin')">Make admin</a>
+						{% elif v.id == 10 %}
+							<a class="btn btn-primary" href="javascript:void(0)" onclick="post_toast('/@{{u.username}}/remove_admin')">Remove admin</a>
+							<a class="btn btn-primary" href="javascript:void(0)" onclick="post_toast('/@{{u.username}}/revert_actions')">Revert admin actions</a>
+						{% endif %}
+					{% endif %}
+
+					{% if 'rdrama' in request.host and v.id in [1,12,28,29,747,995,1480] %} 
+						<a id="admin2" class="{% if u.admin_level %}d-none{% endif %} btn btn-primary" href="javascript:void(0)" onclick="post_toast2('/@{{u.username}}/make_admin','admin2','unadmin2')">Make admin</a>
+						<a id="unadmin2" class="{% if not u.admin_level %}d-none{% endif %} btn btn-primary" href="javascript:void(0)" onclick="post_toast2('/@{{u.username}}/remove_admin','admin2','unadmin2')">Remove admin</a>
+
+						<a id="fakeadmin2" class="{% if u.admin_level == 1%}d-none{% endif %} btn btn-primary" href="javascript:void(0)" onclick="post_toast2('/@{{u.username}}/make_fake_admin','fakeadmin2','unfakeadmin2')">Make fake admin</a>
+						<a id="unfakeadmin2" class="{% if u.admin_level != 1 %}d-none{% endif %} btn btn-primary" href="javascript:void(0)" onclick="post_toast2('/@{{u.username}}/remove_fake_admin','fakeadmin2','unfakeadmin2')">Remove fake admin</a>
+
+						{% if u.admin_level == 6 %}
+							<a class="btn btn-primary" href="javascript:void(0)" onclick="post_toast('/@{{u.username}}/revert_actions')">Revert admin actions</a>
+						{% endif %}
+					{% endif %}
+
+					{% if 'rdrama' not in request.host and 'pcm' not in request.host and v.admin_level == 6 %}
+						<a id="admin" class="{% if u.admin_level %}d-none{% endif %} btn btn-primary" href="javascript:void(0)" onclick="post_toast2('/@{{u.username}}/make_admin','admin','unadmin')">Make admin</a>
+						<a id="unadmin" class="{% if not u.admin_level %}d-none{% endif %} btn btn-primary" href="javascript:void(0)" onclick="post_toast2('/@{{u.username}}/remove_admin','admin','unadmin')">Remove admin</a>
+
+						{% if u.admin_level %}
+							<a class="btn btn-primary" href="javascript:void(0)" onclick="post_toast('/@{{u.username}}/revert_actions')">Revert admin actions</a>
+						{% endif %}
+					{% endif %}
 
 					<form class="d-none profile-toggleable-mobile" id='message-mobile' action="/@{{u.username}}/message" method="post">
 						<pre></pre>
 						<textarea id="input-message-mobile" form="message-mobile" name="message" rows="3" maxlength="1000" class="form-control" required></textarea>
 						<pre></pre>
-						<pre class="btn btn-secondary format d-inline-block m-0 fas fa-bold" aria-hidden="true" onclick="makeBold('input-message-mobile')" data-toggle="tooltip" data-placement="bottom" title="Bold"></pre>
+						<pre class="btn btn-secondary format d-inline-block m-0 fas fa-bold" aria-hidden="true" onclick="makeBold('input-message-mobile')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Bold"></pre>
 						&nbsp;
-						<pre class="btn btn-secondary format d-inline-block m-0 fas fa-italic" aria-hidden="true" onclick="makeItalics('input-message-mobile')" data-toggle="tooltip" data-placement="bottom" title="Italicize"></pre>
+						<pre class="btn btn-secondary format d-inline-block m-0 fas fa-italic" aria-hidden="true" onclick="makeItalics('input-message-mobile')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Italicize"></pre>
 						&nbsp;
-						<pre class="btn btn-secondary format d-inline-block m-0 fas fa-quote-right" aria-hidden="true" onclick="makeQuote('input-message-mobile')" data-toggle="tooltip" data-placement="bottom" title="Quote"></pre>
+						<pre class="btn btn-secondary format d-inline-block m-0 fas fa-quote-right" aria-hidden="true" onclick="makeQuote('input-message-mobile')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Quote"></pre>
 						&nbsp;
-						<pre style="line-height:1;" class="btn btn-secondary format d-inline-block m-0 font-weight-bolder text-uppercase" onclick="commentForm('input-message-mobile');getGif()" aria-hidden="true" data-toggle="modal" data-target="#gifModal" data-toggle="tooltip" data-placement="bottom" title="Add GIF">GIF</pre>
+						<pre style="line-height:1;" class="btn btn-secondary format d-inline-block m-0 font-weight-bolder text-uppercase" onclick="commentForm('input-message-mobile');getGif()" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#gifModal" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add GIF">GIF</pre>
 						&nbsp;
-						<pre class="btn btn-secondary format d-inline-block m-0 fas fa-smile-beam" onclick="loadEmojis('input-message-mobile')" aria-hidden="true" data-toggle="modal" data-target="#emojiModal" data-toggle="tooltip" data-placement="bottom" title="Add Emoji"></pre>
+						<pre class="btn btn-secondary format d-inline-block m-0 fas fa-smile-beam" onclick="loadEmojis('input-message-mobile')" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#emojiModal" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add Emoji"></pre>
 						&nbsp;
 						<input type="submit" value="Submit" class="btn btn-primary mt-3">
 					</form>
 
 					<div class="d-none mt-3 profile-toggleable-mobile" id="coin-transfer-mobile">
-						<input id="coins-transfer-amount-mobile" class="form-control" name="amount" type="number">
+						<input autocomplete="off" id="coins-transfer-amount-mobile" class="form-control" name="amount" type="number" oninput="updateTax(true)">
+						<div>{{u.username}} will receive <span id="coins-transfer-taxed-mobile">0</span> {{'COINS_NAME' | app_config}}</div>
 						<button class="btn btn-primary mt-3" onclick="transferCoins(true)">Gift</button>
 					</div>
 					
-					{% if v.admin_level > 1 and u.admin_level <= 1 %}
+					{% if v.admin_level > 1 %}
+
+					
+					<button id="grant" class="{% if u.paid_dues %}d-none{% endif %} btn btn-success" onclick="post_toast2('/@{{u.username}}/club_allow','grant','bar')">Grant club access</button>
+					<button id="bar" class="{% if u.club_banned %}d-none{% endif %} btn btn-danger" onclick="post_toast2('/@{{u.username}}/club_ban','grant','bar')">Bar from club</button>
+
 						<br><br>
 						<div class="body d-lg-flex border-bottom">
 
@@ -443,7 +608,7 @@
 									<input type="hidden" name="formkey" value="{{v.formkey}}">
 									<input id="customtitlebody-mobile" type="text" name="title" class="form-control" placeholder='Enter a flair here' value="{% if u.customtitle %}{{u.customtitle}}{% endif %}">
 									<div class="d-flex mt-2">
-										<small class="format"><i class="btn btn-secondary format d-inline-block m-0 fas fa-smile-beam" onclick="loadEmojis('customtitlebody-mobile')" aria-hidden="true" data-toggle="modal" data-target="#emojiModal" data-toggle="tooltip" data-placement="bottom"  title="Add Emoji"></i></small>
+										<small class="format"><i class="btn btn-secondary format d-inline-block m-0 fas fa-smile-beam" onclick="loadEmojis('customtitlebody-mobile')" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#emojiModal" data-bs-toggle="tooltip" data-bs-placement="bottom"  title="Add Emoji"></i></small>
 										&nbsp;&nbsp;&nbsp;
 										<div class="custom-control custom-checkbox">
 											<input type="checkbox" class="custom-control-input" id="locked-mobile" name="locked" {% if u.flairchanged %}checked{% endif %}>
@@ -460,7 +625,8 @@
 						{% if u.is_suspended %}
 							<form action="/unban_user/{{u.id}}" method="post">
 								<input type="hidden" name="formkey", value="{{v.formkey}}">
-								<br />
+								<input type="hidden" name="redir" value="true">
+								<br/>
 								<div class="custom-control custom-checkbox">
 									<input type="checkbox" id="alts-1-mobile" class="custom-control-input" name="alts" value="1">
 									<label class="custom-control-label" for="alts-1-mobile">Include alts</label>
@@ -471,8 +637,9 @@
 						{% else %}
 							<form action="/ban_user/{{u.id}}/" method="post">
 								<input type="hidden" name="formkey" value="{{v.formkey}}">
+								<input type="hidden" name="redir" value="true">
 								<input style="font-size:11px;" type="text" class="form-control" name="reason" placeholder="Ban Reason" onchange="document.getElementById('user-ban-submit2').disabled=false">
-								<input style="font-size:11px;" type="number" class="form-control" name="days" placeholder="Days (blank = permanent)">
+								<input style="font-size:11px;" type="number" step="any" class="form-control" name="days" placeholder="Days (blank = permanent)">
 								<br />
 								<div class="custom-control custom-checkbox">
 									<input type="checkbox" id="alts-2-mobile" class="custom-control-input" name="alts" value="1">
@@ -485,24 +652,26 @@
 						
 						<pre></pre>
 
-						{% if u.agendaposter %}
-							<a class="btn btn-success" href="javascript:void(0)" onclick="post_toast('/agendaposter/{{u.id}}?toast')">Disable Agendaposter Theme</a>
-						{% else %}
-							<form action="/agendaposter/{{u.id}}" method="post">
-								<input type="hidden" name="formkey", value="{{v.formkey}}">
-								<input type="number" name="days" class="form-control" placeholder="Days (0 or blank = permanent)" />
-								<input type="submit" class="btn btn-danger" value="Lock Agendaposter Theme" />
-							</form>
-						{% endif %}
-						
+						<form id="agendaposter2" class="{% if u.agendaposter %}d-none{% endif %}" action="/agendaposter/{{u.id}}" method="post">
+							<input type="hidden" name="formkey", value="{{v.formkey}}">
+							<input type="number" step="any" name="days" class="form-control" placeholder="Days (0 or blank = permanent)" />
+							<input type="submit" class="btn btn-danger" value="Lock Agendaposter Theme" />
+						</form>
+					
+						<a id="unagendaposter2" class="{% if not u.agendaposter %}d-none{% endif %} btn btn-success" href="javascript:void(0)" onclick="post_toast2('/agendaposter/{{u.id}}','agendaposter2','unagendaposter2')">Disable Agendaposter Theme</a>
+
 						<pre></pre>
 
-						{% if u.shadowbanned %} 
-							<a class="btn btn-success" href="javascript:void(0)" onclick="post_toast('/unshadowban/{{u.id}}')">Unshadowban</a>
-						{% else %}
-							<a class="btn btn-danger" href="javascript:void(0)" onclick="post_toast('/shadowban/{{u.id}}')">Shadowban</a>
-						{% endif %}
-						
+						<a id="shadowban2" class="{% if u.shadowbanned %}d-none{% endif %} btn btn-danger" href="javascript:void(0)" onclick="post_toast2('/shadowban/{{u.id}}','shadowban2','unshadowban2')">Shadowban</a>
+
+						<a id="unshadowban2" class="{% if not u.shadowbanned %}d-none{% endif %} btn btn-success" href="javascript:void(0)" onclick="post_toast2('/unshadowban/{{u.id}}','shadowban2','unshadowban2')">Unshadowban</a>
+
+
+						<pre></pre>
+
+						<a id="verify2" class="{% if u.verified %}d-none{% endif %} btn btn-success" href="javascript:void(0)" onclick="post_toast2('/admin/verify/{{u.id}}','verify2','unverify2')">Verify</a>
+						<a id="unverify2" class="{% if not u.verified %}d-none{% endif %} btn btn-success" href="javascript:void(0)" onclick="post_toast2('/admin/unverify/{{u.id}}','verify2','unverify2')">Unverify</a>
+
 						<pre></pre>
 						<form action="/admin/unnuke_user" method="post">
 							<input type="hidden" name="formkey", value="{{v.formkey}}">
@@ -515,24 +684,25 @@
 							<input type="hidden" name="user" value="{{u.username}}">
 							<input type="submit" class="btn btn-danger" value="Remove User's Content">
 						</form>
-						{% endif %}
-						<pre></pre>
-						<p>User ID: {{u.id}}</p>
-						{% if v.admin_level > 1 and u.admin_level <= 1 %}
-						{% if u.is_private %}
-							<p>User has private mode enabled.</p>
-						{% endif %}
-						<span>Alts:</span>
-						<ul>
-							{% for account in u.alts %}
-							<li><a href="{{account.url}}">@{{account.username}}</a>{% if account._is_manual %} [m]{% endif %}</li>
-							{% endfor %}
-						</ul>
 					{% endif %}
+				{% endif %}
+				<pre></pre>
+				<p>User ID: {{u.id}}</p>
+				{% if v and v.admin_level > 1 %}
+					{% if u.is_private %}
+						<p>User has private mode enabled.</p>
+					{% endif %}
+					<span>Alts:</span>
+					<ul>
+						{% for account in u.alts_unique %}
+						<li><a href="{{account.url}}">@{{account.username}}</a>{% if account._is_manual %} [m]{% endif %}</li>
+						{% endfor %}
+					</ul>
+					True score: {{u.truecoins}}
+				{% endif %}
 				{% if u.is_suspended %}
 					<p>Banned by: <a href="{{u.banned_by.url}}">@{{u.banned_by.username}}</a></p>
 				{% endif %}
-			{% endif %}
 				
 
 				
@@ -548,17 +718,17 @@
 		<div class="flex-row box-shadow-bottom d-flex justify-content-center justify-content-md-between align-items-center">
 			<ul class="nav settings-nav">
 				<li class="nav-item">
-					<a class="nav-link {% if not 'saved' in request.path %}active{% endif %}" href="/@{{u.username}}">Posts</a>
+					<a class="nav-link {% if not 'saved' in request.path %}active{% endif %}" style="font-size: .9rem !important; padding: .75rem .4rem !important;" href="/@{{u.username}}">Posts</a>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link" href="/@{{u.username}}/comments">Comments</a>
+					<a class="nav-link" style="font-size: .9rem !important; padding: .75rem .4rem !important;" href="/@{{u.username}}/comments">Comments</a>
 				</li>
 				{% if u.id == v.id %}
 				<li class="nav-item">
-					<a class="nav-link {% if 'saved' in request.path %}active{% endif %}" href="/@{{u.username}}/saved/posts">Saved Posts</a>
+					<a class="nav-link {% if 'saved' in request.path %}active{% endif %}" style="font-size: .9rem !important; padding: .75rem .4rem !important;" href="/@{{u.username}}/saved/posts">Saved Posts</a>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link" href="/@{{u.username}}/saved/comments">Saved Comments</a>
+					<a class="nav-link" style="font-size: .9rem !important; padding: .75rem .4rem !important;" href="/@{{u.username}}/saved/comments">Saved Comments</a>
 				</li>
 				{% endif %}
 			</ul>
@@ -572,7 +742,7 @@
 		<div class="d-flex align-items-center sortingbarmargin">
 			<div class="text-small font-weight-bold mr-2">‎</div>
 			<div class="dropdown dropdown-actions">
-				<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 					{% if t=="day" %}<i class="fas fa-calendar-day mr-1"></i>{% endif %}
 					{% if t=="week" %}<i class="fas fa-calendar-week mr-1"></i>{% endif %}
 					{% if t=="month" %}<i class="fas fa-calendar-alt mr-1"></i>{% endif %}
@@ -592,7 +762,7 @@
 
 			<div class="text-small font-weight-bold ml-3 mr-2">‎</div>
 			<div class="dropdown dropdown-actions">
-				<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				<button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 					{% if sort=="top" %}<i class="fas fa-arrow-alt-circle-up mr-1"></i>{% endif %}
 					{% if sort=="bottom" %}<i class="fas fa-arrow-alt-circle-down mr-1"></i>{% endif %}
 					{% if sort=="new" %}<i class="fas fa-sparkles mr-1"></i>{% endif %}
@@ -651,8 +821,4 @@
 {% endblock %}
 
 {% block GIFpicker %}
-{% if v %}
-{% include "emoji_modal.html" %}
-{% include "gif_modal.html" %}
-{% endif %}
 {% endblock %}

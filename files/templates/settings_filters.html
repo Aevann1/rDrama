@@ -24,15 +24,15 @@
 							<p>Change the default sorting for comments.</p>
 							<div class="input-group mb2">
 								<select id='defaultsortingcomments' class="form-control" form="profile-settings" name="defaultsortingcomments" onchange="post_toast('/settings/profile?defaultsortingcomments='+document.getElementById('defaultsortingcomments').value)">
-								{% for entry in ["new", "old", "top", "bottom", "controversial", "random"] %}
-								<option value="{{entry}}"{{' selected' if v.defaultsortingcomments==entry else ''}}>{{entry}}</option>
+								{% for entry in ["new", "old", "top", "bottom", "controversial"] %}
+									<option value="{{entry}}"{{' selected' if v.defaultsortingcomments==entry else ''}}>{{entry}}</option>
 								{% endfor %}
 							</select>
 							</div>
 
 						</div>
 
-				</div>
+					</div>
 
 					<div class="d-lg-flex border-bottom">
 						<div class="title w-lg-25">
@@ -43,7 +43,7 @@
 							<p>Change the default sorting for posts.</p>
 							<div class="input-group mb2">
 								<select id='defaultsorting' class="form-control" form="profile-settings" name="defaultsorting" onchange="post_toast('/settings/profile?defaultsorting='+document.getElementById('defaultsorting').value)">
-								{% for entry in ["hot", "new", "old", "top", "bottom", "controversial", "comments", "random"] %}
+								{% for entry in ["hot", "new", "old", "top", "bottom", "controversial", "comments"] %}
 								<option value="{{entry}}"{{' selected' if v.defaultsorting==entry else ''}}>{{entry}}</option>
 								{% endfor %}
 							</select>
@@ -63,7 +63,7 @@
 							<div class="input-group mb2">
 								<select id='defaulttime' class="form-control" form="profile-settings" name="defaulttime" onchange="post_toast('/settings/profile?defaulttime='+document.getElementById('defaulttime').value)">
 								{% for entry in ["hour", "day", "week", "month", "year", "all"] %}
-								<option value="{{entry}}"{{' selected' if v.defaulttime==entry else ''}}>{{entry}}</option>
+									<option value="{{entry}}"{{' selected' if v.defaulttime==entry else ''}}>{{entry}}</option>
 								{% endfor %}
 							</select>
 							</div>
@@ -118,6 +118,32 @@
 				</div>
 
 
+
+			</div>
+
+
+			<h2 class="h5">Twitter Links</h2>
+
+			<div class="settings-section rounded">
+
+				<div class="d-lg-flex border-bottom">
+
+					<div class="title w-lg-25">
+						<label for="nitter">Use Nitter</label>
+					</div>
+
+					<div class="body w-lg-100">
+
+						<div class="custom-control custom-switch">
+							<input type="checkbox" class="custom-control-input" id="nitter" name="nitter"{% if v.nitter %} checked{% endif %} onchange="post_toast('/settings/profile?nitter='+document.getElementById('nitter').checked);">
+							<label class="custom-control-label" for="nitter"></label>
+						</div>
+
+						<span class="text-small-extra text-muted">Enable if you would like to automatically convert twitter.com links to nitter.net links.</span>
+
+					</div>
+
+				</div>
 
 			</div>
 
@@ -239,7 +265,7 @@
 						<div class="body w-lg-100">
 							<form id="custom-filter" action="/settings/profile" method="post">
 								<input type="hidden" name="formkey" value="{{v.formkey}}">
-									<small>Hides matching content from Home, All, and Trending, and collapses matching comments.</small>
+									<small>Hides matching posts from the frontpage and collapses matching comments.</small>
 								<div class="input-group mb-2">
 									<textarea class="form-control rounded" id="filters-text" aria-label="With textarea"
 									placeholder="Add your own custom content filters."

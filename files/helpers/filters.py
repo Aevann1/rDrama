@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 from flask import *
 from urllib.parse import urlparse
 from files.classes import BannedDomain
+from sqlalchemy.orm import lazyload
 
 def filter_comment_html(html_text):
 
@@ -29,8 +30,7 @@ def filter_comment_html(html_text):
 				domain_list.add(new_domain)
 
 	# search db for domain rules that prohibit commenting
-	bans = [
-		x for x in g.db.query(BannedDomain).filter(BannedDomain.domain.in_(list(domain_list))).all()]
+	bans = [x for x in g.db.query(BannedDomain).options(lazyload('*')).filter(BannedDomain.domain.in_(list(domain_list))).all()]
 
 	if bans:
 		return bans

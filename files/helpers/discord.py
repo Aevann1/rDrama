@@ -9,17 +9,15 @@ BOT_TOKEN = environ.get("DISCORD_BOT_TOKEN",'').strip()
 AUTH = environ.get("DISCORD_AUTH",'').strip()
 
 ROLES={
-	"linked":  "849621030926286920",
-	"admin": "846509661288267776",
-	"feedback": "850716291714383883",
-	"newuser": "854783259229421589",
-	"norep": "850971811918512208",
+	"shrigma": "864612849199480914",
+	"admin": "879459632656048180" if environ.get("DOMAIN") == "pcmemes.net" else "846509661288267776",
+	"linked": "890342909390520382",
 	"1": "868129042346414132",
 	"2": "875569477671067688",
 	"3": "869434199575236649",
 	"4": "868140288013664296",
 	"5": "880445545771044884",
-	"8": "868140288013664296",
+	"8": "886781932430565418",
 	}
 
 def discord_wrap(f):
@@ -45,13 +43,6 @@ def add_role(user, role_name):
 	url = f"https://discordapp.com/api/guilds/{SERVER_ID}/members/{user.discord_id}/roles/{role_id}"
 	headers = {"Authorization": f"Bot {BOT_TOKEN}"}
 	requests.put(url, headers=headers)
-
-@discord_wrap
-def delete_role(user, role_name):
-	role_id = ROLES[role_name]
-	url = f"https://discordapp.com/api/guilds/{SERVER_ID}/members/{user.discord_id}/roles/{role_id}"
-	headers = {"Authorization": f"Bot {BOT_TOKEN}"}
-	requests.delete(url, headers=headers)
 
 @discord_wrap
 def remove_user(user):

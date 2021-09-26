@@ -7,17 +7,17 @@
 		<div class="flex-row box-shadow-bottom d-flex justify-content-center justify-content-md-between align-items-center">
 			<ul class="nav settings-nav">
 				<li class="nav-item">
-					<a class="nav-link" href="/@{{u.username}}">Posts</a>
+					<a class="nav-link" style="font-size: .9rem !important; padding: .75rem .4rem !important;" href="/@{{u.username}}">Posts</a>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link {% if not 'saved' in request.path %}active{% endif %}" href="/@{{u.username}}/comments">Comments</a>
+					<a class="nav-link {% if not 'saved' in request.path %}active{% endif %}" style="font-size: .9rem !important; padding: .75rem .4rem !important;" href="/@{{u.username}}/comments">Comments</a>
 				</li>
 				{% if u.id == v.id %}
 				<li class="nav-item">
-					<a class="nav-link" href="/@{{u.username}}/saved/posts">Saved Posts</a>
+					<a class="nav-link" style="font-size: .9rem !important; padding: .75rem .4rem !important;" href="/@{{u.username}}/saved/posts">Saved Posts</a>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link {% if 'saved' in request.path %}active{% endif %}" href="/@{{u.username}}/saved/comments">Saved Comments</a>
+					<a class="nav-link {% if 'saved' in request.path %}active{% endif %}" style="font-size: .9rem !important; padding: .75rem .4rem !important;" href="/@{{u.username}}/saved/comments">Saved Comments</a>
 				</li>
 				{% endif %}
 			</ul>
@@ -31,7 +31,7 @@
 		<div class="d-flex align-items-center sortingbarmargin">
 			<div class="text-small font-weight-bold mr-2">‎</div>
 			<div class="dropdown dropdown-actions">
-				<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 					{% if t=="day" %}<i class="fas fa-calendar-day mr-1"></i>{% endif %}
 					{% if t=="week" %}<i class="fas fa-calendar-week mr-1"></i>{% endif %}
 					{% if t=="month" %}<i class="fas fa-calendar-alt mr-1"></i>{% endif %}
@@ -51,7 +51,7 @@
 
 			<div class="text-small font-weight-bold ml-3 mr-2">‎</div>
 			<div class="dropdown dropdown-actions">
-				<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 					{% if sort=="top" %}<i class="fas fa-arrow-alt-circle-up mr-1"></i>{% endif %}
 					{% if sort=="bottom" %}<i class="fas fa-arrow-alt-circle-down mr-1"></i>{% endif %}
 					{% if sort=="new" %}<i class="fas fa-sparkles mr-1"></i>{% endif %}

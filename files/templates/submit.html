@@ -1,20 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+		
+		
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+		<script src="/assets/js/general40.js"></script>
 
-		{% include "bootstrap.html" %}
 
 		<script>
 		
-			$(document).ready(function() {
-				$('#submitform').submit(function() {
-						// disable button
-						$("#create_button").prop("disabled", true);
-						// add spinner to button
-						$("#create_button").html('<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Creating post');
-					});
-				});
-
 			// Text Formatting
 
 			// Bold Text
@@ -108,6 +103,7 @@
 				text.innerText = maxLength - length;
 
 			}
+
 		
 			//part of submit page js
 
@@ -183,8 +179,6 @@
 				}
 			});
 
-			//	Submit Page Front-end Validation
-
 			function checkForRequired() {
 
 				// Divs
@@ -229,12 +223,31 @@
 					button.disabled = true;
 				}
 			}
+
+
+			// markdown
+
+			function markdown() {
+				
+				var input = document.getElementById('post-text').value;
+
+				var emojis = Array.from(input.matchAll(/:(.{1,30}?):/gi))
+					if(emojis != null){
+							for(i = 0; i < emojis.length; i++){
+								input = input.replace(emojis[i][0], "<img height=30 src='/assets/images/emojis/" + emojis[i][1] + ".webp'>")
+							}
+					}
+				
+				document.getElementById('preview').innerHTML = marked(input)
+				
+			}
+
 		</script>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 		<meta name="description" content="">
 		<meta name="author" content="">
-		<link rel="icon" type="image/png" href="/assets/images/{{'SITE_NAME' | app_config}}/icon.gif">
+		<link rel="icon" type="image/png" href="/assets/images/{{'SITE_NAME' | app_config}}/icon.webp">
 
 		{% include "emoji_modal.html" %}
 		{% include "gif_modal.html" %}
@@ -246,47 +259,22 @@
 
 		<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600&display=swap" rel="stylesheet">
 
-		<!-- Bootstrap core CSS -->
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
-		integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-
 		<!-- {{'SITE_NAME' | app_config}} Board CSS -->
 
 		{% block stylesheets %}
 		{% if v %}
-			<link rel="stylesheet" href="/assets/style/{{v.theme}}_{{v.themecolor}}.css">
-			{% if v.agendaposter %}<link rel="stylesheet" href="/assets/style/agendaposter.css">{% elif v.css %}<link rel="stylesheet" href="/@{{v.username}}/css">{% endif %}
+			<link rel="stylesheet" href="/assets/css/{{v.theme}}_{{v.themecolor}}.css">
+			{% if v.agendaposter %}<link rel="stylesheet" href="/assets/css/agendaposter.css">{% elif v.css %}<link rel="stylesheet" href="/@{{v.username}}/css">{% endif %}
 		{% else %}
-			<link rel="stylesheet" href="/assets/style/{{'DEFAULT_THEME' | app_config}}.css">
+			<link rel="stylesheet" href="/assets/css/{{'DEFAULT_THEME' | app_config}}.css">
 		{% endif %}
 		{% endblock %}
 
 		<!-- Font Awesome -->
-		<link href="/assets/style/fa.css" rel="stylesheet"> <!--load all styles -->
-
-		{% if v %}
-
-		<script>
-				function post(url, callback, errortext) {
-						var xhr = new XMLHttpRequest();
-						xhr.open("POST", url, true);
-						var form = new FormData()
-						form.append("formkey", "{{v.formkey}}");
-						xhr.withCredentials=true;
-						xhr.onload=callback
-						xhr.onerror=function(){alert(errortext)}
-						xhr.send(form);
-				}
-				function formkey() {
-						return '{{v.formkey}}';
-				}
-		</script>
-
-		{% endif %}
-
+		<link href="/assets/css/fa.css" rel="stylesheet"> <!--load all styles -->
 </head>
 
-<body id="submit" style="overflow-x: hidden; {% if v and v.background %} background:url(/assets/images/backgrounds/{{v.background}}) no-repeat center center fixed !important; background-size: cover!important; background-color: #000!important;{% endif %}">
+<body id="submit" style="overflow-x: hidden; {% if v and v.background %} background:url(/assets/images/backgrounds/{{v.background}}) no-repeat center center fixed !important; background-size: cover!important; background-color: #000!important;{% endif %}display: block;">
 
 		<!-- Navigation -->
 		{% include "header.html" %}
@@ -295,17 +283,18 @@
 
 		<!-- Page Content -->
 
-		<form id="submitform" action="/submit" method="post" enctype="multipart/form-data">
+		<div class="submit-grid-view">
+			<form id="submitform" action="/submit" method="post" enctype="multipart/form-data" style="grid-column: 2">
 
 				<div class="container">
 
-						<div class="row justify-content-center mb-4 pb-7">
+						<div class="row justify-content-center mb-5">
 
-								<div class="col col-md-6 p-3 py-md-0">
+								<div class="col p-3 py-md-0">
 
-										<h1 class="d-none d-md-block">Create a post</h1>
+										<h1 class="d-none d-md-block mt-3">Create a post</h1>
 
-										<h2 class="h3 d-md-none">Create a post</h2>
+										<h2 class="h3 d-md-none mt-5">Create a post</h2>
 
 										<div class="body">
 
@@ -316,60 +305,64 @@
 
 												<input class="form-control" id="post-title" aria-describedby="titleHelpRegister" type="text" name="title" placeholder="Required" value="{{title}}" minlength="1" maxlength="500" required oninput="checkForRequired()">
 
+												<label class="btn btn-secondary format d-inline-block m-0" for="emoji-reply-btn-2">
+													<div id="emoji-reply-btn-2" onclick="loadEmojis('post-title')" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#emojiModal" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add Emoji"><i class="fas fa-smile-beam"></i></div>
+												</label>
+
 												<div id="urlblock">
 														<label for="URL" class="mt-3">URL</label>
-														<input class="form-control" id="post-URL" aria-describedby="URLHelp" type="url" name="url" placeholder="Optional if you have text." value="{{request.args.get('url','')}}" required oninput="checkForRequired();autoSuggestTitle();hide_image()">
+														<input class="form-control" id="post-URL" aria-describedby="URLHelp" type="url" name="url" placeholder="Optional if you have text." value="{{request.values.get('url','')}}" required oninput="checkForRequired();autoSuggestTitle();hide_image()">
 														<small class="form-text text-muted">To post an image, use a direct image link such as i.imgur.com</small>
 												</div>
 
 												<div id="image-upload-block">
-													<div><label class="mt-3">Image Upload</label></div>
+													<div><label class="mt-3">Attachment Upload</label></div>
 
-													<img id="image-preview" class="w-100 d-block">
+													<img loading="lazy" id="image-preview" class="w-100 d-block">
 						
 													<label class="btn btn-secondary m-0" for="file-upload">
-														<div id="filename-show">Select Image</div>
-														<input id="file-upload" type="file" name="file" accept="image/*" hidden>
+														<div id="filename-show">Select File</div>
+														<input id="file-upload" type="file" name="file" accept="image/*, video/*" hidden>
 													</label>
 						
-													<small class="form-text text-muted">Images uploaded will be public. Optional if you have text.</small>
+													<small class="form-text text-muted">Optional if you have text.</small>
+													<small class="form-text text-muted">You can upload videos up to 1 minute long.</small>
 												</div>
 												</div>
 
-												<label for="body" class="mt-3">Text<i class="fas fa-info-circle text-gray-400 ml-1" data-toggle="tooltip" data-placement="top" title="Uses markdown. Limited to 10000 characters."></i></label>
+												<label for="body" class="mt-3">Text<i class="fas fa-info-circle text-gray-400 ml-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Uses markdown. Limited to 10000 characters."></i></label>
 
-												<div class="input-group">
+												<div>
+													<textarea form="submitform" id="post-text" class="form-control rounded" aria-label="With textarea" placeholder="Optional if you have a link or an image." rows="3" name="body" oninput="markdown();charLimit('post-text','character-count-submit-text-form');checkForRequired()" maxlength="10000" required></textarea>
 
-														<textarea form="submitform" id="post-text" class="form-control rounded" aria-label="With textarea" placeholder="Optional if you have a link or an image." rows="3" name="body" oninput="charLimit('post-text','character-count-submit-text-form');checkForRequired()" maxlength="10000" required>{{text}}</textarea>
+													<div class="btn btn-secondary" onclick="document.getElementById('preview').classList.toggle('d-none');" style="float: right;">
+														Toggle preview
+													</div>
+													
+													<div id="preview" class="my-3"></div>
 
-														<span class="position-absolute text-small font-weight-bold" id="character-count-submit-text-form" style="right: 1rem; bottom: 0.5rem; z-index: 3;"></span>
-
-														<div class="bg-light text-format d-none">
-																<small class="format"><i class="fas fa-bold"></i></small>
-																<small class="format"><i class="fas fa-italic"></i></small>
-																<small class="format"><i class="fas fa-quote-right"></i></small>
-																<small class="format"><i class="fas fa-link"></i></small>
-														</div>
+													<span class="position-absolute text-small font-weight-bold" id="character-count-submit-text-form" style="right: 1rem; bottom: 0.5rem; z-index: 3;"></span>
 												</div>
+
 												<p></p>
 												<small class="btn btn-secondary format d-inline-block m-0">
-												<i class="fas fa-bold" aria-hidden="true" onclick="makeBold('post-text')" data-toggle="tooltip" data-placement="bottom" title="Bold"></i>
+												<i class="fas fa-bold" aria-hidden="true" onclick="makeBold('post-text')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Bold"></i>
 												</small>
 												&nbsp; 
 												<small class="btn btn-secondary format d-inline-block m-0">
-												<i class="fas fa-italic" aria-hidden="true" onclick="makeItalics('post-text')" data-toggle="tooltip" data-placement="bottom" title="Italicize"></i>
+												<i class="fas fa-italic" aria-hidden="true" onclick="makeItalics('post-text')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Italicize"></i>
 												</small>
 												&nbsp; 
 												<small class="btn btn-secondary format d-inline-block m-0">
-												<i class="fas fa-quote-right" aria-hidden="true" onclick="makeQuote('post-text')" data-toggle="tooltip" data-placement="bottom" title="Quote"></i>
+												<i class="fas fa-quote-right" aria-hidden="true" onclick="makeQuote('post-text')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Quote"></i>
 												</small>
 												&nbsp;
-												<small class="btn btn-secondary format d-inline-block m-0"><span class="font-weight-bolder text-uppercase" aria-hidden="true" onclick="getGif();commentForm('post-text')" data-toggle="modal" data-target="#gifModal" data-toggle="tooltip" data-placement="bottom"  title="Add GIF">GIF</span></small>
+												<small class="btn btn-secondary format d-inline-block m-0"><span class="font-weight-bolder text-uppercase" aria-hidden="true" onclick="getGif();commentForm('post-text')" data-bs-toggle="modal" data-bs-target="#gifModal" data-bs-toggle="tooltip" data-bs-placement="bottom"  title="Add GIF">GIF</span></small>
 												&nbsp;
 												<label class="btn btn-secondary format d-inline-block m-0" for="emoji-reply-btn">
-													<div id="emoji-reply-btn" onclick="loadEmojis('post-text')" aria-hidden="true" data-toggle="modal" data-target="#emojiModal" data-toggle="tooltip" data-placement="bottom" title="Add Emoji"><i class="fas fa-smile-beam"></i></div>
+													<div id="emoji-reply-btn" onclick="loadEmojis('post-text')" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#emojiModal" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add Emoji"><i class="fas fa-smile-beam"></i></div>
 												</label>
-												
+																							
 												<pre></pre>
 												<div class="form-text text-small"><a href="/formatting" target="_blank">Formatting help</a></div>
 												<pre></pre>
@@ -383,13 +376,27 @@
 														<input type="checkbox" class="custom-control-input" id="privateCheck" name="private">
 														<label class="custom-control-label" for="privateCheck">Draft</label>
 												</div>
+
+												{% if v.admin_level == 6 or (v.coins >= 750 and not v.club_banned) %}
+													<div class="custom-control custom-checkbox">
+														<input type="checkbox" class="custom-control-input" id="clubCheck" name="club">
+														<label class="custom-control-label" for="clubCheck">Country Club thread</label>
+													</div>
+												{% endif %}
+												<pre>
+
+
+
+
+
+													
+
+												</pre>
 										</div>
 
 								</div>
 
 						</div>
-
-				</div>
 
 				<div class="container">
 						<div class="row fixed-bottom bg-white border-top p-3" id="" style="z-index: 100; bottom: 0px; transition: bottom 220ms cubic-bezier(0, 0, 0.2, 1) 0s;">
@@ -403,63 +410,47 @@
 						</div>
 				</div>
 
-		</form>
+			</form>
 
+		</div>
 		{% endblock %}
-
+	
 		<!-- {{'SITE_NAME' | app_config}} JS -->
 
-		<script src="/assets/js/javascript.js"></script>
-
-		<!-- ClipboardJS -->
-
-		<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
-
-		<!-- Instantiate clipboard by passing a string selector -->
 		<script>
-			var clipboard = new ClipboardJS('.copy-link');
-			clipboard.on('success', function(e) {
-
-					jQuery(function($) {
-							$('#toast-success').toast('show');
-					})
-					console.log(e);
-			});
-			clipboard.on('error', function(e) {
-
-					jQuery(function($) {
-							$('#toast-error').toast('show');
-					})
-					console.log(e);
-			});
-
 			document.onpaste = function(event) {
 				f=document.getElementById('file-upload');
 				files = event.clipboardData.files
 				filename = files[0].name.toLowerCase()
-				if (filename.endsWith(".jpg") || filename.endsWith(".jpeg") || filename.endsWith(".png") || filename.endsWith(".gif"))
+				if (filename.endsWith(".jpg") || filename.endsWith(".jpeg") || filename.endsWith(".png") || filename.endsWith(".webp"))
 				{
 					f.files = files;
-					$('#filename-show').text(filename);
-					$('#urlblock').addClass('d-none');
+					document.getElementById('filename-show').textContent = filename;
+					document.getElementById('urlblock').classList.add('d-none');
 					var fileReader = new FileReader();
 					fileReader.readAsDataURL(f.files[0]);
-					fileReader.addEventListener("load", function () {$('#image-preview').attr('src', this.result);});  
-					$('#file-upload').attr('required', false);
+					fileReader.addEventListener("load", function () {document.getElementById('image-preview').setAttribute('src', this.result);});  
+					document.getElementById('file-upload').setAttribute('required', 'false');
 					checkForRequired();
 				}
 			}
 
-			$('#file-upload').on('change', function(e){
+			document.getElementById('file-upload').addEventListener('change', function(e){
 				f=document.getElementById('file-upload');
-				$('#urlblock').addClass('d-none');
-				$('#filename-show').text($('#file-upload')[0].files[0].name);
+				document.getElementById('urlblock').classList.add('d-none');
+				document.getElementById('filename-show').textContent = document.getElementById('file-upload').files[0].name;
 				var fileReader = new FileReader();
 				fileReader.readAsDataURL(f.files[0]);
-				fileReader.addEventListener("load", function () {$('#image-preview').attr('src', this.result);});  
+				fileReader.addEventListener("load", function () {document.getElementById('image-preview').setAttribute('src', this.result);});  
 				checkForRequired();
 			})
 		</script>
+
+<pre>
+
+
+
+</pre>
 
 </body>
 

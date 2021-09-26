@@ -4,199 +4,121 @@ from files.helpers.get import *
 from files.__main__ import app, cache
 from files.classes.submission import Submission
 
+defaulttimefilter = environ.get("DEFAULT_TIME_FILTER", "all").strip()
+
 @app.get("/post/")
 def slash_post():
 	return redirect("/")
 
-# this is a test
-
 @app.get("/notifications")
 @auth_required
 def notifications(v):
-
-
-
-	page = int(request.args.get('page', 1))
-	all_ = request.args.get('all', False)
-	messages = request.args.get('messages', False)
-	posts = request.args.get('posts', False)
-	if messages:
-		if v.admin_level == 6: comments = g.db.query(Comment).filter(or_(Comment.author_id==v.id, Comment.sentto==v.id, Comment.sentto==0)).filter(Comment.parent_submission == None).order_by(Comment.created_utc.desc()).offset(25 * (page - 1)).limit(26).all()
-		else: comments = g.db.query(Comment).filter(or_(Comment.author_id==v.id, Comment.sentto==v.id)).filter(Comment.parent_submission == None).order_by(Comment.created_utc.desc()).offset(25 * (page - 1)).limit(26).all()
-		next_exists = (len(comments) == 26)
+	try: page = int(request.values.get('page', 1))
+	except: page = 1
+	messages = request.values.get('messages', False)
+	modmail = request.values.get('modmail', False)
+	posts = request.values.get('posts', False)
+	if modmail and v.admin_level == 6:
+		comments = g.db.query(Comment).filter(Comment.sentto==0).order_by(Comment.created_utc.desc()).offset(25*(page-1)).limit(26).all()
+		next_exists = (len(comments) > 25)
+		comments = comments[:25]
+	elif messages:
+		comments = g.db.query(Comment).filter(or_(Comment.author_id==v.id, Comment.sentto==v.id), Comment.parent_submission == None).order_by(Comment.created_utc.desc(), not_(Comment.child_comments.any())).offset(25*(page-1)).limit(26).all()
+		next_exists = (len(comments) > 25)
 		comments = comments[:25]
 	elif posts:
-		cids = v.notification_subscriptions(page=page, all_=all_)
-		next_exists = (len(cids) == 26)
-		cids = cids[:25]
-		comments = get_comments(cids, v=v)
+		notifications = v.notifications.join(Notification.comment).filter(Comment.author_id == AUTOJANNY_ACCOUNT).order_by(Notification.id.desc()).offset(25 * (page - 1)).limit(100).all()
+
+		comments = []
+
+		for index, x in enumerate(notifications):
+			c = x.comment
+			if x.read and index > 26: break
+			elif not x.read:
+				c.unread = True
+				x.read = True
+				g.db.add(x)
+			comments.append(c)
+
+		g.db.commit()
+
+		next_exists = (len(comments) > 25)
+		listing = comments[:25]
 	else:
-		cids = v.notification_commentlisting(page=page, all_=all_)
-		next_exists = (len(cids) == 26)
-		cids = cids[:25]
+
+		notifications = v.notifications.join(Notification.comment).filter(
+			Comment.is_banned == False,
+			Comment.deleted_utc == 0,
+			Comment.author_id != AUTOJANNY_ACCOUNT,
+		).order_by(Notification.id.desc()).offset(50 * (page - 1)).limit(51).all()
+
+		next_exists = (len(notifications) > 50)
+		notifications = notifications[:50]
+		cids = [x.comment_id for x in notifications]
 		comments = get_comments(cids, v=v, load_parent=True)
 
-	listing = []
-	for c in comments:
-		c._is_blocked = False
-		c._is_blocking = False
-		if c.parent_submission and c.parent_comment and c.parent_comment.author_id == v.id:
-			c.replies = []
-			while c.parent_comment and c.parent_comment.author_id == v.id:
-				parent = c.parent_comment
-				if c not in parent.replies2:
-					parent.replies2 = parent.replies2 + [c]
-					parent.replies = parent.replies2
-				c = parent
-			if c not in listing:
-				listing.append(c)
-				c.replies = c.replies2
-		elif c.parent_submission:
-			c.replies = []
-			if c not in listing:
-				listing.append(c)
-		else:
-			if c.parent_comment:
-				while c.level > 1:
-					c = c.parent_comment
+		i = 0
+		for x in notifications:
+			try:
+				if not x.read:
+					comments[i].unread = True
+					x.read = True
+					g.db.add(x)
+			except: continue
+			i += 1
 
-			if c not in listing:
-				listing.append(c)
+		g.db.commit()
+
+	if not posts:
+		listing = []
+		for c in comments:
+			c.is_blocked = False
+			c.is_blocking = False
+			if c.parent_submission and c.parent_comment and c.parent_comment.author_id == v.id:
+				c.replies = []
+				while c.parent_comment and c.parent_comment.author_id == v.id:
+					parent = c.parent_comment
+					if c not in parent.replies2:
+						parent.replies2 = parent.replies2 + [c]
+						parent.replies = parent.replies2
+					c = parent
+				if c not in listing:
+					listing.append(c)
+					c.replies = c.replies2
+			elif c.parent_submission:
+				c.replies = []
+				if c not in listing:
+					listing.append(c)
+			else:
+				if c.parent_comment:
+					while c.level > 1:
+						c = c.parent_comment
+
+				if c not in listing:
+					listing.append(c)
+
 
 	return render_template("notifications.html",
-						   v=v,
-						   notifications=listing,
-						   next_exists=next_exists,
-						   page=page,
-						   standalone=True,
-						   render_replies=True,
-						   is_notification_page=True)
+							v=v,
+							notifications=listing,
+							next_exists=next_exists,
+							page=page,
+							standalone=True,
+							render_replies=True
+						   )
 
-@cache.memoize()
-def frontlist(v=None, sort="hot", page=1, t="all", ids_only=True, filter_words='', **kwargs):
 
-	posts = g.db.query(Submission).options(lazyload('*'))
-
-	if t != 'all':
-		cutoff = 0
-		now = int(time.time())
-		if t == 'hour':
-			cutoff = now - 3600
-		elif t == 'day':
-			cutoff = now - 86400
-		elif t == 'week':
-			cutoff = now - 604800
-		elif t == 'month':
-			cutoff = now - 2592000
-		elif t == 'year':
-			cutoff = now - 31536000
-		posts = posts.filter(Submission.created_utc >= cutoff)
-
-	posts = posts.filter_by(is_banned=False,stickied=False,private=False).filter(Submission.deleted_utc == 0)
-
-	if v and v.admin_level == 0:
-		blocking = g.db.query(
-			UserBlock.target_id).filter_by(
-			user_id=v.id).subquery()
-		blocked = g.db.query(
-			UserBlock.user_id).filter_by(
-			target_id=v.id).subquery()
-		posts = posts.filter(
-			Submission.author_id.notin_(blocking),
-			Submission.author_id.notin_(blocked)
-		)
-
-	if not (v and v.changelogsub):
-		posts=posts.join(Submission.submission_aux)
-		posts=posts.filter(not_(SubmissionAux.title.ilike(f'[changelog]%')))
-
-	if v and filter_words:
-		for word in filter_words:
-			posts=posts.filter(not_(SubmissionAux.title.ilike(f'%{word}%')))
-
-	gt = kwargs.get("gt")
-	lt = kwargs.get("lt")
-
-	if gt:
-		posts = posts.filter(Submission.created_utc > gt)
-
-	if lt:
-		posts = posts.filter(Submission.created_utc < lt)
-
-	if sort == "hot":
-		posts = sorted(posts.all(), key=lambda x: x.hotscore, reverse=True)
-	elif sort == "new":
-		posts = posts.order_by(Submission.created_utc.desc()).all()
-	elif sort == "old":
-		posts = posts.order_by(Submission.created_utc.asc()).all()
-	elif sort == "controversial":
-		posts = sorted(posts.all(), key=lambda x: x.score_disputed, reverse=True)
-	elif sort == "top":
-		posts = sorted(posts.all(), key=lambda x: x.score, reverse=True)
-	elif sort == "bottom":
-		posts = sorted(posts.all(), key=lambda x: x.score)
-	elif sort == "comments":
-		posts = posts.order_by(Submission.comment_count.desc()).all()
-	elif sort == "random":
-		posts = posts.all()
-		posts = random.sample(posts, k=len(posts))
-	else:
-		abort(400)
-
-	firstrange = 50 * (page - 1)
-	secondrange = firstrange+1000
-	posts = posts[firstrange:secondrange]
-
-	if v and v.hidevotedon: posts = [x for x in posts if not (hasattr(x, 'voted') and x.voted != 0)]
-
-	if page == 1: posts = g.db.query(Submission).filter_by(stickied=True).all() + posts
-
-	words = ['captainmeta4', ' cm4 ', 'dissident001', 'ladine']
-
-	for post in posts:
-		if post.author and post.author.admin_level == 0:
-			for word in words:
-				if word in post.title.lower():
-					posts.remove(post)
-					break
-
-	if random.random() < 0.02:
-		for post in posts:
-			if post.author and post.author.shadowbanned:
-				rand = random.randint(500,1400)
-				vote = Vote(user_id=rand,
-					vote_type=random.choice([-1, 1]),
-					submission_id=post.id)
-				g.db.add(vote)
-				try: g.db.flush()
-				except: g.db.rollback()
-				post.upvotes = g.db.query(Vote).filter_by(submission_id=post.id, vote_type=1).count()
-				post.downvotes = g.db.query(Vote).filter_by(submission_id=post.id, vote_type=-1).count()
-				post.views = post.views + random.randint(7,10)
-				g.db.add(post)
-
-	posts = [x for x in posts if not (x.author and x.author.shadowbanned) or (v and v.id == x.author_id)][:51]
-
-	next_exists = (len(posts) == 51)
-
-	posts = posts[:50]
-
-	if ids_only: posts = [x.id for x in posts]
-
-	return posts, next_exists
 
 @app.get("/")
 @app.get("/logged_out")
 @auth_desired
 def front_all(v):
 
-
-
-	if not v and request.path == "/": return redirect("/logged_out")
+	if not v and request.path == "/" and not request.headers.get("Authorization"): return redirect(f"/logged_out{request.full_path}")
 
 	if v and "logged_out" in request.full_path: v = None
 
-	try: page = int(request.args.get("page") or 1)
+	try: page = int(request.values.get("page") or 1)
 	except: abort(400)
 
 	# prevent invalid paging
@@ -207,44 +129,156 @@ def front_all(v):
 		defaulttime = v.defaulttime
 	else:
 		defaultsorting = "hot"
-		defaulttime = "day"
+		defaulttime = defaulttimefilter
 
-	sort=request.args.get("sort", defaultsorting)
-	t=request.args.get('t', defaulttime)
+	sort=request.values.get("sort", defaultsorting)
+	t=request.values.get('t', defaulttime)
 
 	ids, next_exists = frontlist(sort=sort,
 					page=page,
 					t=t,
 					v=v,
-					gt=int(request.args.get("utc_greater_than", 0)),
-					lt=int(request.args.get("utc_less_than", 0)),
 					filter_words=v.filter_words if v else [],
 					)
 
 	posts = get_posts(ids, v=v)
 
+	if v and v.hidevotedon: posts = [x for x in posts if not hasattr(x, 'voted') or not x.voted]
+
 	if request.headers.get("Authorization"): return {"data": [x.json for x in posts], "next_exists": next_exists}
 	else: return render_template("home.html", v=v, listing=posts, next_exists=next_exists, sort=sort, t=t, page=page)
 
-@cache.memoize()
-def changeloglist(v=None, sort="new", page=1 ,t="all", **kwargs):
 
-	posts = g.db.query(Submission).options(lazyload('*')).filter_by(is_banned=False, private=False,).filter(Submission.deleted_utc == 0)
+
+@cache.memoize(timeout=86400)
+def frontlist(v=None, sort="hot", page=1, t="all", ids_only=True, filter_words='', **kwargs):
+
+	posts = g.db.query(Submission.id).options(lazyload('*'))
+
+	if 'rdrama' in request.host and sort == "hot":
+		cutoff = int(time.time()) - 86400
+		posts = posts.filter(Submission.created_utc >= cutoff)
+	elif t != 'all':
+		now = int(time.time())
+		if t == 'hour':
+			cutoff = now - 3600
+		elif t == 'day':
+			cutoff = now - 86400
+		elif t == 'week':
+			cutoff = now - 604800
+		elif t == 'month':
+			cutoff = now - 2592000
+		elif t == 'year':
+			cutoff = now - 31536000
+		if cutoff: posts = posts.filter(Submission.created_utc >= cutoff)
+
+	posts = posts.filter_by(is_banned=False, stickied=None, private=False, deleted_utc = 0)
+
+	if v:
+		posts = posts.filter(or_(Submission.processing == False, Submission.author_id == v.id))
+	else:
+		posts = posts.filter_by(processing=False)
 
 	if v and v.admin_level == 0:
-		blocking = g.db.query(
+		blocking = [x[0] for x in g.db.query(
 			UserBlock.target_id).filter_by(
-			user_id=v.id).subquery()
-		blocked = g.db.query(
+			user_id=v.id).all()]
+		blocked = [x[0] for x in g.db.query(
 			UserBlock.user_id).filter_by(
-			target_id=v.id).subquery()
+			target_id=v.id).all()]
 		posts = posts.filter(
 			Submission.author_id.notin_(blocking),
 			Submission.author_id.notin_(blocked)
 		)
 
-	posts=posts.join(Submission.submission_aux).join(Submission.author)
-	posts=posts.filter(SubmissionAux.title.ilike(f'_changelog%', User.admin_level == 6))
+	if not (v and v.changelogsub):
+		posts=posts.filter(not_(Submission.title.ilike(f'[changelog]%')))
+
+	if v and filter_words:
+		for word in filter_words:
+			posts=posts.filter(not_(Submission.title.ilike(f'%{word}%')))
+
+	gt = kwargs.get("gt")
+	lt = kwargs.get("lt")
+
+	if not (v and v.shadowbanned):
+		posts = posts.join(Submission.author).filter(User.shadowbanned == False)
+
+	if sort == "hot":
+		ti = int(time.time()) + 3600
+		posts = posts.order_by(-1000000*(Submission.upvotes - Submission.downvotes + 1)/(func.power(((ti - Submission.created_utc)/1000), 1.35)))
+	elif sort == "new":
+		posts = posts.order_by(Submission.created_utc.desc())
+	elif sort == "old":
+		posts = posts.order_by(Submission.created_utc.asc())
+	elif sort == "controversial":
+		posts = posts.order_by(-1 * Submission.upvotes * (Submission.downvotes+1))
+	elif sort == "top":
+		posts = posts.order_by(Submission.downvotes - Submission.upvotes)
+	elif sort == "bottom":
+		posts = posts.order_by(Submission.upvotes - Submission.downvotes)
+	elif sort == "comments":
+		posts = posts.order_by(Submission.comment_count.desc())
+
+	posts = posts.offset(25 * (page - 1)).limit(26).all()
+
+	next_exists = (len(posts) > 25)
+
+	posts = posts[:25]
+
+	if page == 1: posts = g.db.query(Submission.id).options(lazyload('*')).filter(Submission.stickied != None).all() + posts
+
+	if ids_only: posts = [x[0] for x in posts]
+
+	return posts, next_exists
+
+
+@app.get("/changelog")
+@auth_desired
+def changelog(v):
+
+
+	page = int(request.values.get("page") or 1)
+	page = max(page, 1)
+
+	sort=request.values.get("sort", "new")
+	t=request.values.get('t', "all")
+
+	ids = changeloglist(sort=sort,
+					page=page,
+					t=t,
+					v=v,
+					)
+
+	# check existence of next page
+	next_exists = (len(ids) > 25)
+	ids = ids[:25]
+
+	# check if ids exist
+	posts = get_posts(ids, v=v)
+
+	if request.headers.get("Authorization"): return {"data": [x.json for x in posts], "next_exists": next_exists}
+	else: return render_template("changelog.html", v=v, listing=posts, next_exists=next_exists, sort=sort, t=t, page=page)
+
+
+@cache.memoize(timeout=86400)
+def changeloglist(v=None, sort="new", page=1 ,t="all", **kwargs):
+
+	posts = g.db.query(Submission.id).options(lazyload('*')).filter_by(is_banned=False, private=False,).filter(Submission.deleted_utc == 0)
+
+	if v and v.admin_level == 0:
+		blocking = [x[0] for x in g.db.query(
+			UserBlock.target_id).filter_by(
+			user_id=v.id).all()]
+		blocked = [x[0] for x in g.db.query(
+			UserBlock.user_id).filter_by(
+			target_id=v.id).all()]
+		posts = posts.filter(
+			Submission.author_id.notin_(blocking),
+			Submission.author_id.notin_(blocked)
+		)
+
+	posts=posts.filter(Submission.title.ilike(f'_changelog%', User.admin_level == 6))
 
 	if t != 'all':
 		cutoff = 0
@@ -264,98 +298,52 @@ def changeloglist(v=None, sort="new", page=1 ,t="all", **kwargs):
 	gt = kwargs.get("gt")
 	lt = kwargs.get("lt")
 
-	if gt:
-		posts = posts.filter(Submission.created_utc > gt)
-
-	if lt:
-		posts = posts.filter(Submission.created_utc < lt)
-
-	if sort == "hot":
-		posts = sorted(posts.all(), key=lambda x: x.hotscore, reverse=True)
-	elif sort == "new":
-		posts = posts.order_by(Submission.created_utc.desc()).all()
+	if sort == "new":
+		posts = posts.order_by(Submission.created_utc.desc())
 	elif sort == "old":
-		posts = posts.order_by(Submission.created_utc.asc()).all()
+		posts = posts.order_by(Submission.created_utc.asc())
 	elif sort == "controversial":
-		posts = sorted(posts.all(), key=lambda x: x.score_disputed, reverse=True)
+		posts = posts.order_by(-1 * Submission.upvotes * (Submission.downvotes+1))
 	elif sort == "top":
-		posts = sorted(posts.all(), key=lambda x: x.score, reverse=True)
+		posts = posts.order_by(Submission.downvotes - Submission.upvotes)
 	elif sort == "bottom":
-		posts = sorted(posts.all(), key=lambda x: x.score)
+		posts = posts.order_by(Submission.upvotes - Submission.downvotes)
 	elif sort == "comments":
-		posts = posts.order_by(Submission.comment_count.desc()).all()
-	elif sort == "random":
-		posts = posts.all()
-		posts = random.sample(posts, k=len(posts))
-	else:
-		abort(400)
+		posts = posts.order_by(Submission.comment_count.desc())
 
-	firstrange = 50 * (page - 1)
-	secondrange = firstrange+51
-	posts = posts[firstrange:secondrange]
+	posts = posts.offset(25 * (page - 1)).limit(26).all()
 
-	posts = [x.id for x in posts]
-	return posts
-
-@app.get("/changelog")
-@auth_desired
-def changelog(v):
-
-
-	page = int(request.args.get("page") or 1)
-	page = max(page, 1)
-
-	sort=request.args.get("sort", "new")
-	t=request.args.get('t', "all")
-
-	ids = changeloglist(sort=sort,
-					page=page,
-					t=t,
-					v=v,
-					gt=int(request.args.get("utc_greater_than", 0)),
-					lt=int(request.args.get("utc_less_than", 0)),
-					)
-
-	# check existence of next page
-	next_exists = (len(ids) == 51)
-	ids = ids[:50]
-
-	# check if ids exist
-	posts = get_posts(ids, v=v)
-
-	if request.headers.get("Authorization"): return {"data": [x.json for x in posts], "next_exists": next_exists}
-	else: return render_template("changelog.html", v=v, listing=posts, next_exists=next_exists, sort=sort, t=t, page=page)
+	return [x[0] for x in posts]
 
 
 @app.get("/random")
 @auth_desired
 def random_post(v):
 
-
-	x = g.db.query(Submission).filter(Submission.deleted_utc == 0, Submission.is_banned == False)
-
+	x = g.db.query(Submission).options(lazyload('*')).filter(Submission.deleted_utc == 0, Submission.is_banned == False)
 	total = x.count()
-	n = random.randint(0, total - 1)
+	n = random.randint(1, total - 2)
 
-	post = x.order_by(Submission.id.asc()).offset(n).limit(1).first()
-	return redirect(post.permalink)
+	post = x.offset(n).limit(1).first()
+	return redirect(f"/post/{post.id}")
 
-@cache.memoize()
+@cache.memoize(timeout=86400)
 def comment_idlist(page=1, v=None, nsfw=False, sort="new", t="all", **kwargs):
 
 	posts = g.db.query(Submission).options(lazyload('*'))
+	cc_idlist = [x[0] for x in g.db.query(Submission.id).options(lazyload('*')).filter(Submission.club == True).all()]
 
 	posts = posts.subquery()
 
-	comments = g.db.query(Comment).options(lazyload('*'))
+	comments = g.db.query(Comment.id).options(lazyload('*')).filter(Comment.parent_submission.notin_(cc_idlist))
 
 	if v and v.admin_level <= 3:
-		blocking = g.db.query(
+		blocking = [x[0] for x in g.db.query(
 			UserBlock.target_id).filter_by(
-			user_id=v.id).subquery()
-		blocked = g.db.query(
+			user_id=v.id).all()]
+		blocked = [x[0] for x in g.db.query(
 			UserBlock.user_id).filter_by(
-			target_id=v.id).subquery()
+			target_id=v.id).all()]
 
 		comments = comments.filter(
 			Comment.author_id.notin_(blocking),
@@ -383,33 +371,28 @@ def comment_idlist(page=1, v=None, nsfw=False, sort="new", t="all", **kwargs):
 	comments = comments.filter(Comment.created_utc >= cutoff)
 
 	if sort == "new":
-		comments = comments.order_by(Comment.created_utc.desc()).all()
+		comments = comments.order_by(Comment.created_utc.desc())
 	elif sort == "old":
-		comments = comments.order_by(Comment.created_utc.asc()).all()
+		comments = comments.order_by(Comment.created_utc.asc())
 	elif sort == "controversial":
-		comments = sorted(comments.all(), key=lambda x: x.score_disputed, reverse=True)
+		comments = comments.order_by(-1 * Comment.upvotes * (Comment.downvotes+1))
 	elif sort == "top":
-		comments = sorted(comments.all(), key=lambda x: x.score, reverse=True)
+		comments = comments.order_by(Comment.downvotes - Comment.upvotes)
 	elif sort == "bottom":
-		comments = sorted(comments.all(), key=lambda x: x.score)
+		comments = comments.order_by(Comment.upvotes - Comment.downvotes)
 
-	firstrange = 25 * (page - 1)
-	secondrange = firstrange+100
-	comments = comments[firstrange:secondrange]
-
-	comments = [x.id for x in comments if not (x.author and x.author.shadowbanned) or (v and v.id == x.author_id)]
-
-	return comments[:26]
+	comments = comments.offset(25 * (page - 1)).limit(26).all()
+	return [x[0] for x in comments]
 
 @app.get("/comments")
 @auth_desired
 def all_comments(v):
 
 
-	page = int(request.args.get("page", 1))
+	page = int(request.values.get("page", 1))
 
-	sort=request.args.get("sort", "new")
-	t=request.args.get("t", "day")
+	sort=request.values.get("sort", "new")
+	t=request.values.get("t", defaulttimefilter)
 
 	idlist = comment_idlist(v=v,
 							page=page,
@@ -419,7 +402,7 @@ def all_comments(v):
 
 	comments = get_comments(idlist, v=v)
 
-	next_exists = len(idlist) == 26
+	next_exists = len(idlist) > 25
 
 	idlist = idlist[:25]
 

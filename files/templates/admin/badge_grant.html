@@ -14,7 +14,7 @@
 			<span>
 				{{error}}
 			</span>
-			<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+			<button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
 				<span aria-hidden="true"><i class="far fa-times"></i></span>
 			</button>
 		</div>
@@ -25,7 +25,7 @@
 			<span>
 				{{msg}}
 			</span>
-			<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+			<button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
 				<span aria-hidden="true"><i class="far fa-times"></i></span>
 			</button>
 		</div>
@@ -55,7 +55,7 @@
 {% for badge in badge_types %}
 <tr>
 	<td><input type="radio" id="badge-{{badge.id}}" name="badge_id" value="{{badge.id}}"></td>
-	<td><label for="badge-{{badge.id}}"><img class="d-block" src="{{badge.path}}" width="70px" height="70px"></label></td>
+	<td><label for="badge-{{badge.id}}"><img loading="lazy" class="d-block" src="{{badge.path}}" width="70px" height="70px"></label></td>
 	<td>{{badge.name}}</td>
 	<td>{{badge.description}}</td>
 </tr>

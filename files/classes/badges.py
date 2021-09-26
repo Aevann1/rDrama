@@ -1,8 +1,10 @@
 from sqlalchemy import *
 from sqlalchemy.orm import relationship
-
 from files.__main__ import Base, app
+from os import environ
+from files.helpers.lazy import lazy
 
+site_name = environ.get("SITE_NAME").strip()
 
 class BadgeDef(Base):
 
@@ -20,13 +22,15 @@ class BadgeDef(Base):
 		return f"<BadgeDef(badge_id={self.id})>"
 
 	@property
+	@lazy
 	def path(self):
 
 		return f"/assets/images/badges/{self.icon}"
 
 	@property
+	@lazy
 	def json_core(self):
-		data={
+		return {
 			"name": self.name,
 			"description": self.description,
 			"icon": self.icon
@@ -44,13 +48,14 @@ class Badge(Base):
 	badge_id = Column(Integer, ForeignKey("badge_defs.id"))
 	description = Column(String(64))
 	url = Column(String(256))
-	badge = relationship("BadgeDef", lazy="joined", innerjoin=True)
+	badge = relationship("BadgeDef", viewonly=True)
 
 	def __repr__(self):
 
 		return f"<Badge(user_id={self.user_id}, badge_id={self.badge_id})>"
 
 	@property
+	@lazy
 	def text(self):
 		if self.description:
 			return self.description
@@ -58,18 +63,22 @@ class Badge(Base):
 			return self.badge.description
 
 	@property
+	@lazy
 	def type(self):
 		return self.badge.id
 
 	@property
+	@lazy
 	def name(self):
 		return self.badge.name
 
 	@property
+	@lazy
 	def path(self):
 		return self.badge.path
 
 	@property
+	@lazy
 	def json_core(self):
 
 		return {'text': self.text,
@@ -79,6 +88,7 @@ class Badge(Base):
 				'icon_url':f"https://{app.config['SERVER_NAME']}{self.path}"
 				}
 
-	property
+	@property
+	@lazy
 	def json(self):
 		return self.json_core

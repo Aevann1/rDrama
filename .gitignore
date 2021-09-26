@@ -1,9 +1,9 @@
-image.png
-image.gif
+image.*
 cache/
 __pycache__/
 *.py[cod]
 *$py.class
+chart.png
 
 # C extensions
 *.so
@@ -115,3 +115,4 @@ local.txt
 *.scssc
 .idea/*
 disablesignups
+/*rules.html

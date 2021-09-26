@@ -6,68 +6,48 @@ from sqlalchemy.orm import relationship, deferred
 from files.helpers.lazy import lazy
 from files.helpers.const import SLURS
 from files.__main__ import Base
-from .mix_ins import *
 from .flags import CommentFlag
+from os import environ
+import time
 
-class CommentAux(Base):
-
-	__tablename__ = "comments_aux"
-
-	key_id = Column(Integer, primary_key=True)
-	id = Column(Integer, ForeignKey("comments.id"))
-	body = Column(String(10000))
-	body_html = Column(String(20000))
-	ban_reason = Column(String(256), default='')
+site = environ.get("DOMAIN").strip()
 
 
-class Comment(Base, Age_times, Scores, Stndrd, Fuzzing):
+class Comment(Base):
 
 	__tablename__ = "comments"
 
 	id = Column(Integer, primary_key=True)
-	comment_aux = relationship(
-		"CommentAux",
-		lazy="joined",
-		uselist=False,
-		innerjoin=True,
-		primaryjoin="Comment.id==CommentAux.id")
 	author_id = Column(Integer, ForeignKey("users.id"))
 	parent_submission = Column(Integer, ForeignKey("submissions.id"))
-	# this column is foreignkeyed to comment(id) but we can't do that yet as
-	# "comment" class isn't yet defined
 	created_utc = Column(Integer, default=0)
 	edited_utc = Column(Integer, default=0)
 	is_banned = Column(Boolean, default=False)
+	removed_by = Column(Integer)
 	bannedfor = Column(Boolean)
 	distinguish_level = Column(Integer, default=0)
 	deleted_utc = Column(Integer, default=0)
 	is_approved = Column(Integer, default=0)
 	level = Column(Integer, default=0)
 	parent_comment_id = Column(Integer, ForeignKey("comments.id"))
-
 	over_18 = Column(Boolean, default=False)
 	is_bot = Column(Boolean, default=False)
-	is_pinned = Column(Boolean, default=False)
+	is_pinned = Column(String(255))
 	sentto=Column(Integer)
-
 	app_id = Column(Integer, ForeignKey("oauth_apps.id"))
-	oauth_app=relationship("OauthApp")
-
-	post = relationship("Submission")
-	flags = relationship("CommentFlag", lazy="dynamic")
-	author = relationship(
-		"User",
-		lazy="joined",
-		innerjoin=True,
-		primaryjoin="User.id==Comment.author_id")
-
+	oauth_app = relationship("OauthApp", viewonly=True)
 	upvotes = Column(Integer, default=1)
 	downvotes = Column(Integer, default=0)
+	body = deferred(Column(String(10000)))
+	body_html = deferred(Column(String(20000)))
+	ban_reason = Column(String(256))
 
-	parent_comment = relationship("Comment", remote_side=[id])
-	child_comments = relationship("Comment", remote_side=[parent_comment_id])
-
-	awards = relationship("AwardRelationship", lazy="joined")
+	post = relationship("Submission", viewonly=True)
+	flags = relationship("CommentFlag", lazy="dynamic", viewonly=True)
+	author = relationship("User", primaryjoin="User.id==Comment.author_id")
+	parent_comment = relationship("Comment", remote_side=[id], viewonly=True)
+	child_comments = relationship("Comment", remote_side=[parent_comment_id], viewonly=True)
+	awards = relationship("AwardRelationship", viewonly=True)
 
 	def __init__(self, *args, **kwargs):
 
@@ -82,6 +62,75 @@ class Comment(Base, Age_times, Scores, Stndrd, Fuzzing):
 
 	@property
 	@lazy
+	def created_datetime(self):
+		return str(time.strftime("%d/%B/%Y %H:%M:%S UTC", time.gmtime(self.created_utc)))
+
+	@property
+	@lazy
+	def age_string(self):
+
+		age = int(time.time()) - self.created_utc
+
+		if age < 60:
+			return "just now"
+		elif age < 3600:
+			minutes = int(age / 60)
+			return f"{minutes}m ago"
+		elif age < 86400:
+			hours = int(age / 3600)
+			return f"{hours}hr ago"
+		elif age < 2678400:
+			days = int(age / 86400)
+			return f"{days}d ago"
+
+		now = time.gmtime()
+		ctd = time.gmtime(self.created_utc)
+
+		# compute number of months
+		months = now.tm_mon - ctd.tm_mon + 12 * (now.tm_year - ctd.tm_year)
+		# remove a month count if current day of month < creation day of month
+		if now.tm_mday < ctd.tm_mday:
+			months -= 1
+
+		if months < 12:
+			return f"{months}mo ago"
+		else:
+			years = int(months / 12)
+			return f"{years}yr ago"
+
+	@property
+	@lazy
+	def edited_string(self):
+
+		if not self.edited_utc:
+			return "never"
+
+		age = int(time.time()) - self.edited_utc
+
+		if age < 60:
+			return "just now"
+		elif age < 3600:
+			minutes = int(age / 60)
+			return f"{minutes}m ago"
+		elif age < 86400:
+			hours = int(age / 3600)
+			return f"{hours}hr ago"
+		elif age < 2678400:
+			days = int(age / 86400)
+			return f"{days}d ago"
+
+		now = time.gmtime()
+		ctd = time.gmtime(self.edited_utc)
+		months = now.tm_mon - ctd.tm_mon + 12 * (now.tm_year - ctd.tm_year)
+
+		if months < 12:
+			return f"{months}mo ago"
+		else:
+			years = now.tm_year - ctd.tm_year
+			return f"{years}yr ago"
+
+	@property
+	@lazy
 	def score(self):
 		return self.upvotes - self.downvotes
 
@@ -89,11 +138,6 @@ class Comment(Base, Age_times, Scores, Stndrd, Fuzzing):
 	@lazy
 	def fullname(self):
 		return f"t3_{self.id}"
-
-	@property
-	@lazy
-	def score_disputed(self):
-		return (self.upvotes+1) * (self.downvotes+1)
 
 	@property
 	@lazy
@@ -112,7 +156,6 @@ class Comment(Base, Age_times, Scores, Stndrd, Fuzzing):
 		elif self.parent_submission: return f"t2_{self.parent_submission}"
 
 	@property
-	@lazy
 	def replies(self):
 		r = self.__dict__.get("replies", None)
 		if r: r = [x for x in r if not x.author.shadowbanned]
@@ -132,7 +175,6 @@ class Comment(Base, Age_times, Scores, Stndrd, Fuzzing):
 		self.__dict__["replies2"] = value
 
 	@property
-	@lazy
 	def replies3(self):
 		r = self.__dict__.get("replies", None)
 		if not r and r != []:  r = sorted([x for x in self.child_comments], key=lambda x: x.score, reverse=True)
@@ -140,11 +182,19 @@ class Comment(Base, Age_times, Scores, Stndrd, Fuzzing):
 
 	@property
 	@lazy
+	def shortlink(self):
+		return f"https://{site}/comment/{self.id}"
+
+	@property
+	@lazy
 	def permalink(self):
+		if self.post and self.post.club: return f"/comment/{self.id}/"
+
 		if self.post: return f"{self.post.permalink}/{self.id}/"
 		else: return f"/comment/{self.id}/"
 
 	@property
+	@lazy
 	def json_raw(self):
 		flags = {}
 		for f in self.flags: flags[f.user.username] = f.reason
@@ -165,9 +215,9 @@ class Comment(Base, Age_times, Scores, Stndrd, Fuzzing):
 			'is_pinned': self.is_pinned,
 			'distinguish_level': self.distinguish_level,
 			'post_id': self.post.id,
-			'score': self.score_fuzzed,
-			'upvotes': self.upvotes_fuzzed,
-			'downvotes': self.downvotes_fuzzed,
+			'score': self.score,
+			'upvotes': self.upvotes,
+			'downvotes': self.downvotes,
 			#'award_count': self.award_count,
 			'is_bot': self.is_bot,
 			'flags': flags,
@@ -182,6 +232,7 @@ class Comment(Base, Age_times, Scores, Stndrd, Fuzzing):
 		return len([x for x in self.awards if x.kind == kind])
 
 	@property
+	@lazy
 	def json_core(self):
 		if self.is_banned:
 			data= {'is_banned': True,
@@ -210,6 +261,7 @@ class Comment(Base, Age_times, Scores, Stndrd, Fuzzing):
 		return data
 
 	@property
+	@lazy
 	def json(self):
 	
 		data=self.json_core
@@ -226,40 +278,19 @@ class Comment(Base, Age_times, Scores, Stndrd, Fuzzing):
 
 		return data
 
-	@property
-	def is_blocking(self):
-		return self.__dict__.get('_is_blocking', 0)
-
-	@property
-	def is_blocked(self):
-		return self.__dict__.get('_is_blocked', 0)
-
-	@property
-	def body(self):
-		if self.comment_aux: return self.comment_aux.body
-		else: return ""
-
-	@body.setter
-	def body(self, x):
-		self.comment_aux.body = x
-		g.db.add(self.comment_aux)
-
-	@property
-	def body_html(self):
-		return self.comment_aux.body_html
-
-	@body_html.setter
-	def body_html(self, x):
-		self.comment_aux.body_html = x
-		g.db.add(self.comment_aux)
-
 	def realbody(self, v):
-		body = self.comment_aux.body_html
+		if self.post and self.post.club and not (v and v.paid_dues): return "<p>COUNTRY CLUB ONLY</p>"
+
+		body = self.body_html
+
+		if not body: return ""
 
 		if not v or v.slurreplacer: 
-			for s,r in SLURS.items(): body = body.replace(s, r) 
+			for s, r in SLURS.items(): body = body.replace(s, r) 
 
 		if v and not v.oldreddit: body = body.replace("old.reddit.com", "reddit.com")
+
+		if v and v.nitter: body = body.replace("www.twitter.com", "nitter.net").replace("twitter.com", "nitter.net")
 
 		if v and v.controversial:
 			for i in re.finditer('(/comments/.*?)"', body):
@@ -275,19 +306,7 @@ class Comment(Base, Age_times, Scores, Stndrd, Fuzzing):
 
 		return body
 
-	@property
-	def ban_reason(self):
-		return self.comment_aux.ban_reason
-
-	@ban_reason.setter
-	def ban_reason(self, x):
-		self.comment_aux.ban_reason = x
-		g.db.add(self.comment_aux)
-
-	#@property
-	#def award_count(self):
-		#return len(self.awards)
-
+	@lazy
 	def collapse_for_user(self, v):
 
 		if self.over_18 and not (v and v.over_18) and not self.post.over_18:
@@ -330,8 +349,8 @@ class Notification(Base):
 	blocksender = Column(Integer)
 	unblocksender = Column(Integer)
 
-	comment = relationship("Comment", lazy="joined", innerjoin=True)
-	user=relationship("User", innerjoin=True)
+	comment = relationship("Comment", viewonly=True)
+	user = relationship("User", viewonly=True)
 
 	def __repr__(self):
 

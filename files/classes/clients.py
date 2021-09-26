@@ -1,13 +1,13 @@
 from flask import *
 from sqlalchemy import *
 from sqlalchemy.orm import relationship, lazyload
-
-from .mix_ins import Stndrd
 from .submission import Submission
 from .comment import Comment
 from files.__main__ import Base
+from files.helpers.lazy import lazy
+import time
 
-class OauthApp(Base, Stndrd):
+class OauthApp(Base):
 
 	__tablename__ = "oauth_apps"
 
@@ -17,14 +17,26 @@ class OauthApp(Base, Stndrd):
 	redirect_uri = Column(String(4096))
 	description = Column(String(256))
 	author_id = Column(Integer, ForeignKey("users.id"))
-	author = relationship("User")
+	author = relationship("User", viewonly=True)
 
 	def __repr__(self): return f"<OauthApp(id={self.id})>"
 
+
 	@property
+	@lazy
+	def created_date(self):
+		return time.strftime("%d %B %Y", time.gmtime(self.created_utc))
+
+	@property
+	@lazy
+	def created_datetime(self):
+		return str(time.strftime("%d/%B/%Y %H:%M:%S UTC", time.gmtime(self.created_utc)))
+
+	@property
+	@lazy
 	def permalink(self): return f"/admin/app/{self.id}"
 
-
+	@lazy
 	def idlist(self, page=1, **kwargs):
 
 		posts = g.db.query(Submission.id).options(lazyload('*')).filter_by(app_id=self.id)
@@ -35,6 +47,7 @@ class OauthApp(Base, Stndrd):
 
 		return [x[0] for x in posts.all()]
 
+	@lazy
 	def comments_idlist(self, page=1, **kwargs):
 
 		posts = g.db.query(Comment.id).options(lazyload('*')).filter_by(app_id=self.id)
@@ -45,7 +58,9 @@ class OauthApp(Base, Stndrd):
 
 		return [x[0] for x in posts.all()]
 
-class ClientAuth(Base, Stndrd):
+
+
+class ClientAuth(Base):
 
 	__tablename__ = "client_auths"
 
@@ -53,5 +68,15 @@ class ClientAuth(Base, Stndrd):
 	oauth_client = Column(Integer, ForeignKey("oauth_apps.id"))
 	access_token = Column(String(128))
 	user_id = Column(Integer, ForeignKey("users.id"))
-	user = relationship("User", lazy="joined")
-	application = relationship("OauthApp", lazy="joined")
+	user = relationship("User", viewonly=True)
+	application = relationship("OauthApp", viewonly=True)
+
+	@property
+	@lazy
+	def created_date(self):
+		return time.strftime("%d %B %Y", time.gmtime(self.created_utc))
+
+	@property
+	@lazy
+	def created_datetime(self):
+		return str(time.strftime("%d/%B/%Y %H:%M:%S UTC", time.gmtime(self.created_utc)))

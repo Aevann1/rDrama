@@ -7,15 +7,11 @@ services:
     volumes:
       - "./:/service"
     environment:
-      - PYTHONPATH="/service"
-      - REDIS_URL=redis://redis
       - DATABASE_URL=postgresql://postgres@postgres:5432/postgres
-      - DATABASE_CONNECTION_POOL_URL=postgresql://postgres@postgres:5432/postgres
       - MASTER_KEY=${MASTER_KEY:-KTVciAUQFpFh2WdJ/oiHJlxl6FvzRZp8kYzAAv3l2OA=}
+      - REDIS_URL=redis://redis
       - DOMAIN=localhost
       - SITE_NAME=Drama
-      - CLOUDFLARE_ZONE=3435tdfsdudebussylmaoxxt43
-      - CLOUDFLARE_KEY=3435tdfsdudebussylmaoxxt43
       - GIPHY_KEY=3435tdfsdudebussylmaoxxt43
       - MAILGUN_KEY=3435tdfsdudebussylmaoxxt43
       - MAILGUN_DOMAIN=rdrama.net
@@ -25,6 +21,7 @@ services:
       - DISCORD_CLIENT_SECRET=3435tdfsdudebussylmaoxxt43
       - DISCORD_BOT_TOKEN=3435tdfsdudebussylmaoxxt43
       - IMGUR_KEY=3435tdfsdudebussylmaoxxt43
+      - IBB_KEY=3435tdfsdudebussylmaoxxt43
      #- HCAPTCHA_SITEKEY=3435tdfsdudebussylmaoxxt43
       - HCAPTCHA_SECRET=3435tdfsdudebussylmaoxxt43
       - YOUTUBE_KEY=3435tdfsdudebussylmaoxxt43
@@ -37,11 +34,15 @@ services:
       - READ_ONLY=0
       - BOT_DISABLE=0
       - COINS_NAME=Dramacoins
+      - DEFAULT_TIME_FILTER=all
       - DEFAULT_THEME=dark
-      - DEFAULT_COLOR=ff66ac
+      - DEFAULT_COLOR=ff66ac #YOU HAVE TO PICK ONE OF THOSE COLORS OR SHIT WILL BREAK: ff66ac, 805ad5, 62ca56, 38a169, 80ffff, 2a96f3, eb4963, ff0000, f39731, 30409f, 3e98a7, e4432d, 7b9ae4, ec72de, 7f8fa6, f8db58
       - SLOGAN=Dude bussy lmao
       - GUMROAD_TOKEN=3435tdfsdudebussylmaoxxt43
       - GUMROAD_LINK=https://marsey1.gumroad.com/l/tfcvri
+      - CARD_VIEW=1
+      - DISABLE_DOWNVOTES=0
+      - DUES=0
     links:
       - "redis"
       - "postgres"
@@ -53,8 +54,6 @@ services:
 
   redis:
     image: redis
-    volumes:
-      - ./redis.conf:/drama/redis.conf
     ports:
       - "6379:6379"
 
@@ -65,5 +64,5 @@ services:
       - "./seed-db.sql:/docker-entrypoint-initdb.d/01-schema.sql"
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
-    ports:
-      - "5432:5432"
+        #ports:
+        #- "5432:5432"

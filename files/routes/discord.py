@@ -15,8 +15,9 @@ WELCOME_CHANNEL="846509313941700618"
 @auth_required
 def join_discord(v):
 	
-	if v.is_banned != 0: return "You're banned"
-	if v.admin_level == 0 and v.coins < 150: return f"You must earn 150 {COINS_NAME} before entering the Discord server. You earn {COINS_NAME} by making posts/comments and getting upvoted."
+	if v.is_suspended != 0: return "You're banned"
+	
+	if 'rdrama' in request.host and v.admin_level == 0 and v.patron == 0 and v.coins < 150: return f"You must earn 150 {COINS_NAME} before entering the Discord server. You earn {COINS_NAME} by making posts/comments and getting upvoted."
 	
 	now=int(time.time())
 
@@ -26,6 +27,20 @@ def join_discord(v):
 
 	return redirect(f"https://discord.com/api/oauth2/authorize?client_id={CLIENT_ID}&redirect_uri=https%3A%2F%2F{app.config['SERVER_NAME']}%2Fdiscord_redirect&response_type=code&scope=identify%20guilds.join&state={state}")
 
+@app.get("/sex")
+@admin_level_required(6)
+def sex(v):
+	users = g.db.query(User).options(lazyload('*')).filter(User.discord_id != None).all()
+	headers={
+		'Authorization': f"Bot {BOT_TOKEN}",
+		'Content-Type': "application/json"
+	}
+	for u in users:
+		print(u.username)
+		print(u.discord_id)
+		print(requests.patch(f"https://discord.com/api/guilds/846509313497628715/members/{u.discord_id}", headers=headers, data={"nick":u.username}).text)
+
+
 @app.get("/discord_redirect")
 @auth_required
 def discord_redirect(v):
@@ -33,7 +48,7 @@ def discord_redirect(v):
 
 	#validate state
 	now=int(time.time())
-	state=request.args.get('state','').split('.')
+	state=request.values.get('state','').split('.')
 
 	timestamp=state[0]
 
@@ -46,7 +61,7 @@ def discord_redirect(v):
 		abort(400)
 
 	#get discord token
-	code = request.args.get("code","")
+	code = request.values.get("code","")
 	if not code:
 		abort(400)
 
@@ -96,7 +111,7 @@ def discord_redirect(v):
 		url=f"https://discord.com/api/guilds/{SERVER_ID}/members/{v.discord_id}"
 		requests.delete(url, headers=headers)
 
-	if g.db.query(User).filter(User.id!=v.id, User.discord_id==x["id"]).first():
+	if g.db.query(User).options(lazyload('*')).filter(User.id!=v.id, User.discord_id==x["id"]).first():
 		return render_template("message.html", title="Discord account already linked.", error="That Discord account is already in use by another user.", v=v)
 
 	v.discord_id=x["id"]
@@ -115,19 +130,13 @@ def discord_redirect(v):
 
 	if x.status_code in [201, 204]:
 
-		if v.admin_level > 0: add_role(v, "admin")
-		else: add_role(v, "newuser")
+		if v.id == 1: add_role(v, "shrigma")
+		elif v.admin_level > 0: add_role(v, "admin")
+		else: add_role(v, "linked")
 		
-		time.sleep(0.1)
-		
-		if v.patron: add_role(v, str(v.patron))
-
-		add_role(v, "feedback")
-
-		time.sleep(0.1)
-
-		if v.coins > 100: add_role(v, "linked")
-		else: add_role(v, "norep")
+		if v.patron:
+			time.sleep(0.1)
+			add_role(v, str(v.patron))
 		
 	else:
 		return x.json()
@@ -144,9 +153,8 @@ def discord_redirect(v):
 			"nick": name
 		}
 
-		req=requests.patch(url, headers=headers, json=data)
+		requests.patch(url, headers=headers, json=data)
 
-		#print(req.status_code)
-		#print(url)
+	g.db.commit()
 
 	return redirect(f"https://discord.com/channels/{SERVER_ID}/{WELCOME_CHANNEL}")

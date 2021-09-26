@@ -1,815 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	{% include "bootstrap.html" %}
+	
+	
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="/assets/js/general40.js"></script>
 
 	{% if v and v.agendaposter %}
-	<!--<script src="/assets/js/bug-min.js" type="text/javascript"></script>-->
-	<script type="text/javascript">
-		/*
-		Bug.js - https://github.com/Auz/Bug
-		Released under MIT-style license.
-		Original Screen Bug http://screen-bug.googlecode.com/git/index.html
-		*/
-		var BugDispatch={options:{minDelay:500,maxDelay:1E4,minBugs:2,maxBugs:20,minSpeed:5,maxSpeed:10,maxLargeTurnDeg:150,maxSmallTurnDeg:10,maxWiggleDeg:5,imageSprite:"fly-sprite.gif",bugWidth:13,bugHeight:14,num_frames:5,zoom:10,canFly:!0,canDie:!0,numDeathTypes:3,monitorMouseMovement:!1,eventDistanceToBug:40,minTimeBetweenMultipy:1E3,mouseOver:"random"},initialize:function(a){this.options=mergeOptions(this.options,a);this.options.minBugs>this.options.maxBugs&&(this.options.minBugs=this.options.maxBugs);
-		this.modes=["multiply","nothing"];this.options.canFly&&this.modes.push("fly","flyoff");this.options.canDie&&this.modes.push("die");-1==this.modes.indexOf(this.options.mouseOver)&&(this.options.mouseOver="random");this.transform=null;this.transforms={Moz:function(a){this.bug.style.MozTransform=a},webkit:function(a){this.bug.style.webkitTransform=a},O:function(a){this.bug.style.OTransform=a},ms:function(a){this.bug.style.msTransform=a},Khtml:function(a){this.bug.style.KhtmlTransform=a},w3c:function(a){this.bug.style.transform=
-		a}};if("transform"in document.documentElement.style)this.transform=this.transforms.w3c;else{var b=["Moz","webkit","O","ms","Khtml"],c=0;for(c=0;c<b.length;c++)if(b[c]+"Transform"in document.documentElement.style){this.transform=this.transforms[b[c]];break}}if(this.transform){this.bugs=[];b="multiply"===this.options.mouseOver?this.options.minBugs:this.random(this.options.minBugs,this.options.maxBugs,!0);c=0;var d=this;for(c=0;c<b;c++){a=JSON.parse(JSON.stringify(this.options));var e=SpawnBug();a.wingsOpen=
-		this.options.canFly?.5<Math.random()?!0:!1:!0;a.walkSpeed=this.random(this.options.minSpeed,this.options.maxSpeed);e.initialize(this.transform,a);this.bugs.push(e)}this.spawnDelay=[];for(c=0;c<b;c++)a=this.random(this.options.minDelay,this.options.maxDelay,!0),e=this.bugs[c],this.spawnDelay[c]=setTimeout(function(a){return function(){d.options.canFly?a.flyIn():a.walkIn()}}(e),a),d.add_events_to_bug(e);this.options.monitorMouseMovement&&(window.onmousemove=function(){d.check_if_mouse_close_to_bug()})}},
-		stop:function(){for(var a=0;a<this.bugs.length;a++)this.spawnDelay[a]&&clearTimeout(this.spawnDelay[a]),this.bugs[a].stop()},end:function(){for(var a=0;a<this.bugs.length;a++)this.spawnDelay[a]&&clearTimeout(this.spawnDelay[a]),this.bugs[a].stop(),this.bugs[a].remove()},reset:function(){this.stop();for(var a=0;a<this.bugs.length;a++)this.bugs[a].reset(),this.bugs[a].walkIn()},killAll:function(){for(var a=0;a<this.bugs.length;a++)this.spawnDelay[a]&&clearTimeout(this.spawnDelay[a]),this.bugs[a].die()},
-		add_events_to_bug:function(a){var b=this;a.bug&&(a.bug.addEventListener?a.bug.addEventListener("mouseover",function(c){b.on_bug(a)}):a.bug.attachEvent&&a.bug.attachEvent("onmouseover",function(c){b.on_bug(a)}))},check_if_mouse_close_to_bug:function(a){if(a=a||window.event){var b=0,c=0;a.client&&a.client.x?(b=a.client.x,c=a.client.y):a.clientX?(b=a.clientX,c=a.clientY):a.page&&a.page.x?(b=a.page.x-(document.body.scrollLeft+document.documentElement.scrollLeft),c=a.page.y-(document.body.scrollTop+document.documentElement.scrollTop)):
-		a.pageX&&(b=a.pageX-(document.body.scrollLeft+document.documentElement.scrollLeft),c=a.pageY-(document.body.scrollTop+document.documentElement.scrollTop));a=this.bugs.length;var d;for(d=0;d<a;d++){var e=this.bugs[d].getPos();e&&Math.abs(e.top-c)+Math.abs(e.left-b)<this.options.eventDistanceToBug&&!this.bugs[d].flyperiodical&&this.near_bug(this.bugs[d])}}},near_bug:function(a){this.on_bug(a)},on_bug:function(a){if(a.alive){var b=this.options.mouseOver;"random"===b&&(b=this.modes[this.random(0,this.modes.length-
-		1,!0)]);if("fly"===b)a.stop(),a.flyRand();else if("nothing"!==b)if("flyoff"===b)a.stop(),a.flyOff();else if("die"===b)a.die();else if("multiply"===b&&!this.multiplyDelay&&this.bugs.length<this.options.maxBugs){var c=SpawnBug();b=JSON.parse(JSON.stringify(this.options));var d=a.getPos(),e=this;b.wingsOpen=this.options.canFly?.5<Math.random()?!0:!1:!0;b.walkSpeed=this.random(this.options.minSpeed,this.options.maxSpeed);c.initialize(this.transform,b);c.drawBug(d.top,d.left);b.canFly?(c.flyRand(),a.flyRand()):
-		(c.go(),a.go());this.bugs.push(c);this.multiplyDelay=!0;setTimeout(function(){e.add_events_to_bug(c);e.multiplyDelay=!1},this.options.minTimeBetweenMultipy)}}},random:function(a,b,c){if(a==b)return c?Math.round(a):a;var d=a-.5+Math.random()*(b-a+1);d>b?d=b:d<a&&(d=a);return c?Math.round(d):d}},BugController=function(){this.initialize.apply(this,arguments)};BugController.prototype=BugDispatch;
-		var SpiderController=function(){this.options=mergeOptions(this.options,{imageSprite:"spider-sprite.gif",bugWidth:69,bugHeight:90,num_frames:7,canFly:!1,canDie:!0,numDeathTypes:2,zoom:6,minDelay:200,maxDelay:3E3,minSpeed:6,maxSpeed:13,minBugs:3,maxBugs:10});this.initialize.apply(this,arguments)};SpiderController.prototype=BugDispatch;
-		var Bug={options:{wingsOpen:!1,walkSpeed:2,flySpeed:40,edge_resistance:50,zoom:10},initialize:function(a,b){this.options=mergeOptions(this.options,b);this.NEAR_TOP_EDGE=1;this.NEAR_BOTTOM_EDGE=2;this.NEAR_LEFT_EDGE=4;this.NEAR_RIGHT_EDGE=8;this.directions={};this.directions[this.NEAR_TOP_EDGE]=270;this.directions[this.NEAR_BOTTOM_EDGE]=90;this.directions[this.NEAR_LEFT_EDGE]=0;this.directions[this.NEAR_RIGHT_EDGE]=180;this.directions[this.NEAR_TOP_EDGE+this.NEAR_LEFT_EDGE]=315;this.directions[this.NEAR_TOP_EDGE+
-		this.NEAR_RIGHT_EDGE]=225;this.directions[this.NEAR_BOTTOM_EDGE+this.NEAR_LEFT_EDGE]=45;this.directions[this.NEAR_BOTTOM_EDGE+this.NEAR_RIGHT_EDGE]=135;this.large_turn_angle_deg=this.angle_rad=this.angle_deg=0;this.near_edge=!1;this.edge_test_counter=10;this.fly_counter=this.large_turn_counter=this.small_turn_counter=0;this.toggle_stationary_counter=50*Math.random();this.zoom=this.random(this.options.zoom,10)/10;this.stationary=!1;this.bug=null;this.active=!0;this.wingsOpen=this.options.wingsOpen;
-		this.transform=a;this.flyIndex=this.walkIndex=0;this.alive=!0;this.twitchTimer=null;this.rad2deg_k=180/Math.PI;this.deg2rad_k=Math.PI/180;this.makeBug();this.angle_rad=this.deg2rad(this.angle_deg);this.angle_deg=this.random(0,360,!0)},go:function(){if(this.transform){this.drawBug();var a=this;this.animating=!0;this.going=requestAnimFrame(function(b){a.animate(b)})}},stop:function(){this.animating=!1;this.going&&(clearTimeout(this.going),this.going=null);this.flyperiodical&&(clearTimeout(this.flyperiodical),
-		this.flyperiodical=null);this.twitchTimer&&(clearTimeout(this.twitchTimer),this.twitchTimer=null)},remove:function(){this.active=!1;this.inserted&&this.bug.parentNode&&(this.bug.parentNode.removeChild(this.bug),this.inserted=!1)},reset:function(){this.active=this.alive=!0;this.bug.style.bottom="";this.bug.style.top=0;this.bug.style.left=0;this.bug.classList.remove("bug-dead")},animate:function(a){if(this.animating&&this.alive&&this.active){var b=this;this.going=requestAnimFrame(function(a){b.animate(a)});
-		"_lastTimestamp"in this||(this._lastTimestamp=a);var c=a-this._lastTimestamp;if(!(40>c||(200<c&&(c=200),this._lastTimestamp=a,0>=--this.toggle_stationary_counter&&this.toggleStationary(),this.stationary))){if(0>=--this.edge_test_counter&&this.bug_near_window_edge()&&(this.angle_deg%=360,0>this.angle_deg&&(this.angle_deg+=360),15<Math.abs(this.directions[this.near_edge]-this.angle_deg))){a=this.directions[this.near_edge]-this.angle_deg;var d=360-this.angle_deg+this.directions[this.near_edge];this.large_turn_angle_deg=
-		Math.abs(a)<Math.abs(d)?a:d;this.edge_test_counter=10;this.large_turn_counter=100;this.small_turn_counter=30}0>=--this.large_turn_counter&&(this.large_turn_angle_deg=this.random(1,this.options.maxLargeTurnDeg,!0),this.next_large_turn());if(0>=--this.small_turn_counter)this.angle_deg+=this.random(1,this.options.maxSmallTurnDeg),this.next_small_turn();else{a=this.random(1,this.options.maxWiggleDeg,!0);if(0<this.large_turn_angle_deg&&0>a||0>this.large_turn_angle_deg&&0<a)a=-a;this.large_turn_angle_deg-=
-		a;this.angle_deg+=a}this.angle_rad=this.deg2rad(this.angle_deg);this.moveBug(this.bug.left+c/100*this.options.walkSpeed*Math.cos(this.angle_rad),this.bug.top+c/100*this.options.walkSpeed*-Math.sin(this.angle_rad),90-this.angle_deg);this.walkFrame()}}},makeBug:function(){if(!this.bug&&this.active){var a=this.wingsOpen?"0":"-"+this.options.bugHeight+"px",b=document.createElement("div");b.className="bug";b.style.background="transparent url("+this.options.imageSprite+") no-repeat 0 "+a;b.style.width=
-		this.options.bugWidth+"px";b.style.height=this.options.bugHeight+"px";b.style.position="fixed";b.style.top=0;b.style.left=0;b.style.zIndex="9999999";this.bug=b;this.setPos()}},setPos:function(a,b){this.bug.top=a||this.random(this.options.edge_resistance,document.documentElement.clientHeight-this.options.edge_resistance);this.bug.left=b||this.random(this.options.edge_resistance,document.documentElement.clientWidth-this.options.edge_resistance);this.moveBug(this.bug.left,this.bug.top,90-this.angle_deg)},
-		moveBug:function(a,b,c){this.bug.left=a;this.bug.top=b;a="translate("+parseInt(a)+"px,"+parseInt(b)+"px)";c&&(a+=" rotate("+c+"deg)");a+=" scale("+this.zoom+")";this.transform(a)},drawBug:function(a,b){this.bug||this.makeBug();this.bug&&(a&&b?this.setPos(a,b):this.setPos(this.bug.top,this.bug.left),this.inserted||(this.inserted=!0,document.body.appendChild(this.bug)))},toggleStationary:function(){this.stationary=!this.stationary;this.next_stationary();var a=this.wingsOpen?"0":"-"+this.options.bugHeight+
-		"px";this.bug.style.backgroundPosition=this.stationary?"0 "+a:"-"+this.options.bugWidth+"px "+a},walkFrame:function(){this.bug.style.backgroundPosition=-1*this.walkIndex*this.options.bugWidth+"px "+(this.wingsOpen?"0":"-"+this.options.bugHeight+"px");this.walkIndex++;this.walkIndex>=this.options.num_frames&&(this.walkIndex=0)},fly:function(a){var b=this.bug.top,c=this.bug.left,d=c-a.left,e=b-a.top,f=Math.atan(e/d);50>Math.abs(d)+Math.abs(e)&&(this.bug.style.backgroundPosition=-2*this.options.bugWidth+
-		"px -"+2*this.options.bugHeight+"px");30>Math.abs(d)+Math.abs(e)&&(this.bug.style.backgroundPosition=-1*this.options.bugWidth+"px -"+2*this.options.bugHeight+"px");if(10>Math.abs(d)+Math.abs(e))this.bug.style.backgroundPosition="0 0",this.stop(),this.go();else{var g=Math.cos(f)*this.options.flySpeed;f=Math.sin(f)*this.options.flySpeed;if(c>a.left&&0<g||c>a.left&&0>g)g*=-1,Math.abs(d)<Math.abs(g)&&(g/=4);if(b<a.top&&0>f||b>a.top&&0<f)f*=-1,Math.abs(e)<Math.abs(f)&&(f/=4);this.moveBug(c+g,b+f)}},flyRand:function(){this.stop();
-		var a={};a.top=this.random(this.options.edge_resistance,document.documentElement.clientHeight-this.options.edge_resistance);a.left=this.random(this.options.edge_resistance,document.documentElement.clientWidth-this.options.edge_resistance);this.startFlying(a)},startFlying:function(a){var b=this.bug.top,c=this.bug.left,d=a.left-c,e=a.top-b;this.bug.left=a.left;this.bug.top=a.top;this.angle_rad=Math.atan(e/d);this.angle_deg=this.rad2deg(this.angle_rad);this.angle_deg=0<d?90+this.angle_deg:270+this.angle_deg;
-		this.moveBug(c,b,this.angle_deg);var f=this;this.flyperiodical=setInterval(function(){f.fly(a)},10)},flyIn:function(){this.bug||this.makeBug();if(this.bug){this.stop();var a=Math.round(4*Math.random()-.5),b=document,c=b.documentElement,d=b.getElementsByTagName("body")[0];b=window.innerWidth||c.clientWidth||d.clientWidth;c=window.innerHeight||c.clientHeight||d.clientHeight;3<a&&(a=3);0>a&&(a=0);0===a?(a=-2*this.options.bugHeight,b*=Math.random()):1===a?(a=Math.random()*c,b+=2*this.options.bugWidth):
-		2===a?(a=c+2*this.options.bugHeight,b*=Math.random()):(a=Math.random()*c,b=-3*this.options.bugWidth);this.bug.style.backgroundPosition=-3*this.options.bugWidth+"px "+(this.wingsOpen?"0":"-"+this.options.bugHeight+"px");this.bug.top=a;this.bug.left=b;this.drawBug();a={};a.top=this.random(this.options.edge_resistance,document.documentElement.clientHeight-this.options.edge_resistance);a.left=this.random(this.options.edge_resistance,document.documentElement.clientWidth-this.options.edge_resistance);this.startFlying(a)}},
-		walkIn:function(){this.bug||this.makeBug();if(this.bug){this.stop();var a=Math.round(4*Math.random()-.5),b=document,c=b.documentElement,d=b.getElementsByTagName("body")[0];b=window.innerWidth||c.clientWidth||d.clientWidth;c=window.innerHeight||c.clientHeight||d.clientHeight;3<a&&(a=3);0>a&&(a=0);0===a?(a=-1.3*this.options.bugHeight,b*=Math.random()):1===a?(a=Math.random()*c,b+=.3*this.options.bugWidth):2===a?(a=c+.3*this.options.bugHeight,b*=Math.random()):(a=Math.random()*c,b=-1.3*this.options.bugWidth);
-		this.bug.style.backgroundPosition=-3*this.options.bugWidth+"px "+(this.wingsOpen?"0":"-"+this.options.bugHeight+"px");this.bug.top=a;this.bug.left=b;this.drawBug();this.go()}},flyOff:function(){this.stop();var a=this.random(0,3),b={},c=document,d=c.documentElement,e=c.getElementsByTagName("body")[0];c=window.innerWidth||d.clientWidth||e.clientWidth;d=window.innerHeight||d.clientHeight||e.clientHeight;0===a?(b.top=-200,b.left=Math.random()*c):1===a?(b.top=Math.random()*d,b.left=c+200):2===a?(b.top=
-		d+200,b.left=Math.random()*c):(b.top=Math.random()*d,b.left=-200);this.startFlying(b)},die:function(){this.stop();var a=this.random(0,this.options.numDeathTypes-1);this.alive=!1;this.drop(a)},drop:function(a){var b=this.bug.top,c=document,d=c.documentElement;c=c.getElementsByTagName("body")[0];var e=window.innerHeight||d.clientHeight||c.clientHeight;e-=this.options.bugHeight;var f=this.random(0,20,!0);Date.now();var g=this;this.bug.classList.add("bug-dead");this.dropTimer=requestAnimFrame(function(c){g._lastTimestamp=
-		c;g.dropping(c,b,e,f,a)})},dropping:function(a,b,c,d,e){a-=this._lastTimestamp;var f=b+.002*a*a,g=this;f>=c?(f=c,clearTimeout(this.dropTimer),this.angle_deg=0,this.angle_rad=this.deg2rad(this.angle_deg),this.transform("rotate("+(90-this.angle_deg)+"deg) scale("+this.zoom+")"),this.bug.style.top=null,this.bug.style.bottom=Math.ceil((this.options.bugWidth*this.zoom-this.options.bugHeight*this.zoom)/2-this.options.bugHeight/2*(1-this.zoom))+"px",this.bug.style.left=this.bug.left+"px",this.bug.style.backgroundPosition=
-		"-"+2*e*this.options.bugWidth+"px 100%",this.twitch(e)):(this.dropTimer=requestAnimFrame(function(a){g.dropping(a,b,c,d,e)}),20>a||(this.angle_deg=(this.angle_deg+d)%360,this.angle_rad=this.deg2rad(this.angle_deg),this.moveBug(this.bug.left,f,this.angle_deg)))},twitch:function(a,b){b||(b=0);var c=this;if(0===a||1===a)c.twitchTimer=setTimeout(function(){c.bug.style.backgroundPosition="-"+(2*a+b%2)*c.options.bugWidth+"px 100%";c.twitchTimer=setTimeout(function(){b++;c.bug.style.backgroundPosition="-"+
-		(2*a+b%2)*c.options.bugWidth+"px 100%";c.twitch(a,++b)},c.random(300,800))},this.random(1E3,1E4))},rad2deg:function(a){return a*this.rad2deg_k},deg2rad:function(a){return a*this.deg2rad_k},random:function(a,b,c){if(a==b)return a;a=Math.round(a-.5+Math.random()*(b-a+1));return c?.5<Math.random()?a:-a:a},next_small_turn:function(){this.small_turn_counter=Math.round(10*Math.random())},next_large_turn:function(){this.large_turn_counter=Math.round(40*Math.random())},next_stationary:function(){this.toggle_stationary_counter=
-		this.random(50,300)},bug_near_window_edge:function(){this.near_edge=0;this.bug.top<this.options.edge_resistance?this.near_edge|=this.NEAR_TOP_EDGE:this.bug.top>document.documentElement.clientHeight-this.options.edge_resistance&&(this.near_edge|=this.NEAR_BOTTOM_EDGE);this.bug.left<this.options.edge_resistance?this.near_edge|=this.NEAR_LEFT_EDGE:this.bug.left>document.documentElement.clientWidth-this.options.edge_resistance&&(this.near_edge|=this.NEAR_RIGHT_EDGE);return this.near_edge},getPos:function(){return this.inserted&&
-		this.bug&&this.bug.style?{top:parseInt(this.bug.top,10),left:parseInt(this.bug.left,10)}:null}},SpawnBug=function(){var a={},b;for(b in Bug)Bug.hasOwnProperty(b)&&(a[b]=Bug[b]);return a},mergeOptions=function(a,b,c){"undefined"==typeof c&&(c=!0);a=c?cloneOf(a):a;for(var d in b)b.hasOwnProperty(d)&&(a[d]=b[d]);return a},cloneOf=function(a){if(null==a||"object"!=typeof a)return a;var b=a.constructor(),c;for(c in a)a.hasOwnProperty(c)&&(b[c]=cloneOf(a[c]));return b};
-		window.requestAnimFrame=function(){return window.requestAnimationFrame||window.webkitRequestAnimationFrame||window.mozRequestAnimationFrame||window.oRequestAnimationFrame||window.msRequestAnimationFrame||function(a,b){window.setTimeout(a,1E3/60)}}();
-	</script>
-	<script type="text/javascript">
-		new BugController({
-			imageSprite: "/assets/images/fly-sprite.gif",
-			canDie: false,
-			minBugs: 5,
-			maxBugs: 30,
-			mouseOver: "fly"
-		});
-		new SpiderController({
-			imageSprite: "/assets/images/spider-sprite.gif",
-			canDie: false,
-			minBugs: 2,
-			maxBugs: 20,
-			mouseOver: "fly"
-		});
-	</script>
-	<noscript>
-		<style>
-			body {
-				-moz-transform: scale(-1, -1);
-				-o-transform: scale(-1, -1);
-				-webkit-transform: scale(-1, -1);
-				transform: scale(-1, -1);
-			}
-		</style>
-	</noscript>
+		<script>
+			/*
+			Bug.js - https://github.com/Auz/Bug
+			Released under MIT-style license.
+			Original Screen Bug http://screen-bug.googlecode.com/git/index.html
+			*/
+			var BugDispatch={options:{minDelay:500,maxDelay:1E4,minBugs:2,maxBugs:20,minSpeed:5,maxSpeed:10,maxLargeTurnDeg:150,maxSmallTurnDeg:10,maxWiggleDeg:5,imageSprite:"fly-sprite.webp",bugWidth:13,bugHeight:14,num_frames:5,zoom:10,canFly:!0,canDie:!0,numDeathTypes:3,monitorMouseMovement:!1,eventDistanceToBug:40,minTimeBetweenMultipy:1E3,mouseOver:"random"},initialize:function(a){this.options=mergeOptions(this.options,a);this.options.minBugs>this.options.maxBugs&&(this.options.minBugs=this.options.maxBugs);
+			this.modes=["multiply","nothing"];this.options.canFly&&this.modes.push("fly","flyoff");this.options.canDie&&this.modes.push("die");-1==this.modes.indexOf(this.options.mouseOver)&&(this.options.mouseOver="random");this.transform=null;this.transforms={Moz:function(a){this.bug.style.MozTransform=a},webkit:function(a){this.bug.style.webkitTransform=a},O:function(a){this.bug.style.OTransform=a},ms:function(a){this.bug.style.msTransform=a},Khtml:function(a){this.bug.style.KhtmlTransform=a},w3c:function(a){this.bug.style.transform=
+			a}};if("transform"in document.documentElement.style)this.transform=this.transforms.w3c;else{var b=["Moz","webkit","O","ms","Khtml"],c=0;for(c=0;c<b.length;c++)if(b[c]+"Transform"in document.documentElement.style){this.transform=this.transforms[b[c]];break}}if(this.transform){this.bugs=[];b="multiply"===this.options.mouseOver?this.options.minBugs:this.random(this.options.minBugs,this.options.maxBugs,!0);c=0;var d=this;for(c=0;c<b;c++){a=JSON.parse(JSON.stringify(this.options));var e=SpawnBug();a.wingsOpen=
+			this.options.canFly?.5<Math.random()?!0:!1:!0;a.walkSpeed=this.random(this.options.minSpeed,this.options.maxSpeed);e.initialize(this.transform,a);this.bugs.push(e)}this.spawnDelay=[];for(c=0;c<b;c++)a=this.random(this.options.minDelay,this.options.maxDelay,!0),e=this.bugs[c],this.spawnDelay[c]=setTimeout(function(a){return function(){d.options.canFly?a.flyIn():a.walkIn()}}(e),a),d.add_events_to_bug(e);this.options.monitorMouseMovement&&(window.onmousemove=function(){d.check_if_mouse_close_to_bug()})}},
+			stop:function(){for(var a=0;a<this.bugs.length;a++)this.spawnDelay[a]&&clearTimeout(this.spawnDelay[a]),this.bugs[a].stop()},end:function(){for(var a=0;a<this.bugs.length;a++)this.spawnDelay[a]&&clearTimeout(this.spawnDelay[a]),this.bugs[a].stop(),this.bugs[a].remove()},reset:function(){this.stop();for(var a=0;a<this.bugs.length;a++)this.bugs[a].reset(),this.bugs[a].walkIn()},killAll:function(){for(var a=0;a<this.bugs.length;a++)this.spawnDelay[a]&&clearTimeout(this.spawnDelay[a]),this.bugs[a].die()},
+			add_events_to_bug:function(a){var b=this;a.bug&&(a.bug.addEventListener?a.bug.addEventListener("mouseover",function(c){b.on_bug(a)}):a.bug.attachEvent&&a.bug.attachEvent("onmouseover",function(c){b.on_bug(a)}))},check_if_mouse_close_to_bug:function(a){if(a=a||window.event){var b=0,c=0;a.client&&a.client.x?(b=a.client.x,c=a.client.y):a.clientX?(b=a.clientX,c=a.clientY):a.page&&a.page.x?(b=a.page.x-(document.body.scrollLeft+document.documentElement.scrollLeft),c=a.page.y-(document.body.scrollTop+document.documentElement.scrollTop)):
+			a.pageX&&(b=a.pageX-(document.body.scrollLeft+document.documentElement.scrollLeft),c=a.pageY-(document.body.scrollTop+document.documentElement.scrollTop));a=this.bugs.length;var d;for(d=0;d<a;d++){var e=this.bugs[d].getPos();e&&Math.abs(e.top-c)+Math.abs(e.left-b)<this.options.eventDistanceToBug&&!this.bugs[d].flyperiodical&&this.near_bug(this.bugs[d])}}},near_bug:function(a){this.on_bug(a)},on_bug:function(a){if(a.alive){var b=this.options.mouseOver;"random"===b&&(b=this.modes[this.random(0,this.modes.length-
+			1,!0)]);if("fly"===b)a.stop(),a.flyRand();else if("nothing"!==b)if("flyoff"===b)a.stop(),a.flyOff();else if("die"===b)a.die();else if("multiply"===b&&!this.multiplyDelay&&this.bugs.length<this.options.maxBugs){var c=SpawnBug();b=JSON.parse(JSON.stringify(this.options));var d=a.getPos(),e=this;b.wingsOpen=this.options.canFly?.5<Math.random()?!0:!1:!0;b.walkSpeed=this.random(this.options.minSpeed,this.options.maxSpeed);c.initialize(this.transform,b);c.drawBug(d.top,d.left);b.canFly?(c.flyRand(),a.flyRand()):
+			(c.go(),a.go());this.bugs.push(c);this.multiplyDelay=!0;setTimeout(function(){e.add_events_to_bug(c);e.multiplyDelay=!1},this.options.minTimeBetweenMultipy)}}},random:function(a,b,c){if(a==b)return c?Math.round(a):a;var d=a-.5+Math.random()*(b-a+1);d>b?d=b:d<a&&(d=a);return c?Math.round(d):d}},BugController=function(){this.initialize.apply(this,arguments)};BugController.prototype=BugDispatch;
+			var SpiderController=function(){this.options=mergeOptions(this.options,{imageSprite:"spider-sprite.webp",bugWidth:69,bugHeight:90,num_frames:7,canFly:!1,canDie:!0,numDeathTypes:2,zoom:6,minDelay:200,maxDelay:3E3,minSpeed:6,maxSpeed:13,minBugs:3,maxBugs:10});this.initialize.apply(this,arguments)};SpiderController.prototype=BugDispatch;
+			var Bug={options:{wingsOpen:!1,walkSpeed:2,flySpeed:40,edge_resistance:50,zoom:10},initialize:function(a,b){this.options=mergeOptions(this.options,b);this.NEAR_TOP_EDGE=1;this.NEAR_BOTTOM_EDGE=2;this.NEAR_LEFT_EDGE=4;this.NEAR_RIGHT_EDGE=8;this.directions={};this.directions[this.NEAR_TOP_EDGE]=270;this.directions[this.NEAR_BOTTOM_EDGE]=90;this.directions[this.NEAR_LEFT_EDGE]=0;this.directions[this.NEAR_RIGHT_EDGE]=180;this.directions[this.NEAR_TOP_EDGE+this.NEAR_LEFT_EDGE]=315;this.directions[this.NEAR_TOP_EDGE+
+			this.NEAR_RIGHT_EDGE]=225;this.directions[this.NEAR_BOTTOM_EDGE+this.NEAR_LEFT_EDGE]=45;this.directions[this.NEAR_BOTTOM_EDGE+this.NEAR_RIGHT_EDGE]=135;this.large_turn_angle_deg=this.angle_rad=this.angle_deg=0;this.near_edge=!1;this.edge_test_counter=10;this.fly_counter=this.large_turn_counter=this.small_turn_counter=0;this.toggle_stationary_counter=50*Math.random();this.zoom=this.random(this.options.zoom,10)/10;this.stationary=!1;this.bug=null;this.active=!0;this.wingsOpen=this.options.wingsOpen;
+			this.transform=a;this.flyIndex=this.walkIndex=0;this.alive=!0;this.twitchTimer=null;this.rad2deg_k=180/Math.PI;this.deg2rad_k=Math.PI/180;this.makeBug();this.angle_rad=this.deg2rad(this.angle_deg);this.angle_deg=this.random(0,360,!0)},go:function(){if(this.transform){this.drawBug();var a=this;this.animating=!0;this.going=requestAnimFrame(function(b){a.animate(b)})}},stop:function(){this.animating=!1;this.going&&(clearTimeout(this.going),this.going=null);this.flyperiodical&&(clearTimeout(this.flyperiodical),
+			this.flyperiodical=null);this.twitchTimer&&(clearTimeout(this.twitchTimer),this.twitchTimer=null)},remove:function(){this.active=!1;this.inserted&&this.bug.parentNode&&(this.bug.parentNode.removeChild(this.bug),this.inserted=!1)},reset:function(){this.active=this.alive=!0;this.bug.style.bottom="";this.bug.style.top=0;this.bug.style.left=0;this.bug.classList.remove("bug-dead")},animate:function(a){if(this.animating&&this.alive&&this.active){var b=this;this.going=requestAnimFrame(function(a){b.animate(a)});
+			"_lastTimestamp"in this||(this._lastTimestamp=a);var c=a-this._lastTimestamp;if(!(40>c||(200<c&&(c=200),this._lastTimestamp=a,0>=--this.toggle_stationary_counter&&this.toggleStationary(),this.stationary))){if(0>=--this.edge_test_counter&&this.bug_near_window_edge()&&(this.angle_deg%=360,0>this.angle_deg&&(this.angle_deg+=360),15<Math.abs(this.directions[this.near_edge]-this.angle_deg))){a=this.directions[this.near_edge]-this.angle_deg;var d=360-this.angle_deg+this.directions[this.near_edge];this.large_turn_angle_deg=
+			Math.abs(a)<Math.abs(d)?a:d;this.edge_test_counter=10;this.large_turn_counter=100;this.small_turn_counter=30}0>=--this.large_turn_counter&&(this.large_turn_angle_deg=this.random(1,this.options.maxLargeTurnDeg,!0),this.next_large_turn());if(0>=--this.small_turn_counter)this.angle_deg+=this.random(1,this.options.maxSmallTurnDeg),this.next_small_turn();else{a=this.random(1,this.options.maxWiggleDeg,!0);if(0<this.large_turn_angle_deg&&0>a||0>this.large_turn_angle_deg&&0<a)a=-a;this.large_turn_angle_deg-=
+			a;this.angle_deg+=a}this.angle_rad=this.deg2rad(this.angle_deg);this.moveBug(this.bug.left+c/100*this.options.walkSpeed*Math.cos(this.angle_rad),this.bug.top+c/100*this.options.walkSpeed*-Math.sin(this.angle_rad),90-this.angle_deg);this.walkFrame()}}},makeBug:function(){if(!this.bug&&this.active){var a=this.wingsOpen?"0":"-"+this.options.bugHeight+"px",b=document.createElement("div");b.className="bug";b.style.background="transparent url("+this.options.imageSprite+") no-repeat 0 "+a;b.style.width=
+			this.options.bugWidth+"px";b.style.height=this.options.bugHeight+"px";b.style.position="fixed";b.style.top=0;b.style.left=0;b.style.zIndex="9999999";this.bug=b;this.setPos()}},setPos:function(a,b){this.bug.top=a||this.random(this.options.edge_resistance,document.documentElement.clientHeight-this.options.edge_resistance);this.bug.left=b||this.random(this.options.edge_resistance,document.documentElement.clientWidth-this.options.edge_resistance);this.moveBug(this.bug.left,this.bug.top,90-this.angle_deg)},
+			moveBug:function(a,b,c){this.bug.left=a;this.bug.top=b;a="translate("+parseInt(a)+"px,"+parseInt(b)+"px)";c&&(a+=" rotate("+c+"deg)");a+=" scale("+this.zoom+")";this.transform(a)},drawBug:function(a,b){this.bug||this.makeBug();this.bug&&(a&&b?this.setPos(a,b):this.setPos(this.bug.top,this.bug.left),this.inserted||(this.inserted=!0,document.body.appendChild(this.bug)))},toggleStationary:function(){this.stationary=!this.stationary;this.next_stationary();var a=this.wingsOpen?"0":"-"+this.options.bugHeight+
+			"px";this.bug.style.backgroundPosition=this.stationary?"0 "+a:"-"+this.options.bugWidth+"px "+a},walkFrame:function(){this.bug.style.backgroundPosition=-1*this.walkIndex*this.options.bugWidth+"px "+(this.wingsOpen?"0":"-"+this.options.bugHeight+"px");this.walkIndex++;this.walkIndex>=this.options.num_frames&&(this.walkIndex=0)},fly:function(a){var b=this.bug.top,c=this.bug.left,d=c-a.left,e=b-a.top,f=Math.atan(e/d);50>Math.abs(d)+Math.abs(e)&&(this.bug.style.backgroundPosition=-2*this.options.bugWidth+
+			"px -"+2*this.options.bugHeight+"px");30>Math.abs(d)+Math.abs(e)&&(this.bug.style.backgroundPosition=-1*this.options.bugWidth+"px -"+2*this.options.bugHeight+"px");if(10>Math.abs(d)+Math.abs(e))this.bug.style.backgroundPosition="0 0",this.stop(),this.go();else{var g=Math.cos(f)*this.options.flySpeed;f=Math.sin(f)*this.options.flySpeed;if(c>a.left&&0<g||c>a.left&&0>g)g*=-1,Math.abs(d)<Math.abs(g)&&(g/=4);if(b<a.top&&0>f||b>a.top&&0<f)f*=-1,Math.abs(e)<Math.abs(f)&&(f/=4);this.moveBug(c+g,b+f)}},flyRand:function(){this.stop();
+			var a={};a.top=this.random(this.options.edge_resistance,document.documentElement.clientHeight-this.options.edge_resistance);a.left=this.random(this.options.edge_resistance,document.documentElement.clientWidth-this.options.edge_resistance);this.startFlying(a)},startFlying:function(a){var b=this.bug.top,c=this.bug.left,d=a.left-c,e=a.top-b;this.bug.left=a.left;this.bug.top=a.top;this.angle_rad=Math.atan(e/d);this.angle_deg=this.rad2deg(this.angle_rad);this.angle_deg=0<d?90+this.angle_deg:270+this.angle_deg;
+			this.moveBug(c,b,this.angle_deg);var f=this;this.flyperiodical=setInterval(function(){f.fly(a)},10)},flyIn:function(){this.bug||this.makeBug();if(this.bug){this.stop();var a=Math.round(4*Math.random()-.5),b=document,c=b.documentElement,d=b.getElementsByTagName("body")[0];b=window.innerWidth||c.clientWidth||d.clientWidth;c=window.innerHeight||c.clientHeight||d.clientHeight;3<a&&(a=3);0>a&&(a=0);0===a?(a=-2*this.options.bugHeight,b*=Math.random()):1===a?(a=Math.random()*c,b+=2*this.options.bugWidth):
+			2===a?(a=c+2*this.options.bugHeight,b*=Math.random()):(a=Math.random()*c,b=-3*this.options.bugWidth);this.bug.style.backgroundPosition=-3*this.options.bugWidth+"px "+(this.wingsOpen?"0":"-"+this.options.bugHeight+"px");this.bug.top=a;this.bug.left=b;this.drawBug();a={};a.top=this.random(this.options.edge_resistance,document.documentElement.clientHeight-this.options.edge_resistance);a.left=this.random(this.options.edge_resistance,document.documentElement.clientWidth-this.options.edge_resistance);this.startFlying(a)}},
+			walkIn:function(){this.bug||this.makeBug();if(this.bug){this.stop();var a=Math.round(4*Math.random()-.5),b=document,c=b.documentElement,d=b.getElementsByTagName("body")[0];b=window.innerWidth||c.clientWidth||d.clientWidth;c=window.innerHeight||c.clientHeight||d.clientHeight;3<a&&(a=3);0>a&&(a=0);0===a?(a=-1.3*this.options.bugHeight,b*=Math.random()):1===a?(a=Math.random()*c,b+=.3*this.options.bugWidth):2===a?(a=c+.3*this.options.bugHeight,b*=Math.random()):(a=Math.random()*c,b=-1.3*this.options.bugWidth);
+			this.bug.style.backgroundPosition=-3*this.options.bugWidth+"px "+(this.wingsOpen?"0":"-"+this.options.bugHeight+"px");this.bug.top=a;this.bug.left=b;this.drawBug();this.go()}},flyOff:function(){this.stop();var a=this.random(0,3),b={},c=document,d=c.documentElement,e=c.getElementsByTagName("body")[0];c=window.innerWidth||d.clientWidth||e.clientWidth;d=window.innerHeight||d.clientHeight||e.clientHeight;0===a?(b.top=-200,b.left=Math.random()*c):1===a?(b.top=Math.random()*d,b.left=c+200):2===a?(b.top=
+			d+200,b.left=Math.random()*c):(b.top=Math.random()*d,b.left=-200);this.startFlying(b)},die:function(){this.stop();var a=this.random(0,this.options.numDeathTypes-1);this.alive=!1;this.drop(a)},drop:function(a){var b=this.bug.top,c=document,d=c.documentElement;c=c.getElementsByTagName("body")[0];var e=window.innerHeight||d.clientHeight||c.clientHeight;e-=this.options.bugHeight;var f=this.random(0,20,!0);Date.now();var g=this;this.bug.classList.add("bug-dead");this.dropTimer=requestAnimFrame(function(c){g._lastTimestamp=
+			c;g.dropping(c,b,e,f,a)})},dropping:function(a,b,c,d,e){a-=this._lastTimestamp;var f=b+.002*a*a,g=this;f>=c?(f=c,clearTimeout(this.dropTimer),this.angle_deg=0,this.angle_rad=this.deg2rad(this.angle_deg),this.transform("rotate("+(90-this.angle_deg)+"deg) scale("+this.zoom+")"),this.bug.style.top=null,this.bug.style.bottom=Math.ceil((this.options.bugWidth*this.zoom-this.options.bugHeight*this.zoom)/2-this.options.bugHeight/2*(1-this.zoom))+"px",this.bug.style.left=this.bug.left+"px",this.bug.style.backgroundPosition=
+			"-"+2*e*this.options.bugWidth+"px 100%",this.twitch(e)):(this.dropTimer=requestAnimFrame(function(a){g.dropping(a,b,c,d,e)}),20>a||(this.angle_deg=(this.angle_deg+d)%360,this.angle_rad=this.deg2rad(this.angle_deg),this.moveBug(this.bug.left,f,this.angle_deg)))},twitch:function(a,b){b||(b=0);var c=this;if(0===a||1===a)c.twitchTimer=setTimeout(function(){c.bug.style.backgroundPosition="-"+(2*a+b%2)*c.options.bugWidth+"px 100%";c.twitchTimer=setTimeout(function(){b++;c.bug.style.backgroundPosition="-"+
+			(2*a+b%2)*c.options.bugWidth+"px 100%";c.twitch(a,++b)},c.random(300,800))},this.random(1E3,1E4))},rad2deg:function(a){return a*this.rad2deg_k},deg2rad:function(a){return a*this.deg2rad_k},random:function(a,b,c){if(a==b)return a;a=Math.round(a-.5+Math.random()*(b-a+1));return c?.5<Math.random()?a:-a:a},next_small_turn:function(){this.small_turn_counter=Math.round(10*Math.random())},next_large_turn:function(){this.large_turn_counter=Math.round(40*Math.random())},next_stationary:function(){this.toggle_stationary_counter=
+			this.random(50,300)},bug_near_window_edge:function(){this.near_edge=0;this.bug.top<this.options.edge_resistance?this.near_edge|=this.NEAR_TOP_EDGE:this.bug.top>document.documentElement.clientHeight-this.options.edge_resistance&&(this.near_edge|=this.NEAR_BOTTOM_EDGE);this.bug.left<this.options.edge_resistance?this.near_edge|=this.NEAR_LEFT_EDGE:this.bug.left>document.documentElement.clientWidth-this.options.edge_resistance&&(this.near_edge|=this.NEAR_RIGHT_EDGE);return this.near_edge},getPos:function(){return this.inserted&&
+			this.bug&&this.bug.style?{top:parseInt(this.bug.top,10),left:parseInt(this.bug.left,10)}:null}},SpawnBug=function(){var a={},b;for(b in Bug)Bug.hasOwnProperty(b)&&(a[b]=Bug[b]);return a},mergeOptions=function(a,b,c){"undefined"==typeof c&&(c=!0);a=c?cloneOf(a):a;for(var d in b)b.hasOwnProperty(d)&&(a[d]=b[d]);return a},cloneOf=function(a){if(null==a||"object"!=typeof a)return a;var b=a.constructor(),c;for(c in a)a.hasOwnProperty(c)&&(b[c]=cloneOf(a[c]));return b};
+			window.requestAnimFrame=function(){return window.requestAnimationFrame||window.webkitRequestAnimationFrame||window.mozRequestAnimationFrame||window.oRequestAnimationFrame||window.msRequestAnimationFrame||function(a,b){window.setTimeout(a,1E3/60)}}();
+		</script>
+		<script>
+			new BugController({
+				imageSprite: "/assets/images/fly-sprite.webp",
+				canDie: false,
+				minBugs: 5,
+				maxBugs: 30,
+				mouseOver: "fly"
+			});
+			new SpiderController({
+				imageSprite: "/assets/images/spider-sprite.webp",
+				canDie: false,
+				minBugs: 2,
+				maxBugs: 20,
+				mouseOver: "fly"
+			});
+		</script>
+		<noscript>
+			<style>
+				body {
+					-moz-transform: scale(-1, -1);
+					-o-transform: scale(-1, -1);
+					-webkit-transform: scale(-1, -1);
+					transform: scale(-1, -1);
+				}
+			</style>
+		</noscript>
 	{% endif %}
 
-	<script>
-
-		// comment collapse
-
-		// Toggle comment collapse
-
-		function collapse_comment(comment_id) {
-
-			var comment = "comment-" + comment_id;
-
-			document.getElementById(comment).classList.toggle("collapsed");
-
-		};
-
-		//Commenting form
-
-		// Expand comment box on focus, hide otherwise
-
-		$('.comment-box').focus(function (event) {
-			event.preventDefault();
-
-			$(this).parent().parent().addClass("collapsed");
-
-		});
-
-		// Comment edit form
-
-		toggleEdit=function(id){
-			comment=document.getElementById("comment-text-"+id);
-			form=document.getElementById("comment-edit-"+id);
-			box=document.getElementById('edit-box-comment-'+id);
-			actions = document.getElementById('comment-' + id +'-actions');
-
-			comment.classList.toggle("d-none");
-			form.classList.toggle("d-none");
-			actions.classList.toggle("d-none");
-			autoExpand(box);
-		};
-
-		// Post edit form
-
-		togglePostEdit=function(id){
-
-			body=document.getElementById("post-body");
-			title=document.getElementById("post-title");
-			form=document.getElementById("edit-post-body-"+id);
-			box=document.getElementById("post-edit-box-"+id);
-			box2=document.getElementById("post-edit-box2-"+id);
-
-			body.classList.toggle("d-none");
-			title.classList.toggle("d-none");
-			form.classList.toggle("d-none");
-			autoExpand(box);
-			autoExpand(box2);
-		};
-
-		//comment modding
-		function removeComment(post_id) {
-			url="/ban_comment/"+post_id
-
-			callback=function(){
-				document.getElementById("comment-"+post_id+"-only").classList.add("banned");
-
-				button=document.getElementById("moderate-"+post_id);
-				button.onclick=function(){approveComment(post_id)};
-				button.innerHTML='<i class="fas fa-clipboard-check"></i>Approve'
-			}
-			post(url, callback, "Comment has been removed.")
-		};
-
-		function approveComment(post_id) {
-			url="/unban_comment/"+post_id
-
-			callback=function(){
-				document.getElementById("comment-"+post_id+"-only").classList.remove("banned");
-
-				button=document.getElementById("moderate-"+post_id);
-				button.onclick=function(){removeComment(post_id)};
-				button.innerHTML='<i class="fas fa-trash-alt"></i>Remove'
-			}
-
-			post(url, callback, "Comment has been approved.")
-		}
-
-		admin_comment=function(cid){
-
-
-			var xhr = new XMLHttpRequest();
-			xhr.open("post", "/distinguish_comment/"+cid);
-
-			var form = new FormData();
-
-			form.append('formkey', formkey());
-
-			xhr.withCredentials=true;
-			xhr.onload=function(){
-				if (xhr.status==200) {
-					comment=document.getElementById('comment-'+cid+'-only');
-					comment.innerHTML=JSON.parse(xhr.response)["html"];
-				}
-				else {
-					var commentError = document.getElementById("comment-error-text");
-					$('#toast-comment-success').toast('dispose');
-					$('#toast-comment-error').toast('dispose');
-					$('#toast-comment-error').toast('show');
-					commentError.textContent = JSON.parse(xhr.response)["error"];
-				}
-			}
-			xhr.send(form)
-		}
-
-		//Autoexpand textedit comments
-
-		function autoExpand (field) {
-
-			//get current scroll position
-			xpos=window.scrollX;
-			ypos=window.scrollY;
-
-			// Reset field height
-			field.style.height = 'inherit';
-
-			// Get the computed styles for the element
-			var computed = window.getComputedStyle(field);
-
-			// Calculate the height
-			var height = parseInt(computed.getPropertyValue('border-top-width'), 10)
-			+ parseInt(computed.getPropertyValue('padding-top'), 10)
-			+ field.scrollHeight
-			+ parseInt(computed.getPropertyValue('padding-bottom'), 10)
-			+ parseInt(computed.getPropertyValue('border-bottom-width'), 10)
-			+ 32;
-
-			field.style.height = height + 'px';
-
-			//keep window position from changing
-			window.scrollTo(xpos,ypos);
-
-		};
-
-		document.addEventListener('input', function (event) {
-			if (event.target.tagName.toLowerCase() !== 'textarea') return;
-			autoExpand(event.target);
-		}, false);
-
-		// Delete Post
-
-		function delete_postModal(id) {
-
-			// Passed data for modal
-
-			document.getElementById("deletePostButton-mobile").addEventListener("click", delete_post);
-
-			document.getElementById("deletePostButton").addEventListener("click", delete_post);
-
-			function delete_post(){	
-
-				this.innerHTML='<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Deleting post';	
-				this.disabled = true; 
-				post('/delete_post/' + id,
-					callback = function() {
-
-						location.reload();
-					}
-					)
-			}
-
-		};
-
-		// Delete Comment
-
-		function delete_commentModal(id) {
-
-			// Passed data for modal
-
-			document.getElementById("deleteCommentButton").onclick = function() {	
-
-				this.innerHTML='<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Deleting comment';	
-				this.disabled = true; 
-				post('/delete/comment/' + id,
-					callback = function() {
-
-						location.reload();
-					}
-					)
-			}
-
-		};
-
-		//flagging
-		// Flag Comment
-
-		report_commentModal = function(id, author) {
-
-			document.getElementById("comment-author").textContent = author;
-
-			//offtopic.disabled=true;
-
-			document.getElementById("reportCommentButton").onclick = function() {
-
-				this.innerHTML='<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Reporting comment';
-				this.disabled = true;
-				var xhr = new XMLHttpRequest();
-				xhr.open("POST", '/flag/comment/'+id, true);
-				var form = new FormData()
-				form.append("formkey", formkey());
-				form.append("reason", document.getElementById("reason-comment").value);
-
-				xhr.withCredentials=true;
-
-				xhr.onload=function() {
-					document.getElementById("reportCommentFormBefore").classList.add('d-none');
-					document.getElementById("reportCommentFormAfter").classList.remove('d-none');
-				};
-
-				xhr.onerror=function(){alert(errortext)};
-				xhr.send(form);
-			}
-
-		};
-
-		$('#reportCommentModal').on('hidden.bs.modal', function () {
-
-			var button = document.getElementById("reportCommentButton");
-
-			var beforeModal = document.getElementById("reportCommentFormBefore");
-			var afterModal = document.getElementById("reportCommentFormAfter");
-
-			button.innerHTML='Report comment';
-			button.disabled= false;
-			afterModal.classList.add('d-none');
-
-			if ( beforeModal.classList.contains('d-none') ) {
-				beforeModal.classList.remove('d-none');
-			}
-
-		});
-
-
-		// Flag Submission
-
-		report_postModal = function(id, author) {
-
-			document.getElementById("post-author").textContent = author;
-
-			submitbutton=document.getElementById("reportPostButton");
-
-			submitbutton.onclick = function() {
-
-				this.innerHTML='<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Reporting post';
-				this.disabled = true;
-
-				var xhr = new XMLHttpRequest();
-				xhr.open("POST", '/flag/post/'+id, true);
-				var form = new FormData()
-				form.append("formkey", formkey());
-				form.append("reason", document.getElementById("reason").value);
-
-				xhr.withCredentials=true;
-
-				xhr.onload=function() {
-					document.getElementById("reportPostFormBefore").classList.add('d-none');
-					document.getElementById("reportPostFormAfter").classList.remove('d-none');
-				};
-
-				xhr.onerror=function(){alert(errortext)};
-				xhr.send(form);
-
-			}
-		};
-
-		$('#reportPostModal').on('hidden.bs.modal', function () {
-
-			var button = document.getElementById("reportPostButton");
-
-			var beforeModal = document.getElementById("reportPostFormBefore");
-			var afterModal = document.getElementById("reportPostFormAfter");
-
-			button.innerHTML='Report post';
-			button.disabled= false;
-
-			afterModal.classList.add('d-none');
-
-			if ( beforeModal.classList.contains('d-none') ) {
-				beforeModal.classList.remove('d-none');
-			}
-
-		});
-	
-
-
-
-		$('.expandable-image').click( function(event) {
-
-			if (event.which != 1) {
-				return
-			}
-			event.preventDefault();
-
-			var url= $(this).data('url');
-
-			expandDesktopImage(url,url);
-		})
-	
-		$('.text-expand').click(function(event){
-		if (event.which != 1) {
-			return
-		};
-		id=$(this).data('id');
-
-
-		$('#post-text-'+id).toggleClass('d-none');
-		$('.text-expand-icon-'+id).toggleClass('fa-expand-alt');
-		$('.text-expand-icon-'+id).toggleClass('fa-compress-alt');
-
-		})
-
-		// Text Formatting
-
-		// Bold Text
-
-		makeBold = function (form) {
-			var text = document.getElementById(form);
-			var startIndex = text.selectionStart,
-			endIndex = text.selectionEnd;
-			var selectedText = text.value.substring(startIndex, endIndex);
-
-			var format = '**'
-
-			if (selectedText.includes('**')) {
-				text.value = selectedText.replace(/\*/g, '');
-				
-			}
-			else if (selectedText.length == 0) {
-				text.value = text.value.substring(0, startIndex) + selectedText + text.value.substring(endIndex);
-			}
-			else {
-				text.value = text.value.substring(0, startIndex) + format + selectedText + format + text.value.substring(endIndex);
-			}
-		}
-
-		// Italicize Comment Text
-
-		makeItalics = function (form) {
-			var text = document.getElementById(form);
-			var startIndex = text.selectionStart,
-			endIndex = text.selectionEnd;
-			var selectedText = text.value.substring(startIndex, endIndex);
-
-			var format = '*'
-
-			if (selectedText.includes('*')) {
-				text.value = selectedText.replace(/\*/g, '');
-				
-			}
-			else if (selectedText.length == 0) {
-				text.value = text.value.substring(0, startIndex) + selectedText + text.value.substring(endIndex);
-			}
-			else {
-				text.value = text.value.substring(0, startIndex) + format + selectedText + format + text.value.substring(endIndex);
-			}
-		}
-
-		// Quote Comment Text
-
-		makeQuote = function (form) {
-			var text = document.getElementById(form);
-			var startIndex = text.selectionStart,
-			endIndex = text.selectionEnd;
-			var selectedText = text.value.substring(startIndex, endIndex);
-
-			var format = '>'
-
-			if (selectedText.includes('>')) {
-				text.value = text.value.substring(0, startIndex) + selectedText.replace(/\>/g, '') + text.value.substring(endIndex);
-				
-			}
-			else if (selectedText.length == 0) {
-				text.value = text.value.substring(0, startIndex) + selectedText + text.value.substring(endIndex);
-			}
-			else {
-				text.value = text.value.substring(0, startIndex) + format + selectedText + text.value.substring(endIndex);
-			}
-		}
-
-		// award modal
-
-		function awardModal(link) {
-			var target = document.getElementById("awardTarget");
-
-			target.value = link;
-		}
-
-		// Expand Images on Desktop
-
-		function expandDesktopImage(image, link) {
-
-		// Link text
-
-			var linkText = document.getElementById("desktop-expanded-image-link");
-			var imgLink = document.getElementById("desktop-expanded-image-wrap-link");
-
-			var inlineImage = document.getElementById("desktop-expanded-image");
-
-			inlineImage.src = image.replace("100w.gif", "giphy.gif");
-			linkText.href = image;
-			imgLink.href=image;
-
-			linkText.textContent = 'View original';
-			};
-
-		post_comment=function(fullname){
-
-
-			var form = new FormData();
-
-			form.append('formkey', formkey());
-			form.append('parent_fullname', fullname);
-			form.append('submission', document.getElementById('reply-form-submission-'+fullname).value);
-			form.append('body', document.getElementById('reply-form-body-'+fullname).value);
-			form.append('file', document.getElementById('file-upload-reply-'+fullname).files[0]);
-			var xhr = new XMLHttpRequest();
-			xhr.open("post", "/comment");
-			xhr.withCredentials=true;
-			xhr.onload=function(){
-				if (xhr.status==200) {
-					commentForm=document.getElementById('comment-form-space-'+fullname);
-					commentForm.innerHTML=JSON.parse(xhr.response)["html"];
-					$('#toast-comment-success').toast('dispose');
-					$('#toast-comment-error').toast('dispose');
-					$('#toast-comment-success').toast('show');
-				}
-				else {
-					var commentError = document.getElementById("comment-error-text");
-					$('#toast-comment-success').toast('dispose');
-					$('#toast-comment-error').toast('dispose');
-					$('#toast-comment-error').toast('show');
-					commentError.textContent = JSON.parse(xhr.response)["error"];
-				}
-			}
-			xhr.send(form)
-
-			document.getElementById('save-reply-to-'+fullname).classList.add('disabled');
-
-		}
-
-		herald_comment=function(cid){
-
-
-			var xhr = new XMLHttpRequest();
-			xhr.open("post", "/admin/distinguish_comment/"+cid);
-
-			var form = new FormData();
-
-			form.append('formkey', formkey());
-
-			xhr.withCredentials=true;
-			xhr.onload=function(){
-				if (xhr.status==200) {
-					comment=document.getElementById('comment-'+cid+'-only');
-					comment.innerHTML=JSON.parse(xhr.response)["html"];
-				}
-				else {
-					var commentError = document.getElementById("comment-error-text");
-					$('#toast-comment-success').toast('dispose');
-					$('#toast-comment-error').toast('dispose');
-					$('#toast-comment-error').toast('show');
-					commentError.textContent = JSON.parse(xhr.response)["error"];
-				}
-			}
-			xhr.send(form)
-
-		}
-
-		comment_edit=function(id){
-
-			var commentError = document.getElementById("comment-error-text");
-
-			var form = new FormData();
-
-			form.append('formkey', formkey());
-			form.append('body', document.getElementById('comment-edit-body-'+id).value);
-			form.append('file', document.getElementById('file-edit-reply-'+id).files[0]);
-
-			var xhr = new XMLHttpRequest();
-			xhr.open("post", "/edit_comment/"+id);
-			xhr.withCredentials=true;
-			xhr.onload=function(){
-				if (xhr.status==200) {
-					commentForm=document.getElementById('comment-text-'+id);
-					commentForm.innerHTML=JSON.parse(xhr.response)["html"];
-					document.getElementById('cancel-edit-'+id).click()
-					$('#toast-comment-success').toast('dispose');
-					$('#toast-comment-error').toast('dispose');
-					$('#toast-comment-success').toast('show');
-				}
-				else {
-					$('#toast-comment-success').toast('dispose');
-					$('#toast-comment-error').toast('dispose');
-					$('#toast-comment-error').toast('show');
-					commentError.textContent = JSON.parse(xhr.response)["error"];
-				}
-			}
-			xhr.send(form)
-
-		}
-
-	
-		block_user=function() {
-
-			var exileForm = document.getElementById("exile-form");
-
-			var exileError = document.getElementById("toast-error-message");
-
-			var usernameField = document.getElementById("exile-username");
-
-			var isValidUsername = usernameField.checkValidity();
-
-			username = usernameField.value;
-
-			if (isValidUsername) {
-
-				var xhr = new XMLHttpRequest();
-				xhr.open("post", "/settings/block");
-				xhr.withCredentials=true;
-				f=new FormData();
-				f.append("username", username);
-				f.append("formkey", formkey());
-				xhr.onload=function(){
-					if (xhr.status<300) {
-						window.location.reload(true);
-					}
-					else {
-						$('#toast-exile-error').toast('dispose');
-						$('#toast-exile-error').toast('show');
-						exileError.textContent = JSON.parse(xhr.response)["error"];
-					}
-				}
-				xhr.send(f)
-			}
-
-		}
-
-		//mobile prompt
-		if (("standalone" in window.navigator) &&			// Check if "standalone" property exists
-				window.navigator.standalone){							// Test if using standalone navigator
-
-				// Web page is loaded via app mode (full-screen mode)
-				// (window.navigator.standalone is TRUE if user accesses website via App Mode)
-
-		} else {
-			if (window.innerWidth <= 737){
-				try {
-					$('#mobile-prompt').tooltip('show')
-					$('.tooltip')[0].addEventListener(
-						'click', 
-						function(event){
-							$('#mobile-prompt').tooltip('hide')
-							var xhr = new XMLHttpRequest();
-							xhr.withCredentials=true;
-							xhr.open("POST", '/dismiss_mobile_tip', true);
-							xhr.send();
-						}
-					)
-				} catch (error) {
-					console.error(error);
-				}
-			}
-		}
-	
-	// Voting
-
-		function post_vote(url, callback) {
-		var xhr = new XMLHttpRequest();
-		xhr.open("POST", url, true);
-		var form = new FormData()
-		form.append("formkey", formkey());
-		xhr.withCredentials=true;
-
-		xhr.onload = function() {
-			if (xhr.status==204) {}
-				else if (xhr.status >= 200 && xhr.status < 300) {
-					$('#toast-post-success').toast('dispose');
-					$('#toast-post-success').toast('show');
-					document.getElementById('toast-post-success-text').innerText = JSON.parse(xhr.response)["message"];
-					callback(xhr)
-					return true
-
-				} else if (xhr.status >= 300 && xhr.status < 400) {
-					window.location.href = JSON.parse(xhr.response)["redirect"]
-				} else {
-					data=JSON.parse(xhr.response);
-					
-					$('#toast-post-error').toast('dispose');
-					$('#toast-post-error').toast('show');
-					document.getElementById('toast-post-error-text').innerText = data["error"];
-					return false
-					
-				}
-			};
-
-			xhr.send(form);
-
-		}
-
-		var upvote = function(event) {
-
-			var type = event.target.dataset.contentType;
-			var id = event.target.dataset.idUp;
-
-			var downvoteButton = document.getElementsByClassName(type + '-' + id + '-down');
-			var upvoteButton = document.getElementsByClassName(type + '-' + id + '-up');
-			var scoreText = document.getElementsByClassName(type + '-score-' + id);
-
-			for (var j = 0; j < upvoteButton.length && j < downvoteButton.length && j < scoreText.length; j++) {
-
-				var thisUpvoteButton = upvoteButton[j];
-				var thisDownvoteButton = downvoteButton[j];
-				var thisScoreText = scoreText[j];
-				var thisScore = Number(thisScoreText.textContent);
-
-				if (thisUpvoteButton.classList.contains('active')) {
-					thisUpvoteButton.classList.remove('active')
-					thisScoreText.textContent = thisScore - 1
-					voteDirection = "0"
-				} else if (thisDownvoteButton.classList.contains('active')) {
-					thisUpvoteButton.classList.add('active')
-					thisDownvoteButton.classList.remove('active')
-					thisScoreText.textContent = thisScore + 2
-					voteDirection = "1"
-				} else {
-					thisUpvoteButton.classList.add('active')
-					thisScoreText.textContent = thisScore + 1
-					voteDirection = "1"
-				}
-
-				if (thisUpvoteButton.classList.contains('active')) {
-					thisScoreText.classList.add('score-up')
-					thisScoreText.classList.remove('score-down')
-					thisScoreText.classList.remove('score')
-				} else if (thisDownvoteButton.classList.contains('active')) {
-					thisScoreText.classList.add('score-down')
-					thisScoreText.classList.remove('score-up')
-					thisScoreText.classList.remove('score')
-				} else {
-					thisScoreText.classList.add('score')
-					thisScoreText.classList.remove('score-up')
-					thisScoreText.classList.remove('score-down')
-				}
-			}
-
-			post_vote("/vote/" + type + "/" + id + "/" + voteDirection);
-			
-		}
-
-		var downvote = function(event) {
-
-			var type = event.target.dataset.contentType;
-			var id = event.target.dataset.idDown;
-
-			var downvoteButton = document.getElementsByClassName(type + '-' + id + '-down');
-			var upvoteButton = document.getElementsByClassName(type + '-' + id + '-up');
-			var scoreText = document.getElementsByClassName(type + '-score-' + id);
-
-			for (var j = 0; j < upvoteButton.length && j < downvoteButton.length && j < scoreText.length; j++) {
-
-				var thisUpvoteButton = upvoteButton[j];
-				var thisDownvoteButton = downvoteButton[j];
-				var thisScoreText = scoreText[j];
-				var thisScore = Number(thisScoreText.textContent);
-
-				if (thisDownvoteButton.classList.contains('active')) {
-					thisDownvoteButton.classList.remove('active')
-					thisScoreText.textContent = thisScore + 1
-					voteDirection = "0"
-				} else if (thisUpvoteButton.classList.contains('active')) {
-					thisDownvoteButton.classList.add('active')
-					thisUpvoteButton.classList.remove('active')
-					thisScoreText.textContent = thisScore - 2
-					voteDirection = "-1"
-				} else {
-					thisDownvoteButton.classList.add('active')
-					thisScoreText.textContent = thisScore - 1
-					voteDirection = "-1"
-				}
-
-				if (thisUpvoteButton.classList.contains('active')) {
-					thisScoreText.classList.add('score-up')
-					thisScoreText.classList.remove('score-down')
-					thisScoreText.classList.remove('score')
-				} else if (thisDownvoteButton.classList.contains('active')) {
-					thisScoreText.classList.add('score-down')
-					thisScoreText.classList.remove('score-up')
-					thisScoreText.classList.remove('score')
-				} else {
-					thisScoreText.classList.add('score')
-					thisScoreText.classList.remove('score-up')
-					thisScoreText.classList.remove('score-down')
-				}
-			}
-
-			post_vote("/vote/" + type + "/" + id + "/" + voteDirection);
-			
-		}
-
-
-		var register_votes = function() {
-			var upvoteButtons = document.getElementsByClassName('upvote-button')
-
-			var downvoteButtons = document.getElementsByClassName('downvote-button')
-
-			var voteDirection = 0
-
-			for (var i = 0; i < upvoteButtons.length; i++) {
-				upvoteButtons[i].addEventListener('click', upvote, false);
-				upvoteButtons[i].addEventListener('keydown', function(event) {
-					if (event.keyCode === 13) {
-						upvote(event)
-					}
-				}, false)
-			};
-
-			for (var i = 0; i < downvoteButtons.length; i++) {
-				downvoteButtons[i].addEventListener('click', downvote, false);
-				downvoteButtons[i].addEventListener('keydown', function(event) {
-					if (event.keyCode === 13) {
-						downvote(event)
-					}
-				}, false)
-			};
-		}
-
-		register_votes()
-	</script>
 	{% if v %}
 		<script src="https://js.pusher.com/beams/1.0/push-notifications-cdn.js"></script>
-		
+			
 		<script>
 			const beamsClient = new PusherPushNotifications.Client({
 				instanceId: '02ddcc80-b8db-42be-9022-44c546b4dce6',
@@ -818,18 +86,138 @@
 			beamsClient
 			.start()
 			.then((beamsClient) => beamsClient.getDeviceId())
-			.then(() => beamsClient.addDeviceInterest(v.strid))
+			.then(() => beamsClient.addDeviceInterest('{{v.strid}}'))
 			.then(() => beamsClient.getDeviceInterests())
 			.catch(console.error);
+
+			// Text Formatting
+
+			// Bold Text
+
+			makeBold = function (form) {
+				var text = document.getElementById(form);
+				var startIndex = text.selectionStart,
+				endIndex = text.selectionEnd;
+				var selectedText = text.value.substring(startIndex, endIndex);
+
+				var format = '**'
+
+				if (selectedText.includes('**')) {
+					text.value = selectedText.replace(/\*/g, '');
+					
+				}
+				else if (selectedText.length == 0) {
+					text.value = text.value.substring(0, startIndex) + selectedText + text.value.substring(endIndex);
+				}
+				else {
+					text.value = text.value.substring(0, startIndex) + format + selectedText + format + text.value.substring(endIndex);
+				}
+			}
+
+			// Italicize Comment Text
+
+			makeItalics = function (form) {
+				var text = document.getElementById(form);
+				var startIndex = text.selectionStart,
+				endIndex = text.selectionEnd;
+				var selectedText = text.value.substring(startIndex, endIndex);
+
+				var format = '*'
+
+				if (selectedText.includes('*')) {
+					text.value = selectedText.replace(/\*/g, '');
+					
+				}
+				else if (selectedText.length == 0) {
+					text.value = text.value.substring(0, startIndex) + selectedText + text.value.substring(endIndex);
+				}
+				else {
+					text.value = text.value.substring(0, startIndex) + format + selectedText + format + text.value.substring(endIndex);
+				}
+			}
+
+			// Quote Comment Text
+
+			makeQuote = function (form) {
+				var text = document.getElementById(form);
+				var startIndex = text.selectionStart,
+				endIndex = text.selectionEnd;
+				var selectedText = text.value.substring(startIndex, endIndex);
+
+				var format = '>'
+
+				if (selectedText.includes('>')) {
+					text.value = text.value.substring(0, startIndex) + selectedText.replace(/\>/g, '') + text.value.substring(endIndex);
+					
+				}
+				else if (selectedText.length == 0) {
+					text.value = text.value.substring(0, startIndex) + selectedText + text.value.substring(endIndex);
+				}
+				else {
+					text.value = text.value.substring(0, startIndex) + format + selectedText + text.value.substring(endIndex);
+				}
+			}
+
+			function autoExpand (field) {
+
+				//get current scroll position
+				xpos=window.scrollX;
+				ypos=window.scrollY;
+
+				// Reset field height
+				field.style.height = 'inherit';
+
+				// Get the computed styles for the element
+				var computed = window.getComputedStyle(field);
+
+				// Calculate the height
+				var height = parseInt(computed.getPropertyValue('border-top-width'), 10)
+				+ parseInt(computed.getPropertyValue('padding-top'), 10)
+				+ field.scrollHeight
+				+ parseInt(computed.getPropertyValue('padding-bottom'), 10)
+				+ parseInt(computed.getPropertyValue('border-bottom-width'), 10)
+				+ 32;
+
+				field.style.height = height + 'px';
+
+				//keep window position from changing
+				window.scrollTo(xpos,ypos);
+
+			};
+
+
+			document.addEventListener('input', function (event) {
+				if (event.target.tagName.toLowerCase() !== 'textarea') return;
+				autoExpand(event.target);
+			}, false);
+		
+
+			for(let el of document.getElementsByClassName('text-expand')) {
+				el.onclick = function(event){
+					if (event.which != 1) {
+						return
+					};
+					id=this.data('id');
+
+
+					document.getElementById('post-text-'+id).toggleClass('d-none');
+					document.getElementsByClassName('text-expand-icon-'+id)[0].toggleClass('fa-expand-alt');
+					document.getElementsByClassName('text-expand-icon-'+id)[0].toggleClass('fa-compress-alt');
+
+				}
+			}
+
 		</script>
+
 	{% endif %}
-	
+
+
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-	<meta name="thumbnail" content="/assets/images/{{'SITE_NAME' | app_config}}/preview.gif">
+	<meta name="thumbnail" content="/assets/images/{{'SITE_NAME' | app_config}}/preview.webp">
 
-	<link rel="icon" type="image/png" href="/assets/images/{{'SITE_NAME' | app_config}}/icon.gif">
+	<link rel="icon" type="image/png" href="/assets/images/{{'SITE_NAME' | app_config}}/icon.webp">
 	
 	{% block title %}
 	<title>{{'SITE_NAME' | app_config}}</title>
@@ -837,9 +225,9 @@
 	<meta property="og:type" content="article" />
 	<meta property="og:title" content="{{'SITE_NAME' | app_config}}" />
 	<meta property="og:site_name" content="{{request.host}}" />
-	<meta property="og:image" content="{{'SITE_NAME' | app_config}}/assets/images/{{'SITE_NAME' | app_config}}/preview.gif" />
+	<meta property="og:image" content="{{'SITE_NAME' | app_config}}/assets/images/{{'SITE_NAME' | app_config}}/preview.webp" />
 	<meta property="og:url" content="{{request.path | full_link}}">
-	<meta property="og:description" name="description" content="{{'SLOGAN' | app_config}}">
+	<meta property="og:description" name="description" content="{{'SITE_NAME' | app_config}} - {{'SLOGAN' | app_config}}">
 	<meta property="og:author" name="author" content="@{{request.host_url}}" />
 	<meta property="og:site_name" content="{{request.host}}" />
 
@@ -847,14 +235,10 @@
 	<meta name="twitter:site" content="@{{request.host_url}}">
 	<meta name="twitter:title" content="{{'SITE_NAME' | app_config}}" />
 	<meta name="twitter:creator" content="@{{request.host_url}}">
-	<meta name="twitter:description" content="{{'SLOGAN' | app_config}}" />
-	<meta name="twitter:image" content="/assets/images/{{'SITE_NAME' | app_config}}/preview.gif" />
+	<meta name="twitter:description" content="{{'SITE_NAME' | app_config}} - {{'SLOGAN' | app_config}}" />
+	<meta name="twitter:image" content="/assets/images/{{'SITE_NAME' | app_config}}/preview.webp" />
 	<meta name="twitter:url" content="{{request.path | full_link}}" />
 	{% endblock %}
-
-	<!-- Bootstrap core CSS -->
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
-	integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
 	<!-- iOS webapp -->
 	<meta name="apple-mobile-web-app-capable" content="yes">
@@ -862,12 +246,12 @@
 	<meta name="format-detection" content="telephone=no">
 	<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
 
-	<link rel="apple-touch-icon" sizes="180x180" href="/assets/images/{{'SITE_NAME' | app_config}}/icon.gif">
-	<!---<link rel="icon" type="image/png" sizes="32x32" href="/assets/images/{{'SITE_NAME' | app_config}}/icon.gif">
-		<link rel="icon" type="image/png" sizes="16x16" href="/assets/images/{{'SITE_NAME' | app_config}}/icon.gif">--->
+	<link rel="apple-touch-icon" sizes="180x180" href="/assets/images/{{'SITE_NAME' | app_config}}/icon.webp">
+	<!---<link rel="icon" type="image/png" sizes="32x32" href="/assets/images/{{'SITE_NAME' | app_config}}/icon.webp">
+		<link rel="icon" type="image/png" sizes="16x16" href="/assets/images/{{'SITE_NAME' | app_config}}/icon.webp">--->
 		<link rel="manifest" href="/assets/manifest.json">
-		<link rel="mask-icon" href="/assets/images/{{'SITE_NAME' | app_config}}/icon.gif" color="#{{'DEFAULT_COLOR' | app_config}}">
-		<link rel="shortcut icon" href="/assets/images/{{'SITE_NAME' | app_config}}/icon.gif">
+		<link rel="mask-icon" href="/assets/images/{{'SITE_NAME' | app_config}}/icon.webp" color="#{{'DEFAULT_COLOR' | app_config}}">
+		<link rel="shortcut icon" href="/assets/images/{{'SITE_NAME' | app_config}}/icon.webp">
 		<meta name="apple-mobile-web-app-title" content="{{'SITE_NAME' | app_config}}">
 		<meta name="application-name" content="{{'SITE_NAME' | app_config}}">
 		<meta name="msapplication-TileColor" content="#{{'DEFAULT_COLOR' | app_config}}">
@@ -879,127 +263,127 @@
 		<link
 		rel="apple-touch-startup-image"
 		sizes="320x480"
-		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.gif"
+		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.webp"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="640x960"
-		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.gif"
+		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.webp"
 		/>
 		<link
 		rel="apple-touch-icon"
 		sizes="640x1136"
-		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.gif"
+		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.webp"
 		/>
 		<link
 		rel="apple-touch-icon"
 		sizes="750x1334"
-		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.gif"
+		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.webp"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="768x1004"
-		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.gif"
+		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.webp"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="768x1024"
-		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.gif"
+		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.webp"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="828x1792"
-		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.gif"
+		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.webp"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="1024x748"
-		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.gif"
+		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.webp"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="1024x768"
-		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.gif"
+		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.webp"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="1125x2436"
-		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.gif"
+		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.webp"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="1242x2208"
-		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.gif"
+		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.webp"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="1242x2688"
-		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.gif"
+		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.webp"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="1334x750"
-		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.gif"
+		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.webp"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="1536x2008"
-		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.gif"
+		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.webp"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="1536x2048"
-		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.gif"
+		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.webp"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="1668x2224"
-		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.gif"
+		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.webp"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="1792x828"
-		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.gif"
+		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.webp"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="2048x1496"
-		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.gif"
+		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.webp"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="2048x1536"
-		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.gif"
+		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.webp"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="2048x2732"
-		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.gif"
+		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.webp"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="2208x1242"
-		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.gif"
+		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.webp"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="2224x1668"
-		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.gif"
+		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.webp"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="2436x1125"
-		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.gif"
+		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.webp"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="2668x1242"
-		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.gif"
+		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.webp"
 		/>
 		<link
 		rel="apple-touch-startup-image"
 		sizes="2737x2048"
-		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.gif"
+		href="/assets/images/{{'SITE_NAME' | app_config}}/icon.webp"
 		/>
 
 
@@ -1007,16 +391,16 @@
 		{% block stylesheets %}
 
 		{% if v %}
-			<link rel="stylesheet" href="/assets/style/{{v.theme}}_{{v.themecolor}}.css">
-			{% if v.agendaposter %}<link rel="stylesheet" href="/assets/style/agendaposter.css">{% elif v.css %}<link rel="stylesheet" href="/@{{v.username}}/css">{% endif %}
+			<link rel="stylesheet" href="/assets/css/{{v.theme}}_{{v.themecolor}}.css">
+			{% if v.agendaposter %}<link rel="stylesheet" href="/assets/css/agendaposter.css">{% elif v.css %}<link rel="stylesheet" href="/@{{v.username}}/css">{% endif %}
 		{% else %}
-			<link rel="stylesheet" href="/assets/style/{{'DEFAULT_THEME' | app_config}}.css">
+			<link rel="stylesheet" href="/assets/css/{{'DEFAULT_THEME' | app_config}}.css">
 		{% endif %}
 
 		{% endblock %}
 
 		<!-- Font Awesome -->
-		<link href="/assets/style/fa.css" rel="stylesheet"> <!--load all styles -->
+		<link href="/assets/css/fa.css" rel="stylesheet"> <!--load all styles -->
 
 		{% block fixedMobileBarJS %}
 		{% endblock %}
@@ -1032,9 +416,13 @@
 
  </head>
 
- <body id="{% if request.path != '/comments' %}{% block pagetype %}frontpage{% endblock %}{% endif %}" style="overflow-x: hidden; {% if v and v.background %} background:url(/assets/images/backgrounds/{{v.background}}) no-repeat center center fixed !important; background-size: cover!important; background-color: #000!important;{% endif %}">
+ <body id="{% if request.path != '/comments' %}{% block pagetype %}frontpage{% endblock %}{% endif %}" style="overflow-x: hidden; {% if v and v.background %} background:url(/assets/images/backgrounds/{{v.background}}) no-repeat center center fixed !important; background-size: cover!important; background-color: #000!important;{% endif %} {% if 'rdrama' in request.host %}margin-top: 29px!important;{% endif %}">
 
-<a href="{% if 'rdrama' in request.host %}https://secure.transequality.org/site/Donation2?df_id=1480{% else %}/{% endif %}"><img src="/assets/images/{{'SITE_NAME' | app_config}}/{% if v %}banner.gif{% else %}cached.gif{% endif %}" style="padding:4px 0 0 0;" width="100%"></a>
+{% if "marsey.tech" not in request.host and '@' not in request.path %}
+	<a  rel="nofollow noopener noreferrer" href="{% if 'rdrama' in request.host %}https://secure.transequality.org/site/Donation2?df_id=1480{% else %}/{% endif %}">
+		<img loading="lazy" src="/assets/images/{{'SITE_NAME' | app_config}}/{% if v %}banner.webp{% else %}cached.webp{% endif %}" width="100%">
+	</a>
+{% endif %}
 
 {% include "header.html" %}
 
@@ -1078,7 +466,7 @@
 </div>
 
 {% block mobilenavbar %}
-{% include "mobile_navigation_bar.html" %}
+	{% include "mobile_navigation_bar.html" %}
 {% endblock %}
 
 {% block actionsModal %}
@@ -1095,75 +483,65 @@
 
 <!-- Clipboard Toast -->
 
-<div class="toast clipboard" id="toast-success" role="alert" aria-live="assertive" aria-atomic="true" data-animation="true" data-autohide="true" data-delay="5000">
+<div class="toast clipboard" id="toast-success" role="alert" aria-live="assertive" aria-atomic="true" data-bs-animation="true" data-bs-autohide="true" data-bs-delay="5000">
 	<div class="toast-body text-center">
 		<i class="fas fa-check-circle text-success mr-2"></i>Link copied to clipboard
 	</div>
 </div>
 
-<div class="toast clipboard" id="toast-error" role="alert" aria-live="assertive" aria-atomic="true" data-animation="true" data-autohide="true" data-delay="5000">
+<div class="toast clipboard" id="toast-error" role="alert" aria-live="assertive" aria-atomic="true" data-bs-animation="true" data-bs-autohide="true" data-bs-delay="5000">
 	<div class="toast-body text-center">
 		<i class="fas fa-exclamation-circle text-danger mr-2"></i>Unable to copy link
 	</div>
 </div>
 
-<div class="toast" id="toast-post-success" style="position: fixed; bottom: 1.5rem; margin: 0 auto; left: 0; right: 0; width: 275px; z-index: 1000" role="alert" aria-live="assertive" aria-atomic="true" data-animation="true" data-autohide="true" data-delay="5000">
+<div class="toast" id="toast-post-success" style="position: fixed; bottom: 1.5rem; margin: 0 auto; left: 0; right: 0; width: 275px; z-index: 1000" role="alert" aria-live="assertive" aria-atomic="true" data-bs-animation="true" data-bs-autohide="true" data-bs-delay="5000">
 	<div class="toast-body bg-success text-center text-white">
 		<i class="fas fa-comment-alt-smile mr-2"></i><span id="toast-post-success-text"></span>
 	</div>
 </div>
-<div class="toast" id="toast-post-error" style="position: fixed; bottom: 1.5rem; margin: 0 auto; left: 0; right: 0; width: 275px; z-index: 1000" role="alert" aria-live="assertive" aria-atomic="true" data-animation="true" data-autohide="true" data-delay="5000">
+<div class="toast" id="toast-post-error" style="position: fixed; bottom: 1.5rem; margin: 0 auto; left: 0; right: 0; width: 275px; z-index: 1000" role="alert" aria-live="assertive" aria-atomic="true" data-bs-animation="true" data-bs-autohide="true" data-bs-delay="5000">
 	<div class="toast-body bg-danger text-center text-white">
 		<i class="fas fa-exclamation-circle mr-2"></i><span id="toast-post-error-text"></span>
 	</div>
 </div>
 
-{% if v %}
-{% include "award_modal.html" %}
-{% include "flag_post_modal.html" %}
-{% include "flag_comment_modal.html" %}
-{% include "gif_modal.html" %}
-{% include "delete_comment_modal.html" %}
-{% include "delete_post_modal.html" %}
-{% endif %}
 
-{% include "expanded_image_modal.html" %}
 
-<script src="/assets/js/javascript.js"></script>
-
-<!-- ClipboardJS -->
-
-<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
-
-<!-- Instantiate clipboard by passing a string selector -->
-<script type="text/javascript">
-	var clipboard = new ClipboardJS('.copy-link');
-	clipboard.on('success', function(e) {
-
-		jQuery(function($) {
-			$('#toast-success').toast('show');
-		})
-		console.log(e);
-	});
-	clipboard.on('error', function(e) {
-
-		jQuery(function($) {
-			$('#toast-error').toast('show');
-		})
-		console.log(e);
-	});
-</script>
-
-<!-- Mobile "install the app" tooltip -->
 
 
 {% if request.path=='/' and g.system and g.timestamp>session.get('tooltip_last_dismissed',0)+60*60*24 and (not g.system.endswith('/chrome') and not g.system.endswith('/other')) and not g.system.endswith('/webview') %}
 
 <div id="mobile-prompt-container" class="fixed-bottom">
-	<div id="mobile-prompt" href="javascript:void(0)" data-toggle="tooltip" data-container="#mobile-prompt-container" data-placement="top" data-trigger="click" title="Install the {{'SITE_NAME' | app_config}} webapp by saving this page to your home screen!"></div>
+	<div id="mobile-prompt" href="javascript:void(0)" data-bs-toggle="tooltip" data-bs-container="#mobile-prompt-container" data-bs-placement="top" data-bs-trigger="click" title="Install the {{'SITE_NAME' | app_config}} webapp by saving this page to your home screen!"></div>
 </div>
 {% endif %}
 
+<pre>
+
+
+
+</pre>
+
 </body>
+
+<style>
+	.mod:before {
+		content: '(((';
+	}
+
+	.mod:after {
+		content: ')))';
+	}
+
+	.mod {
+		padding: 2px 5px 3px 5px;
+		border-radius: 5px;
+		color:white!important;
+		background: -moz-linear-gradient(180deg, red, orange, yellow, green, blue, indigo, violet);
+		background: -webkit-linear-gradient(left, red, orange, yellow, green, blue, indigo, violet );
+		text-shadow:-1px -1px 0 black,1px -1px 0 black,-1px 1px 0 black,1px 1px 0 black;
+	}
+</style>
 
 </html>

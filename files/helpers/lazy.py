@@ -8,11 +8,9 @@ def lazy(f):
 
 		o = args[0]
 
-		if "_lazy" not in o.__dict__:
-			o.__dict__["_lazy"] = {}
+		if "_lazy" not in o.__dict__: o.__dict__["_lazy"] = {}
 
-		if f.__name__ not in o.__dict__["_lazy"]:
-			o.__dict__["_lazy"][f.__name__] = f(*args, **kwargs)
+		if f.__name__ not in o.__dict__["_lazy"]: o.__dict__["_lazy"][f.__name__] = f(*args, **kwargs)
 
 		return o.__dict__["_lazy"][f.__name__]
 

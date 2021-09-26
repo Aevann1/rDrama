@@ -8,24 +8,24 @@
 	
 {% block content %}
 
-		{% if request.args.get('error') or error %}
+		{% if request.values.get('error') or error %}
 		<div class="alert alert-danger alert-dismissible fade show my-3" role="alert">
 			<i class="fas fa-exclamation-circle my-auto"></i>
 			<span>
-				{{error if error else request.args.get('error')}}
+				{{error if error else request.values.get('error')}}
 			</span>
-			<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+			<button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
 				<span aria-hidden="true"><i class="far fa-times"></i></span>
 			</button>
 		</div>
 		{% endif %}
-		{% if request.args.get('msg') or msg %}
+		{% if request.values.get('msg') or msg %}
 		<div class="alert alert-success alert-dismissible fade show my-3" role="alert">
 			<i class="fas fa-check-circle my-auto" aria-hidden="true"></i>
 			<span>
-				{{msg if msg else request.args.get('msg')}}
+				{{msg if msg else request.values.get('msg')}}
 			</span>
-			<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+			<button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
 				<span aria-hidden="true"><i class="far fa-times"></i></span>
 			</button>
 		</div>

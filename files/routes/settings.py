@@ -25,10 +25,7 @@ tiers={
 	"(Renthog)": 2,
 	"(Landchad)": 3,
 	"(Terminally online turboautist)": 4,
-	"(Ape)": 1,
-	"(Monke)": 2,
-	"(Gigachad)": 3,
-	"(Ascended Griller)": 4
+	"(Footpig)": 5,
 	}
 
 @app.post("/settings/removebackground")
@@ -36,12 +33,15 @@ tiers={
 def removebackground(v):
 	v.background = None
 	g.db.add(v)
-	return "", 204
+	g.db.commit()
+	return {"message": "Background removed!"}
 
 @app.post("/settings/profile")
 @auth_required
 @validate_formkey
 def settings_profile_post(v):
+	if request.content_length > 16 * 1024 * 1024: abort(413)
+
 	updated = False
 
 	if request.values.get("background", v.background) != v.background:
@@ -56,6 +56,14 @@ def settings_profile_post(v):
 		updated = True
 		v.hidevotedon = request.values.get("hidevotedon", None) == 'true'
 
+	if request.values.get("cardview", v.cardview) != v.cardview:
+		updated = True
+		v.cardview = request.values.get("cardview", None) == 'true'
+
+	if request.values.get("highlightcomments", v.highlightcomments) != v.highlightcomments:
+		updated = True
+		v.highlightcomments = request.values.get("highlightcomments", None) == 'true'
+
 	if request.values.get("newtab", v.newtab) != v.newtab:
 		updated = True
 		v.newtab = request.values.get("newtab", None) == 'true'
@@ -67,6 +75,10 @@ def settings_profile_post(v):
 	if request.values.get("oldreddit", v.oldreddit) != v.oldreddit:
 		updated = True
 		v.oldreddit = request.values.get("oldreddit", None) == 'true'
+
+	if request.values.get("nitter", v.nitter) != v.nitter:
+		updated = True
+		v.nitter = request.values.get("nitter", None) == 'true'
 
 	if request.values.get("controversial", v.controversial) != v.controversial:
 		updated = True
@@ -87,18 +99,36 @@ def settings_profile_post(v):
 	if request.values.get("bio"):
 		bio = request.values.get("bio")[:1500]
 
-		if bio == v.bio:
-			return render_template("settings_profile.html",
-								   v=v,
-								   error="You didn't change anything")
+		for i in re.finditer('^(https:\/\/.*\.(png|jpg|jpeg|gif|webp|PNG|JPG|JPEG|GIF|WEBP|9999))', bio, re.MULTILINE):
+			if "wikipedia" not in i.group(1): bio = bio.replace(i.group(1), f'![]({i.group(1)})')
+		bio = re.sub('([^\n])\n([^\n])', r'\1\n\n\2', bio)
 
-		for i in re.finditer('^(https:\/\/.*\.(png|jpg|jpeg|gif|PNG|JPG|JPEG|GIF|9999))', bio, re.MULTILINE): bio = bio.replace(i.group(1), f'![]({i.group(1)})')
-		bio = bio.replace("\n", "\n\n").replace("\n\n\n\n\n\n", "\n\n").replace("\n\n\n\n", "\n\n").replace("\n\n\n", "\n\n")
-		with CustomRenderer() as renderer: bio_html = renderer.render(mistletoe.Document(bio))
+		# check for uploaded image
+		if request.files.get('file') and request.headers.get("cf-ipcountry") != "T1":
+			
+			file = request.files['file']
+			if not file.content_type.startswith('image/'):
+				if request.headers.get("Authorization"): return {"error": f"Image files only"}, 400
+				else: return render_template("settings_profile.html", v=v, error=f"Image files only."), 400
+
+			url = upload_ibb(file=file)
+
+			bio += f"\n\n![]({url})"
+
+		# if bio == v.bio:
+		# 	return render_template("settings_profile.html",
+		# 						   v=v,
+		# 						   error="You didn't change anything")
+
+		bio_html = CustomRenderer().render(mistletoe.Document(bio))
 		bio_html = sanitize(bio_html)
-
 		# Run safety filter
 		bans = filter_comment_html(bio_html)
+
+		if len(bio_html) > 10000:
+			return render_template("settings_profile.html",
+								   v=v,
+								   error="Your bio is too long")
 
 		if bans:
 			ban = bans[0]
@@ -111,9 +141,12 @@ def settings_profile_post(v):
 				v.ban(days=30, reason="Digitally malicious content is not allowed.")
 			return {"error": reason}, 401
 
-		v.bio = bio
+		if len(bio_html) > 10000: abort(400)
+
+		v.bio = bio[:1500]
 		v.bio_html=bio_html
 		g.db.add(v)
+		g.db.commit()
 		return render_template("settings_profile.html",
 							   v=v,
 							   msg="Your bio has been updated.")
@@ -129,6 +162,7 @@ def settings_profile_post(v):
 
 		v.custom_filter_list=filters
 		g.db.add(v)
+		g.db.commit()
 		return render_template("settings_profile.html",
 							   v=v,
 							   msg="Your custom filters have been updated.")
@@ -137,7 +171,7 @@ def settings_profile_post(v):
 
 	defaultsortingcomments = request.values.get("defaultsortingcomments")
 	if defaultsortingcomments:
-		if defaultsortingcomments in ["new", "old", "controversial", "top", "bottom", "random"]:
+		if defaultsortingcomments in ["new", "old", "controversial", "top", "bottom"]:
 			v.defaultsortingcomments = defaultsortingcomments
 			updated = True
 		else:
@@ -145,7 +179,7 @@ def settings_profile_post(v):
 
 	defaultsorting = request.values.get("defaultsorting")
 	if defaultsorting:
-		if defaultsorting in ["hot", "new", "old", "comments", "controversial", "top", "bottom", "random"]:
+		if defaultsorting in ["hot", "new", "old", "comments", "controversial", "top", "bottom"]:
 			v.defaultsorting = defaultsorting
 			updated = True
 		else:
@@ -165,11 +199,45 @@ def settings_profile_post(v):
 		if theme == "coffee" or theme == "4chan": v.themecolor = "38a169"
 		elif theme == "tron": v.themecolor = "80ffff"
 		elif theme == "win98": v.themecolor = "30409f"
-		g.db.add(v)
-		return "", 204
+		updated = True
+
+	quadrant = request.values.get("quadrant")
+	if quadrant and 'pcmemes.net' in request.host.lower():
+		v.quadrant = quadrant
+		v.customtitle = quadrant
+		if quadrant=="Centrist":
+			v.namecolor = "7f8fa6"
+			v.titlecolor = "7f8fa6"
+		elif quadrant=="LibLeft":
+			v.namecolor = "62ca56"
+			v.titlecolor = "62ca56"
+		elif quadrant=="LibRight":
+			v.namecolor = "f8db58"
+			v.titlecolor = "f8db58"
+		elif quadrant=="AuthLeft":
+			v.namecolor = "ff0000"
+			v.titlecolor = "ff0000"
+		elif quadrant=="AuthRight":
+			v.namecolor = "2a96f3"
+			v.titlecolor = "2a96f3"
+		elif quadrant=="LibCenter":
+			v.namecolor = "add357"
+			v.titlecolor = "add357"
+		elif quadrant=="AuthCenter":
+			v.namecolor = "954b7a"
+			v.titlecolor = "954b7a"
+		elif quadrant=="Left":
+			v.namecolor = "b1652b"
+			v.titlecolor = "b1652b"
+		elif quadrant=="Right":
+			v.namecolor = "91b9A6"
+			v.titlecolor = "91b9A6"
+
+		updated = True
 
 	if updated:
 		g.db.add(v)
+		g.db.commit()
 
 		return {"message": "Your settings have been updated."}
 
@@ -183,38 +251,44 @@ def changelogsub(v):
 	v.changelogsub = not v.changelogsub
 	g.db.add(v)
 
-	cache.delete_memoized(frontlist, v)
+	cache.delete_memoized(frontlist)
 
-	return "", 204
+	g.db.commit()
+	if v.changelogsub: return {"message": "You have subscribed to the changelog!"}
+	else: return {"message": "You have unsubscribed from the changelog!"}
 
 @app.post("/settings/namecolor")
 @auth_required
 @validate_formkey
 def namecolor(v):
-	color = str(request.form.get("color", "")).strip()
+	color = str(request.values.get("color", "")).strip()
 	if color.startswith('#'): color = color[1:]
 	if len(color) != 6: return render_template("settings_security.html", v=v, error="Invalid color code")
 	v.namecolor = color
 	g.db.add(v)
+	g.db.commit()
 	return redirect("/settings/profile")
 	
 @app.post("/settings/themecolor")
 @auth_required
 @validate_formkey
 def themecolor(v):
-	themecolor = str(request.form.get("themecolor", "")).strip()
+	themecolor = str(request.values.get("themecolor", "")).strip()
 	if themecolor.startswith('#'): themecolor = themecolor[1:]
 	if len(themecolor) != 6: return render_template("settings_security.html", v=v, error="Invalid color code")
 	v.themecolor = themecolor
 	g.db.add(v)
+	g.db.commit()
 	return redirect("/settings/profile")
 
 @app.post("/settings/gumroad")
 @auth_required
 @validate_formkey
 def gumroad(v):
-	if not (v.email and v.is_activated):
-		return {"error": "You must have a verified email to verify patron status and claim awards"}, 400
+	if 'rdrama' in request.host: patron = 'Paypig'
+	else: patron = 'Patron'
+
+	if not (v.email and v.is_activated): return {"error": f"You must have a verified email to verify {patron} status and claim your rewards"}, 400
 
 	data = {
 		'access_token': GUMROAD_TOKEN,
@@ -222,42 +296,39 @@ def gumroad(v):
 	}
 	response = requests.get('https://api.gumroad.com/v2/sales', data=data).json()["sales"]
 
-	if len(response) == 0:
-		return {"error": "Email not found"}, 404
+	if len(response) == 0: return {"error": "Email not found"}, 404
 
 	response = response[0]
 	tier = tiers[response["variants_and_quantity"]]
-	if v.patron == tier:
-		return {"error": "Patron awards already claimed"}, 400
+	if v.patron == tier: return {"error": f"{patron} rewards already claimed"}, 400
 
 	v.patron = tier
+	g.db.add(v)
 
 	grant_awards = {}
 	if tier == 1:
 		if v.discord_id: add_role(v, "1")
 		grant_awards["shit"] = 1
-		grant_awards["gold"] = 1
+		grant_awards["fireflies"] = 1
 	elif tier == 2:
 		if v.discord_id: add_role(v, "2")
 		grant_awards["shit"] = 3
-		grant_awards["gold"] = 3
+		grant_awards["fireflies"] = 3
 	elif tier == 3:
 		if v.discord_id: add_role(v, "3")
 		grant_awards["shit"] = 5
-		grant_awards["gold"] = 5
+		grant_awards["fireflies"] = 5
 		grant_awards["ban"] = 1
-	elif tier == 4 or tier == 8:
+	elif tier == 4:
 		if v.discord_id: add_role(v, "4")
 		grant_awards["shit"] = 10
-		grant_awards["gold"] = 10
+		grant_awards["fireflies"] = 10
 		grant_awards["ban"] = 3
-	elif tier == 5:
+	elif tier == 5 or tier == 8:
 		if v.discord_id: add_role(v, "5")
-		grant_awards["shit"] = 10
-		grant_awards["gold"] = 10
+		grant_awards["shit"] = 20
+		grant_awards["fireflies"] = 20
 		grant_awards["ban"] = 6
-
-	_awards = []
 
 	thing = g.db.query(AwardRelationship).order_by(AwardRelationship.id.desc()).first().id
 
@@ -266,71 +337,77 @@ def gumroad(v):
 
 			thing += 1
 
-			_awards.append(AwardRelationship(
+			award = AwardRelationship(
 				id=thing,
 				user_id=v.id,
 				kind=name
-			))
+			)
 
-	g.db.bulk_save_objects(_awards)
+			g.db.add(award)
 
-	new_badge = Badge(badge_id=20+tier,
-					  user_id=v.id,
-					  )
-	g.db.add(new_badge)
+	if not v.has_badge(20+tier):
+		new_badge = Badge(badge_id=20+tier,
+						user_id=v.id,
+						)
+		g.db.add(new_badge)
 
-	g.db.add(v)
-	return {"message": "Patron awards claimed"}
+	g.db.commit()
+
+	return {"message": f"{patron} rewards claimed!"}
 
 @app.post("/settings/titlecolor")
 @auth_required
 @validate_formkey
 def titlecolor(v):
-	titlecolor = str(request.form.get("titlecolor", "")).strip()
+	titlecolor = str(request.values.get("titlecolor", "")).strip()
 	if titlecolor.startswith('#'): titlecolor = titlecolor[1:]
 	if len(titlecolor) != 6: return render_template("settings_security.html", v=v, error="Invalid color code")
 	v.titlecolor = titlecolor
 	g.db.add(v)
+	g.db.commit()
+
 	return redirect("/settings/profile")
 
 @app.post("/settings/security")
 @auth_required
 @validate_formkey
 def settings_security_post(v):
-	if request.form.get("new_password"):
-		if request.form.get(
-				"new_password") != request.form.get("cnf_password"):
+	if request.values.get("new_password"):
+		if request.values.get(
+				"new_password") != request.values.get("cnf_password"):
 			return redirect("/settings/security?error=" +
 							escape("Passwords do not match."))
 
-		if not re.match(valid_password_regex, request.form.get("new_password")):
+		if not re.match(valid_password_regex, request.values.get("new_password")):
 			#print(f"signup fail - {username } - invalid password")
 			return redirect("/settings/security?error=" + 
 							escape("Password must be between 8 and 100 characters."))
 
-		if not v.verifyPass(request.form.get("old_password")):
+		if not v.verifyPass(request.values.get("old_password")):
 			return render_template(
 				"settings_security.html", v=v, error="Incorrect password")
 
-		v.passhash = v.hash_password(request.form.get("new_password"))
+		v.passhash = v.hash_password(request.values.get("new_password"))
 
 		g.db.add(v)
+
+		g.db.commit()
 
 		return redirect("/settings/security?msg=" +
 						escape("Your password has been changed."))
 
-	if request.form.get("new_email"):
+	if request.values.get("new_email"):
 
-		if not v.verifyPass(request.form.get('password')):
+		if not v.verifyPass(request.values.get('password')):
 			return redirect("/settings/security?error=" +
 							escape("Invalid password."))
 
-		new_email = request.form.get("new_email","").strip()
+		new_email = request.values.get("new_email","").strip()
 		if new_email == v.email:
 			return redirect("/settings/security?error=That email is already yours!")
 
 		# check to see if email is in use
-		existing = g.db.query(User).filter(User.id != v.id,
+		existing = g.db.query(User).options(lazyload('*')).filter(User.id != v.id,
 										   func.lower(User.email) == new_email.lower()).first()
 		if existing:
 			return redirect("/settings/security?error=" +
@@ -355,31 +432,33 @@ def settings_security_post(v):
 		return redirect("/settings/security?msg=" + escape(
 			"Check your email and click the verification link to complete the email change."))
 
-	if request.form.get("2fa_token", ""):
+	if request.values.get("2fa_token", ""):
 
-		if not v.verifyPass(request.form.get('password')):
+		if not v.verifyPass(request.values.get('password')):
 			return redirect("/settings/security?error=" +
 							escape("Invalid password or token."))
 
-		secret = request.form.get("2fa_secret")
+		secret = request.values.get("2fa_secret")
 		x = pyotp.TOTP(secret)
-		if not x.verify(request.form.get("2fa_token"), valid_window=1):
+		if not x.verify(request.values.get("2fa_token"), valid_window=1):
 			return redirect("/settings/security?error=" +
 							escape("Invalid password or token."))
 
 		v.mfa_secret = secret
 		g.db.add(v)
 
+		g.db.commit()
+
 		return redirect("/settings/security?msg=" +
 						escape("Two-factor authentication enabled."))
 
-	if request.form.get("2fa_remove", ""):
+	if request.values.get("2fa_remove", ""):
 
-		if not v.verifyPass(request.form.get('password')):
+		if not v.verifyPass(request.values.get('password')):
 			return redirect("/settings/security?error=" +
 							escape("Invalid password or token."))
 
-		token = request.form.get("2fa_remove")
+		token = request.values.get("2fa_remove")
 
 		if not v.validate_2fa(token):
 			return redirect("/settings/security?error=" +
@@ -387,6 +466,8 @@ def settings_security_post(v):
 
 		v.mfa_secret = None
 		g.db.add(v)
+
+		g.db.commit()
 
 		return redirect("/settings/security?msg=" +
 						escape("Two-factor authentication disabled."))
@@ -396,11 +477,9 @@ def settings_security_post(v):
 @validate_formkey
 def settings_log_out_others(v):
 
-	submitted_password = request.form.get("password", "")
+	submitted_password = request.values.get("password", "")
 
-	if not v.verifyPass(submitted_password):
-		return render_template("settings_security.html",
-							   v=v, error="Incorrect Password"), 401
+	if not v.verifyPass(submitted_password): return render_template("settings_security.html", v=v, error="Incorrect Password"), 401
 
 	# increment account's nonce
 	v.login_nonce += 1
@@ -410,27 +489,33 @@ def settings_log_out_others(v):
 
 	g.db.add(v)
 
-	return render_template("settings_security.html", v=v,
-						   msg="All other devices have been logged out")
+	g.db.commit()
+
+	return render_template("settings_security.html", v=v, msg="All other devices have been logged out")
 
 
 @app.post("/settings/images/profile")
 @auth_required
 @validate_formkey
 def settings_images_profile(v):
-
-	if request.content_length > 16 * 1024 * 1024:
-		g.db.rollback()
-		abort(413)
+	if request.content_length > 16 * 1024 * 1024: abort(413)
 
 	if request.headers.get("cf-ipcountry") == "T1": return "Image uploads are not allowed through TOR.", 403
-	highres = upload_file(request.files["profile"])
+
+	file = request.files["profile"]
+
+	file.save("image.webp")
+	highres = upload_ibb()
 	if not highres: abort(400)
-	imageurl = upload_file(resize=True)
+
+	imageurl = upload_ibb(resize=True)
 	if not imageurl: abort(400)
+
 	v.highres = highres
 	v.profileurl = imageurl
 	g.db.add(v)
+
+	g.db.commit()
 
 	return render_template("settings_profile.html", v=v, msg="Profile picture successfully updated.")
 
@@ -439,15 +524,17 @@ def settings_images_profile(v):
 @auth_required
 @validate_formkey
 def settings_images_banner(v):
-	if request.content_length > 16 * 1024 * 1024:
-		g.db.rollback()
-		abort(413)
+	if request.content_length > 16 * 1024 * 1024: abort(413)
 
 	if request.headers.get("cf-ipcountry") == "T1": return "Image uploads are not allowed through TOR.", 403
-	imageurl = upload_file(request.files["banner"])
+
+	file = request.files["banner"]
+	imageurl = upload_ibb(file=file)
+
 	if imageurl:
 		v.bannerurl = imageurl
 		g.db.add(v)
+		g.db.commit()
 
 	return render_template("settings_profile.html", v=v, msg="Banner successfully updated.")
 
@@ -459,6 +546,7 @@ def settings_delete_profile(v):
 	v.highres = None
 	v.profileurl = None
 	g.db.add(v)
+	g.db.commit()
 	return render_template("settings_profile.html", v=v,
 						   msg="Profile picture successfully removed.")
 
@@ -469,65 +557,54 @@ def settings_delete_banner(v):
 
 	v.bannerurl = None
 	g.db.add(v)
+	g.db.commit()
 
 	return render_template("settings_profile.html", v=v,
 						   msg="Banner successfully removed.")
-
-
-@app.post("/settings/read_announcement")
-@auth_required
-@validate_formkey
-def update_announcement(v):
-
-	v.read_announcement_utc = int(time.time())
-	g.db.add(v)
-
-	return "", 204
 
 
 @app.get("/settings/blocks")
 @auth_required
 def settings_blockedpage(v):
 
-
-	#users=[x.target for x in v.blocked]
-
-	return render_template("settings_blocks.html",
-						   v=v)
+	return render_template("settings_blocks.html", v=v)
 
 @app.get("/settings/css")
 @auth_required
 def settings_css_get(v):
-
 
 	return render_template("settings_css.html", v=v)
 
 @app.post("/settings/css")
 @auth_required
 def settings_css(v):
-	css = request.form.get("css").replace('\\', '')[:50000]
+	css = request.values.get("css").replace('\\', '')[:50000]
 
 	if not v.agendaposter:
 		v.css = css
 	else:
 		v.css = 'body *::before, body *::after { content: "Trans rights are human rights!"; }'
 	g.db.add(v)
+	g.db.commit()
+
 	return render_template("settings_css.html", v=v)
 
 @app.get("/settings/profilecss")
 @auth_required
 def settings_profilecss_get(v):
 
-	if v.coins < 1000 and not v.patron: return f"You must have +1000 {COINS_NAME} or be a patron to set profile css."
+	if v.coins < 1000 and not v.patron and v.admin_level < 6: return f"You must have +1000 {COINS_NAME} or be a patron to set profile css."
 	return render_template("settings_profilecss.html", v=v)
 
 @app.post("/settings/profilecss")
 @auth_required
 def settings_profilecss(v):
 	if v.coins < 1000 and not v.patron: return f"You must have +1000 {COINS_NAME} or be a patron to set profile css."
-	profilecss = request.form.get("profilecss").replace('\\', '')[:50000]
+	profilecss = request.values.get("profilecss").replace('\\', '')[:50000]
 	v.profilecss = profilecss
 	g.db.add(v)
+	g.db.commit()
+
 	return render_template("settings_profilecss.html", v=v)
 
 @app.post("/settings/block")
@@ -547,7 +624,7 @@ def settings_block_user(v):
 		return {"error": f"You have already blocked @{user.username}."}, 409
 
 	if user.id == NOTIFICATIONS_ACCOUNT:
-		return {"error": "You can't block @files."}, 409
+		return {"error": "You can't block this user."}, 409
 
 	new_block = UserBlock(user_id=v.id,
 						  target_id=user.id,
@@ -556,14 +633,15 @@ def settings_block_user(v):
 
 	
 
-	existing = g.db.query(Notification).filter_by(blocksender=v.id, user_id=user.id).first()
+	existing = g.db.query(Notification).options(lazyload('*')).filter_by(blocksender=v.id, user_id=user.id).first()
 	if not existing: send_block_notif(v.id, user.id, f"@{v.username} has blocked you!")
 
+	cache.delete_memoized(frontlist)
+
+	g.db.commit()
+
 	if v.admin_level == 1: return {"message": f"@{user.username} banned!"}
-
-	cache.delete_memoized(frontlist, v)
-
-	return {"message": f"@{user.username} blocked."}
+	else: return {"message": f"@{user.username} blocked."}
 
 
 @app.post("/settings/unblock")
@@ -581,12 +659,14 @@ def settings_unblock_user(v):
 
 	
 
-	existing = g.db.query(Notification).filter_by(unblocksender=v.id, user_id=user.id).first()
+	existing = g.db.query(Notification).options(lazyload('*')).filter_by(unblocksender=v.id, user_id=user.id).first()
 	if not existing: send_unblock_notif(v.id, user.id, f"@{v.username} has unblocked you!")
 
-	if v.admin_level == 1: return {"message": f"@{user.username} unbanned!"}
+	cache.delete_memoized(frontlist)
 
-	cache.delete_memoized(frontlist, v)
+	g.db.commit()
+
+	if v.admin_level == 1: return {"message": f"@{user.username} unbanned!"}
 
 	return {"message": f"@{user.username} unblocked."}
 
@@ -594,7 +674,6 @@ def settings_unblock_user(v):
 @app.get("/settings/apps")
 @auth_required
 def settings_apps(v):
-
 
 	return render_template("settings_apps.html", v=v)
 
@@ -604,20 +683,18 @@ def settings_apps(v):
 @validate_formkey
 def settings_remove_discord(v):
 
-	if v.admin_level>1:
-		return render_template("settings_filters.html", v=v, error="Admins can't disconnect Discord.")
-
 	remove_user(v)
 
 	v.discord_id=None
 	g.db.add(v)
+
+	g.db.commit()
 
 	return redirect("/settings/profile")
 
 @app.get("/settings/content")
 @auth_required
 def settings_content_get(v):
-
 
 	return render_template("settings_filters.html", v=v)
 
@@ -626,7 +703,7 @@ def settings_content_get(v):
 @validate_formkey
 def settings_name_change(v):
 
-	new_name=request.form.get("name").strip()
+	new_name=request.values.get("name").strip()
 
 	#make sure name is different
 	if new_name==v.username:
@@ -666,18 +743,21 @@ def settings_name_change(v):
 
 	g.db.add(v)
 
+	g.db.commit()
+
 	return redirect("/settings/profile")
 
 @app.post("/settings/song_change")
 @auth_required
 @validate_formkey
 def settings_song_change(v):
-	song=request.form.get("song").strip()
+	song=request.values.get("song").strip()
 
-	if song == "" and v.song and path.isfile(f"/songs/{v.song}.mp3") and g.db.query(User).filter_by(song=v.song).count() == 1:
+	if song == "" and v.song and path.isfile(f"/songs/{v.song}.mp3") and g.db.query(User).options(lazyload('*')).filter_by(song=v.song).count() == 1:
 		os.remove(f"/songs/{v.song}.mp3")
 		v.song=None
 		g.db.add(v)
+		g.db.commit()
 		return redirect("/settings/profile")
 
 	song = song.replace("https://music.youtube.com", "https://youtube.com")
@@ -696,6 +776,7 @@ def settings_song_change(v):
 	if path.isfile(f'/songs/{id}.mp3'): 
 		v.song=id
 		g.db.add(v)
+		g.db.commit()
 		return redirect("/settings/profile")
 		
 	
@@ -717,7 +798,7 @@ def settings_song_change(v):
 						error=f"Duration of the video must not exceed 10 minutes.")
 
 
-	if v.song and path.isfile(f"/songs/{v.song}.mp3") and g.db.query(User).filter_by(song=v.song).count() == 1:
+	if v.song and path.isfile(f"/songs/{v.song}.mp3") and g.db.query(User).options(lazyload('*')).filter_by(song=v.song).count() == 1:
 		os.remove(f"/songs/{v.song}.mp3")
 
 	ydl_opts = {
@@ -746,6 +827,8 @@ def settings_song_change(v):
 	v.song=id
 	g.db.add(v)
 
+	g.db.commit()
+
 	return redirect("/settings/profile")
 
 @app.post("/settings/title_change")
@@ -755,7 +838,7 @@ def settings_title_change(v):
 
 	if v.flairchanged: abort(403)
 	
-	new_name=request.form.get("title").strip()[:100]
+	new_name=request.values.get("title").strip()[:100].replace("𒐪","")
 
 	#make sure name is different
 	if new_name==v.customtitle:
@@ -768,13 +851,6 @@ def settings_title_change(v):
 	v.customtitle = filter_title(new_name)
 
 	g.db.add(v)
+	g.db.commit()
+
 	return redirect("/settings/profile")
-
-@app.post("/settings/badges")
-@auth_required
-@validate_formkey
-def settings_badge_recheck(v):
-
-	v.refresh_selfset_badges()
-
-	return {"message":"Badges Refreshed"}

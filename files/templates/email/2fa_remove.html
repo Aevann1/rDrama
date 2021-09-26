@@ -1,37 +1,37 @@
 {% extends "email/default.html" %}
 
-{% block image %}verify.png{% endblock %}
+{% block image %}verify.webp{% endblock %}
 
 {% block title %}Remove Two-Factor Authentication{% endblock %}</h1>
 
 {% block preheader %}Remove Two-Factor Authentication.{% endblock %}
 
 {% block content %}
-												<p>We received a request to remove two-factor authentication from your account. In 72 hours, click the link below.</p>
-												<p>If you didn't make this request, change your password and use the Log Out Everywhere feature in your <a href="/settings/security">Security Settings</a> to permanently invalidate the link.</p>
-												<!-- Action -->
-												<table class="body-action" align="center" width="100%" cellpadding="0" cellspacing="0" role="presentation">
-													<tr>
-														<td align="center">
-															<!-- Border based button
-					https://litmus.com/blog/a-guide-to-bulletproof-buttons-in-email-design -->
-															<table width="100%" border="0" cellspacing="0" cellpadding="0" role="presentation">
-																<tr>
-																	<td align="center">
-																		<a href="{{action_url}}" class="f-fallback button" target="_blank">Remove 2FA</a>
-																	</td>
-																</tr>
-															</table>
-														</td>
-													</tr>
-												</table>
-												<p>Please note that {{'SITE_NAME' | app_config}} will never ask you for your email, password, or two-factor token via email, text, or phone.</p>
-												<table class="body-sub" role="presentation">
-													<tr>
-														<td>
-															<p class="f-fallback sub">If you’re having trouble with the button above, copy and paste the URL below into your web browser.</p>
-															<p class="f-fallback sub">{{action_url}}</p>
-														</td>
-													</tr>
-												</table>
+	<p>We received a request to remove two-factor authentication from your account. In 72 hours, click the link below.</p>
+	<p>If you didn't make this request, change your password and use the Log Out Everywhere feature in your <a href="/settings/security">Security Settings</a> to permanently invalidate the link.</p>
+	<!-- Action -->
+	<table class="body-action" align="center" width="100%" cellpadding="0" cellspacing="0" role="presentation">
+		<tr>
+			<td align="center">
+				<!-- Border based button
+https://litmus.com/blog/a-guide-to-bulletproof-buttons-in-email-design -->
+				<table width="100%" border="0" cellspacing="0" cellpadding="0" role="presentation">
+					<tr>
+						<td align="center">
+							<a href="{{action_url}}" class="f-fallback button" target="_blank">Remove 2FA</a>
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+	<p>Please note that {{'SITE_NAME' | app_config}} will never ask you for your email, password, or two-factor token via email, text, or phone.</p>
+	<table class="body-sub" role="presentation">
+		<tr>
+			<td>
+				<p class="f-fallback sub">If you’re having trouble with the button above, copy and paste the URL below into your web browser.</p>
+				<p class="f-fallback sub">{{action_url}}</p>
+			</td>
+		</tr>
+	</table>
 {% endblock %}

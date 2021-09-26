@@ -11,7 +11,22 @@
 			</span>
 			<h2 class="h5">This account is private</h2>
 			<p class="text-muted">This user has enabled private mode to cloak their posting history.</p>
-			<!-- {% if u.id == 253 %}<a class="btn btn-primary" href="/@Landlord_Messiah/?rent=true">Pay Rent to View (500 {{"COINS_NAME" | app_config}})</a>{% endif %} -->
+			{% if u.id == 253 and 'rdrama' in request.host %}
+				{% if v and v.coins > 500 and not v.is_suspended %}
+					<a class="btn btn-primary" href="javascript:void(0)", onclick="post_toast('/pay_rent', '1')">Pay rent to view profile (500 coins)</a>
+				{% endif %}
+				<pre></pre>
+				{% if v and v.coins > 5000 and time - v.created_utc > 604800 and not v.is_suspended %}
+					<a class="btn btn-primary" href="javascript:void(0)", onclick="post_toast('/steal', '1')">Attempt to steal coins</a>
+					<div class="text-small-extra text-muted mt-1">Landlords, like all other men, love to reap where they never sowed.</div>
+				{% endif %}
+				<pre>
+
+
+
+
+				</pre>
+			{% endif %}
 		</div>
 	</div>
 </div>

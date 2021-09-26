@@ -2,6 +2,7 @@ from flask import *
 from sqlalchemy import *
 from sqlalchemy.orm import relationship
 from files.__main__ import Base
+from files.helpers.lazy import lazy
 
 class Vote(Base):
 
@@ -13,8 +14,8 @@ class Vote(Base):
 	submission_id = Column(Integer, ForeignKey("submissions.id"))
 	app_id = Column(Integer, ForeignKey("oauth_apps.id"))
 
-	user = relationship("User", lazy="subquery")
-	post = relationship("Submission", lazy="subquery")
+	user = relationship("User", lazy="subquery", viewonly=True)
+	post = relationship("Submission", lazy="subquery", viewonly=True)
 
 	def __init__(self, *args, **kwargs):
 
@@ -24,6 +25,7 @@ class Vote(Base):
 		return f"<Vote(id={self.id})>"
 
 	@property
+	@lazy
 	def json_core(self):
 		data={
 			"user_id": self.user_id,
@@ -33,6 +35,7 @@ class Vote(Base):
 		return data
 
 	@property
+	@lazy
 	def json(self):
 		data=self.json_core
 		data["user"]=self.user.json_core
@@ -51,8 +54,8 @@ class CommentVote(Base):
 	comment_id = Column(Integer, ForeignKey("comments.id"))
 	app_id = Column(Integer, ForeignKey("oauth_apps.id"))
 
-	user = relationship("User", lazy="subquery")
-	comment = relationship("Comment", lazy="subquery")
+	user = relationship("User", lazy="subquery", viewonly=True)
+	comment = relationship("Comment", lazy="subquery", viewonly=True)
 
 	def __init__(self, *args, **kwargs):
 
@@ -62,6 +65,7 @@ class CommentVote(Base):
 		return f"<CommentVote(id={self.id})>"
 
 	@property
+	@lazy
 	def json_core(self):
 		data={
 			"user_id": self.user_id,
@@ -71,6 +75,7 @@ class CommentVote(Base):
 		return data
 
 	@property
+	@lazy
 	def json(self):
 		data=self.json_core
 		data["user"]=self.user.json_core

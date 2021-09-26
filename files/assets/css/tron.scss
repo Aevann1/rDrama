@@ -1,0 +1,109 @@
+// Colors
+
+$primary: #ff66ac;
+$dark: #00001f;
+$secondary: #ff66ac;
+$danger: #ff66ac;
+$white: #f0f0f0;
+$black: #f0f0f0;
+$light: #00001f;
+$success: #38A169;
+$muted: #ff66ac;
+$info: #168EEA;
+
+$purple: #ff66ac;
+$red: #ff66ac;
+$gray: #ff66ac;
+$green: #38A169;
+
+$gray-100: #ff66ac;
+$gray-200: #ff66ac;
+$gray-300: #00001f;
+$gray-400: #ff66ac;
+$gray-500: #00001f;
+$gray-600: #00001f;
+$gray-700: #00001f;
+$gray-800: #00001f;
+$gray-900: #00001f;
+
+$upvote: #ff66ac;
+$downvote: #38B2AC;
+$admin: #ff66ac;
+$banned: #960000;
+$deleted: #969600;
+$deletedandbanned: #964000;
+$mod: #07c20c;
+$code: #e83e8c;
+
+$gold: #ECC94B;
+$reddit: #ED4630;
+
+@import 'https://fonts.googleapis.com/css?family=Roboto+Mono:400,600,700';
+
+@import "./bootstrap/bootstrap.scss";
+@import "./main.scss";
+
+#frontpage .post-title a:visited {
+	color: $white;
+}
+
+.comment-box {
+    border: 2px solid $gray-200;
+}
+
+.btn {
+	color: $admin;
+}
+
+* {
+    font-family: 'Roboto Mono';
+}
+
+.arrow-up::before {
+	color: $white;
+}
+
+.arrow-down::before {
+	color: $white;
+}
+
+.modal-content {
+	background-color: $gray-300;
+}
+
+.modal-header {
+	background-color: $gray-300;
+}
+
+.modal .comment-actions .list-group-item {
+	background-color: $gray-300;
+}
+
+.comment-actions .score {
+	color: $white;
+}
+
+.badge-count {
+	color: $light;
+}
+
+.transparent {
+	background: None !important;
+}
+
+.btn-danger.disabled, .btn-danger:disabled {
+	color: $primary !important;
+}
+
+#frontpage .post-title a:visited {
+	color: #b0b0b0;
+}
+
+.followsyou {
+	background-color: $dark !important;
+    border: 1px solid $primary !important;
+}
+
+.badge-count {
+	color: $primary;
+}

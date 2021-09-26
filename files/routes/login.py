@@ -11,7 +11,7 @@ valid_password_regex = re.compile("^.{8,100}$")
 @auth_desired
 def login_get(v):
 
-	redir = request.args.get("redirect", "/")
+	redir = request.values.get("redirect", "/").replace("/logged_out", "")
 	if v:
 		return redirect(redir)
 
@@ -32,9 +32,9 @@ def check_for_alts(current_id):
 		if past_id == current_id:
 			continue
 
-		check1 = g.db.query(Alt).filter_by(
+		check1 = g.db.query(Alt).options(lazyload('*')).filter_by(
 			user1=current_id, user2=past_id).first()
-		check2 = g.db.query(Alt).filter_by(
+		check2 = g.db.query(Alt).options(lazyload('*')).filter_by(
 			user1=past_id, user2=current_id).first()
 
 		if not check1 and not check2:
@@ -42,42 +42,36 @@ def check_for_alts(current_id):
 			try:
 				new_alt = Alt(user1=past_id, user2=current_id)
 				g.db.add(new_alt)
+				g.db.flush()
 			except BaseException:
 				pass
-
-		otheralts = g.db.query(Alt).filter(or_(Alt.user1 == past_id, Alt.user2 == past_id, Alt.user1 == current_id, Alt.user2 == current_id)).all()
+			
+		alts = g.db.query(Alt).options(lazyload('*'))
+		otheralts = alts.filter(or_(Alt.user1 == past_id, Alt.user2 == past_id, Alt.user1 == current_id, Alt.user2 == current_id)).all()
 		for a in otheralts:
-			try:
+			existing = alts.filter_by(user1=a.user1, user2=past_id).first()
+			if not existing:
 				new_alt = Alt(user1=a.user1, user2=past_id)
 				g.db.add(new_alt)
 				g.db.flush()
-			except Exception as e:
-				g.db.rollback()
-				continue
-		for a in otheralts:
-			try:
+
+			existing = alts.filter_by(user1=a.user1, user2=current_id).first()
+			if not existing:
 				new_alt = Alt(user1=a.user1, user2=current_id)
 				g.db.add(new_alt)
 				g.db.flush()
-			except Exception as e:
-				g.db.rollback()
-				continue
-		for a in otheralts:
-			try:
+
+			existing = alts.filter_by(user1=a.user2, user2=past_id).first()
+			if not existing:
 				new_alt = Alt(user1=a.user2, user2=past_id)
 				g.db.add(new_alt)
 				g.db.flush()
-			except Exception as e:
-				g.db.rollback()
-				continue
-		for a in otheralts:
-			try:
+
+			existing = alts.filter_by(user1=a.user2, user2=current_id).first()
+			if not existing:
 				new_alt = Alt(user1=a.user2, user2=current_id)
 				g.db.add(new_alt)
 				g.db.flush()
-			except Exception as e:
-				g.db.rollback()
-				continue
 
 # login post procedure
 
@@ -86,11 +80,11 @@ def check_for_alts(current_id):
 @limiter.limit("6/minute")
 def login_post():
 
-	username = request.form.get("username")
+	username = request.values.get("username")
 
 	if not username: abort(400)
 	if "@" in username:
-		account = g.db.query(User).filter(
+		account = g.db.query(User).options(lazyload('*')).filter(
 			User.email.ilike(username)).first()
 	else:
 		account = get_user(username, graceful=True)
@@ -101,9 +95,9 @@ def login_post():
 
 	# test password
 
-	if request.form.get("password"):
+	if request.values.get("password"):
 
-		if not account.verifyPass(request.form.get("password")):
+		if not account.verifyPass(request.values.get("password")):
 			time.sleep(random.uniform(0, 2))
 			return render_template("login.html", failed=True)
 
@@ -114,21 +108,21 @@ def login_post():
 								   v=account,
 								   time=now,
 								   hash=hash,
-								   redirect=request.form.get("redirect", "/")
+								   redirect=request.values.get("redirect", "/")
 								   )
-	elif request.form.get("2fa_token", "x"):
+	elif request.values.get("2fa_token", "x"):
 		now = int(time.time())
 
-		if now - int(request.form.get("time")) > 600:
+		if now - int(request.values.get("time")) > 600:
 			return redirect('/login')
 
-		formhash = request.form.get("hash")
-		if not validate_hash(f"{account.id}+{request.form.get('time')}+2fachallenge",
+		formhash = request.values.get("hash")
+		if not validate_hash(f"{account.id}+{request.values.get('time')}+2fachallenge",
 							 formhash
 							 ):
 			return redirect("/login")
 
-		if not account.validate_2fa(request.form.get("2fa_token", "").strip()):
+		if not account.validate_2fa(request.values.get("2fa_token", "").strip()):
 			hash = generate_hash(f"{account.id}+{time}+2fachallenge")
 			return render_template("login_2fa.html",
 								   v=account,
@@ -141,7 +135,9 @@ def login_post():
 		abort(400)
 
 	if account.is_banned and account.unban_utc > 0 and time.time() > account.unban_utc:
-		account.unban()
+		account.is_banned = 0
+		account.unban_utc = 0
+		g.db.add(account)
 
 	# set session and user id
 	session["user_id"] = account.id
@@ -151,12 +147,13 @@ def login_post():
 
 	check_for_alts(account.id)
 
-	account.refresh_selfset_badges()
-
 	# check for previous page
 
-	redir = request.form.get("redirect", "/")
-	return redirect(redir.replace("/logged_out", ""))
+	redir = request.values.get("redirect", "/").replace("/logged_out", "")
+
+	g.db.commit()
+
+	return redirect(redir)
 
 
 @app.get("/me")
@@ -175,7 +172,7 @@ def logout(v):
 	session.pop("user_id", None)
 	session.pop("session_id", None)
 
-	return "", 204
+	return {"message": "Logout successful!"}
 
 
 @app.get("/signup")
@@ -191,10 +188,9 @@ def sign_up_get(v):
 		abort(403)
 
 	# check for referral in link
-	ref_id = None
-	ref = request.args.get("ref", None)
+	ref = request.values.get("ref", None)
 	if ref:
-		ref_user = g.db.query(User).filter(User.username.ilike(ref)).first()
+		ref_user = g.db.query(User).options(lazyload('*')).filter(User.username.ilike(ref)).first()
 
 	else:
 		ref_user = None
@@ -206,7 +202,6 @@ def sign_up_get(v):
 	now = int(time.time())
 	token = token_hex(16)
 	session["signup_token"] = token
-	ip = request.remote_addr
 
 	formkey_hashstr = str(now) + token + agent
 
@@ -216,9 +211,9 @@ def sign_up_get(v):
 					   digestmod='md5'
 					   ).hexdigest()
 
-	redir = request.args.get("redirect", None)
+	redir = request.values.get("redirect", "/").replace("/logged_out", "")
 
-	error = request.args.get("error", None)
+	error = request.values.get("error", None)
 
 	return render_template("sign_up.html",
 						   formkey=formkey,
@@ -231,6 +226,7 @@ def sign_up_get(v):
 
 
 @app.post("/signup")
+@limiter.limit("5/day")
 @auth_desired
 def sign_up_post(v):
 	with open('./disablesignups', 'r') as f:
@@ -243,8 +239,8 @@ def sign_up_post(v):
 	if not agent:
 		abort(403)
 
-	form_timestamp = request.form.get("now", '0')
-	form_formkey = request.form.get("formkey", "none")
+	form_timestamp = request.values.get("now", '0')
+	form_formkey = request.values.get("formkey", "none")
 
 	submitted_token = session.get("signup_token", "")
 	if not submitted_token:
@@ -259,16 +255,16 @@ def sign_up_post(v):
 
 	now = int(time.time())
 
-	username = request.form.get("username").strip()
+	username = request.values.get("username").strip()
 
 	# define function that takes an error message and generates a new signup
 	# form
 	def new_signup(error):
 
 		args = {"error": error}
-		if request.form.get("referred_by"):
-			user = g.db.query(User).filter_by(
-				id=request.form.get("referred_by")).first()
+		if request.values.get("referred_by"):
+			user = g.db.query(User).options(lazyload('*')).filter_by(
+				id=request.values.get("referred_by")).first()
 			if user:
 				args["ref"] = user.username
 
@@ -283,25 +279,25 @@ def sign_up_post(v):
 		return new_signup("There was a problem. Please try again.")
 
 	# check for matched passwords
-	if not request.form.get(
-			"password") == request.form.get("password_confirm"):
+	if not request.values.get(
+			"password") == request.values.get("password_confirm"):
 		return new_signup("Passwords did not match. Please try again.")
 
 	# check username/pass conditions
 	if not re.fullmatch(valid_username_regex, username):
 		return new_signup("Invalid username")
 
-	if not re.fullmatch(valid_password_regex, request.form.get("password")):
+	if not re.fullmatch(valid_password_regex, request.values.get("password")):
 		return new_signup("Password must be between 8 and 100 characters.")
 
 	# Check for existing accounts
-	email = request.form.get("email")
+	email = request.values.get("email")
 	email = email.strip()
 	if not email: email = None
 
 	existing_account = get_user(username, graceful=True)
 	if existing_account and existing_account.reserved:
-		return redirect(existing_account.permalink)
+		return redirect(existing_account.url)
 
 	if existing_account or (email and g.db.query(
 			User).filter(User.email.ilike(email)).first()):
@@ -311,7 +307,7 @@ def sign_up_post(v):
 
 	# check bot
 	if app.config.get("HCAPTCHA_SITEKEY"):
-		token = request.form.get("h-captcha-response")
+		token = request.values.get("h-captcha-response")
 		if not token:
 			return new_signup("Unable to verify captcha [1].")
 
@@ -330,48 +326,47 @@ def sign_up_post(v):
 	session.pop("signup_token")
 
 	# get referral
-	ref_id = int(request.form.get("referred_by", 0))
+	ref_id = int(request.values.get("referred_by", 0))
 
 	# upgrade user badge
 	if ref_id:
 		ref_user = g.db.query(User).options(
 			lazyload('*')).filter_by(id=ref_id).first()
 		if ref_user:
-			ref_user.refresh_selfset_badges()
+			# check self-setting badges
+			badge_types = g.db.query(BadgeDef).options(lazyload('*')).filter(BadgeDef.qualification_expr.isnot(None)).all()
+			for badge in badge_types:
+				if eval(badge.qualification_expr, {}, {'v': ref_user}):
+					if not ref_user.has_badge(badge.id):
+						new_badge = Badge(user_id=ref_user.id, badge_id=badge.id)
+						g.db.add(new_badge)
+				else:
+					bad_badge = ref_user.has_badge(badge.id)
+					if bad_badge: g.db.delete(bad_badge)
+
 			g.db.add(ref_user)
 
-	id_1 = g.db.query(User).filter_by(id=1).count()
+	id_1 = g.db.query(User).options(lazyload('*')).filter_by(id=6).count()
 	users_count = g.db.query(User).count() #paranoid
 	if id_1 == 0 and users_count < 6: admin_level=6
 	else: admin_level=0
 
 	# make new user
-	try:
-		new_user = User(
-			username=username,
-			original_username = username,
-			admin_level = admin_level,
-			password=request.form.get("password"),
-			email=email,
-			created_utc=int(time.time()),
-			referred_by=ref_id or None,
-			ban_evade =  int(any([x.is_banned and not x.unban_utc for x in g.db.query(User).filter(User.id.in_(tuple(session.get("history", [])))).all() if x])),
-			agendaposter = any([x.agendaposter for x in g.db.query(User).filter(User.id.in_(tuple(session.get("history", [])))).all() if x])
-			)
-
-	except Exception as e:
-		#print(e)
-		#return "fail!", 418
-		return new_signup("Please enter a valid email")
+	new_user = User(
+		username=username,
+		original_username = username,
+		admin_level = admin_level,
+		password=request.values.get("password"),
+		email=email,
+		created_utc=int(time.time()),
+		referred_by=ref_id or None,
+		ban_evade =  int(any([x.is_banned and not x.unban_utc for x in g.db.query(User).options(lazyload('*')).filter(User.id.in_(tuple(session.get("history", [])))).all() if x])),
+		agendaposter = any([x.agendaposter for x in g.db.query(User).options(lazyload('*')).filter(User.id.in_(tuple(session.get("history", [])))).all() if x]),
+		club_banned=any([x.club_banned for x in g.db.query(User).options(lazyload('*')).filter(User.id.in_(tuple(session.get("history", [])))).all() if x])
+		)
 
 	g.db.add(new_user)
 	g.db.flush()
-
-	# give a beta badge
-	beta_badge = Badge(user_id=new_user.id,
-					   badge_id=6)
-
-	g.db.add(beta_badge)
 
 	# check alts
 
@@ -386,6 +381,8 @@ def sign_up_post(v):
 	session["user_id"] = new_user.id
 	session["session_id"] = token_hex(16)
 
+	g.db.commit()
+
 	return redirect("/")
 
 
@@ -399,12 +396,12 @@ def get_forgot():
 @app.post("/forgot")
 def post_forgot():
 
-	username = request.form.get("username").lstrip('@')
-	email = request.form.get("email",'').strip()
+	username = request.values.get("username").lstrip('@')
+	email = request.values.get("email",'').strip()
 
 	email=email.replace("_","\_")
 
-	user = g.db.query(User).filter(
+	user = g.db.query(User).options(lazyload('*')).filter(
 		User.username.ilike(username),
 		User.email.ilike(email)).first()
 
@@ -413,7 +410,7 @@ def post_forgot():
 		email=email.split('+')[0]
 		email=email.replace('.','')
 		email=f"{email}@gmail.com"
-		user = g.db.query(User).filter(
+		user = g.db.query(User).options(lazyload('*')).filter(
 			User.username.ilike(username),
 			User.email.ilike(email)).first()
 
@@ -437,9 +434,9 @@ def post_forgot():
 @app.get("/reset")
 def get_reset():
 
-	user_id = request.args.get("id")
-	timestamp = int(request.args.get("time",0))
-	token = request.args.get("token")
+	user_id = request.values.get("id")
+	timestamp = int(request.values.get("time",0))
+	token = request.values.get("token")
 
 	now = int(time.time())
 
@@ -448,7 +445,7 @@ def get_reset():
 			title="Password reset link expired",
 			error="That password reset link has expired.")
 
-	user = g.db.query(User).filter_by(id=user_id).first()
+	user = g.db.query(User).options(lazyload('*')).filter_by(id=user_id).first()
 
 	if not validate_hash(f"{user_id}+{timestamp}+forgot+{user.login_nonce}", token):
 		abort(400)
@@ -471,12 +468,12 @@ def post_reset(v):
 	if v:
 		return redirect('/')
 
-	user_id = request.form.get("user_id")
-	timestamp = int(request.form.get("time"))
-	token = request.form.get("token")
+	user_id = request.values.get("user_id")
+	timestamp = int(request.values.get("time"))
+	token = request.values.get("token")
 
-	password = request.form.get("password")
-	confirm_password = request.form.get("confirm_password")
+	password = request.values.get("password")
+	confirm_password = request.values.get("confirm_password")
 
 	now = int(time.time())
 
@@ -485,7 +482,7 @@ def post_reset(v):
 							   title="Password reset expired",
 							   error="That password reset form has expired.")
 
-	user = g.db.query(User).filter_by(id=user_id).first()
+	user = g.db.query(User).options(lazyload('*')).filter_by(id=user_id).first()
 
 	if not validate_hash(f"{user_id}+{timestamp}+reset+{user.login_nonce}", token):
 		abort(400)
@@ -501,6 +498,8 @@ def post_reset(v):
 
 	user.passhash = hash_password(password)
 	g.db.add(user)
+
+	g.db.commit()
 
 	return render_template("message_success.html",
 						   title="Password reset successful!",
@@ -519,7 +518,7 @@ def lost_2fa(v):
 @limiter.limit("6/minute")
 def request_2fa_disable():
 
-	username=request.form.get("username")
+	username=request.values.get("username")
 	user=get_user(username, graceful=True)
 	if not user or not user.email or not user.mfa_secret:
 		return render_template("message.html",
@@ -527,7 +526,7 @@ def request_2fa_disable():
 						   message="If username, password, and email match, we will send you an email.")
 
 
-	email=request.form.get("email")
+	email=request.values.get("email")
 	if email != user.email and email.endswith("@gmail.com"):
 		email=email.split('@')[0]
 		email=email.split('+')[0]
@@ -539,7 +538,7 @@ def request_2fa_disable():
 							message="If username, password, and email match, we will send you an email.")
 
 
-	password =request.form.get("password")
+	password =request.values.get("password")
 	if not user.verifyPass(password):
 		return render_template("message.html",
 						   title="Removal request received",
@@ -566,15 +565,15 @@ def request_2fa_disable():
 def reset_2fa():
 
 	now=int(time.time())
-	t=int(request.args.get("t"))
+	t=int(request.values.get("t"))
 
 	if now > t+3600*24:
 		return render_template("message.html",
 						   title="Expired Link",
 						   error="That link has expired.")
 
-	token=request.args.get("token")
-	uid=request.args.get("id")
+	token=request.values.get("token")
+	uid=request.values.get("id")
 
 	user=get_account(uid)
 
@@ -585,6 +584,8 @@ def reset_2fa():
 	user.mfa_secret=None
 
 	g.db.add(user)
+
+	g.db.commit()
 
 	return render_template("message_success.html",
 						   title="Two-factor authentication removed.",
