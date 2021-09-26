@@ -13,7 +13,7 @@
 						Your balance
 					</div>
 					<div class="text-small font-weight-bold"><i class="fas fa-diamond text-primary fa-sm mr-1"></i>
-						10000
+						{{ v.coins }}
 					</div>
 				</div>
 			</div>
@@ -24,24 +24,14 @@
 			<div class="d-flex flex-row-reverse justify-content-center">
 				<ul class="nav settings-nav">
 					<li class="nav-item">
-						<a style="padding: 0.75rem 1rem;"
+						<a style="padding: 0.75rem 1rem;font-weight: bold;"
 						   class="nav-link{% if request.path.endswith('/shop') %} active{% endif %}"
-						   href="/shop"><i class="fas fa-star text-lg mr-0"></i></a>
+						   href="/shop"><i class="fas fa-fw fa-shopping-cart text-lg mr-0"></i> Shop</a>
 					</li>
 					<li class="nav-item">
-						<a style="padding: 0.75rem 1rem;"
-						   class="nav-link{% if request.path.endswith('/shop/featured') %} active{% endif %}" href="/badmins"><i
-								class="fas fa-sunglasses text-lg mr-0"></i></a>
-					</li>
-					<li class="nav-item">
-						<a style="padding: 0.75rem 1rem;"
-						   class="nav-link{% if request.path.endswith('/shop/special') %} active{% endif %}" href="/log"><i
-								class="fas fa-bolt text-lg mr-0"></i></a>
-					</li>
-					<li class="nav-item">
-						<a style="padding: 0.75rem 1rem;"
-						   class="nav-link{% if request.path.endswith('/shop/sale') %} active{% endif %}" href="/banned"><i
-								class="fas fa-tag text-lg mr-0"></i></a>
+						<a style="padding: 0.75rem 1rem;font-weight: bold;"
+						   class="nav-link{% if request.path.endswith('/shop/mine') %} active{% endif %}" href="/shop/mine"><i
+								class="fas fa-fw fa-boxes text-lg mr-0"></i> Inventory</a>
 					</li>
 				</ul>
 			</div>

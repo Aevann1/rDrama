@@ -1,0 +1,41 @@
+<input type="hidden" id="itemTarget" value="" />
+<div class="modal fade" id="itemModal" tabindex="-1" role="dialog" aria-labelledby="itemModalTitle" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Use Item</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true"><i class="far fa-times"></i></span>
+				</button>
+			</div>
+			<div id="awardModalBody" class="modal-body">
+				<form v-if="loaded" id="sex2" class="pt-3 pb-0">
+					<div class="items-wrapper">
+						<div v-for="(item, index) in items" :key="index">
+							<input type="radio" :id="index" :value="index" v-model="picked" :disabled="item.owned < 1">
+							<label class="card" :for="index" :class="{ disabled: item.owned < 1 }">
+								<span class="d-block pt-2" style="font-weight: bold; font-size: 14px;">[[ item.title ]]</span>
+								<span class="text-muted">[[ item.owned ]] owned</span>
+							</label>
+						</div>
+					</div>
+				</form>
+				<div v-else-if="error" class="p-5 text-center">
+					<h4>Failed to fetch items</h4>
+					<button class="btn btn-primary">Retry</button>
+				</div>
+				<div v-else class="p-5 text-center">
+					<h4>Loading...</h4>
+				</div>
+			</div>
+		<div class="modal-footer">
+			<button type="button" class="btn btn-link text-muted" data-dismiss="modal">Cancel</button>
+			<button v-if="pending" class="btn btn-warning" type="button" disabled>
+  				<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+  				Giving...
+			</button>
+			<button v-else type="submit" class="btn btn-warning" id="itemButton" @click="submit" :disabled="pickedItem === null">Use Item</button>
+		</div>
+	</div>
+</div>
+</div>

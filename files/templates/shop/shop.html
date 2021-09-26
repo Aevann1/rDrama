@@ -27,6 +27,10 @@
 <script>
 	var itemModal = new bootstrap.Modal(document.getElementById('itemModal'))
 
+	const $ = id => {
+		return document.getElementById(id);
+	};
+
 	new Vue({
 		el: '#shop',
 		delimiters: ['[[', ']]'],
@@ -40,13 +44,13 @@
 			pick(item) {
 				this.selected = {...item};
 				// lmao vue won't mount on larger scopes
-				$("#item-modal-name").html(this.selected.name);
-				$("#item-modal-cat").html(this.selected.category_name);
-				$("#item-modal-desc").html(this.selected.description);
-				$("#item-modal-img").attr("src", this.selected.icon);
-				$("#item-modal-icon").attr("src", this.selected.icon);
-				$("#item-modal-cost").html(this.selected.cost);
-				$("#item-modal-submit").attr("onclick", `post_toast("/api/purchase?kind=${this.selected.kind}")`);
+				$("item-modal-name").innerHTML = this.selected.name;
+				//$("item-modal-cat").innerHTML = this.selected.category_name;
+				$("item-modal-desc").innerHTML = this.selected.description;
+				$("item-modal-img").setAttribute("src", this.selected.icon);
+				$("item-modal-icon").setAttribute("src", this.selected.icon);
+				$("item-modal-cost").innerHTML = this.selected.cost;
+				$("item-modal-submit").setAttribute("onclick", `post_toast("/api/purchase?kind=${this.selected.kind}")`);
 				itemModal.show();
 			}
 		},

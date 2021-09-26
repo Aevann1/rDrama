@@ -109,23 +109,22 @@ def shop_items_get(v):
 #     return jsonify([x for x in ITEMS.values() if x['featured']])
 
 
-# @app.get("/api/items/consumables")
-# @auth_required
-# def shop_items_consumables(v):
-#
-#     queer = g.db.query(func.count(ShopItem.item_id).label("owned"), ShopItemDef)\
-#         .join(ShopItem.item)\
-#         .filter(ShopItem.user_id == v.id)\
-#         .group_by(ShopItem.item_id, ShopItemDef.id)\
-#         .all()
-#
-#     data = []
-#     for owned, item in queer:
-#         _json = item.json
-#         _json["owned"] = owned
-#         data.append(_json)
-#
-#     return jsonify(data)
+@app.get("/api/items/consumables")
+@auth_required
+def shop_items_consumables(v):
+    queer = g.db.query(ShopItem.kind, func.count(ShopItem.kind)).filter_by(user_id=v.id).group_by(ShopItem.kind).all()
+
+    items_copy = dict(ITEMS)
+
+    for kind, count in queer:
+        print(kind, count)
+        items_copy[kind]["owned"] = count
+
+    for key, val in items_copy.items():
+        if val.get("owned") is None:
+            items_copy[key]["owned"] = 0
+
+    return jsonify(list(ITEMS.values()))
 
 
 @app.get("/api/items/mine")
@@ -137,7 +136,7 @@ def items_mine(v):
     return jsonify([x.json for x in queer])
 
 
-@app.post("/api/purchase/<kind>")
+@app.post("/api/purchase")
 @auth_required
 @validate_formkey
 def purchase_item(v):
