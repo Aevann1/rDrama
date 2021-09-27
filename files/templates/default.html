@@ -79,16 +79,16 @@
 		<script src="https://js.pusher.com/beams/1.0/push-notifications-cdn.js"></script>
 			
 		<script>
-			const beamsClient = new PusherPushNotifications.Client({
-				instanceId: '02ddcc80-b8db-42be-9022-44c546b4dce6',
-			});		
+			// const beamsClient = new PusherPushNotifications.Client({
+			// 	instanceId: '02ddcc80-b8db-42be-9022-44c546b4dce6',
+			// });		
 			
-			beamsClient
-			.start()
-			.then((beamsClient) => beamsClient.getDeviceId())
-			.then(() => beamsClient.addDeviceInterest('{{v.strid}}'))
-			.then(() => beamsClient.getDeviceInterests())
-			.catch(console.error);
+			// beamsClient
+			// .start()
+			// .then((beamsClient) => beamsClient.getDeviceId())
+			// .then(() => beamsClient.addDeviceInterest('{{v.strid}}'))
+			// .then(() => beamsClient.getDeviceInterests())
+			// .catch(console.error);
 
 			// Text Formatting
 
