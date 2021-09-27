@@ -3641,9 +3641,16 @@ textarea {
 	}
 }
 
-a.anchor {
-    display: block;
-    position: relative;
-    top: -100px;
-    visibility: hidden;
+.anchor::before {
+	display: block; 
+	content: " "; 
+	margin-top: -100px; 
+	height: 100px; 
+	visibility: hidden; 
+	pointer-events: none;
+}
+
+.anchor:target {
+    background-color: #ffa;
+    -webkit-transition: all 1s linear;
 }

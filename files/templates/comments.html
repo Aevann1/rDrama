@@ -485,9 +485,7 @@
 </div>
 {% endif %}
 
-<div id="comment-{{c.id}}" class="{% if c.unread %}context{% endif %} comment {% if standalone and level==1 %} mt-0{% endif %}{% if c.collapse_for_user(v) or (standalone and c.over_18 and not (v and v.over_18)) %} collapsed{% endif %}" style="border-left: 2px solid #{{c.author.namecolor}}; {% if c.unread %}padding: 10px 10px 10px !important;{% endif %}">
-
-	<a class="anchor" id="comment-{{c.id}}-anchor"></a>
+<div id="comment-{{c.id}}" class="anchor {% if c.unread %}context{% endif %} comment {% if standalone and level==1 %} mt-0{% endif %}{% if c.collapse_for_user(v) or (standalone and c.over_18 and not (v and v.over_18)) %} collapsed{% endif %}" style="border-left: 2px solid #{{c.author.namecolor}}; {% if c.unread %}padding: 10px 10px 10px !important;{% endif %}">
 
 	<span class="comment-collapse-desktop d-none d-md-block" {% if not c.unread %}style="border-left: 2px solid #{{c.author.namecolor}};"{% endif %} onclick="collapse_comment('{{c.id}}')"></span>
 	
@@ -525,7 +523,7 @@
 
 				<a {% if v %}href="{{c.author.url}}"{% else %}href="/logged_out{{c.author.url}}"{% endif %} style="color:#{{c.author.namecolor}};  font-size:12px; font-weight:bold;"><img loading="lazy" src="{{c.author.profile_url}}" class="profile-pic-25 mr-2"/><span {% if c.author.patron and not c.distinguish_level %}class="patron" style="background-color:#{{c.author.namecolor}};"{% elif c.distinguish_level and 'rdrama' in request.host %}class="mod"{% endif %}>{{c.author.username}}</span></a>
 				{% if c.author.customtitle %}&nbsp;<bdi style="color: #{{c.author.titlecolor}}">&nbsp;{% if c.author.quadrant %}<img loading="lazy" height="20" src="/assets/images/PCM/quadrants/{{c.author.quadrant}}.webp">{% endif %}{{c.author.customtitle | safe}}</bdi>{% endif %}
-				{% if c.parent_comment_id and not standalone and level<=7 %}<a href="#comment-{{ c.parent_comment_id }}-anchor" class="text-muted ml-2"><i class="fas fa-reply fa-sm fa-fw fa-flip-horizontal mr-1"></i>{{ c.parent_comment.author.username }}</a>{% endif %}
+				{% if c.parent_comment_id and not standalone and level<=7 %}<a href="#comment-{{ c.parent_comment_id }}" class="text-muted ml-2"><i class="fas fa-reply fa-sm fa-fw fa-flip-horizontal mr-1"></i>{{ c.parent_comment.author.username }}</a>{% endif %}
 				<span id="timestamp-{{c.id}}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="" class="time-stamp">&nbsp;{{c.age_string}}</span>
 				{% if c.edited_utc %}
 				<span class="time-edited"><span>&#183;</span> <span class="font-italic">Edited {{c.edited_string}}</span></span>
