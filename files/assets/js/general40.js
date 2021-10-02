@@ -5,6 +5,13 @@
 //     });
 // });
 
+document.addEventListener("DOMContentLoaded", function() {
+	const l = [...document.querySelectorAll('.use-item-btn')];
+	l.map(el => {
+		el.addEventListener('click', () => document.getElementById('itemTarget').value = el.dataset.targetName);
+	});
+});
+
 function post(url, callback, errortext) {
 	var xhr = new XMLHttpRequest();
 	xhr.open("POST", url, true);
