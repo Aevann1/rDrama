@@ -1,20 +1,29 @@
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
+
 <input type="hidden" id="itemTarget" value="" />
 <div class="modal fade" id="itemModal" tabindex="-1" role="dialog" aria-labelledby="itemModalTitle" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title">Use Item</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<h5 class="modal-title">[[ modalTitle ]]</h5>
+				<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true"><i class="far fa-times"></i></span>
 				</button>
 			</div>
 			<div id="awardModalBody" class="modal-body">
-				<form v-if="loaded" id="sex2" class="pt-3 pb-0">
-					<div class="items-wrapper">
+				<form v-if="loaded" id="sex2" class="pt-3 pb-3">
+					<div v-show="promptText">
+						<h6>Additional input required</h6>
+						<p class="text-muted">[[ promptText ]]</p>
+ 						<input type="text" name="prompt" class="form-control" v-model="promptValue" />
+						<a style="font-weight: bold; font-size: 12px;" class="text-muted d-inline-block mt-3" href="javascript:void(0)" @click="promptText = null"><i class="far fa-fw fa-arrow-left"></i> Go back</a>
+					</div>
+
+					<div v-show="!promptText" class="items-wrapper">
 						<div v-for="(item, index) in items" :key="index">
 							<input type="radio" :id="index" :value="index" v-model="picked" :disabled="item.owned < 1">
-							<label class="card" :for="index" :class="{ disabled: item.owned < 1 }">
-								<span class="d-block pt-2" style="font-weight: bold; font-size: 14px;">[[ item.title ]]</span>
+							<label class="item-card p-3" :for="index" :class="{ disabled: item.owned < 1 }">
+								<span class="d-block pt-2" style="font-weight: bold; font-size: 14px;">[[ item.name ]]</span>
 								<span class="text-muted">[[ item.owned ]] owned</span>
 							</label>
 						</div>
@@ -22,20 +31,134 @@
 				</form>
 				<div v-else-if="error" class="p-5 text-center">
 					<h4>Failed to fetch items</h4>
-					<button class="btn btn-primary">Retry</button>
+					<button @click="load" class="btn btn-primary">Retry</button>
 				</div>
 				<div v-else class="p-5 text-center">
 					<h4>Loading...</h4>
 				</div>
 			</div>
 		<div class="modal-footer">
-			<button type="button" class="btn btn-link text-muted" data-dismiss="modal">Cancel</button>
+			<button type="button" class="btn btn-link text-muted" data-bs-dismiss="modal">Cancel</button>
 			<button v-if="pending" class="btn btn-warning" type="button" disabled>
   				<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-  				Giving...
+  				Submitting...
 			</button>
 			<button v-else type="submit" class="btn btn-warning" id="itemButton" @click="submit" :disabled="pickedItem === null">Use Item</button>
 		</div>
 	</div>
 </div>
 </div>
+
+<style>
+	.items-wrapper input[type="radio"] {
+		display: none;
+	}
+
+	.items-wrapper input[type="radio"]:checked+label {
+		border-color: blue!important;
+	}
+
+	.item-card .disabled {
+		opacity: 0.6;
+	}
+
+	.item-card {
+		display: block;
+		cursor: pointer;
+		border: 3px solid gray;
+		border-radius: 5px;
+	}
+
+	.item-card:hover {
+		background-color: rgba(0, 0, 200, 0.2);
+	}
+</style>
+
+<script>
+	const v = new Vue({
+		el: "#itemModal",
+		delimiters: ['[[', ']]'],
+		data: {
+			items: [],
+			loaded: false,
+			error: false,
+			picked: null,
+			promptText: null,
+			promptValue: "",
+			pending: false,
+		},
+		computed: {
+			pickedItem: function() {
+				try {
+					return this.items[this.picked];
+				} catch(e) {
+					return null;
+				}
+			},
+			modalTitle: function() {
+				if (this.promptText) return `Use ${this.pickedItem.name}`;
+				else return "Use Item";
+			}
+		},
+		methods: {
+			load: function() {
+				this.loaded = false;
+				const xhr = new XMLHttpRequest();
+	                        xhr.open("GET", "/api/items/consumables");
+        	                xhr.responseType = 'json';
+	
+        	                xhr.onload = () => {
+					if (xhr.status != 200) {
+						this.error = true;
+						this.loaded = false;
+					} else {
+                                	        this.items = xhr.response;
+                                     		this.loaded = true;
+                               		}
+                       		};
+	
+        	                xhr.onerror = () => {
+                	                this.loaded = false;
+					this.error = true;
+                       		}
+				
+				xhr.send();
+			},
+			submit: function() {
+				this.pending = true;
+
+				const xhr = new XMLHttpRequest();
+				xhr.open("POST", "/api/use");
+				xhr.responseType = 'json';
+
+				const fd = new FormData();
+				fd.append("formkey", formkey());
+				fd.append("target", document.getElementById("itemTarget").value);
+				fd.append("kind", this.pickedItem.kind);
+				if (this.promptText) fd.append("prompt", this.promptValue);
+
+				xhr.onload = () => {
+					this.pending = false;
+					if (!xhr.status in [200, 204]) alert("Something on the server appears to be fucked, go outside and try again later <3");
+					else if (xhr.response.hasOwnProperty("prompt")) {
+						this.promptText = xhr.response['prompt'];
+					} else if (xhr.status === 204) {
+						location.reload();
+					}
+				};
+
+				xhr.onerror = () => {
+					this.pending = false;
+					alert("Error, try again later.");
+				}
+
+				xhr.send(fd);
+			}
+		},
+		mounted() {
+			// initial load
+			this.load();
+		},
+	});
+</script>
+
