@@ -1,49 +1,26 @@
-
-$primary: #ff66ac;
-$dark: #3E2C18;
-$secondary: #DDD2C4;
-$danger: #E53E3E;
-$white: #F1E7D0;
-$black: #433434;
-$light: #DDD2C4;
-$success: #ff66ac;
-$muted: #AA9881;
-$info: #168EEA;
-
-$purple: #FF66AC;
-$red: #E53E3E;
-$gray: #AA9881;
-$green: #ff66ac;
-
-$gray-100: #817261;
-$gray-200: #433434;
-$gray-300: #433434;
-$gray-400: #AA9881;
-$gray-500: #DDD2C4;
-$gray-600: #DDD2C4;
-$gray-700: #DDD2C4;
-$gray-800: #DDD2C4;
-$gray-900: #DDD2C4;
-
-$upvote: #ff66ac;
-$downvote: #38B2AC;
-$admin: #ff66ac;
-$banned: #FEB2B2;
-$deleted: #FEFCBF;
-$deletedandbanned: #ffcc99;
-$mod: #07c20c;
-$code: #e83e8c;
-
-$gold: #ECC94B;
-$reddit: #ED4630;
+:root {
+	--dark: #3E2C18;
+	--secondary: #DDD2C4;
+	--white: #F1E7D0;
+	--black: #433434;
+	--light: #DDD2C4;
+	--muted: #AA9881;
+	--gray: #AA9881;
+	--gray-100: #817261;
+	--gray-200: #433434;
+	--gray-300: #433434;
+	--gray-400: #AA9881;
+	--gray-500: #DDD2C4;
+	--gray-600: #DDD2C4;
+	--gray-700: #DDD2C4;
+	--gray-800: #DDD2C4;
+	--gray-900: #DDD2C4;
+}
 
 @import 'https://fonts.googleapis.com/css?family=Lato:400,600,700';
 
-@import "./bootstrap/bootstrap.scss";
-@import "./main.scss";
-
 * {
-    font-family: 'Lato';
+	font-family: 'Lato';
 }
 
 blockquote {
@@ -51,19 +28,19 @@ blockquote {
 }
 
 .text-muted {
-	color: $black !important;
+	color: var(--black) !important;
 }
 
 .modal .comment-actions a {
-	color: $gray-500;
+	color: var(--gray-500);
 }
 
 .navbar-light .navbar-nav .nav-link .fa, .navbar-light .navbar-nav .nav-link .fas, .navbar-light .navbar-nav .nav-link .far, .navbar-light .navbar-nav .nav-link .fab {
-	color: $black;
+	color: var(--black);
 }
 
 .dropdown-item:hover, .dropdown-item:focus, .dropdown-item.active {
-    background-color: #bda78e !important;
+	background-color: #bda78e !important;
 }
 
 .transparent {
@@ -75,7 +52,7 @@ blockquote {
 }
 
 .btn {
-	color: $primary !important;
+	color: var(--primary) !important;
 }
 
 .table {

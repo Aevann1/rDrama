@@ -171,7 +171,7 @@ comment_edit=function(id){
 
 post_comment=function(fullname){
 	const btn = document.getElementById('save-reply-to-'+fullname)
-    btn.classList.add('disabled');
+	btn.classList.add('disabled');
 
 	var form = new FormData();
 

@@ -199,9 +199,6 @@ def settings_profile_post(v):
 	theme = request.values.get("theme")
 	if theme:
 		v.theme = theme
-		if theme == "coffee" or theme == "4chan": v.themecolor = "38a169"
-		elif theme == "tron": v.themecolor = "80ffff"
-		elif theme == "win98": v.themecolor = "30409f"
 		updated = True
 
 	quadrant = request.values.get("quadrant")

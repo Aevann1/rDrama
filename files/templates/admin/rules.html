@@ -6,13 +6,13 @@
 
 <div class="row my-5">
 	<div class="col col-md-8">
-        <div class="settings">
-            <div id="description">
-                <h2>Edit rules</h2>
-                <p>Your rules page will be publicly visible at <a href="/rules">{{'/rules'|full_link}}</a>.</p>
-                <p class="text-small text-muted">Supports <a href="https://www.markdownguide.org/basic-syntax">markdown syntax</a>.</p>
-            </div>
-            <div class="body d-lg-flex">
+		<div class="settings">
+			<div id="description">
+				<h2>Edit rules</h2>
+				<p>Your rules page will be publicly visible at <a href="/rules">{{'/rules'|full_link}}</a>.</p>
+				<p class="text-small text-muted">Supports <a href="https://www.markdownguide.org/basic-syntax">markdown syntax</a>.</p>
+			</div>
+			<div class="body d-lg-flex">
 				<div class="w-lg-100">
 					<form id="profile-settings" action="/admin/rules" method="post">
 						<input type="hidden" name="formkey" value="{{v.formkey}}">
@@ -24,8 +24,8 @@
 					</form>
 				</div>
 			</div>
-        </div>
-    </div>
+		</div>
+	</div>
 </div>
 
 {% endblock %}

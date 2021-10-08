@@ -175,7 +175,7 @@ def sanitize(sanitized, noimages=False):
 			if emoji.startswith("!"):
 				emoji = emoji[1:]
 				if path.isfile(f'./files/assets/images/emojis/{emoji}.webp'):
-					new = re.sub(f'(?<!"):!{emoji}:', f'<img loading="lazy" data-bs-toggle="tooltip" alt=":!{emoji}:" title=":!{emoji}:" delay="0" class="mirrored bigemoji" src="https://{site}/assets/images/emojis/{emoji}.webp" >', new)
+					new = re.sub(f'(?<!"):!{emoji}:', f'<img loading="lazy" data-bs-toggle="tooltip" alt=":!{emoji}:" title=":!{emoji}:" delay="0" class="bigemoji mirrored" src="https://{site}/assets/images/emojis/{emoji}.webp" >', new)
 			
 					if emoji in session["favorite_emojis"]: session["favorite_emojis"][emoji] += 1
 					else: session["favorite_emojis"][emoji] = 1

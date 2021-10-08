@@ -97,9 +97,9 @@
 							<div class="input-group mb2">
 								<select id='theme' class="form-control" form="profile-settings" name="theme" onchange="post_toast('/settings/profile?theme='+document.getElementById('theme').value, '1')">
 								{% if v.background %}
-									{% set entries = ["transparent", "win98", "dark", "light", "coffee", "tron", "4chan", "midnight"] %}
+									{% set entries = ["transparent", "win98", "dark", "coffee", "tron", "4chan", "midnight"] %}
 								{% else %}
-									{% set entries = ["dark", "win98", "light", "coffee", "tron", "4chan", "midnight"] %}
+									{% set entries = ["dark", "win98", "coffee", "tron", "4chan", "midnight"] %}
 								{% endif %}
 								{% for entry in entries %}
 									<option value="{{entry}}" {% if v.theme==entry %} selected {% endif %}>

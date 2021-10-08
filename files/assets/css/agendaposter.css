@@ -7,16 +7,16 @@ html {
 }*/
 
 .nav-item .text-small.font-weight-bold::before {
-    content: "((("
+	content: "((("
 }
 .nav-item .text-small.font-weight-bold::after {
-    content: ")))"
+	content: ")))"
 }
 .nav-item .text-small-extra.text-purple {
-    font-size: 0 !important
+	font-size: 0 !important
 }
 .nav-item .text-small-extra.text-purple i {
-    font-size: 11px !important
+	font-size: 11px !important
 }
 
 /*h1, h2, h3, h4, h5, h6, p, span, label {

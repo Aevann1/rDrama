@@ -26,17 +26,17 @@
 
 <script>
 	(() => {
-        const date = new Date('{{p.created_datetime}}');
-        document.getElementById('timestamp-{{p.id}}').title = date.toString();
-        {% if p.edited_utc %}
-            const dateEdited = new Date('{{p.edited_datetime}}');
-            document.getElementById('edited_timestamp-{{p.id}}').title = dateEdited.toString();
-        {% endif %}
+		const date = new Date('{{p.created_datetime}}');
+		document.getElementById('timestamp-{{p.id}}').title = date.toString();
+		{% if p.edited_utc %}
+			const dateEdited = new Date('{{p.edited_datetime}}');
+			document.getElementById('edited_timestamp-{{p.id}}').title = dateEdited.toString();
+		{% endif %}
 
-        {% if (not v or v.highlightcomments) %}
-            showNewCommentCounts('{{p.id}}', {{p.comment_count}})
-        {% endif %}
-    })()
+		{% if (not v or v.highlightcomments) %}
+			showNewCommentCounts('{{p.id}}', {{p.comment_count}})
+		{% endif %}
+	})()
 </script>
 
 {% set ups=p.upvotes %}
@@ -158,12 +158,12 @@
 						{% if p.realbody(v) %}
 						<a class="list-inline-item" href="javascript:void(0)" onclick="expandText('{{p.id}}')"><i class="fas fa-expand-alt mr-0 text-expand-icon-{{p.id}}"></i></a>
 						{% endif %}
-                        <li class="list-inline-item">
-                            <a {% if v and v.newtab %}target="_blank"{% endif %} {% if v %}href="{{p.permalink}}"{% else %}href="/logged_out{{p.permalink}}"{% endif %}>
-                                <i class="fas fa-comment-dots"></i>{{p.comment_count}}
-                                <span class="text-info d-none new-comments"></span>
-                            </a>
-                        </li>
+						<li class="list-inline-item">
+							<a {% if v and v.newtab %}target="_blank"{% endif %} {% if v %}href="{{p.permalink}}"{% else %}href="/logged_out{{p.permalink}}"{% endif %}>
+								<i class="fas fa-comment-dots"></i>{{p.comment_count}}
+								<span class="text-info d-none new-comments"></span>
+							</a>
+						</li>
 						<a class="list-inline-item" href="/votes?link={{p.fullname}}"><i class="fas fa-arrows-v"></i>Votes</a>
 
 						{% if v and v.id!=p.author_id %}
@@ -248,12 +248,12 @@
 <div class="card-footer d-md-none mt-2 {% if request.path == '/changelog' %}px-0{% endif %}">
 	<div class="post-actions">
 		<ul class="list-inline text-right d-flex">
-            <li class="list-inline-item mr-auto">
-                <a {% if v and v.newtab %}target="_blank"{% endif %} {% if v %}href="{{p.permalink}}"{% else %}href="/logged_out{{p.permalink}}"{% endif %}>
-                    <i class="fas fa-comment-dots"></i>{{p.comment_count}}
-                    <span class="text-info d-none new-comments"></span>
-                </a>
-            </li>
+			<li class="list-inline-item mr-auto">
+				<a {% if v and v.newtab %}target="_blank"{% endif %} {% if v %}href="{{p.permalink}}"{% else %}href="/logged_out{{p.permalink}}"{% endif %}>
+					<i class="fas fa-comment-dots"></i>{{p.comment_count}}
+					<span class="text-info d-none new-comments"></span>
+				</a>
+			</li>
 			
 			<a class="copy-link" href="javascript:void(0);" role="button" data-clipboard-text="{% if 'rdrama' in request.host %}https://taytay.life{{p.permalink}}{% else %}{{p.permalink | full_link}}{% endif %}" style="margin-right: 15px;margin-top:5px;"><i class="fas fa-link"></i></a>
 

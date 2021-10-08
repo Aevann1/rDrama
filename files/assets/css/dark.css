@@ -1,26 +1,20 @@
 :root {
-    --dark: #383838;
-    --secondary: #383838;
-    --white: #E1E1E1;
-    --black: #CFCFCF;
-    --light: #000000;
-    --success: #38A169;
-    --muted: #E1E1E1;
-    --gray: #383838;
-    --green: #38A169;
-    --gray-100: #E1E1E1;
-    --gray-200: #E1E1E1;
-    --gray-300: #383838;
-    --gray-400: #303030;
-    --gray-500: #000000;
-    --gray-600: #000000;
-    --gray-700: #000000;
-    --gray-800: #000000;
-    --gray-900: #000000;
-    --downvote: #38B2AC;
-    --banned: #960000;
-    --deleted: #969600;
-    --deletedandbanned: #964000;
+	--dark: #383838;
+	--secondary: #383838;
+	--white: #E1E1E1;
+	--black: #CFCFCF;
+	--light: #000000;
+	--muted: #E1E1E1;
+	--gray: #383838;
+	--gray-100: #E1E1E1;
+	--gray-200: #E1E1E1;
+	--gray-300: #383838;
+	--gray-400: #303030;
+	--gray-500: #000000;
+	--gray-600: #000000;
+	--gray-700: #000000;
+	--gray-800: #000000;
+	--gray-900: #000000;
 }
 
 * {
@@ -63,7 +57,7 @@
 }
 
 pre {
-    color: #CFCFCF !important;
+	color: #CFCFCF !important;
 }
 
 .transparent {

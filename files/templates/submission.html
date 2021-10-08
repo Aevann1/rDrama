@@ -386,7 +386,7 @@
 						</div>
 
 						{% if p.embed_url %}
-							{% if p.domain == "twitter.com" and (v and v.theme.split("_")[0] in ["light", "coffee", "4chan"]) %}
+							{% if p.domain == "twitter.com" and (v and v.theme.split("_")[0] in ["coffee", "4chan"]) %}
 								{% include "embeds/twitterlight.html" %}
 							{% elif "twitter.com" in p.domain %}
 								{% include "embeds/twitter.html" %}
@@ -431,11 +431,11 @@
 				<ul class="list-inline text-right d-flex">
 
 						<li class="list-inline-item">
-                            <a {% if v %}href="{{p.permalink}}"{% else %}href="/logged_out{{p.permalink}}"{% endif %}>
-                                <i class="fas fa-comment-dots"></i>{{p.comment_count}}
-                                <span class="text-info d-none new-comments"></span>
-                            </a>
-                        </li>
+							<a {% if v %}href="{{p.permalink}}"{% else %}href="/logged_out{{p.permalink}}"{% endif %}>
+								<i class="fas fa-comment-dots"></i>{{p.comment_count}}
+								<span class="text-info d-none new-comments"></span>
+							</a>
+						</li>
 
 						{% if v and v.id==p.author_id %}
 							{% if p.private %}
@@ -574,11 +574,11 @@
 			<ul class="list-inline text-right d-flex">
 
 				<li class="list-inline-item mr-auto">
-                    <a {% if v %}href="{{p.permalink}}"{% else %}href="/logged_out{{p.permalink}}"{% endif %}>
-                        <i class="fas fa-comment-dots"></i>{{p.comment_count}}
-                        <span class="text-info d-none new-comments"></span>
-                    </a>
-                </li>
+					<a {% if v %}href="{{p.permalink}}"{% else %}href="/logged_out{{p.permalink}}"{% endif %}>
+						<i class="fas fa-comment-dots"></i>{{p.comment_count}}
+						<span class="text-info d-none new-comments"></span>
+					</a>
+				</li>
 
 				<a class="list-inline-item copy-link" href="javascript:void(0);" role="button" data-clipboard-text="{% if 'rdrama' in request.host %}https://taytay.life{{p.permalink}}{% else %}{{p.permalink | full_link}}{% endif %}"><i class="fas fa-link"></i>Copy link</a>
 				{% if v %}
