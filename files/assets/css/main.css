@@ -10191,12 +10191,11 @@ ol > li::before {
   padding: 0.25rem 0.5rem;
 }
 
-.navbar-light .navbar-nav .nav-link {
+.navbar-light .navbar-nav .nav-link, .navbar-light .navbar-nav .nav-link:hover {
   color: var(--black);
 }
 
 .navbar-light .navbar-nav .nav-link:hover {
-  background-color: var(--light);
   border-radius: 0.35rem;
 }
 
