@@ -147,7 +147,7 @@ def sanitize(sanitized, noimages=False):
 	for tag in soup.find_all("a"):
 
 		tag["target"] = "_blank"
-		if site not in tag["href"]: tag["rel"] = "nofollow noopener noreferrer"
+		if tag["href"] and site not in tag["href"]: tag["rel"] = "nofollow noopener noreferrer"
 
 		if re.match("https?://\S+", str(tag.string)):
 			try: tag.string = tag["href"]
