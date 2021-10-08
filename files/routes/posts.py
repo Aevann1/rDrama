@@ -512,11 +512,8 @@ def submit_post(v):
 		if url.startswith("https://streamable.com/") and not url.startswith("https://streamable.com/e/"):
 			url = url.replace("https://streamable.com/", "https://streamable.com/e/")
 
-		if "?" in url: url2 = url.split('?')[0]
-		else: url2 = url
-
 		repost = g.db.query(Submission).options(lazyload('*')).filter(
-			Submission.url.ilike(f'{url2}%'),
+			Submission.url.ilike(f'{url}%'),
 			Submission.deleted_utc == 0,
 			Submission.is_banned == False
 		).first()
