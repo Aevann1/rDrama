@@ -13348,7 +13348,6 @@ div.deleted.banned {
   max-width: 100% !important;
   border-radius: 0.2rem !important;
   margin-top: 0.5rem !important;
-  margin-bottom: 0.5rem !important;
 }
 
 .emoji {
@@ -13362,11 +13361,13 @@ div.deleted.banned {
 .embedvid {
   max-height: 300px !important;
   max-width: 100% !important;
+  margin-top: 0.5rem !important;
 }
 
 .spotify {
   max-height: 80px !important;
   max-width: 100% !important;
+  margin-top: 0.5rem !important;
 }
 
 .onboarding-card {
