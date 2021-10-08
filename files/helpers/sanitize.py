@@ -91,35 +91,23 @@ _allowed_styles =[
 	'-webkit-transform',
 ]
 
-def sanitize(sanitized, noimages=False):
+def sanitize(sanitized):
 
 	sanitized = sanitized.replace("\ufeff", "").replace("m.youtube.com", "youtube.com")
 
 	for i in re.finditer('https://i.imgur.com/(([^_]*?)\.(jpg|png|jpeg))', sanitized):
 		sanitized = sanitized.replace(i.group(1), i.group(2) + "_d." + i.group(3) + "?maxwidth=9999")
 
-	if noimages:
-		sanitized = bleach.Cleaner(tags=no_images,
-									attributes=_allowed_attributes,
-									protocols=_allowed_protocols,
-									styles=_allowed_styles,
-									filters=[partial(LinkifyFilter,
-													skip_tags=["pre"],
-													parse_email=False,
-													)
-											]
-									).clean(sanitized)
-	else:
-		sanitized = bleach.Cleaner(tags=_allowed_tags,
-							attributes=_allowed_attributes,
-							protocols=_allowed_protocols,
-							styles=_allowed_styles,
-							filters=[partial(LinkifyFilter,
-											skip_tags=["pre"],
-											parse_email=False,
-											)
-									]
-							).clean(sanitized)
+	sanitized = bleach.Cleaner(tags=_allowed_tags,
+						attributes=_allowed_attributes,
+						protocols=_allowed_protocols,
+						styles=_allowed_styles,
+						filters=[partial(LinkifyFilter,
+										skip_tags=["pre"],
+										parse_email=False,
+										)
+								]
+						).clean(sanitized)
 
 	soup = BeautifulSoup(sanitized, features="html.parser")
 
@@ -137,7 +125,6 @@ def sanitize(sanitized, noimages=False):
 			link["href"] = tag["src"]
 			link["rel"] = "nofollow noopener noreferrer"
 			link["target"] = "_blank"
-
 			link["onclick"] = f"expandDesktopImage('{tag['data-src']}');"
 			link["data-bs-toggle"] = "modal"
 			link["data-bs-target"] = "#expandImageModal"
@@ -168,7 +155,7 @@ def sanitize(sanitized, noimages=False):
 	
 	for i in re.finditer("[^a]>\s*(:!?\w+:\s*)+<\/", sanitized):
 		old = i.group(0)
-		if 'marseylong' in old: new = old.lower().replace(">", " style='margin-bottom:0 !important'>")
+		if 'marseylong1' in old or 'marseylong2' in old: new = old.lower().replace(">", " class='mb-0'>")
 		else: new = old.lower()
 		for i in re.finditer('(?<!"):([^ ]{1,30}?):', new):
 			emoji = i.group(1).lower()
