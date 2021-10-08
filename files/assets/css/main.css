@@ -13526,6 +13526,10 @@ div.deleted.banned {
   padding-bottom: 30px !important;
 }
 
+nav .navbar .container-fluid {
+  padding-bottom: 0 !important;
+}
+
 .btn {
   background-color: var(--gray-700) !important;
 }
