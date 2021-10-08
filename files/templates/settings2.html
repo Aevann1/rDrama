@@ -39,12 +39,21 @@
 
 	
 	{% if v %}
-	<link id="css-link" rel="stylesheet" href="/assets/css/{{v.theme}}_{{v.themecolor}}.css?v=20">
+		<style>:root {--primary: #{{v.themecolor}};}</style>
+		<link rel="stylesheet" href="/assets/css/{{v.theme}}.css?v=1">
+		<link rel="stylesheet" href="/assets/css/main.css?v=1">
+		{% if v.agendaposter %}
+			<link rel="stylesheet" href="/assets/css/agendaposter.css?v=1">
+		{% elif v.css %}
+			<link rel="stylesheet" href="/@{{v.username}}/css">
+		{% endif %}
 	{% else %}
-	<link id="css-link" rel="stylesheet" href="/assets/css/{{'DEFAULT_THEME' | app_config}}.css?v=20">
+		<style>:root {--primary: #{{'DEFAULT_COLOR' | app_config}};}</style>
+		<link rel="stylesheet" href="/assets/css/{{'DEFAULT_THEME' | app_config}}.css?v=1">
+		<link rel="stylesheet" href="/assets/css/main.css?v=1">
 	{% endif %}
 
-		<link href="/assets/css/fa.css" rel="stylesheet"> 
+	<link href="/assets/css/fa.css" rel="stylesheet"> 
 </head>
 
 <body id="settings2" style="overflow-x: hidden; {% if v and v.background %} background:url(/assets/images/backgrounds/{{v.background}}) no-repeat center center fixed !important; background-size: cover!important; background-color: #000!important;{% endif %}">

@@ -23,12 +23,14 @@
 
 		
 		{% block stylesheets %}
-		{% if v %}
-			<link rel="stylesheet" href="/assets/css/{{v.theme}}_{{v.themecolor}}.css?v=20">
-			{% if v.agendaposter %}<link rel="stylesheet" href="/assets/css/agendaposter.css?v=20">{% elif v.css %}<link rel="stylesheet" href="/@{{v.username}}/css">{% endif %}
-		{% else %}
-			<link rel="stylesheet" href="/assets/css/{{'DEFAULT_THEME' | app_config}}.css?v=20">
-		{% endif %}
+			<style>:root {--primary: #{{v.themecolor}};}</style>
+			<link rel="stylesheet" href="/assets/css/{{v.theme}}.css?v=1">
+			<link rel="stylesheet" href="/assets/css/main.css?v=1">
+			{% if v.agendaposter %}
+				<link rel="stylesheet" href="/assets/css/agendaposter.css?v=1">
+			{% elif v.css %}
+				<link rel="stylesheet" href="/@{{v.username}}/css">
+			{% endif %}
 		{% endblock %}
 
 				<link href="/assets/css/fa.css" rel="stylesheet"> </head>

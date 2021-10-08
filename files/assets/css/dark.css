@@ -37,8 +37,6 @@
     --reddit: #ED4630;
 }
 
-@import "./main.css";
-
 * {
 	border-color: var(--primary);
 }
