@@ -18,7 +18,7 @@
 }
 
 body, .navbar-light, .navbar-dark, .card, .modal-content, .comment-write textarea {
-	background-color: var(--bg-dark) !important;
+	background-color: #21262d !important;
 }
 
 .transparent, #login {

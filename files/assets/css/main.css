@@ -13521,8 +13521,9 @@ div.deleted.banned {
 }
 
 .container, .container-fluid, .container-sm, .container-md, .container-lg, .container-xl {
-  background-color: var(--gray-700) !important;
+  background-color: var(--gray-700);
   border-radius: 5px !important;
+  padding-bottom: 30px !important;
 }
 
 .btn {
@@ -13577,9 +13578,6 @@ textarea {
   .card-columns {
 	column-count: 5 !important;
   }
-}
-.container, .container-fluid, .container-sm, .container-md, .container-lg, .container-xl {
-  padding-bottom: 30px;
 }
 
 .navbar {
