@@ -1,15 +1,9 @@
 <script>
 	function expandDesktopImage(image) {
-
-		var linkText = document.getElementById("desktop-expanded-image-link");
-		var imgLink = document.getElementById("desktop-expanded-image-wrap-link");
-
-		linkText.href = image;
-		imgLink.href=image;
-
-		linkText.textContent = 'View original';
+		document.getElementById("desktop-expanded-image").src = image
+		document.getElementById("desktop-expanded-image-wrap-link").href = image;
+		document.getElementById("desktop-expanded-image-link").href = image;
 	};
-
 </script>
 
 
