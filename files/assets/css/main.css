@@ -13391,12 +13391,6 @@ div.deleted.banned {
   display: block;
 }
 
-img.emoji {
-  width: 30px;
-  height: 30px;
-  object-fit: contain;
-}
-
 .spoiler {
   color: var(--white);
   background-color: var(--white);
