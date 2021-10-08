@@ -1,6 +1,0 @@
-//
-@mixin deprecate($name, $deprecate-version, $remove-version, $ignore-warning: false) {
-  @if ($enable-deprecation-messages != false and $ignore-warning != true) {
-    @warn "#{$name} has been deprecated as of #{$deprecate-version}. It will be removed entirely in #{$remove-version}.";
-  }
-}
