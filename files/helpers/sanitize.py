@@ -227,7 +227,7 @@ def sanitize(sanitized, noimages=False):
 	for i in re.finditer('<a href="(https://open.spotify.com/embed/.*?)"', sanitized):
 		url = i.group(1)
 		replacing = f'<a href="{url}" rel="nofollow noopener noreferrer" target="_blank">{url}</a>'
-		htmlsource = f'<iframe data-src="{url}" frameBorder="0" allowtransparency="true" allow="encrypted-media"></iframe>'
+		htmlsource = f'<iframe data-src="{url}" class="spotify" frameBorder="0" allowtransparency="true" allow="encrypted-media"></iframe>'
 		sanitized = sanitized.replace(replacing, htmlsource)
 
 	for rd in ["https://reddit.com/", "https://new.reddit.com/", "https://www.reddit.com/", "https://redd.it/"]:

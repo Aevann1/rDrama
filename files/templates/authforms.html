@@ -16,7 +16,7 @@
 		{% if v %}
 			<style>:root {--primary: #{{v.themecolor}};}</style>
 			<link rel="stylesheet" href="/assets/css/{{v.theme}}.css?v=40">
-			<link rel="stylesheet" href="/assets/css/main.css?v=40">
+			<link rel="stylesheet" href="/assets/css/main.css?v=41">
 			{% if v.agendaposter %}
 				<link rel="stylesheet" href="/assets/css/agendaposter.css?v=40">
 			{% elif v.css %}
@@ -25,7 +25,7 @@
 		{% else %}
 			<style>:root {--primary: #{{'DEFAULT_COLOR' | app_config}};}</style>
 			<link rel="stylesheet" href="/assets/css/{{'DEFAULT_THEME' | app_config}}.css?v=40">
-			<link rel="stylesheet" href="/assets/css/main.css?v=40">
+			<link rel="stylesheet" href="/assets/css/main.css?v=41">
 		{% endif %}
 
 </head>
