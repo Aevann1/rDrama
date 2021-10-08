@@ -10167,7 +10167,7 @@ ol > li::before {
 }
 
 .navbar-brand, .navbar-light .navbar-brand {
-  color: var(--purple);
+  color: var(--primary);
   font-weight: 600;
 }
 
@@ -10381,7 +10381,7 @@ label.color-radio span {
 }
 
 .form-inline.search .form-control:hover, .form-inline.search .form-control:active, .form-inline.search .form-control:focus {
-  border-color: var(--purple);
+  border-color: var(--primary);
 }
 
 .form-inline.search .form-control:active, .form-inline.search .form-control:focus {
@@ -10634,7 +10634,7 @@ th {
 	outline: 0;
 } */
 .active.arrow-up::before {
-  color: var(--upvote);
+  color: var(--primary);
 }
 
 .arrow-up::before {
@@ -10647,7 +10647,7 @@ th {
 }
 
 .arrow-up:hover::before {
-  color: var(--upvote);
+  color: var(--primary);
   opacity: 0.5;
 }
 
@@ -10670,7 +10670,7 @@ th {
 }
 
 /* .upvoted .arrow-up::before {
-	color: var(--upvote);
+	color: var(--primary);
 }
 
 .upvoted .arrow-up:hover::before {
@@ -10693,7 +10693,7 @@ th {
 }
 
 .upvoted .arrow-mobile-up {
-  color: var(--upvote) !important;
+  color: var(--primary) !important;
 }
 
 .downvoted .arrow-mobile-down {
@@ -10709,7 +10709,7 @@ th {
 }
 
 .score-up {
-  color: var(--upvote) !important;
+  color: var(--primary) !important;
 }
 
 .score-down {
@@ -11235,7 +11235,7 @@ a.bg-dark:hover, a.bg-dark:focus, button.bg-dark:hover, button.bg-dark:focus {
 }
 
 .stretched-link a:hover {
-  color: var(--purple);
+  color: var(--primary);
 }
 
 .post-meta {
@@ -11970,9 +11970,9 @@ ul.comment-section {
 }
 
 .reaction .reacted {
-  border-color: var(--purple);
+  border-color: var(--primary);
   background-color: rgba(60, 173, 243, 0.08);
-  color: var(--purple);
+  color: var(--primary);
 }
 
 #login {
@@ -12836,8 +12836,8 @@ ul.comment-section {
 }
 
 .custom-checkbox .custom-control-input:checked ~ .custom-control-label::before {
-  background-color: var(--purple);
-  border: 0.1px solid var(--purple);
+  background-color: var(--primary);
+  border: 0.1px solid var(--primary);
 }
 
 .custom-switch {
@@ -12902,7 +12902,7 @@ ul.comment-section {
 pre code {
   word-break: break-word;
   white-space: break-spaces;
-  color: var(--code);
+  color: var(--primary);
 }
 
 pre.prettyprint {
@@ -13061,7 +13061,7 @@ pre .clo, pre .opn, pre .pun, code .clo, code .opn, code .pun {
   }
 
   .navbar-light .navbar-nav .nav-link .fa, .navbar-light .navbar-nav .nav-link .fas, .navbar-light .navbar-nav .nav-link .far, .navbar-light .navbar-nav .nav-link .fab {
-    color: var(--purple);
+    color: var(--primary);
     font-size: 1.25rem;
   }
 
@@ -13215,7 +13215,7 @@ pre .clo, pre .opn, pre .pun, code .clo, code .opn, code .pun {
   }
 
   .active.arrow-up::before, .active.arrow-up:hover::before {
-    color: var(--upvote);
+    color: var(--primary);
   }
 
   .active.arrow-down::before, .active.arrow-down:hover::before {
@@ -13414,7 +13414,7 @@ textarea {
 }
 
 span.red {
-  color: var(--admin);
+  color: var(--primary);
 }
 
 span.green {
@@ -13435,7 +13435,7 @@ div.deleted.banned {
 }
 
 .text-admin {
-  color: var(--admin);
+  color: var(--primary);
 }
 
 .in-comment-image {
@@ -13471,7 +13471,7 @@ div.deleted.banned {
   background-color: rgba(0, 0, 0, 0.65);
 }
 .onboarding-card.selected .onboarding-card-overlay {
-  background-color: rgba(var(--purple), 0.65);
+  background-color: rgba(var(--primary), 0.65);
 }
 
 .object-cover {
