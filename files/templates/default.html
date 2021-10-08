@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<script src="/assets/js/lozad.js?v=11"></script>
+	<script src="/assets/js/lozad.js?v=40"></script>
 	
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -69,7 +69,7 @@
 
 	{% if v %}
 		<script>function formkey() {return '{{v.formkey}}';}</script>
-		<script src="/assets/js/default.js?v=11"></script>
+		<script src="/assets/js/default.js?v=40"></script>
 	{% endif %}
 
 
@@ -250,17 +250,17 @@
 
 		{% if v %}
 			<style>:root {--primary: #{{v.themecolor}};}</style>
-			<link rel="stylesheet" href="/assets/css/{{v.theme}}.css?v=5">
-			<link rel="stylesheet" href="/assets/css/main.css?v=5">
+			<link rel="stylesheet" href="/assets/css/{{v.theme}}.css?v=40">
+			<link rel="stylesheet" href="/assets/css/main.css?v=40">
 			{% if v.agendaposter %}
-				<link rel="stylesheet" href="/assets/css/agendaposter.css?v=5">
+				<link rel="stylesheet" href="/assets/css/agendaposter.css?v=40">
 			{% elif v.css %}
 				<link rel="stylesheet" href="/@{{v.username}}/css">
 			{% endif %}
 		{% else %}
 			<style>:root {--primary: #{{'DEFAULT_COLOR' | app_config}};}</style>
-			<link rel="stylesheet" href="/assets/css/{{'DEFAULT_THEME' | app_config}}.css?v=5">
-			<link rel="stylesheet" href="/assets/css/main.css?v=5">
+			<link rel="stylesheet" href="/assets/css/{{'DEFAULT_THEME' | app_config}}.css?v=40">
+			<link rel="stylesheet" href="/assets/css/main.css?v=40">
 		{% endif %}
 
 		{% endblock %}

@@ -4,17 +4,17 @@
 	{% block stylesheets %}
 		{% if v %}
 			<style>:root {--primary: #{{v.themecolor}};}</style>
-			<link rel="stylesheet" href="/assets/css/{{v.theme}}.css?v=5">
-			<link rel="stylesheet" href="/assets/css/main.css?v=5">
+			<link rel="stylesheet" href="/assets/css/{{v.theme}}.css?v=40">
+			<link rel="stylesheet" href="/assets/css/main.css?v=40">
 			{% if v.agendaposter %}
-				<link rel="stylesheet" href="/assets/css/agendaposter.css?v=5">
+				<link rel="stylesheet" href="/assets/css/agendaposter.css?v=40">
 			{% elif v.css %}
 				<link rel="stylesheet" href="/@{{v.username}}/css">
 			{% endif %}
 		{% else %}
 			<style>:root {--primary: #{{'DEFAULT_COLOR' | app_config}};}</style>
-			<link rel="stylesheet" href="/assets/css/{{'DEFAULT_THEME' | app_config}}.css?v=5">
-			<link rel="stylesheet" href="/assets/css/main.css?v=5">
+			<link rel="stylesheet" href="/assets/css/{{'DEFAULT_THEME' | app_config}}.css?v=40">
+			<link rel="stylesheet" href="/assets/css/main.css?v=40">
 		{% endif %}
 		{% if u and u.profilecss %}
 			<link rel="stylesheet" href="/@{{u.username}}/profilecss">
@@ -33,7 +33,7 @@
 	}
 </style>
 
-<script src="/assets/js/userpage.js?v=10"></script>
+<script src="/assets/js/userpage.js?v=40"></script>
 <title>{{u.username}}'s profile - {{'SITE_NAME' | app_config}}</title>
 {% if u.is_private %}
 <meta name="robots" content="noindex">

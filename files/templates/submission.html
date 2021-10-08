@@ -14,7 +14,7 @@
 {% block title %}
 
 <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js"></script>
-<script src="/assets/js/new_comments_count.js?v=10"></script>
+<script src="/assets/js/new_comments_count.js?v=40"></script>
 
 {% if v and v.id == p.author_id %}
 	<script>		
@@ -53,7 +53,7 @@
 	</script>
 
 	{% if v %}
-		<script src="/assets/js/comments_v.js?v=26"></script>
+		<script src="/assets/js/comments_v.js?v=40"></script>
 		{% include "award_modal.html" %}
 		{% include "emoji_modal.html" %}
 		{% include "gif_modal.html" %}
@@ -65,7 +65,7 @@
 {% endif %}
 
 {% if p.award_count("shit") %}
-	<script src="/assets/js/bug-min.js?v=10"></script>
+	<script src="/assets/js/bug-min.js?v=40"></script>
 	{% set minbugs = 10*p.award_count("shit") if p.award_count("shit") < 3 else 20 %}
 	{% set maxbugs = 20*p.award_count("shit") if p.award_count("shit") < 3 else 40 %}
 	<script>
@@ -81,7 +81,7 @@
 
 
 {% if p.award_count("fireflies") %}
-	<script src="/assets/js/fireflies.js?v=10"></script>
+	<script src="/assets/js/fireflies.js?v=40"></script>
 	{% set minbugs = 10*p.award_count("fireflies") if p.award_count("fireflies") < 3 else 20 %}
 	{% set maxbugs = 20*p.award_count("fireflies") if p.award_count("fireflies") < 3 else 40 %}
 	<script>
