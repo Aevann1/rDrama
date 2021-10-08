@@ -1,63 +1,58 @@
+:root {
+    --dark: #3E2C18;
+    --secondary: #F0E0D6;
+    --danger: #E53E3E;
+    --white: #F1E7D0;
+    --black: #433434;
+    --light: #F0E0D6;
+    --success: #ff66ac;
+    --muted: #AA9881;
+    --info: #168EEA;
+    --purple: #FF66AC;
+    --red: #E53E3E;
+    --gray: #AA9881;
+    --green: #ff66ac;
+    --gray-100: #817261;
+    --gray-200: #433434;
+    --gray-300: #433434;
+    --gray-400: #AA9881;
+    --gray-500: #F0E0D6;
+    --gray-600: #F0E0D6;
+    --gray-700: #F0E0D6;
+    --gray-800: #F0E0D6;
+    --gray-900: #F0E0D6;
+    --upvote: #ff66ac;
+    --downvote: #38B2AC;
+    --admin: #ff66ac;
+    --banned: #FEB2B2;
+    --deleted: #FEFCBF;
+    --deletedandbanned: #ffcc99;
+    --mod: #07c20c;
+    --code: #e83e8c;
+    --gold: #ECC94B;
+    --reddit: #ED4630;
+}
 
-$primary: #ff66ac;
-$dark: #3E2C18;
-$secondary: #F0E0D6;
-$danger: #E53E3E;
-$white: #F1E7D0;
-$black: #433434;
-$light: #F0E0D6;
-$success: #ff66ac;
-$muted: #AA9881;
-$info: #168EEA;
-
-$purple: #FF66AC;
-$red: #E53E3E;
-$gray: #AA9881;
-$green: #ff66ac;
-
-$gray-100: #817261;
-$gray-200: #433434;
-$gray-300: #433434;
-$gray-400: #AA9881;
-$gray-500: #F0E0D6;
-$gray-600: #F0E0D6;
-$gray-700: #F0E0D6;
-$gray-800: #F0E0D6;
-$gray-900: #F0E0D6;
-
-$upvote: #ff66ac;
-$downvote: #38B2AC;
-$admin: #ff66ac;
-$banned: #FEB2B2;
-$deleted: #FEFCBF;
-$deletedandbanned: #ffcc99;
-$mod: #07c20c;
-$code: #e83e8c;
-
-$gold: #ECC94B;
-$reddit: #ED4630;
-
-@import "./bootstrap/bootstrap.scss";
-@import "./main.scss";
+@import "./main.css";
 
 blockquote {
 	background-color: #c0c0c0;
 }
 
 .text-muted {
-	color: $black !important;
+	color: var(--black) !important;
 }
 
 .text-white {
-	color: $primary !important;
+	color: var(--primary) !important;
 }
 
 .modal .comment-actions a {
-	color: $gray-500;
+	color: var(--gray-500);
 }
 
 .navbar-light .navbar-nav .nav-link .fa, .navbar-light .navbar-nav .nav-link .fas, .navbar-light .navbar-nav .nav-link .far, .navbar-light .navbar-nav .nav-link .fab {
-	color: $black;
+	color: var(--black);
 }
 
 .dropdown-item:hover, .dropdown-item:focus, .dropdown-item.active {
@@ -69,7 +64,7 @@ html * {
     color: #800000
     }
 body, #main-content-col {
-    background-color: $secondary !important;
+    background-color: var(--secondary) !important;
     }
 .border-right, .border-left, .border-top, .border-bottom, .border {
     border-color: #D9BFB7 !important
@@ -81,7 +76,7 @@ body, #main-content-col {
     color: #800000 !important;
     }
 .comment, .card {
-    background-color: $secondary !important;
+    background-color: var(--secondary) !important;
     border-color: #D9BFB7 !important;
     }
 .form-control {
@@ -97,7 +92,7 @@ body, #main-content-col {
     color: #F00 !important
     }
 a {
-    color: $primary;
+    color: var(--primary);
 }
 
 blockquote p {
@@ -113,5 +108,5 @@ blockquote p {
 }
 
 .btn {
-	color: $primary !important;
+	color: var(--primary) !important;
 }
