@@ -2357,6 +2357,7 @@ textarea.form-control {
 .btn {
   display: inline-block;
   font-weight: 400;
+  color: var(--primary);
   text-align: center;
   vertical-align: middle;
   cursor: pointer;
