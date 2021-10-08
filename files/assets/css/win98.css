@@ -46,7 +46,7 @@
 }
 
 .nav-link:focus, .btn:focus, .btn-secondary:focus, .col.px-0.pl-2.btn.btn-dead.my-0.mx-2,
-.nav-link:active, .btn:active, .btn-secondary:active,{
+.nav-link:active, .btn:active, .btn-secondary:active {
 	border: 2px inset white !important;
 }
 .card, .card-blank, .comment-section.post-top, .dropdown-menu {
