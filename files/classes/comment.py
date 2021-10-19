@@ -32,7 +32,8 @@ class Comment(Base):
 	parent_comment_id = Column(Integer, ForeignKey("comments.id"))
 	over_18 = Column(Boolean, default=False)
 	is_bot = Column(Boolean, default=False)
-	is_pinned = Column(String(255))
+	_is_pinned = Column(Boolean, default=False)
+	pin_until = Column(Integer, default=0)
 	sentto=Column(Integer)
 	app_id = Column(Integer, ForeignKey("oauth_apps.id"))
 	oauth_app = relationship("OauthApp", viewonly=True)
@@ -64,6 +65,15 @@ class Comment(Base):
 	@lazy
 	def created_datetime(self):
 		return str(time.strftime("%d/%B/%Y %H:%M:%S UTC", time.gmtime(self.created_utc)))
+
+	@property
+	def is_pinned(self):
+		return self._is_pinned and (self.pin_until == 0 or self.pin_until > int(time.time()))
+
+	@is_pinned.setter
+	def is_pinned(self, value):
+		self._is_pinned = value
+		self.pin_until = 0
 
 	@property
 	@lazy

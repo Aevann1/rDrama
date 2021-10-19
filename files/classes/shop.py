@@ -60,6 +60,18 @@ ITEMS = {
         "awardKind": None,
         "prompt": "What to change their flair to? (emojis allowed)"
     },
+    "pin": {
+        "kind": "pin",
+        "name": "24hr Pin",
+        "description": "Pin the target post or comment for 24 hours.",
+        "category": 1,
+        "icon": "",
+        "cost": 500,
+        "ability": True,
+        "award": False,
+        "awardKind": None,
+        "prompt": None
+    }
 }
 
 

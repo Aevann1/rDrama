@@ -32,7 +32,8 @@ class Submission(Base):
 	distinguish_level = Column(Integer, default=0)
 	created_str = Column(String(255))
 	stickied = Column(String(255))
-	is_pinned = Column(Boolean, default=False)
+	#_is_pinned = Column(Boolean, default=False)
+	pin_until = Column(Integer, default=0)
 	private = Column(Boolean, default=False)
 	club = Column(Boolean, default=False)
 	comment_count = Column(Integer, default=0)
@@ -76,6 +77,15 @@ class Submission(Base):
 	@lazy
 	def created_datetime(self):
 		return str(time.strftime("%d/%B/%Y %H:%M:%S UTC", time.gmtime(self.created_utc)))
+
+	@property
+	def is_pinned(self):
+		return self.stickied and (self.pin_until == 0 or self.pin_until > int(time.time()))
+
+	@is_pinned.setter
+	def is_pinned(self, value):
+		self.stickied = value
+		self.pin_until = 0
 
 	@property
 	@lazy

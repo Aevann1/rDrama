@@ -147,6 +147,7 @@
 
 			<div class="post-actions mt-2 d-none d-md-block">
 				<ul class="list-inline text-right d-flex">
+						<!-- desktop stuff -->
 						{% if p.realbody(v) %}
 						<li class="list-inline-item"><a href="javascript:void(0)" class="text-expand" data-bs-id="{{p.id}}"><i class="fas fa-expand-alt mr-0 text-expand-icon-{{p.id}}"></i></a></li>
 						{% endif %}
@@ -163,6 +164,7 @@
 						{% if v %}
 							<li id="subscribe-{{p.id}}" class="{% if p.id in v.subscribed_idlist() %}d-none{% endif %} list-inline-item"><a href="javascript:void(0)" onclick="post_toast2('/subscribe/{{p.id}}','subscribe-{{p.id}}','unsubscribe-{{p.id}}')"><i class="fas fa-eye"></i>Subscribe</a></li>
 							<li id="unsubscribe-{{p.id}}" class="{% if p.id not in v.subscribed_idlist() %}d-none{% endif %} list-inline-item"><a href="javascript:void(0)" onclick="post_toast2('/unsubscribe/{{p.id}}','subscribe-{{p.id}}','unsubscribe-{{p.id}}')"><i class="fas fa-eye-slash"></i>Unsubscribe</a></li>
+							<li id="item-{{p.id}}" class="list-inline-item"><a href="javascript:void(0)" class="use-item-btn" data-target-name="{{ p.fullname }}" data-bs-toggle="modal" data-bs-target="#itemModal"><i class="fas fa-bolt"></i>Use Item</a></li>
 						{% endif %}
 
 						{% if v %}
@@ -237,6 +239,7 @@
 
 <div class="card-footer d-block d-md-none mt-2">
 	<div class="post-actions">
+		<!-- mobile stuff -->
 		<ul class="list-inline text-right d-flex">
 			<li class="list-inline-item mr-auto"><a {% if v and v.newtab %}target="_blank"{% endif %} {% if v %}href="{{p.permalink}}"{% else %}href="/logged_out{{p.permalink}}"{% endif %}><i class="fas fa-comment-dots"></i>{{p.comment_count}}</a></li>
 
@@ -338,6 +341,9 @@
 						<button id="subscribe2-{{p.id}}" class="{% if p.id in v.subscribed_idlist() %}d-none{% endif %} nobackground btn btn-link btn-block btn-lg text-left text-muted" href="javascript:void(0)" onclick="post_toast2('/subscribe/{{p.id}}','subscribe2-{{p.id}}','unsubscribe2-{{p.id}}')" data-bs-dismiss="modal"><i class="fas fa-eye text-center text-muted mr-3"></i>Subscribe</button>
 
 						<button id="unsubscribe2-{{p.id}}" class="{% if not p.id in v.subscribed_idlist() %}d-none{% endif %} nobackground btn btn-link btn-block btn-lg text-left text-muted" href="javascript:void(0)" onclick="post_toast2('/unsubscribe/{{p.id}}','subscribe2-{{p.id}}','unsubscribe2-{{p.id}}')" data-bs-dismiss="modal"><i class="fas fa-eye-slash text-center text-muted mr-3"></i>Unsubscribe</button>
+					
+						<button class="use-item-btn nobackground btn btn-link btn-block btn-lg text-left text-muted" data-target-name="{{ p.fullname }}" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#itemModal"><i class="fas fa-bolt text-center text-muted mr-3"></i>Use Item</button>
+
 					{% endif %}
 
 					{% if v %}
@@ -514,6 +520,7 @@
 {% endfor %}
 
 {% if v %}
+	{% include "item_modal.html" %}
 	{% include "award_modal.html" %}
 	{% include "delete_post_modal.html" %}
 	{% include "report_post_modal.html" %}

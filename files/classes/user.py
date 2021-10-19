@@ -182,20 +182,17 @@ class User(Base):
 		kwargs["created_utc"] = int(time.time())
 
 		super().__init__(**kwargs)
-
 	
 	@property
 	def flairchanged(self):
 
 	    return self._flair_locked and (self.flair_locked_until > int(time.time()) or self.flair_locked_until == 0)
 
-
 	@flairchanged.setter
 	def flairchanged(self, val):
 
 	    self._flair_locked = val
 	    self.flair_locked_until = 0
-
 
 	@property
 	@lazy

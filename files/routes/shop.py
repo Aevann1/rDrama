@@ -18,8 +18,10 @@ def filter_title(title):
 
     for i in re.finditer(':(.{1,30}?):', title):
         if path.isfile(f'./files/assets/images/emojis/{i.group(1)}.gif'):
-            title = title.replace(f':{i.group(1)}:',
-                                  f'<img data-toggle="tooltip" title="{i.group(1)}" delay="0" height=20 src="https://{site}/assets/images/emojis/{i.group(1)}.gif"<span>')
+            title = title.replace(
+                f':{i.group(1)}:',
+                f'<img data-toggle="tooltip" title="{i.group(1)}" delay="0" height=20 src="https://{site}/assets/images/emojis/{i.group(1)}.gif"<span>'
+            )
 
     return title
 
@@ -59,13 +61,28 @@ class Thing:
 def flair_trigger(target, prompt):
 
     u = target.author
+  
     u._flair_locked = True
-    u.flair_locked_until = 24*60*60
+    u.flair_locked_until = int(time.time()) + 24*60*60
     u.customtitle = filter_title(prompt.strip()[:100])
+    u.customtitleplain = prompt.strip()[:100]
+   
+    g.db.add(u)
+    g.db.commit()
+
+
+def pin_trigger(target, prompt):
+
+    target._is_pinned = True
+    target.pin_until = int(time.time()) + 24*60*60
+
+    g.db.add(target)
+    g.db.commit()
 
 
 ACTIONS = {
-    "flair": flair_trigger
+    "flair": flair_trigger,
+    "pin": pin_trigger
 }
 
 
@@ -124,7 +141,7 @@ def shop_items_consumables(v):
         if val.get("owned") is None:
             items_copy[key]["owned"] = 0
 
-    return jsonify(list(ITEMS.values()))
+    return jsonify([x for x in list(ITEMS.values()) if x["ability"]])
 
 
 @app.get("/api/items/mine")
@@ -207,9 +224,10 @@ def use_item(v):
         abort(400)
 
     kind = request.form.get("kind", "")
-    item = ITEMS.get("kind")
+    item = ITEMS.get(kind)
 
     if item is None:
+        print("item is none")
         abort(400)
 
     item = Thing(**item)
@@ -217,14 +235,15 @@ def use_item(v):
     # check if user has item
     db_item = g.db.query(ShopItem).filter_by(user_id=v.id, kind=kind).first()
     if not db_item:
-        return {"error": "You do not have that item"}, 403
+        return jsonify({"error": "You do not have that item"}), 403
 
     prompt = request.form.get("prompt")
     # if item requires additional input from user (title, etc)
     if prompt is None and item.prompt:
-        return {prompt: item.prompt}, 100
+        return jsonify({"prompt": item.prompt}), 200
 
     if item.kind in ACTIONS:
+        print(f'item kind {item.kind} | prompt {prompt} | perform action {ACTIONS[item.kind].__name__}')
         ACTIONS[item.kind](target, prompt)
 
     # delete item from db
