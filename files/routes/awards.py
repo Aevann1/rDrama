@@ -7,89 +7,95 @@ from files.classes.award import *
 from flask import g, request
 
 @app.get("/shop")
-@app.get("/settings/shop")
 @auth_required
-def shop(v):
-	if site_name == "Drama":
-		AWARDS = {
-			"ban": {
-				"kind": "ban",
-				"title": "One-Day Ban",
-				"description": "Bans the author for a day.",
-				"icon": "fas fa-gavel",
-				"color": "text-danger",
-				"price": 5000
-			},
-			"shit": {
-				"kind": "shit",
-				"title": "Shit",
-				"description": "Makes flies swarm a post.",
-				"icon": "fas fa-poop",
-				"color": "text-black-50",
-				"price": 500
-			},
-			"fireflies": {
-				"kind": "fireflies",
-				"title": "Fireflies",
-				"description": "Puts stars on the post.",
-				"icon": "fas fa-sparkles",
-				"color": "text-warning",
-				"price": 500
-			},
-			"grass": {
-				"kind": "grass",
-				"title": "Grass",
-				"description": "Ban the author permanently (must provide a timestamped picture of them touching grass to the admins to get unbanned)",
-				"icon": "fas fa-seedling",
-				"color": "text-success",
-				"price": 10000
-			}
-		}
-	else:
-		AWARDS = {
-			"shit": {
-				"kind": "shit",
-				"title": "Shit",
-				"description": "Makes flies swarm a post.",
-				"icon": "fas fa-poop",
-				"color": "text-black-50",
-				"price": 500
-			},
-			"fireflies": {
-				"kind": "fireflies",
-				"title": "Fireflies",
-				"description": "Puts stars on the post.",
-				"icon": "fas fa-sparkles",
-				"color": "text-warning",
-				"price": 500
-			}
-		}
+def shop_index(v):
 
-	query = g.db.query(
-	User.id, User.username, User.patron, User.namecolor,
-	AwardRelationship.kind.label('last_award_kind'), func.count(AwardRelationship.id).label('last_award_count')
-	).filter(AwardRelationship.submission_id==None, AwardRelationship.comment_id==None, User.patron > 0) \
-	.group_by(User.username, User.patron, User.id, User.namecolor, AwardRelationship.kind) \
-	.order_by(User.patron.desc(), AwardRelationship.kind.desc()) \
-	.join(User).filter(User.id == v.id).all()
+	return render_template("shop/shop.html", v=v)
 
-	owned = []
-	for row in (r._asdict() for r in query):
-		kind = row['last_award_kind']
-		if kind in AWARDS.keys():
-			award = AWARDS[kind]
-			award["owned_num"] = row['last_award_count']
-			owned.append(award)
+# @app.get("/shop")
+# @app.get("/settings/shop")
+# @auth_required
+# def shop(v):
+# 	if site_name == "Drama":
+# 		AWARDS = {
+# 			"ban": {
+# 				"kind": "ban",
+# 				"title": "One-Day Ban",
+# 				"description": "Bans the author for a day.",
+# 				"icon": "fas fa-gavel",
+# 				"color": "text-danger",
+# 				"price": 5000
+# 			},
+# 			"shit": {
+# 				"kind": "shit",
+# 				"title": "Shit",
+# 				"description": "Makes flies swarm a post.",
+# 				"icon": "fas fa-poop",
+# 				"color": "text-black-50",
+# 				"price": 500
+# 			},
+# 			"fireflies": {
+# 				"kind": "fireflies",
+# 				"title": "Fireflies",
+# 				"description": "Puts stars on the post.",
+# 				"icon": "fas fa-sparkles",
+# 				"color": "text-warning",
+# 				"price": 500
+# 			},
+# 			"grass": {
+# 				"kind": "grass",
+# 				"title": "Grass",
+# 				"description": "Ban the author permanently (must provide a timestamped picture of them touching grass to the admins to get unbanned)",
+# 				"icon": "fas fa-seedling",
+# 				"color": "text-success",
+# 				"price": 10000
+# 			}
+# 		}
+# 	else:
+# 		AWARDS = {
+# 			"shit": {
+# 				"kind": "shit",
+# 				"title": "Shit",
+# 				"description": "Makes flies swarm a post.",
+# 				"icon": "fas fa-poop",
+# 				"color": "text-black-50",
+# 				"price": 500
+# 			},
+# 			"fireflies": {
+# 				"kind": "fireflies",
+# 				"title": "Fireflies",
+# 				"description": "Puts stars on the post.",
+# 				"icon": "fas fa-sparkles",
+# 				"color": "text-warning",
+# 				"price": 500
+# 			}
+# 		}
 
-	if v.patron:
-		for val in AWARDS.values():
-			if v.patron == 1: val["price"] = int(val["price"]*0.90)
-			elif v.patron == 2: val["price"] = int(val["price"]*0.85)
-			elif v.patron == 3: val["price"] = int(val["price"]*0.80)
-			elif v.patron == 4: val["price"] = int(val["price"]*0.75)
-			else: val["price"] = int(val["price"]*0.70)
+# 	query = g.db.query(
+# 	User.id, User.username, User.patron, User.namecolor,
+# 	AwardRelationship.kind.label('last_award_kind'), func.count(AwardRelationship.id).label('last_award_count')
+# 	).filter(AwardRelationship.submission_id==None, AwardRelationship.comment_id==None, User.patron > 0) \
+# 	.group_by(User.username, User.patron, User.id, User.namecolor, AwardRelationship.kind) \
+# 	.order_by(User.patron.desc(), AwardRelationship.kind.desc()) \
+# 	.join(User).filter(User.id == v.id).all()
 
-	return render_template("settings_shop.html", owned=owned, awards=list(AWARDS.values()), v=v)
+# 	owned = []
+# 	for row in (r._asdict() for r in query):
+# 		kind = row['last_award_kind']
+# 		if kind in AWARDS.keys():
+# 			award = AWARDS[kind]
+# 			award["owned_num"] = row['last_award_count']
+# 			owned.append(award)
+
+# 	if v.patron:
+# 		for val in AWARDS.values():
+# 			if v.patron == 1: val["price"] = int(val["price"]*0.90)
+# 			elif v.patron == 2: val["price"] = int(val["price"]*0.85)
+# 			elif v.patron == 3: val["price"] = int(val["price"]*0.80)
+# 			elif v.patron == 4: val["price"] = int(val["price"]*0.75)
+# 			else: val["price"] = int(val["price"]*0.70)
+
+# 	return render_template("settings_shop.html", owned=owned, awards=list(AWARDS.values()), v=v)
 
 
 @app.post("/buy/<award>")
