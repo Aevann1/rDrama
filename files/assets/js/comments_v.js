@@ -61,7 +61,7 @@ document.getElementById("comment-author").textContent = author;
 
 document.getElementById("reportCommentButton").onclick = function() {
 
-	this.innerHTML='<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Reporting comment';
+	this.innerHTML='Reporting comment';
 	this.disabled = true;
 	var xhr = new XMLHttpRequest();
 	xhr.open("POST", '/flag/comment/'+id, true);
@@ -106,7 +106,7 @@ function delete_commentModal(id) {
 
 	document.getElementById("deleteCommentButton").onclick = function() {	
 
-		this.innerHTML='<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Deleting comment';	
+		this.innerHTML='Deleting comment';	
 		this.disabled = true; 
 
 		var url = '/delete/comment/' + id
