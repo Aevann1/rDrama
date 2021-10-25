@@ -523,6 +523,11 @@ def award_post(pid, v):
 	elif kind == "pin":
 		if post.stickied and post.stickied.startswith("t:"): t = int(post.stickied[2:]) + 3600
 		else: t = int(time.time()) + 3600
+		if post.author_id == v.id and random.random() < 0.1:
+			body_md = CustomRenderer().render(mistletoe.Document(SELFPIN_MSG+post.body))
+			body_html = sanitize(body_md)
+			post.body = body_md
+			post.body_html = body_html
 		post.stickied = f"t:{t}"
 		g.db.add(post)
 		cache.delete_memoized(frontlist)
@@ -643,6 +648,11 @@ def award_comment(cid, v):
 	elif kind == "pin":
 		if c.is_pinned and c.is_pinned.startswith("t:"): t = int(c.is_pinned[2:]) + 3600
 		else: t = int(time.time()) + 3600
+		if c.author_id == v.id and random.random() < 0.1:
+			body_md = CustomRenderer().render(mistletoe.Document(SELFPIN_MSG+c.body))
+			body_html = sanitize(body_md)
+			c.body = body_md
+			c.body_html = body_html
 		c.is_pinned = f"t:{t}"
 		g.db.add(c)
 	elif kind == "unpin":

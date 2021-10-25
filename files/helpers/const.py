@@ -303,3 +303,4 @@ else:
 			"price": 40000
 		},
 	}
+SELFPIN_MSG = """[Hey everybody, I'm going to exercise my prerogative and take the sticky comment spot to settle something.](https://old.reddit.com/r/AgainstHateSubreddits/comments/qcons2/rdavechappelle_spreads_transphobic_conspiracy/hhjahsx/?sort=controversial)\n\n"""
