@@ -660,6 +660,30 @@ def unfollow_user(username, v):
 
 	return {"message": "User unfollowed!"}
 
+@app.post("/unfollow_carp/")
+@limiter.limit("1/second")
+@auth_required
+def unfollow_carp(v):
+
+	target = get_account(CARP_ID)
+
+	follow = g.db.query(Follow).options(lazyload('*')).filter_by(user_id=v.id, target_id=target.id).first()
+
+	if not follow: return {"message": "User unfollowed!"}
+
+	g.db.delete(follow)
+	
+	g.db.flush()
+	target.stored_subscriber_count = g.db.query(Follow.id).options(lazyload('*')).filter_by(target_id=target.id).count()
+	g.db.add(target)
+
+	existing = g.db.query(Notification).options(lazyload('*')).filter_by(unfollowsender=v.id, user_id=target.id).first()
+	if not existing: send_unfollow_notif(v.id, target.id, f"@{v.username} has unfollowed you!")
+
+	g.db.commit()
+
+	return {"message": "User unfollowed!"}
+
 @app.post("/remove_follow/<username>")
 @limiter.limit("1/second")
 @auth_required
