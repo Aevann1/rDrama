@@ -2,66 +2,68 @@ version: '2.3'
 
 services:
   files:
-	build:
-	  context: .
-	volumes:
-	  - "./:/service"
-	environment:
-	  - DATABASE_URL=postgresql://postgres@postgres:5432/postgres
-	  - MASTER_KEY=${MASTER_KEY:-KTVciAUQFpFh2WdJ/oiHJlxl6FvzRZp8kYzAAv3l2OA=}
-	  - REDIS_URL=redis://redis
-	  - DOMAIN=localhost
-	  - SITE_NAME=Drama
-	  - GIPHY_KEY=3435tdfsdudebussylmaoxxt43
-	  - FORCE_HTTPS=0
-	  - DISCORD_SERVER_ID=3435tdfsdudebussylmaoxxt43
-	  - DISCORD_CLIENT_ID=3435tdfsdudebussylmaoxxt43
-	  - DISCORD_CLIENT_SECRET=3435tdfsdudebussylmaoxxt43
-	  - DISCORD_BOT_TOKEN=3435tdfsdudebussylmaoxxt43
-	 #- HCAPTCHA_SITEKEY=3435tdfsdudebussylmaoxxt43
-	  - HCAPTCHA_SECRET=3435tdfsdudebussylmaoxxt43
-	  - YOUTUBE_KEY=3435tdfsdudebussylmaoxxt43
-	  - PUSHER_KEY=3435tdfsdudebussylmaoxxt43
-	  - CATBOX_KEY=3435tdfsdudebussylmaoxxt43
-	  - SPAM_SIMILARITY_THRESHOLD=0.5
-	  - SPAM_SIMILAR_COUNT_THRESHOLD=5
-	  - SPAM_URL_SIMILARITY_THRESHOLD=0.1
-	  - COMMENT_SPAM_SIMILAR_THRESHOLD=0.5
-	  - COMMENT_SPAM_COUNT_THRESHOLD=5
-	  - READ_ONLY=0
-	  - BOT_DISABLE=0
-	  - COINS_NAME=Dramacoins
-	  - DEFAULT_TIME_FILTER=all
-	  - DEFAULT_THEME=midnight
-	  - DEFAULT_COLOR=ff66ac #YOU HAVE TO PICK ONE OF THOSE COLORS OR SHIT WILL BREAK: ff66ac, 805ad5, 62ca56, 38a169, 80ffff, 2a96f3, eb4963, ff0000, f39731, 30409f, 3e98a7, e4432d, 7b9ae4, ec72de, 7f8fa6, f8db58
-	  - SLOGAN=Dude bussy lmao
-	  - GUMROAD_TOKEN=3435tdfsdudebussylmaoxxt43
-	  - GUMROAD_LINK=https://marsey1.gumroad.com/l/tfcvri
-	  - CARD_VIEW=1
-	  - DISABLE_DOWNVOTES=0
-	  - DUES=0
-	  - MAIL_USERNAME=blahblahblah@gmail.com
-	  - MAIL_PASSWORD=3435tdfsdudebussylmaoxxt43
-	links:
-	  - "redis"
-	  - "postgres"
-	ports:
-	  - "80:80"
-	depends_on:
-	  - redis
-	  - postgres
+    build:
+      context: .
+    volumes:
+      - "./:/service"
+    environment:
+      - DATABASE_URL=postgresql://postgres@postgres:5432
+      - MASTER_KEY=XuxGqp5NyygJrM24b5gt3YgyvFVGdQnwVDwLzLwpu3eQwY
+      - REDIS_URL=redis://redis
+      - DOMAIN=127.0.0.1
+      - SITE_NAME=Drama
+      - GIPHY_KEY=3435tdfsdudebussylmaoxxt43
+      - FORCE_HTTPS=0
+      - DISCORD_SERVER_ID=3435tdfsdudebussylmaoxxt43
+      - DISCORD_CLIENT_ID=3435tdfsdudebussylmaoxxt43
+      - DISCORD_CLIENT_SECRET=3435tdfsdudebussylmaoxxt43
+      - DISCORD_BOT_TOKEN=3435tdfsdudebussylmaoxxt43
+      #- HCAPTCHA_SITEKEY=3435tdfsdudebussylmaoxxt43
+      - HCAPTCHA_SECRET=3435tdfsdudebussylmaoxxt43
+      - YOUTUBE_KEY=3435tdfsdudebussylmaoxxt43
+      - PUSHER_KEY=3435tdfsdudebussylmaoxxt43
+      - CATBOX_KEY=3435tdfsdudebussylmaoxxt43
+      - SPAM_SIMILARITY_THRESHOLD=0.5
+      - SPAM_SIMILAR_COUNT_THRESHOLD=5
+      - SPAM_URL_SIMILARITY_THRESHOLD=0.1
+      - COMMENT_SPAM_SIMILAR_THRESHOLD=0.5
+      - COMMENT_SPAM_COUNT_THRESHOLD=5
+      - READ_ONLY=0
+      - BOT_DISABLE=0
+      - COINS_NAME=Dramacoins
+      - DEFAULT_TIME_FILTER=all
+      - DEFAULT_THEME=midnight
+      - DEFAULT_COLOR=ff66ac #YOU HAVE TO PICK ONE OF THOSE COLORS OR SHIT WILL BREAK: ff66ac, 805ad5, 62ca56, 38a169, 80ffff, 2a96f3, eb4963, ff0000, f39731, 30409f, 3e98a7, e4432d, 7b9ae4, ec72de, 7f8fa6, f8db58
+      - SLOGAN=Dude bussy lmao
+      - GUMROAD_TOKEN=3435tdfsdudebussylmaoxxt43
+      - GUMROAD_LINK=https://marsey1.gumroad.com/l/tfcvri
+      - CARD_VIEW=1
+      - DISABLE_DOWNVOTES=0
+      - DUES=0
+      - MAIL_USERNAME=blahblahblah@gmail.com
+      - MAIL_PASSWORD=3435tdfsdudebussylmaoxxt43
+    links:
+      - "redis"
+      - "postgres"
+    ports:
+      - "80:80"
+    depends_on:
+      - redis
+      - postgres
 
   redis:
-	image: redis
-	ports:
-	  - "6379:6379"
+    image: redis
+    ports:
+      - "6379:6379"
 
   postgres:
-	image: postgres:12.3
-	volumes:
-	  - "./schema.sql:/docker-entrypoint-initdb.d/00-schema.sql"
-	  - "./seed-db.sql:/docker-entrypoint-initdb.d/01-schema.sql"
-	environment:
-	  - POSTGRES_HOST_AUTH_METHOD=trust
-		#ports:
-		#- "5432:5432"
+    image: postgres:12.3
+    # command: ["postgres", "-c", "log_statement=all"]
+    # uncomment this if u wanna output all SQL queries to the console
+    volumes:
+      - "./schema.sql:/docker-entrypoint-initdb.d/00-schema.sql"
+      - "./seed-db.sql:/docker-entrypoint-initdb.d/10-seed-db.sql"
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    ports:
+      - "5432:5432"

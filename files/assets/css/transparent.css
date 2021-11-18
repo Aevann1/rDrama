@@ -61,7 +61,7 @@
 }
 
 pre {
-    color: #CFCFCF;
+	color: #CFCFCF;
 }
 
 :not(.dropdown-menu) {
@@ -74,7 +74,7 @@ pre {
 }
 
 .col-12 .card {
-    background: None !important;
+	background: None !important;
 }
 
 #frontpage .post-title a:visited {

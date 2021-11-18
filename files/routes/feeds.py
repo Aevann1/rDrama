@@ -51,7 +51,7 @@ def feeds_user(sort='hot', t='all'):
 					with tag("name"):
 						text(post.author.username)
 					with tag("uri"):
-						text(f'https://{site}/@{post.author.username}')
+						text(f'http://{site}/@{post.author.username}')
 
 				doc.stag("link", href=full_link(post.permalink))
 
@@ -61,6 +61,6 @@ def feeds_user(sort='hot', t='all'):
 
 				if len(post.body_html) > 0:
 					with tag("content", type="html"):
-						doc.cdata(f'<img loading="lazy" src={image_url}/><br/>{post.body_html}')
+						doc.cdata(f'<img loading="lazy" src={image_url}><br>{post.body_html}')
 
 	return Response( "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"+ doc.getvalue(), mimetype="application/xml")

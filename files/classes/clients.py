@@ -1,6 +1,6 @@
 from flask import *
 from sqlalchemy import *
-from sqlalchemy.orm import relationship, lazyload
+from sqlalchemy.orm import relationship
 from .submission import Submission
 from .comment import Comment
 from files.__main__ import Base
@@ -39,7 +39,7 @@ class OauthApp(Base):
 	@lazy
 	def idlist(self, page=1):
 
-		posts = g.db.query(Submission.id).options(lazyload('*')).filter_by(app_id=self.id)
+		posts = g.db.query(Submission.id).filter_by(app_id=self.id)
 		
 		posts=posts.order_by(Submission.created_utc.desc())
 
@@ -50,7 +50,7 @@ class OauthApp(Base):
 	@lazy
 	def comments_idlist(self, page=1):
 
-		posts = g.db.query(Comment.id).options(lazyload('*')).filter_by(app_id=self.id)
+		posts = g.db.query(Comment.id).filter_by(app_id=self.id)
 		
 		posts=posts.order_by(Comment.created_utc.desc())
 

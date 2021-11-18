@@ -75,15 +75,27 @@ no_images = ['b',
 						'span',
 						]
 
-allowed_attributes = {'*': ['href', 'style', 'src', 'class', 'title', 'rel', 'data-bs-original-name', 'direction']}
+def sanitize_marquee(tag, name, value):
+	if name in allowed_attributes['*'] or name in ['direction', 'behavior', 'scrollamount']: return True
+
+	if name in ['height', 'width']:
+		try: value = int(value.replace('px', ''))
+		except: return False
+		if 0 < value <= 250: return True
+
+	return False
+
+allowed_attributes = {
+		'*': ['href', 'style', 'src', 'class', 'title', 'rel', 'data-bs-original-name'],
+		'marquee': sanitize_marquee}
 
 allowed_protocols = ['http', 'https']
 
-allowed_styles = ['color', 'font-weight', 'transform', '-webkit-transform']
+allowed_styles = ['color', 'background-color', 'font-weight', 'transform', '-webkit-transform']
 
 def sanitize(sanitized, noimages=False):
 
-	sanitized = sanitized.replace("\ufeff", "").replace("m.youtube.com", "youtube.com")
+	sanitized = sanitized.replace("\ufeff", "").replace("m.youtube.com", "youtube.com").replace("𒐪","")
 
 	for i in re.finditer('https://i.imgur.com/(([^_]*?)\.(jpg|png|jpeg))', sanitized):
 		sanitized = sanitized.replace(i.group(1), i.group(2) + "_d." + i.group(3) + "?maxwidth=9999")
@@ -115,9 +127,9 @@ def sanitize(sanitized, noimages=False):
 
 	for tag in soup.find_all("img"):
 
-		if tag.get("src") and "profile-pic-20" not in tag.get("class", ""):
+		if tag.get("src") and "pp20" not in tag.get("class", ""):
 
-			tag["rel"] = "nofollow noopener noreferrer"
+			if site not in tag["src"] and not tag["src"].startswith('/'): tag["rel"] = "nofollow noopener noreferrer"
 			tag["class"] = "in-comment-image"
 			tag["loading"] = "lazy"
 			tag["data-src"] = tag["src"]
@@ -125,7 +137,7 @@ def sanitize(sanitized, noimages=False):
 
 			link = soup.new_tag("a")
 			link["href"] = tag["data-src"]
-			link["rel"] = "nofollow noopener noreferrer"
+			if site not in link["href"] and not link["href"].startswith('/'): link["rel"] = "nofollow noopener noreferrer"
 			link["target"] = "_blank"
 			link["onclick"] = f"expandDesktopImage('{tag['data-src']}');"
 			link["data-bs-toggle"] = "modal"
@@ -134,9 +146,9 @@ def sanitize(sanitized, noimages=False):
 			tag.wrap(link)
 
 	for tag in soup.find_all("a"):
-		if tag["href"]:
+		if tag.get("href"):
 			tag["target"] = "_blank"
-			if site not in tag["href"]: tag["rel"] = "nofollow noopener noreferrer"
+			if site not in tag["href"] and not tag["href"].startswith('/'): tag["rel"] = "nofollow noopener noreferrer"
 
 			if re.match("https?://\S+", str(tag.string)):
 				try: tag.string = tag["href"]
@@ -157,20 +169,20 @@ def sanitize(sanitized, noimages=False):
 	
 	for i in re.finditer("[^a]>\s*(:!?\w+:\s*)+<\/", sanitized):
 		old = i.group(0)
-		if 'marseylong1' in old or 'marseylong2' in old: new = old.lower().replace(">", " class='mb-0'>")
+		if 'marseylong1' in old or 'marseylong2' in old or 'marseyllama1' in old or 'marseyllama2' in old: new = old.lower().replace(">", " class='mb-0'>")
 		else: new = old.lower()
 		for i in re.finditer('(?<!"):([^ ]{1,30}?):', new):
 			emoji = i.group(1).lower()
 			if emoji.startswith("!"):
 				emoji = emoji[1:]
 				if path.isfile(f'./files/assets/images/emojis/{emoji}.webp'):
-					new = re.sub(f'(?<!"):!{emoji}:', f'<img loading="lazy" data-bs-toggle="tooltip" alt=":!{emoji}:" title=":!{emoji}:" delay="0" class="bigemoji mirrored" src="https://{site}/assets/images/emojis/{emoji}.webp" >', new)
+					new = re.sub(f'(?<!"):!{emoji}:', f'<img loading="lazy" data-bs-toggle="tooltip" alt=":!{emoji}:" title=":!{emoji}:" delay="0" class="bigemoji mirrored" src="http://{site}/assets/images/emojis/{emoji}.webp" >', new)
 			
 					if emoji in session["favorite_emojis"]: session["favorite_emojis"][emoji] += 1
 					else: session["favorite_emojis"][emoji] = 1
 
 			elif path.isfile(f'./files/assets/images/emojis/{emoji}.webp'):
-				new = re.sub(f'(?<!"):{emoji}:', f'<img loading="lazy" data-bs-toggle="tooltip" alt=":{emoji}:" title=":{emoji}:" delay="0" class="bigemoji" src="https://{site}/assets/images/emojis/{emoji}.webp" >', new)
+				new = re.sub(f'(?<!"):{emoji}:', f'<img loading="lazy" data-bs-toggle="tooltip" alt=":{emoji}:" title=":{emoji}:" delay="0" class="bigemoji" src="http://{site}/assets/images/emojis/{emoji}.webp" >', new)
 					
 				if emoji in session["favorite_emojis"]: session["favorite_emojis"][emoji] += 1
 				else: session["favorite_emojis"][emoji] = 1
@@ -183,13 +195,13 @@ def sanitize(sanitized, noimages=False):
 		if emoji.startswith("!"):
 			emoji = emoji[1:]
 			if path.isfile(f'./files/assets/images/emojis/{emoji}.webp'):
-				sanitized = re.sub(f'(?<!"):!{emoji}:', f'<img loading="lazy" data-bs-toggle="tooltip" alt=":!{emoji}:" title=":!{emoji}:" delay="0" class="emoji mirrored" src="https://{site}/assets/images/emojis/{emoji}.webp">', sanitized)
+				sanitized = re.sub(f'(?<!"):!{emoji}:', f'<img loading="lazy" data-bs-toggle="tooltip" alt=":!{emoji}:" title=":!{emoji}:" delay="0" class="emoji mirrored" src="http://{site}/assets/images/emojis/{emoji}.webp">', sanitized)
 		
 				if emoji in session["favorite_emojis"]: session["favorite_emojis"][emoji] += 1
 				else: session["favorite_emojis"][emoji] = 1
 
 		elif path.isfile(f'./files/assets/images/emojis/{emoji}.webp'):
-			sanitized = re.sub(f'(?<!"):{emoji}:', f'<img loading="lazy" data-bs-toggle="tooltip" alt=":{emoji}:" title=":{emoji}:" delay="0" class="emoji" src="https://{site}/assets/images/emojis/{emoji}.webp">', sanitized)
+			sanitized = re.sub(f'(?<!"):{emoji}:', f'<img loading="lazy" data-bs-toggle="tooltip" alt=":{emoji}:" title=":{emoji}:" delay="0" class="emoji" src="http://{site}/assets/images/emojis/{emoji}.webp">', sanitized)
 				
 			if emoji in session["favorite_emojis"]: session["favorite_emojis"][emoji] += 1
 			else: session["favorite_emojis"][emoji] = 1
@@ -201,28 +213,53 @@ def sanitize(sanitized, noimages=False):
 	for i in re.finditer('" target="_blank">(https://youtube.com/watch\?v\=.*?)</a>', sanitized):
 		url = i.group(1)
 		replacing = f'<a href="{url}" rel="nofollow noopener noreferrer" target="_blank">{url}</a>'
-		htmlsource = f'<iframe class="embedvid" loading="lazy" data-src="{url}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>'
-		sanitized = sanitized.replace(replacing, htmlsource.replace("watch?v=", "embed/"))
-
+		url = url.replace("watch?v=", "embed/").replace("&amp;t", "?start").replace("?t", "?start")
+		url = re.sub('(\?start=([0-9]*?))s', r'\1', url)
+		htmlsource = f'<iframe class="embedvid" loading="lazy" src="{url}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>'
+		sanitized = sanitized.replace(replacing, htmlsource)
+		
 	for i in re.finditer('<a href="(https://streamable.com/e/.*?)"', sanitized):
 		url = i.group(1)
 		replacing = f'<a href="{url}" rel="nofollow noopener noreferrer" target="_blank">{url}</a>'
-		htmlsource = f'<iframe class="embedvid" loading="lazy" data-src="{url}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>'
+		htmlsource = f'<iframe class="embedvid" loading="lazy" src="{url}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>'
 		sanitized = sanitized.replace(replacing, htmlsource)
 
 	for i in re.finditer('<p>(https:.*?\.mp4)</p>', sanitized):
-		sanitized = sanitized.replace(i.group(0), f'<p><video controls loop preload="metadata" class="embedvid"><source data-src="{i.group(1)}" type="video/mp4"></video>')
+		sanitized = sanitized.replace(i.group(0), f'<p><video controls loop preload="metadata" class="embedvid"><source src="{i.group(1)}" type="video/mp4"></video>')
 
 	for i in re.finditer('<a href="(https://open.spotify.com/embed/.*?)"', sanitized):
 		url = i.group(1)
 		replacing = f'<a href="{url}" rel="nofollow noopener noreferrer" target="_blank">{url}</a>'
-		htmlsource = f'<iframe data-src="{url}" class="spotify" frameBorder="0" allowtransparency="true" allow="encrypted-media"></iframe>'
+		htmlsource = f'<iframe src="{url}" class="spotify" frameBorder="0" allowtransparency="true" allow="encrypted-media"></iframe>'
 		sanitized = sanitized.replace(replacing, htmlsource)
 
 	for rd in ["https://reddit.com/", "https://new.reddit.com/", "https://www.reddit.com/", "https://redd.it/"]:
 		sanitized = sanitized.replace(rd, "https://old.reddit.com/")
-	
-	sanitized = re.sub(' (https:\/\/[^ <>]*)', r' <a target="_blank"  rel="nofollow noopener noreferrer" href="\1">\1</a>', sanitized)
-	sanitized = re.sub('<p>(https:\/\/[^ <>]*)', r'<p><a target="_blank"  rel="nofollow noopener noreferrer" href="\1">\1</a></p>', sanitized)
+
+	sanitized = sanitized.replace("old.reddit.com/gallery", "new.reddit.com/gallery")
+	sanitized = re.sub(' (https:\/\/[^ <>]*)', r' <a target="_blank" rel="nofollow noopener noreferrer" href="\1">\1</a>', sanitized)
+	sanitized = re.sub('<p>(https:\/\/[^ <>]*)', r'<p><a target="_blank" rel="nofollow noopener noreferrer" href="\1">\1</a></p>', sanitized)
 
 	return sanitized
+
+def filter_title(title):
+	title = title.strip()
+	title = title.replace("\n", "")
+	title = title.replace("\r", "")
+	title = title.replace("\t", "")
+
+	title = bleach.clean(title, tags=[])
+
+	for i in re.finditer('(?<!"):([^ ]{1,30}?):', title):
+		emoji = i.group(1)
+
+		if emoji.startswith("!"):
+			emoji = emoji[1:]
+			if path.isfile(f'./files/assets/images/emojis/{emoji}.webp'):
+				title = re.sub(f'(?<!"):!{emoji}:', f'<img loading="lazy" data-bs-toggle="tooltip" alt=":!{emoji}:" title=":!{emoji}:" delay="0" height=30 src="http://{site}/assets/images/emojis/{emoji}.webp" class="mirrored">', title)
+				
+		elif path.isfile(f'./files/assets/images/emojis/{emoji}.webp'):
+			title = re.sub(f'(?<!"):{emoji}:', f'<img loading="lazy" data-bs-toggle="tooltip" alt=":{emoji}:" title=":{emoji}:" delay="0" height=30 src="http://{site}/assets/images/emojis/{emoji}.webp">', title)
+	
+	if len(title) > 1500: abort(400)
+	else: return title

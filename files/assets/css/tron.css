@@ -23,7 +23,7 @@
 
 
 .comment-box {
-    border: 2px solid var(--gray-200);
+	border: 2px solid var(--gray-200);
 }
 
 .btn {
@@ -31,7 +31,7 @@
 }
 
 * {
-    font-family: 'Roboto Mono' !important;
+	font-family: 'Roboto Mono' !important;
 }
 
 .arrow-up::before {
@@ -58,10 +58,6 @@
 	color: var(--white);
 }
 
-.badge-count {
-	color: var(--light);
-}
-
 .transparent {
 	background: None !important;
 }
@@ -76,13 +72,9 @@
 
 .followsyou {
 	background-color: var(--dark) !important;
-    border: 1px solid var(--primary) !important;
-}
-
-.badge-count {
-	color: var(--primary);
+	border: 1px solid var(--primary) !important;
 }
 
 #frontpage .pseudo-submit-form.card, .form-inline.search .form-control, .form-control[readonly] {
-    border: 2px solid var(--gray-200) !important;
+	border: 2px solid var(--gray-200) !important;
 }

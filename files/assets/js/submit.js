@@ -117,33 +117,6 @@ function autoSuggestTitle()	{
 
 };
 
-if (window.location.pathname=='/submit') {
-	window.onload = autoSuggestTitle();
-}
-
-document.addEventListener('paste', function (event) {
-
-	var nothingFocused = document.activeElement === document.body;
-
-	if (nothingFocused) {
-
-		var clipText = event.clipboardData.getData('Text');
-
-		var url = new RegExp('^(?:[a-z]+:)?//', 'i');
-
-		if (url.test(clipText) && window.location.pathname !== '/submit') {
-			window.location.href = '/submit?url=' + clipText;
-		}
-		else if (url.test(clipText) && window.location.pathname == '/submit') {
-
-			document.getElementById("post-URL").value = clipText;
-
-			autoSuggestTitle()
-
-		}
-	}
-});
-
 function checkForRequired() {
 
 	var title = document.getElementById("post-title");
@@ -197,6 +170,16 @@ function markdown() {
 				input = input.replace(emoji, "<img height=30 src='/assets/images/emojis/" + remoji + ".webp'>")
 			}
 
+		}
+	}
+
+	var options = Array.from(input.matchAll(/\s*\$\$([^\$\n]+)\$\$\s*/gi))
+	if(options != null){
+		for(i = 0; i < options.length; i++){
+			var option = options[i][0];
+			var option2 = option.replace(/\$\$/g, '').replace(/\n/g, '')
+			input = input.replace(option, '');
+			input += '<div class="custom-control"><input type="checkbox" class="custom-control-input" id="' + option2 + '"><label class="custom-control-label" for="' + option2 + '">' + option2 + ' - <a>0 votes</a></label></div>';
 		}
 	}
 

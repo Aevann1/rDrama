@@ -13,6 +13,9 @@
 
 On {{'SITE_NAME' | app_config}}, you can use Markdown formatting.
 
+<pre>
+
+</pre>
 
 <h2>Inline formatting</h2>
 
@@ -53,12 +56,12 @@ On {{'SITE_NAME' | app_config}}, you can use Markdown formatting.
 		<tr>
 			<td>Emojis</td>
 			<td>:marseylove:</td>
-			<td><img loading="lazy" data-bs-toggle="tooltip" alt=":marseylove:" title="" data-bs-original-title=":marseylove:" delay="0" height="20" src="/assets/images/emojis/marseylove.webp"></td>
+			<td><img loading="lazy" data-bs-toggle="tooltip" alt=":marseylove:" title="" data-bs-original-title=":marseylove:" delay="0" height="20" src="/assets/images/emojis/marseylove.webp?v=1"></td>
 		</tr>
 		<tr>
 			<td>Mirrored Emojis</td>
 			<td>:!marseylove:</td>
-			<td><img loading="lazy" data-bs-toggle="tooltip" class="mirrored" alt=":!marseylove:" title="" data-bs-original-title=":!marseylove:" delay="0" height="20" src="/assets/images/emojis/marseylove.webp"></td>
+			<td><img loading="lazy" data-bs-toggle="tooltip" class="mirrored" alt=":!marseylove:" title="" data-bs-original-title=":!marseylove:" delay="0" height="20" src="/assets/images/emojis/marseylove.webp?v=1"></td>
 		</tr>
 		<tr>
 			<td>Poll Options</td>
@@ -142,7 +145,7 @@ We also have some custom hooks for mentioning users and subreddits. Note that th
 		<tr>
 			<td>Username Mention</td>
 			<td>@QuadNarca</td>
-			<td><a class="d-inline-block" href="/@QuadNarca"><img loading="lazy" src="/@QuadNarca/pic/profile" class="profile-pic-20 mr-1">@QuadNarca</a></td>
+			<td><a class="d-inline-block" href="/@QuadNarca"><img loading="lazy" src="/uid/29/pic" class="pp20">@QuadNarca</a></td>
 		</tr>
 		<tr>
 			<td>Subreddit Mention</td>
@@ -416,12 +419,12 @@ line breaks
 		<tr>
 			<td>Marquee</td>
 			<td>
-				&lt;marquee width="60%" direction="up" height="100px"&gt;
+				&lt;marquee direction="up" behavior="scroll" scrollamount="10" height="100"&gt;
 					This is a sample scrolling text that has scrolls in the upper direction.
 				&lt;/marquee&gt;
 			</td>
 			<td>
-				<marquee width="60%" direction="up" height="100px">
+				<marquee direction="up" behavior="scroll" scrollamount="10" height="100">
 					This is a sample scrolling text that has scrolls in the upper direction.
 				</marquee>
 			</td>
@@ -456,40 +459,84 @@ line breaks
 	</tbody>
 </table>
 
-Allowed styles:
+<h2>Allowed Attributes</h2>
 
 <table class="table table-striped mb-5">
 	<thead class="bg-primary text-white">
 		<tr>
 			<th>Name</th>
-			<th>Type</th>
-			<th>Displays as</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>href</td>
+		</tr>
+		<tr>
+			<td>style</td>
+		</tr>
+		<tr>
+			<td>src</td>
+		</tr>
+		<tr>
+			<td>class</td>
+		</tr>
+		<tr>
+			<td>title</td>
+		</tr>
+		<tr>
+			<td>rel</td>
+		</tr>
+		<tr>
+			<td>data-bs-original-name</td>
+		</tr>
+		<tr>
+			<td>direction</td>
+		</tr>
+		<tr>
+			<td>behavior</td>
+		</tr>
+		<tr>
+			<td>scrollamount</td>
+		</tr>
+	</tbody>
+</table>
+
+<h2>Allowed Styles</h2>
+
+<table class="table table-striped mb-5">
+	<thead class="bg-primary text-white">
+		<tr>
+			<th>Name</th>
 		</tr>
 	</thead>
 	<tbody>
 		<tr>
 			<td>color</td>
-			<td></td>
-			<td></td>
+		</tr>
+		<tr>
+			<td>background-color</td>
 		</tr>
 		<tr>
 			<td>font-weight</td>
-			<td></td>
-			<td></td>
 		</tr>
 		<tr>
 			<td>transform</td>
-			<td></td>
-			<td></td>
 		</tr>
 		<tr>
 			<td>-webkit-transform</td>
-			<td></td>
-			<td></td>
 		</tr>
 	</tbody>
 </table>
 
 {% include "expanded_image_modal.html" %}
+
+<style>
+	@media (max-width: 767.98px) {
+		table {
+			display: inline-block;
+			overflow: auto;
+		}
+	}
+</style>
 
 {% endblock %}

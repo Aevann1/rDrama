@@ -1,4 +1,15 @@
-<script src="/assets/js/header.js?v=53"></script>
+{% if v %}<script>function formkey() {return '{{v.formkey}}';}</script>{% endif %}
+<script src="/assets/js/header.js?v=54"></script>
+
+<style>
+	.notif-count {
+		background: red;
+		border-radius: 20%;
+		color: white;
+		padding: 2px 5px;
+		font-weight: 700;
+	}
+</style>
 
 <nav class="shadow shadow-md fixed-top">
 	{% if "rama" in request.host %}
@@ -9,20 +20,18 @@
 	<div class="navbar navbar-expand-md navbar-light" id="navbar">
 		<div class="container-fluid" style="padding:0;">
 			<div class="flex-grow-1">
-				<a {% if v %}href="/"{% else %}href="/logged_out"{% endif %} class="navbar-brand">
-					<img loading="lazy" height="30" src="/assets/images/{{'SITE_NAME' | app_config}}/headericon.webp">
-					{% if "marsey.tech" in request.host %}
-						<span style="font-weight: bold; font-size: 20px;">marsey.tech</span>
-					{% elif "gigachadlife" in request.host %}
-						<span style="font-weight: bold; font-size: 20px;">GigaChadLife</span>
-					{% else %}
+				<a {% if v %}href="/"{% else %}href="/logged_out"{% endif %} class="navbar-brand mr-auto">
+					<img loading="lazy" height="30" src="/assets/images/{{'SITE_NAME' | app_config}}/headericon.webp?v=1">
+					{% if "gigachadlife" in request.host %}
+						<span style="font-weight: bold; font-size: 1.2rem;">GigaChadLife</span>
+					{% elif "shithole" not in request.host and 'pcm' not in request.host %}
 						<img loading="lazy" src="/assets/images/{{'SITE_NAME' | app_config}}/logo.webp" height="20">
 					{% endif %}
 				</a>
 			</div>
 			<div class="flex-grow-1 d-fl d-none d-md-block">
 				<form class="form-inline search flex-nowrap mx-0 mx-lg-auto" action="/search/posts/" method="get">
-					<input class="form-control w-100" type="search" placeholder="Search" aria-label="Search" name="q" value="{{request.values.get('q', '')}}">
+					<input class="form-control w-100" type="search" placeholder="Search" aria-label="Search" name="q" value="{{request.args.get('q', '')}}">
 					<span class="input-group-append">
 						<span class="input-group-text border-0 bg-transparent" style="margin-left: -2.5rem;">
 							<i class="fa fa-search" aria-hidden="true"></i>
@@ -43,7 +52,7 @@
 			aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
 			<span class="navbar-toggler-icon {% if v and v.notifications_count %}position-relative{% endif %}"><i class="fal fa-bars text-gray-500 black"></i>
 				{% if v and v.notifications_count %}
-					<span class="badge-count font-weight-bolder" style="right: -6px; font-size:18px;">{{v.notifications_count}}</span>
+					<span class="notif-count">{{v.notifications_count}}</span>
 				{% endif %}
 			</span>
 		</button>
@@ -54,7 +63,7 @@
 					<a class="nav-link" href="/random/" data-bs-toggle="tooltip" data-bs-placement="bottom" title="" data-bs-original-title="Random post"><i class="fas fa-random"></i></a>
 				</li>
 
-				{% if v and v.admin_level==6 %}
+				{% if v and v.admin_level > 1 %}
 				<li class="nav-item d-flex align-items-center justify-content-center text-center mx-1">
 					<a class="nav-link" href="/admin/" data-bs-toggle="tooltip" data-bs-placement="bottom" title="" data-bs-original-title="Admin tools"><i class="fas fa-crown{% if v.has_report_queue %} text-success{% endif %}"></i></a>
 				</li>
@@ -65,7 +74,7 @@
 				{% if v.notifications_count %}
 
 				<li class="nav-item d-flex align-items-center text-center justify-content-center mx-1">
-					<a class="nav-link position-relative" href="/notifications{% if v.notifications_count and v.notifications_count == v.post_notifications_count %}?posts=true{% endif %}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="" data-bs-original-title="Notifications"><i class="fas fa-bell text-danger"></i><span class="badge-count font-weight-bolder">{{v.notifications_count}}</span></a>
+					<a class="nav-link position-relative" href="/notifications{% if v.notifications_count and v.notifications_count == v.post_notifications_count %}?posts=true{% endif %}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="" data-bs-original-title="Notifications"><i class="fas fa-bell text-danger"></i><span class="notif-count ml-1" style="padding-left: 4.5px;">{{v.notifications_count}}</span></a>
 				</li>
 
 				{% else %}
@@ -88,6 +97,10 @@
 					<a class="nav-link" href="/leaderboard" data-bs-toggle="tooltip" data-bs-placement="bottom" title="" data-bs-original-title="Users"><i class="fas fa-trophy"></i></a>
 				</li>
 
+				<li class="nav-item d-flex align-items-center justify-content-center text-center mx-1">
+					<a class="nav-link" href="/shop" data-bs-toggle="tooltip" data-bs-placement="bottom" title="" data-bs-original-title="Shop"><i class="fas fa-store"></i></a>
+				</li>
+
 				<li class="nav-item d-flex align-items-center justify-content-center text-center">
 					<div class="dropdown">
 						<a class="nav-link bg-transparent py-0 pr-0" href="{{v.url}}" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown"
@@ -97,6 +110,7 @@
 							<div class="text-left pl-2">
 								<div style="color: #{{v.namecolor}}" class="text-small font-weight-bold {% if v.patron %}patron{% endif %}"><span {% if v.patron %}class="patron" style="background-color:#{{v.namecolor}};"{% endif %}>{{v.username}}</span></div>
 								<div class="text-small-extra text-primary"><img class="mr-1 ml-1" data-bs-toggle="tooltip" data-bs-placement="bottom" height="13" src="/assets/images/emojis/marseycoin.webp" title="" data-bs-original-title="{{'COINS_NAME' | app_config}}" aria-label="{{'COINS_NAME' | app_config}}"><span id="user-coins-amount">{{v.coins}}</span> {{'COINS_NAME' | app_config}}</div>
+								{% if v.procoins %}<div class="text-small-extra text-primary"><img class="mr-1 ml-1" data-bs-toggle="tooltip" data-bs-placement="bottom" height="13" src="/assets/images/emojis/marseybux.webp" title="" data-bs-original-title="Marseybux" aria-label="Marseybux"><span>{{v.procoins}}</span> Marseybux</div>{% endif %}
 							</div>
 						</div>
 					</a>
@@ -107,11 +121,9 @@
 							profile</a>
 								<a class="dropdown-item" href="/settings"><i class="fas fa-cog fa-fw text-left mr-3"></i>Settings</a>
 							</div>
-							<hr class="my-2">
 							<div class="px-2">
 								<button class="dropdown-item copy-link" data-clipboard-text="/signup?ref={{v.username}}"><i class="fad fa-user-friends fa-fw text-left mr-3"></i>Invite friends</button>
 							</div>
-							<hr class="my-2">
 							<div class="px-2">
 								<a class="dropdown-item" href="/assets/{{'SITE_NAME' | app_config}}_App.apk"><i class="fab fa-android fa-fw text-left mr-3"></i>Android app</a>
 
@@ -123,12 +135,11 @@
 
 								<a class="dropdown-item" rel="nofollow noopener noreferrer" href="/post/18459/"><i class="fas fa-bug fa-fw text-left mr-3"></i>Report bugs</a>
 
-								<a class="dropdown-item" href="/discord"><i class="fab fa-discord fa-fw text-left mr-3"></i>Discord</a>
-								{% if 'pcm' not in request.host %}<a class="dropdown-item" rel="nofollow noopener noreferrer" href="{{'GUMROAD_LINK' | app_config}}"><i class="fas fa-dollar-sign fa-fw text-left mr-3"></i>Donate</a>{% endif %}
+								{% if 'pcm' not in request.host %}<a class="dropdown-item" href="/discord"><i class="fab fa-discord fa-fw text-left mr-3"></i>Discord</a>
+								<a class="dropdown-item" rel="nofollow noopener noreferrer" href="{{'GUMROAD_LINK' | app_config}}"><i class="fas fa-dollar-sign fa-fw text-left mr-3"></i>Donate</a>{% endif %}
 								{% if 'rama' in request.host %}<a class="dropdown-item" href="/archives"><i class="fas fa-book fa-fw text-left mr-3"></i>Archives</a>{% endif %}
 								<a class="dropdown-item" href="/contact"><i class="fas fa-file-signature fa-fw text-left mr-3"></i>Contact us</a>
 							</div>
-							<hr class="my-2">
 							<div class="px-2">
 								<a class="dropdown-item" href="javascript:void(0)", onclick="post_toast('/logout', '1')"><i class="fas fa-sign-out fa-fw text-left mr-3"></i>Log out</a>
 							</div>
@@ -182,8 +193,8 @@
 
 			<a class="nav-item nav-link" rel="nofollow noopener noreferrer" href="/post/18459/"><i class="fas fa-bug fa-fw mr-3"></i>Report bugs</a>
 
-			<a class="nav-item nav-link" href="/discord"><i class="fab fa-discord fa-fw mr-3"></i>Discord</a>
-			{% if 'pcm' not in request.host %}<a class="nav-item nav-link" rel="nofollow noopener noreferrer" href="{{'GUMROAD_LINK' | app_config}}"><i class="fas fa-dollar-sign fa-fw mr-3"></i>Donate</a>{% endif %}
+			{% if 'pcm' not in request.host %}<a class="nav-item nav-link" href="/discord"><i class="fab fa-discord fa-fw mr-3"></i>Discord</a>
+			<a class="nav-item nav-link" rel="nofollow noopener noreferrer" href="{{'GUMROAD_LINK' | app_config}}"><i class="fas fa-dollar-sign fa-fw mr-3"></i>Donate</a>{% endif %}
 			{% if 'rama' in request.host %}<a class="nav-item nav-link" href="/archives"><i class="fas fa-book fa-fw mr-3"></i>Archives</a>{% endif %}
 			<a class="nav-item nav-link" href="/contact"><i class="fas fa-file-signature fa-fw mr-3"></i>Contact us</a>
 

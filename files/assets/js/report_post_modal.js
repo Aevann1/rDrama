@@ -4,7 +4,7 @@ report_postModal = function(id) {
 
 	submitbutton.onclick = function() {
 
-		this.innerHTML='<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Reporting post';
+		this.innerHTML='Reporting post';
 		this.disabled = true;
 
 		var xhr = new XMLHttpRequest();

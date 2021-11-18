@@ -22,7 +22,7 @@
 
 
 body, .navbar-light, .navbar-dark, .card, .modal-content, .comment-write textarea {
-	background-color: #21262d !important;
+	background-color: var(--gray-600) !important;
 }
 
 .transparent, #login {
@@ -31,4 +31,12 @@ body, .navbar-light, .navbar-dark, .card, .modal-content, .comment-write textare
 
 #frontpage .post-title a:visited {
 	color: #6e6e6e !important;
+}
+
+.tooltip-inner {
+	color: #383838 !important;
+}
+
+.modal .comment-actions .list-group-item {
+    background-color: var(--gray-600)!important;	
 }

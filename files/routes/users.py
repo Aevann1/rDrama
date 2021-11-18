@@ -11,14 +11,87 @@ from files.mail import *
 from flask import *
 from files.__main__ import app, limiter
 from pusher_push_notifications import PushNotifications
+from collections import Counter
 
 site = environ.get("DOMAIN").strip()
 
-beams_client = PushNotifications(
-		instance_id=PUSHER_INSTANCE_ID,
-		secret_key=PUSHER_KEY,
-)
+beams_client = PushNotifications(instance_id=PUSHER_INSTANCE_ID, secret_key=PUSHER_KEY)
 
+@app.get("/@<username>/upvoters")
+@auth_desired
+def upvoters(v, username):
+	id = get_user(username).id
+
+	votes = g.db.query(Vote.user_id, func.count(Vote.user_id)).join(Submission, Vote.submission_id==Submission.id).filter(Vote.vote_type==1, Submission.author_id==id).group_by(Vote.user_id).order_by(func.count(Vote.user_id).desc()).limit(25).all()
+
+	votes2 = g.db.query(CommentVote.user_id, func.count(CommentVote.user_id)).join(Comment, CommentVote.comment_id==Comment.id).filter(CommentVote.vote_type==1, Comment.author_id==id).group_by(CommentVote.user_id).order_by(func.count(CommentVote.user_id).desc()).limit(25).all()
+
+	votes = Counter(dict(votes)) + Counter(dict(votes2))
+
+	users = g.db.query(User).filter(User.id.in_(votes.keys())).all()
+	users2 = []
+	for user in users: users2.append((user, votes[user.id]))
+
+	users = sorted(users2, key=lambda x: x[1], reverse=True)[:25]
+
+	return render_template("voters.html", v=v, users=users, name='Up', name2=f'@{username} biggest simps')
+
+@app.get("/@<username>/downvoters")
+@auth_desired
+def downvoters(v, username):
+	id = get_user(username).id
+
+	votes = g.db.query(Vote.user_id, func.count(Vote.user_id)).join(Submission, Vote.submission_id==Submission.id).filter(Vote.vote_type==-1, Submission.author_id==id).group_by(Vote.user_id).order_by(func.count(Vote.user_id).desc()).limit(25).all()
+
+	votes2 = g.db.query(CommentVote.user_id, func.count(CommentVote.user_id)).join(Comment, CommentVote.comment_id==Comment.id).filter(CommentVote.vote_type==-1, Comment.author_id==id).group_by(CommentVote.user_id).order_by(func.count(CommentVote.user_id).desc()).limit(25).all()
+
+	votes = Counter(dict(votes)) + Counter(dict(votes2))
+
+	users = g.db.query(User).filter(User.id.in_(votes.keys())).all()
+	users2 = []
+	for user in users: users2.append((user, votes[user.id]))
+
+	users = sorted(users2, key=lambda x: x[1], reverse=True)[:25]
+
+	return render_template("voters.html", v=v, users=users, name='Down', name2=f'@{username} biggest haters')
+
+@app.get("/@<username>/upvoting")
+@auth_desired
+def upvoting(v, username):
+	id = get_user(username).id
+
+	votes = g.db.query(Submission.author_id, func.count(Submission.author_id)).join(Vote, Vote.submission_id==Submission.id).filter(Vote.vote_type==1, Vote.user_id==id).group_by(Submission.author_id).order_by(func.count(Submission.author_id).desc()).limit(25).all()
+
+	votes2 = g.db.query(Comment.author_id, func.count(Comment.author_id)).join(CommentVote, CommentVote.comment_id==Comment.id).filter(CommentVote.vote_type==1, CommentVote.user_id==id).group_by(Comment.author_id).order_by(func.count(Comment.author_id).desc()).limit(25).all()
+
+	votes = Counter(dict(votes)) + Counter(dict(votes2))
+
+	users = g.db.query(User).filter(User.id.in_(votes.keys())).all()
+	users2 = []
+	for user in users: users2.append((user, votes[user.id]))
+
+	users = sorted(users2, key=lambda x: x[1], reverse=True)[:25]
+
+	return render_template("voters.html", v=v, users=users, name='Up', name2=f'Who @{username} simps for')
+
+@app.get("/@<username>/downvoting")
+@auth_desired
+def downvoting(v, username):
+	id = get_user(username).id
+
+	votes = g.db.query(Submission.author_id, func.count(Submission.author_id)).join(Vote, Vote.submission_id==Submission.id).filter(Vote.vote_type==-1, Vote.user_id==id).group_by(Submission.author_id).order_by(func.count(Submission.author_id).desc()).limit(25).all()
+
+	votes2 = g.db.query(Comment.author_id, func.count(Comment.author_id)).join(CommentVote, CommentVote.comment_id==Comment.id).filter(CommentVote.vote_type==-1, CommentVote.user_id==id).group_by(Comment.author_id).order_by(func.count(Comment.author_id).desc()).limit(25).all()
+
+	votes = Counter(dict(votes)) + Counter(dict(votes2))
+
+	users = g.db.query(User).filter(User.id.in_(votes.keys())).all()
+	users2 = []
+	for user in users: users2.append((user, votes[user.id]))
+
+	users = sorted(users2, key=lambda x: x[1], reverse=True)[:25]
+
+	return render_template("voters.html", v=v, users=users, name='Down', name2=f'Who @{username} hates')
 
 @app.post("/pay_rent")
 @limiter.limit("1/second")
@@ -31,7 +104,7 @@ def pay_rent(v):
 	u = get_account(253)
 	u.coins += 500
 	g.db.add(u)
-	send_notification(NOTIFICATIONS_ACCOUNT, u, f"@{v.username} has paid rent!")
+	send_notification(u.id, f"@{v.username} has paid rent!")
 	g.db.commit()
 	return {"message": "Rent paid!"}
 
@@ -51,20 +124,20 @@ def steal(v):
 		g.db.add(v)
 		u.coins -= 700
 		g.db.add(u)
-		send_notification(NOTIFICATIONS_ACCOUNT, u, f"Some [grubby little rentoid](/@{v.username}) has absconded with 700 of your hard-earned dramacoins to fuel his Funko Pop addiction. Stop being so trusting.")
-		send_notification(NOTIFICATIONS_ACCOUNT, v, f"You have successfully shorted your heroic landlord 700 dramacoins in rent. You're slightly less materially poor, but somehow even moreso morally. Are you proud of yourself?")
+		send_notification(u.id, f"Some [grubby little rentoid](/@{v.username}) has absconded with 700 of your hard-earned dramacoins to fuel his Funko Pop addiction. Stop being so trusting.")
+		send_notification(v.id, f"You have successfully shorted your heroic landlord 700 dramacoins in rent. You're slightly less materially poor, but somehow even moreso morally. Are you proud of yourself?")
 		g.db.commit()
 		return {"message": "Attempt successful!"}
 
 	else:
 		if random.random() < 0.15:
-			send_notification(NOTIFICATIONS_ACCOUNT, u, f"You caught [this sniveling little renthog](/@{v.username}) trying to rob you. After beating him within an inch of his life, you sold his Nintendo Switch for 500 dramacoins and called the cops. He was sentenced to one (1) day in renthog prison.")
-			send_notification(NOTIFICATIONS_ACCOUNT, v, f"The ever-vigilant landchad has caught you trying to steal his hard-earned rent money. The police take you away and laugh as you impotently stutter A-ACAB :sob:  You are fined 500 dramacoins and sentenced to one (1) day in renthog prison.")
+			send_notification(u.id, f"You caught [this sniveling little renthog](/@{v.username}) trying to rob you. After beating him within an inch of his life, you sold his Nintendo Switch for 500 dramacoins and called the cops. He was sentenced to one (1) day in renthog prison.")
+			send_notification(v.id, f"The ever-vigilant landchad has caught you trying to steal his hard-earned rent money. The police take you away and laugh as you impotently stutter A-ACAB :sob:  You are fined 500 dramacoins and sentenced to one (1) day in renthog prison.")
 			v.ban(days=1, reason="Jailed thief")
 			v.fail_utc = int(time.time())
 		else:
-			send_notification(NOTIFICATIONS_ACCOUNT, u, f"You caught [this sniveling little renthog](/@{v.username}) trying to rob you. After beating him within an inch of his life, you showed mercy in exchange for a 500 dramacoin tip. This time.")
-			send_notification(NOTIFICATIONS_ACCOUNT, v, f"The ever-vigilant landchad has caught you trying to steal his hard-earned rent money. You were able to convince him to spare your life with a 500 dramacoin tip. This time.")
+			send_notification(u.id, f"You caught [this sniveling little renthog](/@{v.username}) trying to rob you. After beating him within an inch of his life, you showed mercy in exchange for a 500 dramacoin tip. This time.")
+			send_notification(v.id, f"The ever-vigilant landchad has caught you trying to steal his hard-earned rent money. You were able to convince him to spare your life with a 500 dramacoin tip. This time.")
 			v.fail2_utc = int(time.time())
 		v.coins -= 500
 		g.db.add(v)
@@ -77,16 +150,16 @@ def steal(v):
 @app.get("/rentoids")
 @auth_desired
 def rentoids(v):
-	users = g.db.query(User).options(lazyload('*')).filter(User.rent_utc > 0).all()
+	users = g.db.query(User).filter(User.rent_utc > 0).all()
 	return render_template("rentoids.html", v=v, users=users)
 
 
 @app.get("/thiefs")
 @auth_desired
 def thiefs(v):
-	successful = g.db.query(User).options(lazyload('*')).filter(User.steal_utc > 0).all()
-	failed = g.db.query(User).options(lazyload('*')).filter(User.fail_utc > 0).all()
-	failed2 = g.db.query(User).options(lazyload('*')).filter(User.fail2_utc > 0).all()
+	successful = g.db.query(User).filter(User.steal_utc > 0).all()
+	failed = g.db.query(User).filter(User.fail_utc > 0).all()
+	failed2 = g.db.query(User).filter(User.fail2_utc > 0).all()
 	return render_template("thiefs.html", v=v, successful=successful, failed=failed, failed2=failed2)
 
 
@@ -98,7 +171,7 @@ def suicide(v, username):
 	if v.admin_level == 0 and t - v.suicide_utc < 86400: return {"message": "You're on 1-day cooldown!"}
 	user = get_user(username)
 	suicide = f"Hi there,\n\nA [concerned user]({v.url}) reached out to us about you.\n\nWhen you're in the middle of something painful, it may feel like you don't have a lot of options. But whatever you're going through, you deserve help and there are people who are here for you.\n\nThere are resources available in your area that are free, confidential, and available 24/7:\n\n- Call, Text, or Chat with Canada's [Crisis Services Canada](https://www.crisisservicescanada.ca/en/)\n- Call, Email, or Visit the UK's [Samaritans](https://www.samaritans.org/)\n- Text CHAT to America's [Crisis Text Line](https://www.crisistextline.org/) at 741741.\nIf you don't see a resource in your area above, the moderators at r/SuicideWatch keep a comprehensive list of resources and hotlines for people organized by location. Find Someone Now\n\nIf you think you may be depressed or struggling in another way, don't ignore it or brush it aside. Take yourself and your feelings seriously, and reach out to someone.\n\nIt may not feel like it, but you have options. There are people available to listen to you, and ways to move forward.\n\nYour fellow users care about you and there are people who want to help."
-	send_notification(NOTIFICATIONS_ACCOUNT, user, suicide)
+	send_notification(user.id, suicide)
 	v.suicide_utc = t
 	g.db.add(v)
 	g.db.commit()
@@ -117,11 +190,7 @@ def get_coins(v, username):
 @is_not_banned
 @validate_formkey
 def transfer_coins(v, username):
-	TAX_RECEIVER_ID = 747
-	TAX_RATE = 0.01
-
 	receiver = g.db.query(User).filter_by(username=username).first()
-	tax_receiver = g.db.query(User).filter_by(id=TAX_RECEIVER_ID).first()
 
 	if receiver is None: return {"error": "That user doesn't exist."}, 404
 
@@ -133,22 +202,35 @@ def transfer_coins(v, username):
 		if v.coins < amount: return {"error": f"You don't have enough {app.config['COINS_NAME']}"}, 400
 		if amount < 100: return {"error": f"You have to gift at least 100 {app.config['COINS_NAME']}."}, 400
 
-		tax = math.ceil(amount*TAX_RATE)
-		v.coins -= amount
+		if not v.patron and not receiver.patron:
+			tax = math.ceil(amount*0.03)
+			tax_receiver = g.db.query(User).filter_by(id=TAX_RECEIVER_ID).first()
+			tax_receiver.coins += tax/3
+			log_message = f"[@{v.username}]({v.url}) has transferred {amount} {app.config['COINS_NAME']} to [@{receiver.username}]({receiver.url})"
+			send_notification(TAX_RECEIVER_ID, log_message)
+			g.db.add(tax_receiver)
+
+			if request.host == 'rdrama.net':
+				carp = g.db.query(User).filter_by(id=CARP_ID).first()
+				carp.coins += tax/3
+				log_message = f"[@{v.username}]({v.url}) has transferred {amount} {app.config['COINS_NAME']} to [@{receiver.username}]({receiver.url})"
+				send_notification(CARP_ID, log_message)
+				g.db.add(carp)
+				
+				dad = g.db.query(User).filter_by(id=DAD_ID).first()
+				dad.coins += tax/3
+				log_message = f"[@{v.username}]({v.url}) has transferred {amount} {app.config['COINS_NAME']} to [@{receiver.username}]({receiver.url})"
+				send_notification(DAD_ID, log_message)
+				g.db.add(dad)
+		else: tax = 0
+
 		receiver.coins += amount-tax
-		tax_receiver.coins += tax
+		v.coins -= amount
+		send_notification(receiver.id, f"🤑 [@{v.username}]({v.url}) has gifted you {amount-tax} {app.config['COINS_NAME']}!")
 		g.db.add(receiver)
-		g.db.add(tax_receiver)
 		g.db.add(v)
 
-		transfer_message = f"🤑 [@{v.username}]({v.url}) has gifted you {amount} {app.config['COINS_NAME']}!"
-		send_notification(NOTIFICATIONS_ACCOUNT, receiver, transfer_message)
-
-		log_message = f"[@{v.username}]({v.url}) has transferred {amount} {app.config['COINS_NAME']} to [@{receiver.username}]({receiver.url})"
-		send_notification(NOTIFICATIONS_ACCOUNT, TAX_RECEIVER_ID, log_message)
-
 		g.db.commit()
-
 		return {"message": f"{amount-tax} {app.config['COINS_NAME']} transferred!"}, 200
 
 	return {"message": f"You can't transfer {app.config['COINS_NAME']} to yourself!"}, 400
@@ -157,16 +239,17 @@ def transfer_coins(v, username):
 @app.get("/leaderboard")
 @auth_desired
 def leaderboard(v):
-	users = g.db.query(User).options(lazyload('*'))
+	users = g.db.query(User)
 	users1 = users.order_by(User.coins.desc()).limit(25).all()
-	users2 = users.order_by(User.stored_subscriber_count.desc()).limit(10).all()
+	users2 = users.order_by(User.stored_subscriber_count.desc()).limit(15).all()
 	users3 = users.order_by(User.post_count.desc()).limit(10).all()
 	users4 = users.order_by(User.comment_count.desc()).limit(10).all()
 	users5 = users.order_by(User.received_award_count.desc()).limit(10).all()
+	users7 = users.order_by(User.coins_spent.desc()).limit(20).all()
 	if 'pcmemes.net' in request.host:
 		users6 = users.order_by(User.basedcount.desc()).limit(10).all()
-		return render_template("leaderboard.html", v=v, users1=users1, users2=users2, users3=users3, users4=users4, users5=users5, users6=users6)
-	return render_template("leaderboard.html", v=v, users1=users1, users2=users2, users3=users3, users4=users4, users5=users5)
+		return render_template("leaderboard.html", v=v, users1=users1, users2=users2, users3=users3, users4=users4, users5=users5, users6=users6, users7=users7)
+	return render_template("leaderboard.html", v=v, users1=users1, users2=users2, users3=users3, users4=users4, users5=users5, users7=users7)
 
 
 @app.get("/@<username>/css")
@@ -191,8 +274,9 @@ def get_profilecss(username):
 def songs(id):
 	try: id = int(id)
 	except: return "", 400
-	user = g.db.query(User).options(lazyload('*')).filter_by(id=id).first()
-	return redirect(f"/song/{user.song}.mp3")
+	user = g.db.query(User).filter_by(id=id).first()
+	if user and user.song: return redirect(f"/song/{user.song}.mp3")
+	else: abort(404)
 
 @app.get("/song/<song>")
 def song(song):
@@ -214,7 +298,7 @@ def subscribe(v, post_id):
 @limiter.limit("1/second")
 @auth_required
 def unsubscribe(v, post_id):
-	sub=g.db.query(Subscription).options(lazyload('*')).filter_by(user_id=v.id, submission_id=post_id).first()
+	sub=g.db.query(Subscription).filter_by(user_id=v.id, submission_id=post_id).first()
 	if sub:
 		g.db.delete(sub)
 		g.db.commit()
@@ -229,20 +313,17 @@ def message2(v, username):
 	user = get_user(username, v=v)
 	if hasattr(user, 'is_blocking') and user.is_blocking: return {"error": "You're blocking this user."}, 403
 
-	if v.admin_level <= 1:
-		if hasattr(user, 'is_blocked') and user.is_blocked: return {"error": "This user is blocking you."}, 403
+	if v.admin_level <= 1 and hasattr(user, 'is_blocked') and user.is_blocked: return {"error": "This user is blocking you."}, 403
 
 	message = request.values.get("message", "").strip()[:1000].strip()
 
-	existing = g.db.query(Comment).options(lazyload('*')).filter(Comment.author_id == v.id,
+	existing = g.db.query(Comment.id).filter(Comment.author_id == v.id,
 															Comment.sentto == user.id,
 															Comment.body == message,
 															).first()
 	if existing: return redirect('/notifications?messages=true')
 
-	text = re.sub('([^\n])\n([^\n])', r'\1\n\n\2', message)
-
-	text_html = Renderer().render(mistletoe.Document(text))
+	text_html = Renderer().render(mistletoe.Document(message))
 
 	text_html = sanitize(text_html, True)
 
@@ -250,7 +331,7 @@ def message2(v, username):
 						  parent_submission=None,
 						  level=1,
 						  sentto=user.id,
-						  body=text,
+						  body=message,
 						  body_html=text_html,
 						  )
 	g.db.add(new_comment)
@@ -270,7 +351,7 @@ def message2(v, username):
 					'notification': {
 						'title': f'New message from @{v.username}',
 						'body': message,
-						'deep_link': f'https://{site}/notifications',
+						'deep_link': f'http://{site}/notifications',
 					},
 				},
 			},
@@ -293,7 +374,6 @@ def messagereply(v):
 	id = int(request.values.get("parent_id"))
 	parent = get_comment(id, v=v)
 	user = parent.author
-	message = re.sub('([^\n])\n([^\n])', r'\1\n\n\2', message)
 
 	text_html = Renderer().render(mistletoe.Document(message))
 	text_html = sanitize(text_html, True)
@@ -343,9 +423,7 @@ def api_is_available(name, v):
 		
 	name=name.replace('_','\_')
 
-	x= g.db.query(User).options(
-		lazyload('*')
-		).filter(
+	x= g.db.query(User).filter(
 		or_(
 			User.username.ilike(name),
 			User.original_username.ilike(name)
@@ -371,16 +449,25 @@ def redditor_moment_redirect(username):
 @app.get("/@<username>/followers")
 @auth_required
 def followers(username, v):
-
-
 	u = get_user(username, v=v)
-	users = [x.user for x in u.followers]
+	# if request.host == 'rdrama.net' and u.id == 147: abort(404)
+	ids = [x[0] for x in g.db.query(Follow.user_id).filter_by(target_id=u.id).all()]
+	users = g.db.query(User).filter(User.id.in_(ids)).all()
 	return render_template("followers.html", v=v, u=u, users=users)
+
+@app.get("/@<username>/following")
+@auth_required
+def following(username, v):
+	u = get_user(username, v=v)
+	# if request.host == 'rdrama.net' and u.id == 147: abort(404)
+	ids = [x[0] for x in g.db.query(Follow.target_id).filter_by(user_id=u.id).all()]
+	users = g.db.query(User).filter(User.id.in_(ids)).all()
+	return render_template("following.html", v=v, u=u, users=users)
 
 @app.get("/views")
 @auth_required
 def visitors(v):
-	if v.admin_level < 1 and not v.patron: return render_template("errors/patron.html", v=v)
+	if request.host == 'rdrama.net' and v.admin_level < 1 and not v.patron: return render_template("errors/patron.html", v=v)
 	viewers=sorted(v.viewers, key = lambda x: x.last_view_utc, reverse=True)
 	return render_template("viewers.html", v=v, viewers=viewers)
 
@@ -408,7 +495,7 @@ def u_username(username, v=None):
 		else: return render_template("userpage_reserved.html", u=u, v=v)
 
 	if v and u.id != v.id:
-		view = g.db.query(ViewerRelationship).options(lazyload('*')).filter(
+		view = g.db.query(ViewerRelationship).filter(
 			and_(
 				ViewerRelationship.viewer_id == v.id,
 				ViewerRelationship.user_id == u.id
@@ -425,9 +512,9 @@ def u_username(username, v=None):
 		g.db.commit()
 
 		
-	if u.is_private and (not v or (v.id != u.id and v.admin_level < 3)):
+	if u.is_private and (not v or (v.id != u.id and v.admin_level < 2 and not v.eye)):
 		
-		if v and u.id == 253:
+		if v and u.id == LLM_ID:
 			if int(time.time()) - v.rent_utc > 600:
 				if request.headers.get("Authorization"): return {"error": "That userpage is private"}
 				else: return render_template("userpage_private.html", time=int(time.time()), u=u, v=v)
@@ -436,12 +523,12 @@ def u_username(username, v=None):
 			else: return render_template("userpage_private.html", time=int(time.time()), u=u, v=v)
 
 	
-	if hasattr(u, 'is_blocking') and u.is_blocking and (not v or v.admin_level < 3):
+	if hasattr(u, 'is_blocking') and u.is_blocking and (not v or v.admin_level < 2):
 		if request.headers.get("Authorization"): return {"error": f"You are blocking @{u.username}."}
 		else: return render_template("userpage_blocking.html", u=u, v=v)
 
 
-	if hasattr(u, 'is_blocked') and u.is_blocked and (not v or v.admin_level < 3):
+	if hasattr(u, 'is_blocked') and u.is_blocked and (not v or v.admin_level < 2):
 		if request.headers.get("Authorization"): return {"error": "This person is blocking you."}
 		else: return render_template("userpage_blocked.html", u=u, v=v)
 
@@ -456,10 +543,9 @@ def u_username(username, v=None):
 	next_exists = (len(ids) > 25)
 	ids = ids[:25]
 
-   # If page 1, check for sticky
 	if page == 1:
 		sticky = []
-		sticky = g.db.query(Submission).options(lazyload('*')).filter_by(is_pinned=True, author_id=u.id).all()
+		sticky = g.db.query(Submission).filter_by(is_pinned=True, author_id=u.id).all()
 		if sticky:
 			for p in sticky:
 				ids = [p.id] + ids
@@ -519,8 +605,8 @@ def u_username_comments(username, v=None):
 												v=v)
 
 
-	if u.is_private and (not v or (v.id != u.id and v.admin_level < 3)):
-		if v and u.id == 253:
+	if u.is_private and (not v or (v.id != u.id and v.admin_level < 2 and not v.eye)):
+		if v and u.id == LLM_ID:
 			if int(time.time()) - v.rent_utc > 600:
 				if request.headers.get("Authorization"): return {"error": "That userpage is private"}
 				else: return render_template("userpage_private.html", time=int(time.time()), u=u, v=v)
@@ -528,13 +614,13 @@ def u_username_comments(username, v=None):
 			if request.headers.get("Authorization"): return {"error": "That userpage is private"}
 			else: return render_template("userpage_private.html", time=int(time.time()), u=u, v=v)
 
-	if hasattr(u, 'is_blocking') and u.is_blocking and (not v or v.admin_level < 3):
+	if hasattr(u, 'is_blocking') and u.is_blocking and (not v or v.admin_level < 2):
 		if request.headers.get("Authorization"): return {"error": f"You are blocking @{u.username}."}
 		else: return render_template("userpage_blocking.html",
 													u=u,
 													v=v)
 
-	if hasattr(u, 'is_blocked') and u.is_blocked and (not v or v.admin_level < 3):
+	if hasattr(u, 'is_blocked') and u.is_blocked and (not v or v.admin_level < 2):
 		if request.headers.get("Authorization"): return {"error": "This person is blocking you."}
 		else: return render_template("userpage_blocked.html",
 													u=u,
@@ -546,7 +632,7 @@ def u_username_comments(username, v=None):
 	t=request.values.get("t","all")
 
 
-	comments = g.db.query(Comment.id).options(lazyload('*')).filter(Comment.author_id == u.id, Comment.parent_submission != None)
+	comments = g.db.query(Comment.id).filter(Comment.author_id == u.id, Comment.parent_submission != None)
 
 	if (not v) or (v.id != u.id and v.admin_level == 0):
 		comments = comments.filter(Comment.deleted_utc == 0)
@@ -615,16 +701,16 @@ def follow_user(username, v):
 
 	if target.id==v.id: return {"error": "You can't follow yourself!"}, 400
 
-	if g.db.query(Follow).options(lazyload('*')).filter_by(user_id=v.id, target_id=target.id).first(): return {"message": "User followed!"}
+	if g.db.query(Follow).filter_by(user_id=v.id, target_id=target.id).first(): return {"message": "User followed!"}
 
 	new_follow = Follow(user_id=v.id, target_id=target.id)
 	g.db.add(new_follow)
 
 	g.db.flush()
-	target.stored_subscriber_count = g.db.query(Follow.id).options(lazyload('*')).filter_by(target_id=target.id).count()
+	target.stored_subscriber_count = g.db.query(Follow.id).filter_by(target_id=target.id).count()
 	g.db.add(target)
 
-	existing = g.db.query(Notification).options(lazyload('*')).filter_by(followsender=v.id, user_id=target.id).first()
+	existing = g.db.query(Notification.id).filter_by(followsender=v.id, user_id=target.id).first()
 	if not existing: send_follow_notif(v.id, target.id, f"@{v.username} has followed you!")
 
 	g.db.commit()
@@ -638,19 +724,19 @@ def unfollow_user(username, v):
 
 	target = get_user(username)
 
-	if target.id == 995: abort(403)
+	if target.id == CARP_ID: abort(403)
 
-	follow = g.db.query(Follow).options(lazyload('*')).filter_by(user_id=v.id, target_id=target.id).first()
+	follow = g.db.query(Follow).filter_by(user_id=v.id, target_id=target.id).first()
 
 	if not follow: return {"message": "User unfollowed!"}
 
 	g.db.delete(follow)
 	
 	g.db.flush()
-	target.stored_subscriber_count = g.db.query(Follow.id).options(lazyload('*')).filter_by(target_id=target.id).count()
+	target.stored_subscriber_count = g.db.query(Follow.id).filter_by(target_id=target.id).count()
 	g.db.add(target)
 
-	existing = g.db.query(Notification).options(lazyload('*')).filter_by(unfollowsender=v.id, user_id=target.id).first()
+	existing = g.db.query(Notification.id).filter_by(unfollowsender=v.id, user_id=target.id).first()
 	if not existing: send_unfollow_notif(v.id, target.id, f"@{v.username} has unfollowed you!")
 
 	g.db.commit()
@@ -663,24 +749,24 @@ def unfollow_user(username, v):
 def remove_follow(username, v):
 	target = get_user(username)
 
-	follow = g.db.query(Follow).options(lazyload('*')).filter_by(user_id=target.id, target_id=v.id).first()
+	follow = g.db.query(Follow).filter_by(user_id=target.id, target_id=v.id).first()
 
 	if not follow: return {"message": "Follower removed!"}
 
 	g.db.delete(follow)
 	
 	g.db.flush()
-	v.stored_subscriber_count = g.db.query(Follow.id).options(lazyload('*')).filter_by(target_id=v.id).count()
+	v.stored_subscriber_count = g.db.query(Follow.id).filter_by(target_id=v.id).count()
 	g.db.add(v)
 
-	existing = g.db.query(Notification).options(lazyload('*')).filter_by(removefollowsender=v.id, user_id=target.id).first()
+	existing = g.db.query(Notification.id).filter_by(removefollowsender=v.id, user_id=target.id).first()
 	if not existing: send_unfollow_notif(v.id, target.id, f"@{v.username} has removed your follow!")
 
 	g.db.commit()
 
 	return {"message": "Follower removed!"}
 
-
+@app.get("/uid/<id>/pic")
 @app.get("/uid/<id>/pic/profile")
 @limiter.exempt
 def user_profile_uid(id):
@@ -742,3 +828,22 @@ def saved_comments(v, username):
 											page=page,
 											next_exists=next_exists,
 											standalone=True)
+
+
+@app.post("/fp/<fp>")
+@auth_required
+def fp(v, fp):
+	if v.username != fp:
+		v.fp = fp
+		users = g.db.query(User).filter(User.fp == fp, User.id != v.id).all()
+		for u in users:
+			li = [v.id, u.id]
+			existing = g.db.query(Alt).filter(Alt.user1.in_(li), Alt.user2.in_(li)).first()
+			if existing: continue
+			new_alt = Alt(user1=v.id, user2=u.id)
+			g.db.add(new_alt)
+			g.db.flush()
+			print(v.username + ' + ' + u.username)
+		g.db.add(v)
+		g.db.commit()
+	return ''

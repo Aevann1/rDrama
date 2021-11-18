@@ -61,7 +61,7 @@ document.getElementById("comment-author").textContent = author;
 
 document.getElementById("reportCommentButton").onclick = function() {
 
-	this.innerHTML='<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Reporting comment';
+	this.innerHTML='Reporting comment';
 	this.disabled = true;
 	var xhr = new XMLHttpRequest();
 	xhr.open("POST", '/flag/comment/'+id, true);
@@ -106,11 +106,18 @@ function delete_commentModal(id) {
 
 	document.getElementById("deleteCommentButton").onclick = function() {	
 
-		this.innerHTML='<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Deleting comment';	
+		this.innerHTML='Deleting comment';	
 		this.disabled = true; 
-		post('/delete/comment/' + id)
-		location.reload();
-	}
+
+		var url = '/delete/comment/' + id
+		var xhr = new XMLHttpRequest();
+		xhr.open("POST", url, true);
+		var form = new FormData()
+		form.append("formkey", formkey());
+		xhr.withCredentials=true;
+		xhr.onload = function() {location.reload(true);};
+		xhr.send(form);
+}
 
 };
 
@@ -127,13 +134,15 @@ post_reply=function(id){
 	xhr.onload=function(){
 		if (xhr.status==200) {
 			commentForm=document.getElementById('comment-form-space-'+id);
-			commentForm.innerHTML = xhr.response.replace(/data-src/g, 'src');
+			commentForm.innerHTML = xhr.response.replace(/data-src/g, 'src').replace(/data-cfsrc/g, 'src').replace(/style="display:none;visibility:hidden;"/g, '');
 		}
 		else {
 			var myToast = new bootstrap.Toast(document.getElementById('toast-post-success'));
 			myToast.hide();
 			var myToast = new bootstrap.Toast(document.getElementById('toast-post-error'));
 			myToast.show();
+			try {document.getElementById('toast-post-error-text').innerText = JSON.parse(xhr.response)["error"];}
+			catch {}
 		}
 	}
 	xhr.send(form)
@@ -153,7 +162,7 @@ comment_edit=function(id){
 	xhr.onload=function(){
 		if (xhr.status==200) {
 			commentForm=document.getElementById('comment-text-'+id);
-			commentForm.innerHTML = xhr.response.replace(/data-src/g, 'src');
+			commentForm.innerHTML = xhr.response.replace(/data-src/g, 'src').replace(/data-cfsrc/g, 'src').replace(/style="display:none;visibility:hidden;"/g, '');
 			document.getElementById('cancel-edit-'+id).click()
 		}
 		else {
@@ -161,6 +170,8 @@ comment_edit=function(id){
 			myToast.hide();
 			var myToast = new bootstrap.Toast(document.getElementById('toast-post-error'));
 			myToast.show();
+			try {document.getElementById('toast-post-error-text').innerText = JSON.parse(xhr.response)["error"];}
+			catch {}
 		}
 	}
 	xhr.send(form)
@@ -184,7 +195,7 @@ post_comment=function(fullname){
 	xhr.onload=function(){
 		if (xhr.status==200) {
 			commentForm=document.getElementById('comment-form-space-'+fullname);
-			commentForm.innerHTML = xhr.response.replace(/data-src/g, 'src');
+			commentForm.innerHTML = xhr.response.replace(/data-src/g, 'src').replace(/data-cfsrc/g, 'src').replace(/style="display:none;visibility:hidden;"/g, '');
 		}
 		else {
 			var myToast = new bootstrap.Toast(document.getElementById('toast-post-success'));
@@ -197,4 +208,64 @@ post_comment=function(fullname){
 		}
 	}
 	xhr.send(form)
+}
+
+document.onpaste = function(event) {
+	var focused = document.activeElement;
+	if (focused.id.includes('reply-form-body-')) {
+		var fullname = focused.dataset.fullname;
+		f=document.getElementById('file-upload-reply-' + fullname);
+		files = event.clipboardData.files
+		filename = files[0].name.toLowerCase()
+		if (filename.endsWith(".jpg") || filename.endsWith(".jpeg") || filename.endsWith(".png") || filename.endsWith(".webp") || filename.endsWith(".gif"))
+		{
+			f.files = files;
+			document.getElementById('filename-show-reply-' + fullname).textContent = filename;
+		}
+	}
+	else if (focused.id.includes('comment-edit-body-')) {
+		var id = focused.dataset.id;
+		f=document.getElementById('file-edit-reply-' + id);
+		files = event.clipboardData.files
+		filename = files[0].name.toLowerCase()
+		if (filename.endsWith(".jpg") || filename.endsWith(".jpeg") || filename.endsWith(".png") || filename.endsWith(".webp") || filename.endsWith(".gif"))
+		{
+			f.files = files;
+			document.getElementById('filename-edit-reply-' + id).textContent = filename;
+		}
+	}
+}
+
+function markdown(first, second) {
+	var input = document.getElementById(first).value;
+
+	var emojis = Array.from(input.matchAll(/:(.{1,30}?):/gi))
+	if(emojis != null){
+		for(i = 0; i < emojis.length; i++){
+			var emoji = emojis[i][0]
+			var remoji = emoji.replace(/:/g,'');
+			if (remoji.startsWith("!"))
+			{
+				input = input.replace(emoji, "<img height=30 src='/assets/images/emojis/" + remoji.substring(1) + ".webp' class='mirrored'>")
+			} else {
+				input = input.replace(emoji, "<img height=30 src='/assets/images/emojis/" + remoji + ".webp'>")
+			}
+
+		}
+	}
+
+	if (!first.includes('edit'))
+	{
+		var options = Array.from(input.matchAll(/\s*\$\$([^\$\n]+)\$\$\s*/gi))
+		if(options != null){
+			for(i = 0; i < options.length; i++){
+				var option = options[i][0];
+				var option2 = option.replace(/\$\$/g, '').replace(/\n/g, '')
+				input = input.replace(option, '');
+				input += '<div class="custom-control"><input type="checkbox" class="custom-control-input" id="' + option2 + '"><label class="custom-control-label" for="' + option2 + '">' + option2 + ' - <a>0 votes</a></label></div>';
+			}
+		}
+	}
+	
+	document.getElementById(second).innerHTML = marked(input)
 }

@@ -30,7 +30,7 @@
 		Messages
 		</a>
 	</li>
-	{% if v.admin_level==6 %}
+	{% if v.admin_level > 1 %}
 		<li class="nav-item">
 			<a class="nav-link py-3{% if '/notifications?modmail=true' in request.full_path %} active{% endif %}" href="/notifications?modmail=true">
 			Modmail
@@ -41,9 +41,10 @@
   </div>
 </div>
 
-<div class="notifs p-3 p-md-0">
 
-	<h1 class="h3 d-md-none">Inbox</h1>
+<a class="btn btn-primary mt-3 ml-3" href="javascript:void(0)" onclick="post_toast('/clear')">Clear all notifications</a>
+
+<div class="notifs p-3 p-md-0">
 
 	{% with comments=notifications %}
 		{% include "comments.html" %}

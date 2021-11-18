@@ -16,7 +16,7 @@
 				<div class="w-lg-100">
 					<form id="profile-settings" action="/admin/rules" method="post">
 						<input type="hidden" name="formkey" value="{{v.formkey}}">
-						<textarea class="form-control rounded" id="bio-text" aria-label="With textarea" placeholder="Site rules" rows="50" name="rules" form="profile-settings">{% if rules %}{{ rules }}{% endif %}</textarea>
+						<textarea maxlength="10000" class="form-control rounded" id="bio-text" aria-label="With textarea" placeholder="Site rules" rows="50" name="rules" form="profile-settings">{% if rules %}{{ rules }}{% endif %}</textarea>
 
 						<div class="d-flex mt-2">
 							<input class="btn btn-primary ml-auto" type="submit" value="Save">

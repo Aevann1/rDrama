@@ -3,14 +3,14 @@ html {
 }
 
 .nav-item .text-small.font-weight-bold::before {
-    content: "((("
+	content: "((("
 }
 .nav-item .text-small.font-weight-bold::after {
-    content: ")))"
+	content: ")))"
 }
 .nav-item .text-small-extra.text-primary {
-    font-size: 0 !important
+	font-size: 0 !important
 }
 .nav-item .text-small-extra.text-primary i {
-    font-size: 11px !important
+	font-size: 11px !important
 }

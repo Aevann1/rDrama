@@ -27,13 +27,13 @@ def check_for_alts(current_id):
 	session["history"] = list(past_accs)
 
 	for past_id in session["history"]:
+		
+		if past_id == MOM_ID or current_id == MOM_ID: break
+		if past_id == current_id: continue
 
-		if past_id == current_id:
-			continue
-
-		check1 = g.db.query(Alt).options(lazyload('*')).filter_by(
+		check1 = g.db.query(Alt).filter_by(
 			user1=current_id, user2=past_id).first()
-		check2 = g.db.query(Alt).options(lazyload('*')).filter_by(
+		check2 = g.db.query(Alt).filter_by(
 			user1=past_id, user2=current_id).first()
 
 		if not check1 and not check2:
@@ -45,7 +45,7 @@ def check_for_alts(current_id):
 			except BaseException:
 				pass
 			
-		alts = g.db.query(Alt).options(lazyload('*'))
+		alts = g.db.query(Alt)
 		otheralts = alts.filter(or_(Alt.user1 == past_id, Alt.user2 == past_id, Alt.user1 == current_id, Alt.user2 == current_id)).all()
 		for a in otheralts:
 			existing = alts.filter_by(user1=a.user1, user2=past_id).first()
@@ -72,8 +72,6 @@ def check_for_alts(current_id):
 				g.db.add(new_alt)
 				g.db.flush()
 
-# login post procedure
-
 
 @app.post("/login")
 @limiter.limit("1/second")
@@ -84,7 +82,7 @@ def login_post():
 
 	if not username: abort(400)
 	if "@" in username:
-		account = g.db.query(User).options(lazyload('*')).filter(
+		account = g.db.query(User).filter(
 			User.email.ilike(username)).first()
 	else:
 		account = get_user(username, graceful=True)
@@ -132,11 +130,6 @@ def login_post():
 
 	else:
 		abort(400)
-
-	if account.is_banned and account.unban_utc > 0 and time.time() > account.unban_utc:
-		account.is_banned = 0
-		account.unban_utc = 0
-		g.db.add(account)
 
 	session["user_id"] = account.id
 	session["session_id"] = token_hex(16)
@@ -186,7 +179,7 @@ def sign_up_get(v):
 
 	ref = request.values.get("ref", None)
 	if ref:
-		ref_user = g.db.query(User).options(lazyload('*')).filter(User.username.ilike(ref)).first()
+		ref_user = g.db.query(User).filter(User.username.ilike(ref)).first()
 
 	else:
 		ref_user = None
@@ -253,7 +246,7 @@ def sign_up_post(v):
 
 		args = {"error": error}
 		if request.values.get("referred_by"):
-			user = g.db.query(User).options(lazyload('*')).filter_by(
+			user = g.db.query(User).filter_by(
 				id=request.values.get("referred_by")).first()
 			if user:
 				args["ref"] = user.username
@@ -299,7 +292,7 @@ def sign_up_post(v):
 				"sitekey": app.config["HCAPTCHA_SITEKEY"]}
 		url = "https://hcaptcha.com/siteverify"
 
-		x = requests.post(url, data=data)
+		x = requests.post(url, data=data, timeout=5)
 
 		if not x.json()["success"]:
 			return new_signup("Unable to verify captcha [2].")
@@ -309,21 +302,24 @@ def sign_up_post(v):
 	ref_id = int(request.values.get("referred_by", 0))
 
 	if ref_id:
-		ref_user = g.db.query(User).options(
-			lazyload('*')).filter_by(id=ref_id).first()
+		ref_user = g.db.query(User).filter_by(id=ref_id).first()
+
 		if ref_user:
-			badge_types = g.db.query(BadgeDef).options(lazyload('*')).filter(BadgeDef.qualification_expr.isnot(None)).all()
+			badge_types = g.db.query(BadgeDef).filter(BadgeDef.qualification_expr.isnot(None)).all()
 			for badge in badge_types:
 				if eval(badge.qualification_expr, {}, {'v': ref_user}):
 					if not ref_user.has_badge(badge.id):
 						new_badge = Badge(user_id=ref_user.id, badge_id=badge.id)
 						g.db.add(new_badge)
+				else:
+					bad_badge = ref_user.has_badge(badge.id)
+					if bad_badge: g.db.delete(bad_badge)
 
 			g.db.add(ref_user)
 
-	id_1 = g.db.query(User.id).options(lazyload('*')).filter_by(id=6).count()
-	users_count = g.db.query(User.id).count() #paranoid
-	if id_1 == 0 and users_count < 6: admin_level=6
+	id_1 = g.db.query(User.id).filter_by(id=7).count()
+	users_count = g.db.query(User.id).count()
+	if id_1 == 0 and users_count < 7: admin_level=3
 	else: admin_level=0
 
 	new_user = User(
@@ -334,9 +330,9 @@ def sign_up_post(v):
 		email=email,
 		created_utc=int(time.time()),
 		referred_by=ref_id or None,
-		ban_evade =  int(any([x.is_banned and not x.unban_utc for x in g.db.query(User).options(lazyload('*')).filter(User.id.in_(tuple(session.get("history", [])))).all() if x])),
-		agendaposter = any([x.agendaposter for x in g.db.query(User).options(lazyload('*')).filter(User.id.in_(tuple(session.get("history", [])))).all() if x]),
-		club_banned=any([x.club_banned for x in g.db.query(User).options(lazyload('*')).filter(User.id.in_(tuple(session.get("history", [])))).all() if x])
+		ban_evade =  int(any([(x.is_banned or x.shadowbanned) and not x.unban_utc for x in g.db.query(User).filter(User.id.in_(tuple(session.get("history", [])))).all() if x])),
+		agendaposter = any([x.agendaposter for x in g.db.query(User).filter(User.id.in_(tuple(session.get("history", [])))).all() if x]),
+		club_banned=any([x.club_banned for x in g.db.query(User).filter(User.id.in_(tuple(session.get("history", [])))).all() if x])
 		)
 
 	g.db.add(new_user)
@@ -347,7 +343,7 @@ def sign_up_post(v):
 
 	if email: send_verification_email(new_user)
 
-	if "rama" in request.host: send_notification(NOTIFICATIONS_ACCOUNT, new_user, "Dude bussy lmao")
+	if "rama" in request.host: send_notification(new_user.id, WELCOME_MSG)
 
 	session["user_id"] = new_user.id
 	session["session_id"] = token_hex(16)
@@ -373,7 +369,7 @@ def post_forgot():
 
 	email=email.replace("_","\_")
 
-	user = g.db.query(User).options(lazyload('*')).filter(
+	user = g.db.query(User).filter(
 		User.username.ilike(username),
 		User.email.ilike(email)).first()
 
@@ -382,7 +378,7 @@ def post_forgot():
 		email=email.split('+')[0]
 		email=email.replace('.','')
 		email=f"{email}@gmail.com"
-		user = g.db.query(User).options(lazyload('*')).filter(
+		user = g.db.query(User).filter(
 			User.username.ilike(username),
 			User.email.ilike(email)).first()
 
@@ -416,7 +412,7 @@ def get_reset():
 			title="Password reset link expired",
 			error="That password reset link has expired.")
 
-	user = g.db.query(User).options(lazyload('*')).filter_by(id=user_id).first()
+	user = g.db.query(User).filter_by(id=user_id).first()
 
 	if not validate_hash(f"{user_id}+{timestamp}+forgot+{user.login_nonce}", token):
 		abort(400)
@@ -454,7 +450,7 @@ def post_reset(v):
 							   title="Password reset expired",
 							   error="That password reset form has expired.")
 
-	user = g.db.query(User).options(lazyload('*')).filter_by(id=user_id).first()
+	user = g.db.query(User).filter_by(id=user_id).first()
 
 	if not validate_hash(f"{user_id}+{timestamp}+reset+{user.login_nonce}", token):
 		abort(400)

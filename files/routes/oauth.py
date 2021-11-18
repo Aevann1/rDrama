@@ -11,7 +11,7 @@ from sqlalchemy.orm import joinedload
 @auth_required
 def authorize_prompt(v):
 	client_id = request.values.get("client_id")
-	application = g.db.query(OauthApp).options(lazyload('*')).filter_by(client_id=client_id).first()
+	application = g.db.query(OauthApp).filter_by(client_id=client_id).first()
 	if not application: return {"oauth_error": "Invalid `client_id`"}, 401
 	return render_template("oauth.html", v=v, application=application)
 
@@ -23,14 +23,10 @@ def authorize_prompt(v):
 def authorize(v):
 
 	client_id = request.values.get("client_id")
-	application = g.db.query(OauthApp).options(lazyload('*')).filter_by(client_id=client_id).first()
+	application = g.db.query(OauthApp).filter_by(client_id=client_id).first()
 	if not application: return {"oauth_error": "Invalid `client_id`"}, 401
 	access_token = secrets.token_urlsafe(128)[:128]
-	new_auth = ClientAuth(
-		oauth_client = application.id,
-		user_id = v.id,
-		access_token=access_token
-	)
+	new_auth = ClientAuth(oauth_client = application.id, user_id = v.id, access_token=access_token)
 
 	g.db.add(new_auth)
 
@@ -53,7 +49,7 @@ def request_api_keys(v):
 
 	g.db.add(new_app)
 
-	send_admin(NOTIFICATIONS_ACCOUNT, f"{v.username} has requested API keys for `{request.values.get('name')}`. You can approve or deny the request [here](/admin/apps).")
+	send_admin(NOTIFICATIONS_ID, f"{v.username} has requested API keys for `{request.values.get('name')}`. You can approve or deny the request [here](/admin/apps).")
 
 	g.db.commit()
 
@@ -67,9 +63,11 @@ def request_api_keys(v):
 def delete_oauth_app(v, aid):
 
 	aid = int(aid)
-	app = g.db.query(OauthApp).options(lazyload('*')).filter_by(id=aid).first()
+	app = g.db.query(OauthApp).filter_by(id=aid).first()
 
-	for auth in g.db.query(ClientAuth).options(lazyload('*')).filter_by(oauth_client=app.id).all():
+	if app.author_id != v.id: abort(403)
+
+	for auth in g.db.query(ClientAuth).filter_by(oauth_client=app.id).all():
 		g.db.delete(auth)
 
 	g.db.delete(app)
@@ -86,7 +84,9 @@ def delete_oauth_app(v, aid):
 def edit_oauth_app(v, aid):
 
 	aid = int(aid)
-	app = g.db.query(OauthApp).options(lazyload('*')).filter_by(id=aid).first()
+	app = g.db.query(OauthApp).filter_by(id=aid).first()
+
+	if app.author_id != v.id: abort(403)
 
 	app.redirect_uri = request.values.get('redirect_uri')
 	app.app_name = request.values.get('name')
@@ -101,11 +101,11 @@ def edit_oauth_app(v, aid):
 
 @app.post("/admin/app/approve/<aid>")
 @limiter.limit("1/second")
-@admin_level_required(3)
+@admin_level_required(2)
 @validate_formkey
 def admin_app_approve(v, aid):
 
-	app = g.db.query(OauthApp).options(lazyload('*')).filter_by(id=aid).first()
+	app = g.db.query(OauthApp).filter_by(id=aid).first()
 	user = app.author
 
 	app.client_id = secrets.token_urlsafe(64)[:64]
@@ -120,7 +120,14 @@ def admin_app_approve(v, aid):
 
 	g.db.add(new_auth)
 
-	send_notification(NOTIFICATIONS_ACCOUNT, user, f"Your application `{app.app_name}` has been approved. Here's your access token: `{access_token}`\nPlease check the guide [here](/api) if you don't know what to do next.")
+	send_notification(user.id, f"Your application `{app.app_name}` has been approved. Here's your access token: `{access_token}`\nPlease check the guide [here](/api) if you don't know what to do next.")
+
+	ma = ModAction(
+		kind="approve_app",
+		user_id=v.id,
+		target_user_id=user.id,
+	)
+	g.db.add(ma)
 
 	g.db.commit()
 
@@ -129,17 +136,24 @@ def admin_app_approve(v, aid):
 
 @app.post("/admin/app/revoke/<aid>")
 @limiter.limit("1/second")
-@admin_level_required(3)
+@admin_level_required(2)
 @validate_formkey
 def admin_app_revoke(v, aid):
 
-	app = g.db.query(OauthApp).options(lazyload('*')).filter_by(id=aid).first()
+	app = g.db.query(OauthApp).filter_by(id=aid).first()
 	if app.id:
-		for auth in g.db.query(ClientAuth).options(lazyload('*')).filter_by(oauth_client=app.id).all(): g.db.delete(auth)
+		for auth in g.db.query(ClientAuth).filter_by(oauth_client=app.id).all(): g.db.delete(auth)
 
-		send_notification(NOTIFICATIONS_ACCOUNT, app.author, f"Your application `{app.app_name}` has been revoked.")
+		send_notification(app.author.id, f"Your application `{app.app_name}` has been revoked.")
 
 		g.db.delete(app)
+
+		ma = ModAction(
+			kind="revoke_app",
+			user_id=v.id,
+			target_user_id=app.author.id,
+		)
+		g.db.add(ma)
 
 		g.db.commit()
 
@@ -148,17 +162,24 @@ def admin_app_revoke(v, aid):
 
 @app.post("/admin/app/reject/<aid>")
 @limiter.limit("1/second")
-@admin_level_required(3)
+@admin_level_required(2)
 @validate_formkey
 def admin_app_reject(v, aid):
 
-	app = g.db.query(OauthApp).options(lazyload('*')).filter_by(id=aid).first()
+	app = g.db.query(OauthApp).filter_by(id=aid).first()
 
-	for auth in g.db.query(ClientAuth).options(lazyload('*')).filter_by(oauth_client=app.id).all(): g.db.delete(auth)
+	for auth in g.db.query(ClientAuth).filter_by(oauth_client=app.id).all(): g.db.delete(auth)
 
-	send_notification(NOTIFICATIONS_ACCOUNT, app.author, f"Your application `{app.app_name}` has been rejected.")
+	send_notification(app.author.id, f"Your application `{app.app_name}` has been rejected.")
 
 	g.db.delete(app)
+
+	ma = ModAction(
+		kind="reject_app",
+		user_id=v.id,
+		target_user_id=app.author.id,
+	)
+	g.db.add(ma)
 
 	g.db.commit()
 
@@ -166,7 +187,7 @@ def admin_app_reject(v, aid):
 
 
 @app.get("/admin/app/<aid>")
-@admin_level_required(3)
+@admin_level_required(2)
 def admin_app_id(v, aid):
 
 	aid=aid
@@ -192,7 +213,7 @@ def admin_app_id(v, aid):
 						   )
 
 @app.get("/admin/app/<aid>/comments")
-@admin_level_required(3)
+@admin_level_required(2)
 def admin_app_id_comments(v, aid):
 
 	aid=aid
@@ -221,7 +242,7 @@ def admin_app_id_comments(v, aid):
 
 
 @app.get("/admin/apps")
-@admin_level_required(3)
+@admin_level_required(2)
 def admin_apps_list(v):
 
 	apps = g.db.query(OauthApp).all()
@@ -236,7 +257,7 @@ def reroll_oauth_tokens(aid, v):
 
 	aid = aid
 
-	a = g.db.query(OauthApp).options(lazyload('*')).filter_by(id=aid).first()
+	a = g.db.query(OauthApp).filter_by(id=aid).first()
 
 	if a.author_id != v.id: abort(403)
 

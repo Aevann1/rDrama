@@ -87,12 +87,14 @@
 				<i class="fas fa-square text-gray-500 opacity-25 fa-stack-2x"></i>
 				<i class="fas text-gray-500 fa-scroll-old fa-stack-1x text-lg"></i>
 			</span>
-			{% if v and v.id == u.id %}
-			<h2 class="h5">You haven't made any comments yet</h2>
-			<p class="text-muted mb-md-5">Your commenting history will show here.</p>
+			{% if '/saved/' in request.path %}
+				<h2 class="h5">You haven't saved any comments yet</h2>
+			{% elif v and v.id == u.id %}
+				<h2 class="h5">You haven't made any comments yet</h2>
+				<p class="text-muted mb-md-5">Your commenting history will show here.</p>
 			{% else %}
-			<h2 class="h5">@{{u.username}} hasn't made any comments yet</h2>
-			<p class="text-muted">Their commenting history will show here.</p>
+				<h2 class="h5">@{{u.username}} hasn't made any comments yet</h2>
+				<p class="text-muted">Their commenting history will show here.</p>
 			{% endif %}
 		</div>
 

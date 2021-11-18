@@ -1,0 +1,69 @@
+{% extends "default.html" %}
+
+{% block title %}
+<title>Grant User Award</title>
+{% endblock %}
+
+{% block pagetype %}message{% endblock %}
+
+{% block content %}
+
+	{% if error %}
+	<div class="alert alert-danger alert-dismissible fade show my-3" role="alert">
+		<i class="fas fa-exclamation-circle my-auto"></i>
+		<span>
+			{{error}}
+		</span>
+		<button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
+			<span aria-hidden="true"><i class="far fa-times"></i></span>
+		</button>
+	</div>
+	{% endif %}
+	{% if msg %}
+	<div class="alert alert-success alert-dismissible fade show my-3" role="alert">
+		<i class="fas fa-check-circle my-auto" aria-hidden="true"></i>
+		<span>
+			{{msg}}
+		</span>
+		<button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
+			<span aria-hidden="true"><i class="far fa-times"></i></span>
+		</button>
+	</div>
+	{% endif %}
+
+	<pre></pre>
+	<pre></pre>
+	<h5>User Award Grant</h5>
+
+	<form action="/admin/awards", method="post">
+		<input type="hidden" name="formkey" value="{{v.formkey}}">
+		<label for="input-username">Username</label><br>
+		<input id="input-username" class="form-control mb-3" type="text" name="username" required>
+
+		<table class="table table-striped">
+			<thead class="bg-primary text-white">
+				<tr>
+					<th scope="col">Icon</th>
+					<th scope="col">Title</th>
+					<th scope="col">Amount</th>
+				</tr>
+			</thead>
+			<tbody>
+			{% for a in awards %}
+				<tr>
+					<td><i class="{{a['icon']}} {{a['color']}}" style="font-size: 30px"></i></td>
+					<td style="font-weight: bold">{{a['title']}}</td>
+					<td><input type="number" class="form-control" name="{{a['kind']}}" value="0" max="10" placeholder="Enter amount..." ></td>
+				</tr>
+			{% endfor %}
+		</table>
+
+		<input class="btn btn-primary mt-3" type="submit" value="Grant Awards">
+
+	</form>
+
+	<pre></pre>
+	{% if 'rdrama.net' not in request.host or v.admin_level > 2 %}
+		<div><a class="btn btn-success" href="javascript:void(0)" onclick="post_toast('/admin/monthly')">Grant Monthly Marseybux</a></div>
+	{% endif %}
+{% endblock %}

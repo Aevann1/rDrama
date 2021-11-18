@@ -5,7 +5,7 @@
 
 {% block title %}
 
-{% if u and u.profilecss %}
+{% if u and u.profilecss and not (v and v.admin_level) %}
 	<link rel="stylesheet" href="/@{{u.username}}/profilecss">
 {% endif %}
 
@@ -15,56 +15,104 @@
 	}
 </style>
 
-<script src="/assets/js/userpage.js?v=54"></script>
+{% if v %}
+	<script src="/assets/js/userpage.js?v=61"></script>
+{% endif %}
+
+{% if v and not v.patron %}
+	<script>
+		const TRANSFER_TAX = 0.03;
+
+		function updateTax(mobile=false) {
+			let suf = mobile ? "-mobile" : "";
+			let amount = parseInt(document.getElementById("coins-transfer-amount" + suf).value);
+			if(isNaN(amount) || amount < 0) {
+			amount = 0;
+			}
+			document.getElementById("coins-transfer-taxed" + suf).innerText = amount - Math.ceil(amount*TRANSFER_TAX);
+		}
+	</script>
+{% endif %}
+
 <title>{{u.username}}'s profile - {{'SITE_NAME' | app_config}}</title>
 {% if u.is_private %}
 <meta name="robots" content="noindex">
 {% endif %}
-<meta property="og:article:author" content="@{{u.username}}" />
-<meta property="article:section" content="{{u.username}}'s profile - {{'SITE_NAME' | app_config}}" />
-<meta property="article:published_time" content="{{u.created_date}}" />
-<meta property="og:description" name="description" content="{{u.coins}} {{'COINS_NAME' | app_config}} - Joined {{u.created_date}} - {% if u.stored_subscriber_count >=1 and not u.is_private and not u.is_nofollow %}{{u.stored_subscriber_count}} Followers - {% endif %}{% if not u.is_private %}{{u.post_count}} Posts - {{u.comment_count}} Comments - {% endif %}{{u.bio}}" />
-<meta property="og:author" name="author" content="@{{u.username}}" />
-<meta property="og:title" content="{{u.username}}" />
-<meta property="og:image" content="{{u.banner_url}}" />
-<meta property="og:url" content="{{u.url | full_link}}" />
-<meta property="og:site_name" content="{{request.host}}" />
+<meta property="og:article:author" content="@{{u.username}}" >
+<meta property="article:section" content="{{u.username}}'s profile - {{'SITE_NAME' | app_config}}" >
+<meta property="article:published_time" content="{{u.created_date}}" >
+<meta property="og:description" name="description" content="{{u.coins}} {{'COINS_NAME' | app_config}} - Joined {{u.created_date}} - {% if u.stored_subscriber_count >=1 and not u.is_private and not u.is_nofollow %}{{u.stored_subscriber_count}} Followers - {% endif %}{% if not u.is_private %}{{u.post_count}} Posts - {{u.comment_count}} Comments - {% endif %}{{u.bio}}" >
+<meta property="og:author" name="author" content="@{{u.username}}" >
+<meta property="og:title" content="{{u.username}}" >
+<meta property="og:image" content="{{u.banner_url}}" >
+<meta property="og:url" content="{{u.url | full_link}}" >
+<meta property="og:site_name" content="{{request.host}}" >
 
-<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="{{request.host_url}}">
-<meta name="twitter:title" content="{{u.username}}'s profile - {{'SITE_NAME' | app_config}}" />
+<meta name="twitter:title" content="{{u.username}}'s profile - {{'SITE_NAME' | app_config}}" >
 <meta name="twitter:creator" content="@{{u.username}}">
-<meta name="twitter:description" content="{{u.coins}} {{'COINS_NAME' | app_config}} - Joined {{u.created_date}} - {% if u.stored_subscriber_count >=1 and not u.is_private and not u.is_nofollow %}{{u.stored_subscriber_count}} Followers -{% endif %} {% if not u.is_private %} {{u.post_count}} Posts - {{u.comment_count}} Comments -{% endif %} {{u.bio}}" />
-<meta name="twitter:image" content="{{u.banner_url}}" />
-<meta name="twitter:url" content="{{u.url | full_link}}" />
+<meta name="twitter:description" content="{{u.coins}} {{'COINS_NAME' | app_config}} - Joined {{u.created_date}} - {% if u.stored_subscriber_count >=1 and not u.is_private and not u.is_nofollow %}{{u.stored_subscriber_count}} Followers -{% endif %} {% if not u.is_private %} {{u.post_count}} Posts - {{u.comment_count}} Comments -{% endif %} {{u.bio}}" >
+<meta name="twitter:image" content="{{u.banner_url}}" >
+<meta name="twitter:url" content="{{u.url | full_link}}" >
 {% endblock %}
 
 {% block desktopUserBanner %}
 
 <script>
 	function transferCoins(mobile=false) {
-	let t = event.target;
-	t.disabled = true;
+		let t = event.target;
+		t.disabled = true;
 
-	let amount = parseInt(document.getElementById("coins-transfer-amount").value);
-	let transferred = amount - Math.ceil(amount*TRANSFER_TAX);
+		let amount = parseInt(document.getElementById("coins-transfer-amount").value);
+		let transferred = amount - Math.ceil(amount*TRANSFER_TAX);
 
-	post_toast_callback("/@{{u.username}}/transfer_coins",
-		{"amount": document.getElementById(mobile ? "coins-transfer-amount-mobile" : "coins-transfer-amount").value},
-		(xhr) => {
-		if(xhr.status == 200) {
-			document.getElementById("user-coins-amount").innerText = parseInt(document.getElementById("user-coins-amount").innerText) - amount;
-			document.getElementById("profile-coins-amount-mobile").innerText = parseInt(document.getElementById("profile-coins-amount-mobile").innerText) + transferred;
-			document.getElementById("profile-coins-amount").innerText = parseInt(document.getElementById("profile-coins-amount").innerText) + transferred;
-		}
-		}
-	);
+		post_toast_callback("/@{{u.username}}/transfer_coins",
+			{"amount": document.getElementById(mobile ? "coins-transfer-amount-mobile" : "coins-transfer-amount").value},
+			(xhr) => {
+			if(xhr.status == 200) {
+				document.getElementById("user-coins-amount").innerText = parseInt(document.getElementById("user-coins-amount").innerText) - amount;
+				document.getElementById("profile-coins-amount-mobile").innerText = parseInt(document.getElementById("profile-coins-amount-mobile").innerText) + transferred;
+				document.getElementById("profile-coins-amount").innerText = parseInt(document.getElementById("profile-coins-amount").innerText) + transferred;
+			}
+			}
+		);
 
-	setTimeout(_ => t.disabled = false, 2000);
-}
+		setTimeout(_ => t.disabled = false, 2000);
+	}
+
+	{% if u.song %}
+		var audio = new Audio('/songs/{{u.id}}');
+		audio.loop=true;
+		
+		{% if not u.unmutable %}
+			function pause() {
+				audio.pause();
+				document.getElementById("pause1").classList.toggle("d-none");
+				document.getElementById("play1").classList.toggle("d-none");
+				document.getElementById("pause2").classList.toggle("d-none");
+				document.getElementById("play2").classList.toggle("d-none");
+			}
+
+			function play() {
+				audio.play();
+				document.getElementById("pause1").classList.toggle("d-none");
+				document.getElementById("play1").classList.toggle("d-none");
+				document.getElementById("pause2").classList.toggle("d-none");
+				document.getElementById("play2").classList.toggle("d-none");
+			}
+		{% endif %}
+
+		window.addEventListener( 'load', function() {
+			audio.play();
+			document.getElementById('userpage').addEventListener('click', () => {
+				if (audio.paused) audio.play(); 
+			}, {once : true});
+
+		});
+	{% endif %}
 </script>
 
-<textarea id="userid" style="display: none;">{% if u.song %}{{u.id}}{% else %}nosong{% endif %}</textarea>
 <div class="row d-none d-md-block">
 	<div class="col px-0">
 		<div class="jumbotron jumbotron-fluid jumbotron-guild d-none d-md-block" style="background-image: url({{u.banner_url}})">
@@ -87,7 +135,7 @@
 									<i class="fad fa-user-tag text-info align-middle ml-2" data-bs-toggle="tooltip" data-bs-placement="bottom" title="" data-bs-original-title="Original Username: @{{u.original_username}}"></i>
 								</span>
 								{% endif %}
-								{% if u.verified %}<span><i class="fas fa-badge-check align-middle ml-1" style="color:{% if u.id == 541 %}#62ca56{% else %}#1DA1F2{% endif %}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="" data-bs-original-title="{{u.verified}}"></i></span>{% endif %}
+								{% if u.verified %}<span><i class="fas fa-badge-check align-middle ml-1" style="color:{% if u.verifiedcolor %}#{{u.verifiedcolor}}{% else %}#1DA1F2{% endif %}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="" data-bs-original-title="{{u.verified}}"></i></span>{% endif %}
 								{% if u.admin_level > 1 or (u.admin_level == 1 and (not v or v.admin_level < 2)) %}
 								<span>
 									<i class="fas fa-broom text-admin align-middle ml-2" data-bs-toggle="tooltip" data-bs-placement="bottom" title="" data-bs-original-title="Admin"></i>
@@ -103,7 +151,7 @@
 								<div class="profile-actions align-middle d-none ml-2">
 								{% if v and v.id != u.id %}
 								<div class="dropdown show d-none">
-									<a href="#" role="button" data-bs-toggle="dropdown"
+									<a href="javascript:void(0)" role="button" data-bs-toggle="dropdown"
 									aria-haspopup="true" aria-expanded="false">
 									<i class="far fa-ellipsis-h text-lg align-middle text-gray-600"></i>
 								</a>
@@ -111,7 +159,7 @@
 							{% endif %}
 							{% if v and v.id == u.id %}
 							<div class="dropdown show d-none">
-								<a href="#" role="button" id="dropdownProfileActionsLink" data-bs-toggle="dropdown"
+								<a href="javascript:void(0)" role="button" id="dropdownProfileActionsLink" data-bs-toggle="dropdown"
 								aria-haspopup="true" aria-expanded="false">
 								<i class="far fa-ellipsis-h text-lg align-middle text-gray-600"></i>
 							</a>
@@ -125,22 +173,49 @@
 					</div> 
 				</div>
 
-				{% if u.customtitle %}<p class="font-weight-bolder" style="color: #{{u.titlecolor}}">{% if u.quadrant %}<img loading="lazy" height="20" src="/assets/images/PCM/quadrants/{{u.quadrant}}.webp">{% endif %}{{u.customtitle | safe}}</p>{% endif %}
+				{% if u.customtitle %}<p class="font-weight-bolder" style="color: #{{u.titlecolor}}">{% if u.quadrant %}<img loading="lazy" height="20" src="/assets/images/PCM/quadrants/{{u.quadrant}}.webp?v=1">{% endif %}{{u.customtitle | safe}}</p>
+				{% else %}<pre></pre>
+				{% endif %}
+
+				<div class="font-weight-bolder mb-2"><a class="mr-1" href="/@{{u.username}}/upvoters">Simps</a> | <a class="mx-1" href="/@{{u.username}}/downvoters">Haters</a> | <a class="mx-1" href="/@{{u.username}}/upvoting">Simps for</a> | <a class="ml-1" href="/@{{u.username}}/downvoting">Hates</a></div>
+
 				<div class="font-weight-bolder">
 					<span id="profile-coins-amount">{{u.coins}}</span>
-					<img class="ml-1 mb-1" data-bs-toggle="tooltip" data-bs-placement="bottom" title="" data-bs-original-title="{{'COINS_NAME' | app_config}}" height="20" src="/assets/images/emojis/marseycoin.webp">&nbsp;&nbsp;
+					<img class="ml-1 mb-1" data-bs-toggle="tooltip" data-bs-placement="bottom" title="" data-bs-original-title="{{'COINS_NAME' | app_config}}" height="20" src="/assets/images/emojis/marseycoin.webp?v=1">&nbsp;&nbsp;
+
+					{% if u.procoins %}
+						<span>{{u.procoins}}</span>
+						<img class="ml-1 mb-1" data-bs-toggle="tooltip" data-bs-placement="bottom" title="" data-bs-original-title="Marseybux" height="20" src="/assets/images/emojis/marseybux.webp?v=1">&nbsp;&nbsp;
+					{% endif %}
 
 					{% if u.stored_subscriber_count >=1 and not u.is_nofollow %}<a href="/@{{u.username}}/followers">{{u.stored_subscriber_count}} follower{{'s' if u.stored_subscriber_count != 1 else ''}}</a>&nbsp;&nbsp; {% endif %}
 					joined <span data-bs-toggle="tooltip" data-bs-placement="bottom" title="" data-bs-original-title="{{u.created_datetime}}">{{u.created_date}}</span>
 				</div>
 				{% if "pcm" in request.host %}<p class="text-muted">Based Count: {{u.basedcount}}</p>{% endif %}
+
 				{% if u.bio_html %}
-				<pre></pre>
-				<div class="text-muted font-weight-bolder">{{u.bio_html | safe}}</div>
+					<pre></pre>
+					{% if request.host == 'rdrama.net' and u.id == 2050 %}
+						<div class="text-muted font-weight-bolder">{{u.friends_html | safe}}</div>
+					{% else %}
+						<div class="text-muted font-weight-bolder">{{u.bio_html | safe}}</div>
+					{% endif %}
 				{% else %}
-				<p class="text-muted">No bio...</p>
+					<p class="text-muted">No bio...</p>
 				{% endif %}
-				{% if u.bio_html and v %}
+
+				{% if u.friends_html %}
+					<p class="text-muted font-weight-bold">Friends:</p>
+					{% if request.host == 'rdrama.net' and u.id == 2050 %}
+						{{u.bio_html | safe}}
+					{% else %}
+						{{u.friends_html | safe}}
+					{% endif %}
+				{% endif %}
+
+				{% if u.enemies_html %}
+					<p class="text-muted font-weight-bold">Enemies:</p>
+					{{u.enemies_html | safe}}
 				{% endif %}
 
 				{% if u.received_awards %}
@@ -165,28 +240,28 @@
 						<a class="btn btn-primary" href="javascript:void(0)" onclick="post_toast('/@{{u.username}}/suicide')">Get them help</a>
 						<a class="btn btn-primary" href="javascript:void(0)" onclick="toggleElement('profile-toggleable', 'coin-transfer')">Gift {{'COINS_NAME' | app_config}}</a>
 
-						{% if 'pcm' in request.host and v.admin_level == 6 %} 
+						{% if 'pcm' in request.host and v.admin_level > 1 %} 
 							{% if u.admin_level == 0 %}
 								<a class="btn btn-primary" href="javascript:void(0)" onclick="post_toast('/@{{u.username}}/make_admin')">Make admin</a>
-							{% elif v.id == 10 %}
+							{% elif v.admin_level > 2 %}
 								<a class="btn btn-primary" href="javascript:void(0)" onclick="post_toast('/@{{u.username}}/remove_admin')">Remove admin</a>
 								<a class="btn btn-primary" href="javascript:void(0)" onclick="post_toast('/@{{u.username}}/revert_actions')">Revert admin actions</a>
 							{% endif %}
 						{% endif %}
 
-						{% if 'rama' in request.host and v.id in [1,12,28,29,747,995,1480] %} 
+						{% if 'rama' in request.host and v.admin_level > 2 %} 
 							<a id="admin" class="{% if u.admin_level %}d-none{% endif %} btn btn-primary" href="javascript:void(0)" onclick="post_toast2('/@{{u.username}}/make_admin','admin','unadmin')">Make admin</a>
 							<a id="unadmin" class="{% if not u.admin_level %}d-none{% endif %} btn btn-primary" href="javascript:void(0)" onclick="post_toast2('/@{{u.username}}/remove_admin','admin','unadmin')">Remove admin</a>
 
 							<a id="fakeadmin" class="{% if u.admin_level == 1%}d-none{% endif %} btn btn-primary" href="javascript:void(0)" onclick="post_toast2('/@{{u.username}}/make_fake_admin','fakeadmin','unfakeadmin')">Make fake admin</a>
 							<a id="unfakeadmin" class="{% if u.admin_level != 1 %}d-none{% endif %} btn btn-primary" href="javascript:void(0)" onclick="post_toast2('/@{{u.username}}/remove_fake_admin','fakeadmin','unfakeadmin')">Remove fake admin</a>
 
-							{% if u.admin_level == 6 %}
+							{% if u.admin_level > 1 %}
 								<a class="btn btn-primary" href="javascript:void(0)" onclick="post_toast('/@{{u.username}}/revert_actions')">Revert admin actions</a>
 							{% endif %}
 						{% endif %}
 
-						{% if 'rama' not in request.host and 'pcm' not in request.host and v.admin_level == 6 %}
+						{% if 'rama' not in request.host and 'pcm' not in request.host and v.admin_level > 1 %}
 							<a id="admin" class="{% if u.admin_level %}d-none{% endif %} btn btn-primary" href="javascript:void(0)" onclick="post_toast2('/@{{u.username}}/make_admin','admin','unadmin')">Make admin</a>
 							<a id="unadmin" class="{% if not u.admin_level %}d-none{% endif %} btn btn-primary" href="javascript:void(0)" onclick="post_toast2('/@{{u.username}}/remove_admin','admin','unadmin')">Remove admin</a>
 
@@ -211,7 +286,7 @@
 						</form>
 
 						<div class="d-none mt-3 profile-toggleable" id="coin-transfer">
-							<input autocomplete="off" id="coins-transfer-amount" class="form-control" name="amount" type="number" oninput="updateTax()">
+							<input autocomplete="off" id="coins-transfer-amount" class="form-control" name="amount" type="number" {% if not v.patron %}oninput="updateTax()"{% endif %}>
 							<div>{{u.username}} will receive <span id="coins-transfer-taxed">0</span> {{'COINS_NAME' | app_config}}</div>
 							<button class="btn btn-primary mt-3" onclick="transferCoins()">Gift</button>
 						</div>
@@ -220,6 +295,12 @@
 						<a href="/settings/profile" class="btn btn-secondary">Edit profile</a>
 						<a href="/views" class="btn btn-secondary">Profile views</a>
 					{% endif %}
+
+					{% if v and v.mute and not u.unmutable %}
+						<a id="pause1" class="btn btn-secondary" href="javascript:void(0)" onclick="pause()">Pause anthem</a>
+						<a id="play1" class="btn btn-secondary d-none" href="javascript:void(0)" onclick="play()">Play anthem</a>
+					{% endif %}
+
 					{% if v and v.id != u.id and v.admin_level > 1 %}
 						<br><br>
 						<div class="body d-lg-flex border-bottom">
@@ -229,7 +310,7 @@
 									<input type="hidden" name="formkey" value="{{v.formkey}}">
 									<input id="customtitlebody" type="text" name="title" class="form-control" placeholder='Enter a flair here' value="{% if u.customtitleplain %}{{u.customtitleplain}}{% endif %}">
 									<div class="d-flex mt-2">
-										<a class="format" href="javscript:void(0)"><i class="btn btn-secondary format d-inline-block m-0 fas fa-smile-beam" onclick="loadEmojis('customtitlebody')" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#emojiModal" data-bs-toggle="tooltip" data-bs-placement="bottom"  title="" data-bs-original-title="Add Emoji"></i></a>
+										<a class="format" href="javascript:void(0)"><i class="btn btn-secondary format d-inline-block m-0 fas fa-smile-beam" onclick="loadEmojis('customtitlebody')" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#emojiModal" data-bs-toggle="tooltip" data-bs-placement="bottom"  title="" data-bs-original-title="Add Emoji"></i></a>
 										&nbsp;&nbsp;&nbsp;
 										<div class="custom-control custom-checkbox">
 											<input type="checkbox" class="custom-control-input" id="locked" name="locked" {% if u.flairchanged %}checked{% endif %}>
@@ -268,12 +349,12 @@
 						{% endif %}
 						<pre></pre>
 
-						<form id="agendaposter" class="{% if u.agendaposter %}d-none{% endif %}" action="/agendaposter/{{u.id}}" method="post">
+						<form id="agendaposter1" class="{% if u.agendaposter %}d-none{% endif %}" action="/agendaposter/{{u.id}}" method="post">
 							<input type="hidden" name="formkey", value="{{v.formkey}}">
-							<input type="number" step="any" name="days" class="form-control" placeholder="Days (0 or blank = permanent)" />
-							<input type="submit" class="btn btn-danger" value="Lock Agendaposter Theme" />
+							<input type="number" step="any" name="days" class="form-control" placeholder="Days (0 or blank = permanent)" >
+							<input type="submit" class="btn btn-danger" value="Lock Agendaposter Theme" >
 						</form>
-						<a id="unagendaposter" class="{% if not u.agendaposter %}d-none{% endif %} btn btn-success" href="javascript:void(0)" onclick="post_toast2('/agendaposter/{{u.id}}','agendaposter','unagendaposter')">Disable Agendaposter Theme</a>
+						<a id="unagendaposter" class="{% if not u.agendaposter %}d-none{% endif %} btn btn-success" href="javascript:void(0)" onclick="post_toast2('/agendaposter/{{u.id}}','agendaposter1','unagendaposter')">Disable Agendaposter Theme</a>
 
 						<pre></pre>
 
@@ -305,17 +386,20 @@
 						{% endif %}
 					<pre></pre>
 					<p>User ID: {{u.id}}</p>
-					{% if v and v.admin_level >=4 %}
+					<p>Coins spent: {{u.coins_spent}}</p>
+					{% if v and v.admin_level > 1 %}
+						<p>True score: {{u.truecoins}}</p>
 						{% if u.is_private %}
 							<p>User has private mode enabled.</p>
 						{% endif %}
+					{% endif %}
+					{% if v and (v.admin_level > 1 or v.alt) %}
 						<span>Alts:</span>
 						<ul>
 							{% for account in u.alts_unique %}
 								<li><a href="{{account.url}}">@{{account.username}}</a>{% if account._is_manual %} [m]{% endif %}</li>
 							{% endfor %}
 						</ul>
-						True score: {{u.truecoins}}
 					{% endif %}
 					{% if u.is_suspended %}
 						<p>Banned by: <a href="{{u.banned_by.url}}">@{{u.banned_by.username}}</a></p>
@@ -362,7 +446,7 @@
 					<h5 style="color:#ff66ac;">BANNED USER{% if u.ban_reason %}: {{u.ban_reason}}{% endif %}</h5>
 					{% if u.unban_utc %}<h5 style="color:#ff66ac;">{{u.unban_string}}</h5>{% endif %}
 				{% endif %}
-				{% if u.verified %}<span><i class="fas fa-badge-check align-middle ml-1" style="color:{% if u.id == 541 %}#62ca56{% else %}#1DA1F2{% endif %}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="" data-bs-original-title="{{u.verified}}"></i></span>&nbsp;{% endif %}
+				{% if u.verified %}<span><i class="fas fa-badge-check align-middle ml-1" style="color:{% if u.verifiedcolor %}#{{u.verifiedcolor}}{% else %}#1DA1F2{% endif %}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="" data-bs-original-title="{{u.verified}}"></i></span>&nbsp;{% endif %}
 				<a class="text-black"><h1 class="h5 d-inline-block" style="color: #{{u.namecolor}}"><span {% if u.patron %}class="patron" style="background-color:#{{u.namecolor}};"{% endif %}>{{u.username}}</span></h1></a>
 				{% if u.username != u.original_username %}
 					<span>
@@ -381,11 +465,22 @@
 				{% if v and v.has_follower(u) and not v.is_nofollow %}
 					<span class="followsyou text-primary badge badge-secondary text-small align-middle mx-1">Follows you</span>
 				{% endif %}
-				{% if u.customtitle %}<p style="color: #{{u.titlecolor}}">{% if u.quadrant %}<img loading="lazy" height="20" src="/assets/images/PCM/quadrants/{{u.quadrant}}.webp">{% endif %}{{u.customtitle | safe}}</p>{% endif %}
+				{% if u.customtitle %}<p style="color: #{{u.titlecolor}}">{% if u.quadrant %}<img loading="lazy" height="20" src="/assets/images/PCM/quadrants/{{u.quadrant}}.webp?v=1">{% endif %}{{u.customtitle | safe}}</p>
+				{% else %}
+					<pre></pre>
+				{% endif %}
+
+				<div class="font-weight-bolder mb-2"><a class="mr-1" href="/@{{u.username}}/upvoters">Simps</a> | <a class="mx-1" href="/@{{u.username}}/downvoters">Haters</a> | <a class="mx-1" href="/@{{u.username}}/upvoting">Simps for</a> | <a class="ml-1" href="/@{{u.username}}/downvoting">Hates</a></div>
+				
 				<div class="font-weight-normal">
 					<span id="profile-coins-amount-mobile" class="font-weight-bold">{{u.coins}}</span>
+					<img class="ml-1 mb-1" data-bs-toggle="tooltip" data-bs-placement="bottom" title="" data-bs-original-title="{{'COINS_NAME' | app_config}}" height="15" src="/assets/images/emojis/marseycoin.webp?v=1">&nbsp;&nbsp;
 
-					<img class="ml-1 mb-1" data-bs-toggle="tooltip" data-bs-placement="bottom" title="" data-bs-original-title="{{'COINS_NAME' | app_config}}" height="15" src="/assets/images/emojis/marseycoin.webp">&nbsp;&nbsp;
+					{% if u.procoins %}
+						<span class="font-weight-bold">{{u.procoins}}</span>
+						<img class="ml-1 mb-1" data-bs-toggle="tooltip" data-bs-placement="bottom" title="" data-bs-original-title="Marseybux" height="15" src="/assets/images/emojis/marseybux.webp?v=1">&nbsp;&nbsp;
+					{% endif %}
+
 					{% if u.stored_subscriber_count >=1 and not u.is_nofollow %}<a href="/@{{u.username}}/followers" class="font-weight-bold">{{u.stored_subscriber_count}} follower{{'s' if u.stored_subscriber_count != 1 else ''}}</a>&nbsp;&nbsp; {% endif %}
 					{% if "pcm" in request.host %}
 						<br>Based count: {{u.basedcount}}
@@ -394,7 +489,17 @@
 					<br>joined <span data-bs-toggle="tooltip" data-bs-placement="bottom" title="" data-bs-original-title="{{u.created_datetime}}" class="font-weight-bold">{{u.created_date}}</span>
 				</div>
 				{% if u.bio_html %}
-				<p class="text-muted text-break">{{u.bio_html | safe}}</p>
+					<p class="text-muted text-break">{{u.bio_html | safe}}</p>
+				{% endif %}
+
+				{% if u.friends_html %}
+					<p class="text-muted font-weight-bold mt-3">Friends:</p>
+					{{u.friends_html | safe}}
+				{% endif %}
+
+				{% if u.enemies_html %}
+					<p class="text-muted font-weight-bold mt-3">Enemies:</p>
+					{{u.enemies_html | safe}}
 				{% endif %}
 
 				{% if u.received_awards %}
@@ -421,7 +526,13 @@
 				{% if v and v.id == u.id %}
 					<a href="/settings/profile" class="btn btn-secondary ">Edit profile</a>
 					<a href="/views" class="btn btn-secondary">Profile views</a>
-					{% endif %}
+				{% endif %}
+
+				{% if v and v.mute and not u.unmutable %}
+					<a id="pause2" class="btn btn-secondary" href="javascript:void(0)" onclick="pause()">Pause anthem</a>
+					<a id="play2" class="btn btn-secondary d-none" href="javascript:void(0)" onclick="play()">Play anthem</a>
+				{% endif %}
+
 				{% if v and v.id != u.id %}
 					{% if u.id != 995 %}<a id="button-unsub2" class="btn btn-secondary {% if not is_following %}d-none{% endif %}" href="javascript:void(0)" onclick="post_toast2('/unfollow/{{u.username}}','button-unsub2','button-sub2')">Unfollow</a>{% endif %}
 					<a id="button-sub2" class="btn btn-primary {% if is_following or u.is_nofollow or u.is_blocked %}d-none{% endif %}" href="javascript:void(0)" onclick="post_toast2('/follow/{{u.username}}','button-unsub2','button-sub2')">Follow</a>						
@@ -429,28 +540,28 @@
 					<a class="btn btn-primary" href="javascript:void(0)" onclick="post_toast('/@{{u.username}}/suicide')">Get them help</a>
 					<a class="btn btn-primary" href="javascript:void(0)" onclick="toggleElement('profile-toggleable-mobile', 'coin-transfer-mobile')">Gift {{'COINS_NAME' | app_config}}</a>
 
-					{% if 'pcm' in request.host and v.admin_level == 6 %} 
+					{% if 'pcm' in request.host and v.admin_level > 1 %} 
 						{% if u.admin_level == 0 %}
 							<a class="btn btn-primary" href="javascript:void(0)" onclick="post_toast('/@{{u.username}}/make_admin')">Make admin</a>
-						{% elif v.id == 10 %}
+						{% elif v.admin_level > 2 %}
 							<a class="btn btn-primary" href="javascript:void(0)" onclick="post_toast('/@{{u.username}}/remove_admin')">Remove admin</a>
 							<a class="btn btn-primary" href="javascript:void(0)" onclick="post_toast('/@{{u.username}}/revert_actions')">Revert admin actions</a>
 						{% endif %}
 					{% endif %}
 
-					{% if 'rama' in request.host and v.id in [1,12,28,29,747,995,1480] %} 
+					{% if 'rama' in request.host and v.admin_level > 2 %} 
 						<a id="admin2" class="{% if u.admin_level %}d-none{% endif %} btn btn-primary" href="javascript:void(0)" onclick="post_toast2('/@{{u.username}}/make_admin','admin2','unadmin2')">Make admin</a>
 						<a id="unadmin2" class="{% if not u.admin_level %}d-none{% endif %} btn btn-primary" href="javascript:void(0)" onclick="post_toast2('/@{{u.username}}/remove_admin','admin2','unadmin2')">Remove admin</a>
 
 						<a id="fakeadmin2" class="{% if u.admin_level == 1%}d-none{% endif %} btn btn-primary" href="javascript:void(0)" onclick="post_toast2('/@{{u.username}}/make_fake_admin','fakeadmin2','unfakeadmin2')">Make fake admin</a>
 						<a id="unfakeadmin2" class="{% if u.admin_level != 1 %}d-none{% endif %} btn btn-primary" href="javascript:void(0)" onclick="post_toast2('/@{{u.username}}/remove_fake_admin','fakeadmin2','unfakeadmin2')">Remove fake admin</a>
 
-						{% if u.admin_level == 6 %}
+						{% if u.admin_level > 1 %}
 							<a class="btn btn-primary" href="javascript:void(0)" onclick="post_toast('/@{{u.username}}/revert_actions')">Revert admin actions</a>
 						{% endif %}
 					{% endif %}
 
-					{% if 'rama' not in request.host and 'pcm' not in request.host and v.admin_level == 6 %}
+					{% if 'rama' not in request.host and 'pcm' not in request.host and v.admin_level > 1 %}
 						<a id="admin" class="{% if u.admin_level %}d-none{% endif %} btn btn-primary" href="javascript:void(0)" onclick="post_toast2('/@{{u.username}}/make_admin','admin','unadmin')">Make admin</a>
 						<a id="unadmin" class="{% if not u.admin_level %}d-none{% endif %} btn btn-primary" href="javascript:void(0)" onclick="post_toast2('/@{{u.username}}/remove_admin','admin','unadmin')">Remove admin</a>
 
@@ -475,7 +586,7 @@
 					</form>
 
 					<div class="d-none mt-3 profile-toggleable-mobile" id="coin-transfer-mobile">
-						<input autocomplete="off" id="coins-transfer-amount-mobile" class="form-control" name="amount" type="number" oninput="updateTax(true)">
+						<input autocomplete="off" id="coins-transfer-amount-mobile" class="form-control" name="amount" type="number" {% if not v.patron %}oninput="updateTax(true)"{% endif %}>
 						<div>{{u.username}} will receive <span id="coins-transfer-taxed-mobile">0</span> {{'COINS_NAME' | app_config}}</div>
 						<button class="btn btn-primary mt-3" onclick="transferCoins(true)">Gift</button>
 					</div>
@@ -493,7 +604,7 @@
 									<input type="hidden" name="formkey" value="{{v.formkey}}">
 									<input id="customtitlebody-mobile" type="text" name="title" class="form-control" placeholder='Enter a flair here' value="{% if u.customtitle %}{{u.customtitle}}{% endif %}">
 									<div class="d-flex mt-2">
-										<a class="format" href="javscript:void(0)"><i class="btn btn-secondary format d-inline-block m-0 fas fa-smile-beam" onclick="loadEmojis('customtitlebody-mobile')" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#emojiModal" data-bs-toggle="tooltip" data-bs-placement="bottom"  title="" data-bs-original-title="Add Emoji"></i></a>
+										<a class="format" href="javascript:void(0)"><i class="btn btn-secondary format d-inline-block m-0 fas fa-smile-beam" onclick="loadEmojis('customtitlebody-mobile')" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#emojiModal" data-bs-toggle="tooltip" data-bs-placement="bottom"  title="" data-bs-original-title="Add Emoji"></i></a>
 										&nbsp;&nbsp;&nbsp;
 										<div class="custom-control custom-checkbox">
 											<input type="checkbox" class="custom-control-input" id="locked-mobile" name="locked" {% if u.flairchanged %}checked{% endif %}>
@@ -511,12 +622,12 @@
 							<form action="/unban_user/{{u.id}}" method="post">
 								<input type="hidden" name="formkey", value="{{v.formkey}}">
 								<input type="hidden" name="redir" value="true">
-								<br/>
+								<br>
 								<div class="custom-control custom-checkbox">
 									<input type="checkbox" id="alts-1-mobile" class="custom-control-input" name="alts" value="1">
 									<label class="custom-control-label" for="alts-1-mobile">Include alts</label>
 								</div>
-								<br />
+								<br >
 								<input type="submit" class="btn btn-success" value="Unban user">
 							</form>
 						{% else %}
@@ -525,12 +636,12 @@
 								<input type="hidden" name="redir" value="true">
 								<input style="font-size:11px;" type="text" class="form-control" name="reason" placeholder="Ban Reason" onchange="document.getElementById('user-ban-submit2').disabled=false">
 								<input style="font-size:11px;" type="number" step="any" class="form-control" name="days" placeholder="Days (blank = permanent)">
-								<br />
+								<br >
 								<div class="custom-control custom-checkbox">
 									<input type="checkbox" id="alts-2-mobile" class="custom-control-input" name="alts" value="1">
 									<label class="custom-control-label" for="alts-2-mobile">Include alts</label>
 								</div>
-								<br />
+								<br >
 								<input id="user-ban-submit2" type="submit" class="btn btn-danger" value="Ban user" disabled>
 							</form>
 						{% endif %}
@@ -538,8 +649,8 @@
 
 						<form id="agendaposter2" class="{% if u.agendaposter %}d-none{% endif %}" action="/agendaposter/{{u.id}}" method="post">
 							<input type="hidden" name="formkey", value="{{v.formkey}}">
-							<input type="number" step="any" name="days" class="form-control" placeholder="Days (0 or blank = permanent)" />
-							<input type="submit" class="btn btn-danger" value="Lock Agendaposter Theme" />
+							<input type="number" step="any" name="days" class="form-control" placeholder="Days (0 or blank = permanent)" >
+							<input type="submit" class="btn btn-danger" value="Lock Agendaposter Theme" >
 						</form>
 						<a id="unagendaposter2" class="{% if not u.agendaposter %}d-none{% endif %} btn btn-success" href="javascript:void(0)" onclick="post_toast2('/agendaposter/{{u.id}}','agendaposter2','unagendaposter2')">Disable Agendaposter Theme</a>
 
@@ -571,22 +682,24 @@
 				{% endif %}
 				<pre></pre>
 				<p>User ID: {{u.id}}</p>
+				<p>Coins spent: {{u.coins_spent}}</p>
 				{% if v and v.admin_level > 1 %}
+					<p>True score: {{u.truecoins}}</p>
 					{% if u.is_private %}
 						<p>User has private mode enabled.</p>
 					{% endif %}
+				{% endif %}
+				{% if v and (v.admin_level > 1 or v.alt) %}
 					<span>Alts:</span>
 					<ul>
 						{% for account in u.alts_unique %}
-						<li><a href="{{account.url}}">@{{account.username}}</a>{% if account._is_manual %} [m]{% endif %}</li>
+							<li><a href="{{account.url}}">@{{account.username}}</a>{% if account._is_manual %} [m]{% endif %}</li>
 						{% endfor %}
 					</ul>
-					True score: {{u.truecoins}}
 				{% endif %}
 				{% if u.is_suspended %}
 					<p>Banned by: <a href="{{u.banned_by.url}}">@{{u.banned_by.username}}</a></p>
 				{% endif %}
-
 			</div>
 		</div>
 	</div>

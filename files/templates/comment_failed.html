@@ -26,13 +26,13 @@
 				{% if parent_fullname %}<input type="hidden" name="parent_fullname" value="{{parent_fullname}}">{% endif %}
 				{% if parent_submission %}<input type="hidden" name="submission" value="{{parent_submission}}">{% endif %}
 
-				<textarea name="body" form="reply" class="comment-box form-control rounded" id="reply-form" aria-label="With textarea" placeholder="Add your comment..." rows="10">{{body}}</textarea> 
+				<textarea name="body" form="reply" class="comment-box form-control rounded" id="reply-form" aria-label="With textarea" placeholder="Add your comment..." maxlength="10000" rows="10">{{body}}</textarea> 
 
 				<div class="comment-format"> 
 					<small class="format pl-0"><i class="fas fa-bold" aria-hidden="true" onclick="makeReplyBold()" data-bs-toggle="tooltip" data-bs-placement="bottom" title="" data-bs-original-title="Bold"></i></small> 
-					<a class="format" href="javscript:void(0)"><i class="fas fa-italic" aria-hidden="true" onclick="makeReplyItalics()" data-bs-toggle="tooltip" data-bs-placement="bottom" title="" data-bs-original-title="Italicize"></i></a> 
-					<a class="format" href="javscript:void(0)"><i class="fas fa-quote-right" aria-hidden="true" onclick="makeReplyQuote()" data-bs-toggle="tooltip" data-bs-placement="bottom" title="" data-bs-original-title="Quote"></i></a> 
-					<a class="format" href="javscript:void(0)"><i class="fas fa-link" aria-hidden="true"></i></small> 
+					<a class="format" href="javascript:void(0)"><i class="fas fa-italic" aria-hidden="true" onclick="makeReplyItalics()" data-bs-toggle="tooltip" data-bs-placement="bottom" title="" data-bs-original-title="Italicize"></i></a> 
+					<a class="format" href="javascript:void(0)"><i class="fas fa-quote-right" aria-hidden="true" onclick="makeReplyQuote()" data-bs-toggle="tooltip" data-bs-placement="bottom" title="" data-bs-original-title="Quote"></i></a> 
+					<a class="format" href="javascript:void(0)"><i class="fas fa-link" aria-hidden="true"></i></small> 
 					<button form="reply" class="btn btn-primary ml-auto">Comment</a> 
 				</div> 
 			</form> 

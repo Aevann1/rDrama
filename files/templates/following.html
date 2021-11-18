@@ -1,0 +1,39 @@
+{% extends "default.html" %}
+{% block content %}
+<script>
+	function removeFollower(event, username) {
+		post_toast('/unfollow/' + username); 
+		let table = document.getElementById("followers-table");
+		table.removeChild(event.target.parentElement.parentElement);
+	}
+</script>
+<pre>
+
+	
+</pre>
+<h5>Users followed by @{{u.username}}</h5>
+<pre></pre>
+<table class="table table-striped mb-5">
+<thead class="bg-primary text-white">
+	<tr>
+		<th style="font-weight: bold">#</th>
+		<th style="font-weight: bold">Name</th>
+		{% if v.id == u.id %}
+			<th style="font-weight: bold"></th>
+		{% endif %}
+	</tr>
+</thead>
+<tbody id="followers-table">
+{% for user in users %}
+	<tr>
+		<td style="font-weight: bold">{{loop.index}}</td>
+		<td><a style="color:#{{user.namecolor}};  font-weight:bold;" href="/@{{user.username}}"><img loading="lazy" src="/uid/{{user.id}}/pic" class="pp20"><span {% if user.patron %}class="patron" style="background-color:#{{user.namecolor}};"{% endif %}>{{user.username}}</span></a></td>
+		{% if v.id == u.id %}
+		<td><div class="btn btn-danger" onclick="removeFollower(event, '{{user.username}}')">Unfollow</div></td>
+		{% endif %}
+	</tr>
+{% endfor %}
+</tbody>
+</table>
+
+{% endblock %}

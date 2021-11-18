@@ -68,12 +68,6 @@ body, #main-content-col {
 .form-control {
 	border-color: #D9BFB7 !important;
 	}
-.comment .comment-collapse::before {
-	border-color: #D9BFB7 !important;
-	}
-.comment .comment-collapse:hover::before {
-	border-left-color: #800000 !important
-	}
 .post-actions *:hover, .comment-actions *:hover, .comment-actions .copy-link:hover {
 	color: #F00 !important
 	}

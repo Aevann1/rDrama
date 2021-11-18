@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship
 from files.__main__ import Base, app
 from os import environ
 from files.helpers.lazy import lazy
+from datetime import datetime
 
 site_name = environ.get("SITE_NAME").strip()
 
@@ -25,7 +26,7 @@ class BadgeDef(Base):
 	@lazy
 	def path(self):
 
-		return f"/assets/images/badges/{self.icon}"
+		return f"/assets/images/badges/{self.icon}.webp"
 
 	@property
 	@lazy
@@ -48,7 +49,9 @@ class Badge(Base):
 	badge_id = Column(Integer, ForeignKey("badge_defs.id"))
 	description = Column(String)
 	url = Column(String)
+
 	badge = relationship("BadgeDef", viewonly=True)
+	user = relationship("User", viewonly=True)
 
 	def __repr__(self):
 
@@ -57,10 +60,12 @@ class Badge(Base):
 	@property
 	@lazy
 	def text(self):
-		if self.description:
-			return self.description
-		else:
-			return self.badge.description
+		if self.name == "Agendaposter":
+			ti = self.user.agendaposter_expires_utc
+			if ti: return self.badge.description + " until " + datetime.utcfromtimestamp(ti).strftime('%Y-%m-%d %H:%M:%S')
+			else: return self.badge.description + " permanently" 
+		elif self.description: return self.description
+		else: return self.badge.description
 
 	@property
 	@lazy
@@ -83,7 +88,6 @@ class Badge(Base):
 
 		return {'text': self.text,
 				'name': self.name,
-				'created_utc': self.created_utc,
 				'url': self.url,
 				'icon_url':f"https://{app.config['SERVER_NAME']}{self.path}"
 				}

@@ -30,7 +30,7 @@ function post_toast(url, reload, data) {
 				document.getElementById('toast-post-success-text').innerText = "Action successful!";
 			}
 
-			if (reload == 1) {window.location.reload(true)}
+			if (reload == 1) {location.reload(true)}
 			return true
 
 		} else if (xhr.status >= 300 && xhr.status < 400) {

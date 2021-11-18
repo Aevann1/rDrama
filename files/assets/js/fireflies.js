@@ -1,8 +1,4 @@
-/*
- Bug.js - https://github.com/Auz/Bug
- Released under MIT-style license.
- Original Screen Bug http://screen-bug.googlecode.com/git/index.html
-*/
+
 var BugDispatch={options:{minDelay:500,maxDelay:1E4,minBugs:2,maxBugs:20,minSpeed:5,maxSpeed:10,maxLargeTurnDeg:150,maxSmallTurnDeg:10,maxWiggleDeg:5,imageSprite:"fireflies.webp",bugWidth:13,bugHeight:14,num_frames:5,zoom:10,canFly:!0,canDie:!0,numDeathTypes:3,monitorMouseMovement:!1,eventDistanceToBug:40,minTimeBetweenMultipy:1E3,mouseOver:"random"},initialize:function(a){this.options=mergeOptions(this.options,a);this.options.minBugs>this.options.maxBugs&&(this.options.minBugs=this.options.maxBugs);
 this.modes=["multiply","nothing"];this.options.canFly&&this.modes.push("fly","flyoff");this.options.canDie&&this.modes.push("die");-1==this.modes.indexOf(this.options.mouseOver)&&(this.options.mouseOver="random");this.transform=null;this.transforms={Moz:function(a){this.bug.style.MozTransform=a},webkit:function(a){this.bug.style.webkitTransform=a},O:function(a){this.bug.style.OTransform=a},ms:function(a){this.bug.style.msTransform=a},Khtml:function(a){this.bug.style.KhtmlTransform=a},w3c:function(a){this.bug.style.transform=
 a}};if("transform"in document.documentElement.style)this.transform=this.transforms.w3c;else{var b=["Moz","webkit","O","ms","Khtml"],c=0;for(c=0;c<b.length;c++)if(b[c]+"Transform"in document.documentElement.style){this.transform=this.transforms[b[c]];break}}if(this.transform){this.bugs=[];b="multiply"===this.options.mouseOver?this.options.minBugs:this.random(this.options.minBugs,this.options.maxBugs,!0);c=0;var d=this;for(c=0;c<b;c++){a=JSON.parse(JSON.stringify(this.options));var e=SpawnBug();a.wingsOpen=

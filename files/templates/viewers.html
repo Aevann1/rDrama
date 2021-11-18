@@ -12,7 +12,7 @@
 </thead>
 {% for view in viewers %}
 	<tr>
-		<td style="font-weight: bold"><a style="color: #{{view.viewer.namecolor}}" href="/@{{view.viewer.username}}"><img loading="lazy" src="/uid/{{view.viewer.id}}/pic/profile" class="profile-pic-20 mr-1"><span {% if view.viewer.patron %}class="patron" style="background-color:#{{view.viewer.namecolor}};"{% endif %}>{{view.viewer.username}}</span></a></td>
+		<td style="font-weight: bold"><a style="color: #{{view.viewer.namecolor}}" href="/@{{view.viewer.username}}"><img loading="lazy" src="/uid/{{view.viewer.id}}/pic" class="pp20"><span {% if view.viewer.patron %}class="patron" style="background-color:#{{view.viewer.namecolor}};"{% endif %}>{{view.viewer.username}}</span></a></td>
 		<td style="font-weight: bold">{{view.last_view_string}}</td>
 	</tr>
 {% endfor %}

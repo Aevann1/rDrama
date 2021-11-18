@@ -1,0 +1,28 @@
+{% extends "default.html" %}
+{% block content %}
+<pre>
+
+	
+</pre>
+<h5 style="text-align: center">{{name2}}</h5>
+<pre></pre>
+<table class="table table-striped mb-5">
+<thead class="bg-primary text-white">
+	<tr>
+		<th style="font-weight: bold">#</th>
+		<th style="font-weight: bold">Name</th>
+		<th style="font-weight: bold">{{name}}votes</th>
+	</tr>
+</thead>
+<tbody id="followers-table">
+{% for user in users %}
+	<tr>
+		<td style="font-weight: bold">{{loop.index}}</td>
+		<td><a style="color:#{{user[0].namecolor}};  font-weight:bold;" href="/@{{user[0].username}}"><img loading="lazy" src="/uid/{{user[0].id}}/pic" class="pp20"><span {% if user[0].patron %}class="patron" style="background-color:#{{user[0].namecolor}};"{% endif %}>{{user[0].username}}</span></a></td>
+		<td style="font-weight: bold">{{user[1]}}</td>
+	</tr>
+{% endfor %}
+</tbody>
+</table>
+
+{% endblock %}

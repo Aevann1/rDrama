@@ -6,7 +6,23 @@
 {% include "emoji_modal.html" %}
 {% include "gif_modal.html" %}
 
-<script src="/assets/js/settings_profile.js?v=53"></script>
+<script src="/assets/js/settings_profile.js?v=57"></script>
+
+<script>
+	document.onpaste = function(event) {
+		var focused = document.activeElement;
+		if (focused.id == 'bio-text') {
+			f=document.getElementById('file-upload');
+			files = event.clipboardData.files
+			filename = files[0].name.toLowerCase()
+			if (filename.endsWith(".jpg") || filename.endsWith(".jpeg") || filename.endsWith(".png") || filename.endsWith(".webp") || filename.endsWith(".gif"))
+			{
+				f.files = files;
+				document.getElementById('filename-show').textContent = filename;
+			}
+		}
+	}
+</script>
 
 <div id="posts" class="row">
 
@@ -122,7 +138,7 @@
 							<input type="hidden" name="formkey" value="{{v.formkey}}">
 
 							{% for themecolor in ['ff66ac','805ad5','62ca56','38a169','80ffff','2a96f3','eb4963','ff0000','f39731','30409f','3e98a7','e4432d','7b9ae4','ec72de','7f8fa6', 'f8db58'] %}
-							<input type="radio" name="themecolor" id="themecolor-{{themecolor}}" value="{{themecolor}}" {% if v.themecolor == themecolor %}checked{% endif %} onclick="document.getElementById('themecolor-form').submit()"/>
+							<input type="radio" name="themecolor" id="themecolor-{{themecolor}}" value="{{themecolor}}" {% if v.themecolor == themecolor %}checked{% endif %} onclick="document.getElementById('themecolor-form').submit()">
 							<label class="color-radio" for="themecolor-{{themecolor}}">
 								<span style="background-color: #{{themecolor}}">
 								{% if v.themecolor.lower() == themecolor %}
@@ -143,7 +159,7 @@
 				<form action="/settings/themecolor" id="color-code-form" method="post">
 					<input type="hidden" name="formkey" value="{{v.formkey}}">
   
-					<input class="form-control" type="text" name="themecolor" id="color-code" value="{% if v.themecolor %}{{v.themecolor}}{% endif %}">
+					<input class="form-control" type="text" name="themecolor" id="color-code" maxlength="6" value="{% if v.themecolor %}{{v.themecolor}}{% endif %}">
 					<label class="btn btn-secondary text-capitalize mr-2 mt-2 mb-0">Update<input type="text" for="color-code" onclick="form.submit()" hidden=""></label>
 				</form>
 				</div> -->
@@ -190,11 +206,10 @@
 						<div class="d-flex">
 
 							<div>
-
 								<form action="/settings/images/profile" method="post" enctype="multipart/form-data">
 									<input type="hidden" name="formkey" value="{{v.formkey}}">
 									<label class="btn btn-secondary text-capitalize mr-2 mb-0">
-										Update<input type="file" hidden name="profile" onchange="form.submit()">
+										Update<input type="file" accept="image/*" {% if request.headers.get('cf-ipcountry')=="T1" %}disabled{% endif %} hidden name="profile" onchange="form.submit()">
 									</label>
 								</form>
 
@@ -211,7 +226,7 @@
 
 						</div>
 
-						<div class="text-small-extra text-muted mt-3">JPG, PNG, GIF files are supported. Max file size is 4 MB.</div>
+						<div class="text-small-extra text-muted mt-3">JPG, PNG, GIF files are supported. Max file size is {% if v and v.patron %}8{% else %}4{% endif %} MB.</div>
 
 					</div>
 
@@ -233,11 +248,10 @@
 						<div class="d-flex">
 
 							<div>
-
 								<form action="/settings/images/banner" method="post" enctype="multipart/form-data">
 									<input type="hidden" name="formkey" value="{{v.formkey}}">
 									<label class="btn btn-secondary text-capitalize mr-2 mb-0">
-										Update<input type="file" hidden name="banner" onchange="form.submit()">
+										Update<input type="file" {% if request.headers.get('cf-ipcountry')=="T1" %}disabled{% endif %} accept="image/*" hidden name="banner" onchange="form.submit()">
 									</label>
 								</form>
 
@@ -255,7 +269,7 @@
 
 						</div>
 
-						<div class="text-small-extra text-muted mt-3">JPG, PNG, GIF files are supported. Max file size is 4 MB.</div>
+						<div class="text-small-extra text-muted mt-3">JPG, PNG, GIF files are supported. Max file size is {% if v and v.patron %}8{% else %}4{% endif %} MB.</div>
 
 					</div>
 
@@ -402,7 +416,7 @@
 											<input type="hidden" name="formkey" value="{{v.formkey}}">
 
 											{% for color in ['ff66ac','805ad5','62ca56','38a169','80ffff','2a96f3','eb4963','ff0000','f39731','30409f','3e98a7','e4432d','7b9ae4','ec72de','7f8fa6', 'f8db58'] %}
-											<input type="radio" name="color" id="color-{{color}}" value="{{color}}" {% if v.namecolor == color %}checked{% endif %} onclick="document.getElementById('color-form').submit()"/>
+											<input type="radio" name="color" id="color-{{color}}" value="{{color}}" {% if v.namecolor == color %}checked{% endif %} onclick="document.getElementById('color-form').submit()">
 											<label class="color-radio" for="color-{{color}}">
 												<span style="background-color: #{{color}}">
 												{% if v.namecolor.lower() == color %}
@@ -422,7 +436,7 @@
 								<div class="d-flex">
 								<form action="/settings/namecolor" id="color-code-form" method="post">
 									<input type="hidden" name="formkey" value="{{v.formkey}}">
-									<input class="form-control" type="text" name="color" id="color-code" value="{% if v.namecolor %}{{v.namecolor}}{% endif %}">
+									<input class="form-control" type="text" name="color" id="color-code" maxlength="6" value="{% if v.namecolor %}{{v.namecolor}}{% endif %}">
 									<label class="btn btn-secondary text-capitalize mr-2 mt-2 mb-0">Update<input type="text" for="color-code" onclick="form.submit()" hidden=""></label>
 								</form>
 								</div>
@@ -439,7 +453,7 @@
 										<input type="hidden" name="formkey" value="{{v.formkey}}">
 										<input id="customtitlebody" type="text" name="title" class="form-control" placeholder='Enter a flair here' value="{% if v.customtitleplain %}{{v.customtitleplain}}{% endif %}">
 										<div class="d-flex mt-2">
-											<a class="format" href="javscript:void(0)"><i class="btn btn-secondary format d-inline-block m-0 fas fa-smile-beam" onclick="loadEmojis('customtitlebody')" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#emojiModal" data-bs-toggle="tooltip" data-bs-placement="bottom"  title="" data-bs-original-title="Add Emoji"></i></a>
+											<a class="format" href="javascript:void(0)"><i class="btn btn-secondary format d-inline-block m-0 fas fa-smile-beam" onclick="loadEmojis('customtitlebody')" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#emojiModal" data-bs-toggle="tooltip" data-bs-placement="bottom"  title="" data-bs-original-title="Add Emoji"></i></a>
 											&nbsp;&nbsp;&nbsp;
 											<small>Limit of 100 characters</small>
 											<input class="btn btn-primary ml-auto" id="titleSave" type="submit" value="Change Flair">
@@ -452,51 +466,98 @@
 
 							<div class="body d-lg-flex border-bottom">
 
-							<label class="text-black w-lg-25">Flair Color</label>
+								<label class="text-black w-lg-25">Flair Color</label>
 
-							<div class="d-flex">
+								<div class="d-flex">
 
-								<form action="/settings/titlecolor" id="titlecolor-form" method="post" class="color-picker" style="line-height: 0">
-										<input type="hidden" name="formkey" value="{{v.formkey}}">
+									<form action="/settings/titlecolor" id="titlecolor-form" method="post" class="color-picker" style="line-height: 0">
+											<input type="hidden" name="formkey" value="{{v.formkey}}">
 
-										{% for titlecolor in ['ff66ac','805ad5','62ca56','38a169','80ffff','2a96f3','eb4963','ff0000','f39731','30409f','3e98a7','e4432d','7b9ae4','ec72de','7f8fa6', 'f8db58'] %}
-										<input type="radio" name="titlecolor" id="titlecolor-{{titlecolor}}" value="{{titlecolor}}" {% if v.titlecolor == titlecolor %}checked{% endif %} onclick="document.getElementById('titlecolor-form').submit()"/>
-										<label class="color-radio" for="titlecolor-{{titlecolor}}">
-											<span style="background-color: #{{titlecolor}}">
-											{% if v.titlecolor.lower() == titlecolor %}
-												<i class="fas fa-check text-white"></i>
-											{% else %}
-												&nbsp;
-											{% endif %}
-											</span>
-										</label>
-										{% endfor %}
+											{% for titlecolor in ['ff66ac','805ad5','62ca56','38a169','80ffff','2a96f3','eb4963','ff0000','f39731','30409f','3e98a7','e4432d','7b9ae4','ec72de','7f8fa6', 'f8db58'] %}
+											<input type="radio" name="titlecolor" id="titlecolor-{{titlecolor}}" value="{{titlecolor}}" {% if v.titlecolor == titlecolor %}checked{% endif %} onclick="document.getElementById('titlecolor-form').submit()">
+											<label class="color-radio" for="titlecolor-{{titlecolor}}">
+												<span style="background-color: #{{titlecolor}}">
+												{% if v.titlecolor.lower() == titlecolor %}
+													<i class="fas fa-check text-white"></i>
+												{% else %}
+													&nbsp;
+												{% endif %}
+												</span>
+											</label>
+											{% endfor %}
 
+									</form>
+
+								</div>
+		
+									
+
+								<p class="text-small mb-2">Or type a color code:</p>
+								<div class="d-flex">
+								<form action="/settings/titlecolor" id="color-code-form" method="post">
+									<input type="hidden" name="formkey" value="{{v.formkey}}">
+									<input class="form-control" type="text" name="titlecolor" id="color-code" maxlength="6" value="{% if v.titlecolor %}{{v.titlecolor}}{% endif %}">
+									<label class="btn btn-secondary text-capitalize mr-2 mt-2 mb-0">Update<input type="text" for="color-code" onclick="form.submit()" hidden=""></label>
 								</form>
+								</div>
 
 							</div>
 
-							<p class="text-small mb-2">Or type a color code:</p>
-							<div class="d-flex">
-							<form action="/settings/titlecolor" id="color-code-form" method="post">
-								<input type="hidden" name="formkey" value="{{v.formkey}}">
-								<input class="form-control" type="text" name="titlecolor" id="color-code" value="{% if v.titlecolor %}{{v.titlecolor}}{% endif %}">
-								<label class="btn btn-secondary text-capitalize mr-2 mt-2 mb-0">Update<input type="text" for="color-code" onclick="form.submit()" hidden=""></label>
-							</form>
-							</div>
 
-							</div>
+
+
+
+							{% if v.verified %}
+
+								<div class="body d-lg-flex border-bottom">
+
+									<label class="text-black w-lg-25">Bluecheck Color</label>
+		
+									<div class="d-flex">
+		
+										<form action="/settings/verifiedcolor" id="verifiedcolor-form" method="post" class="color-picker" style="line-height: 0">
+												<input type="hidden" name="formkey" value="{{v.formkey}}">
+		
+											{% for verifiedcolor in ['ff66ac','805ad5','62ca56','38a169','80ffff','2a96f3','eb4963','ff0000','f39731','30409f','3e98a7','e4432d','7b9ae4','ec72de','7f8fa6', 'f8db58'] %}
+												<input type="radio" name="verifiedcolor" id="verifiedcolor-{{verifiedcolor}}" value="{{verifiedcolor}}" {% if v.verifiedcolor == verifiedcolor %}checked{% endif %} onclick="document.getElementById('verifiedcolor-form').submit()">
+												<label class="color-radio" for="verifiedcolor-{{verifiedcolor}}">
+													<span style="background-color: #{{verifiedcolor}}">
+													{% if v.verifiedcolor and v.verifiedcolor.lower() == verifiedcolor %}
+														<i class="fas fa-check text-white"></i>
+													{% else %}
+														&nbsp;
+													{% endif %}
+													</span>
+												</label>
+											{% endfor %}
+		
+										</form>
+		
+									</div>
+
+									<p class="text-small mb-2">Or type a color code:</p>
+									<div class="d-flex">
+									<form action="/settings/verifiedcolor" id="color-code-form" method="post">
+										<input type="hidden" name="formkey" value="{{v.formkey}}">
+										<input class="form-control" type="text" name="verifiedcolor" id="color-code" maxlength="6" value="{% if v.verifiedcolor %}{{v.verifiedcolor}}{% endif %}">
+										<label class="btn btn-secondary text-capitalize mr-2 mt-2 mb-0">Update<input type="text" for="color-code" onclick="form.submit()" hidden=""></label>
+									</form>
+									</div>
+	
+								</div>	
+							{% endif %}
+
+
 
 							<div class="body d-lg-flex border-bottom">
+								
+								<label class="text-black w-lg-25">{% if request.host == 'rdrama.net' and v.id == 2050 %}Friends{% else %}Bio{% endif %}</label>
 
-								<label class="text-black w-lg-25">Bio</label>
-
-								<div class="w-lg-100">
-
+								<div class="w-lg-100">						
 									<form id="profile-bio" action="/settings/profile" method="post" enctype="multipart/form-data">
 										<input type="hidden" name="formkey" value="{{v.formkey}}">
 										<div class="input-group mb-2">
-											<textarea class="form-control rounded" id="bio-text" aria-label="With textarea" placeholder="Tell the community a bit about yourself." rows="3" name="bio" form="profile-bio" maxlength="1500">{{v.bio}}</textarea>
+											<textarea  id="bio-text" class="form-control rounded" aria-label="With textarea" placeholder="Tell the community a bit about yourself." rows="3" name="bio" form="profile-bio" maxlength="1500">{% if v.bio %}{{v.bio}}{% endif %}</textarea>
 										</div>
 										<div class="d-flex">
 											<pre style="padding-top:0.7rem" class="btn btn-secondary format d-inline-block m-0 fas fa-bold" aria-hidden="true" onclick="makeBold('bio-text')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="" data-bs-original-title="Bold"></pre>
@@ -511,8 +572,8 @@
 											&nbsp;
 											<label class="btn btn-secondary format d-inline-block m-0">
 												<div id="filename-show"><i class="far fa-image"></i></div>
-												<input id="file-upload" type="file" name="file" accept="image/*" onchange="document.getElementById('filename-show').innerHTML='image';" hidden>
-											</label>					
+												<input id="file-upload" type="file" name="file" {% if request.headers.get('cf-ipcountry')=="T1" %}disabled{% endif %} accept="image/*" onchange="document.getElementById('filename-show').innerHTML='image';" hidden>
+											</label>
 										</div>
 										<pre></pre>
 										<div class="d-flex">
@@ -523,6 +584,81 @@
 								</div>
 
 							</div>
+
+
+							<div class="body d-lg-flex border-bottom">
+
+								<label class="text-black w-lg-25">{% if request.host == 'rdrama.net' and v.id == 2050 %}Bio{% else %}Friends{% endif %}</label>
+							
+								<div class="w-lg-100">						
+									<form id="profile-friends" action="/settings/profile" method="post" enctype="multipart/form-data">
+										<input type="hidden" name="formkey" value="{{v.formkey}}">
+										<div class="input-group mb-2">
+											<textarea  id="friends-text" class="form-control rounded" aria-label="With textarea" placeholder="Enter your friends on the site..." rows="3" name="friends" form="profile-friends" maxlength="1500">{% if v.friends %}{{v.friends}}{% endif %}</textarea>
+										</div>
+										<pre></pre>
+										<div class="d-flex">
+											<small>Limit of 500 characters</small>
+											<input class="btn btn-primary ml-auto" id="friendsSave" type="submit" value="Save Changes">
+										</div>
+									</form>
+								</div>
+							
+							</div>
+							
+
+							<div class="body d-lg-flex border-bottom">
+
+								<label class="text-black w-lg-25">Enemies</label>
+							
+								<div class="w-lg-100">						
+									<form id="profile-enemies" action="/settings/profile" method="post" enctype="multipart/form-data">
+										<input type="hidden" name="formkey" value="{{v.formkey}}">
+										<div class="input-group mb-2">
+											<textarea  id="enemies-text" class="form-control rounded" aria-label="With textarea" placeholder="Enter your enemies on the site..." rows="3" name="enemies" form="profile-enemies" maxlength="1500">{% if v.enemies %}{{v.enemies}}{% endif %}</textarea>
+										</div>
+										<pre></pre>
+										<div class="d-flex">
+											<small>Limit of 500 characters</small>
+											<input class="btn btn-primary ml-auto" id="enemiesSave" type="submit" value="Save Changes">
+										</div>
+									</form>
+								</div>
+							
+							</div>
+
+
+							{% if v.patron or v.id == 1904 %}
+							<div class="body d-lg-flex border-bottom">
+								<label class="text-black w-lg-25">Signature</label>
+
+								<div class="w-lg-100">						
+									<form id="profile-sig" action="/settings/profile" method="post" enctype="multipart/form-data">
+										<input type="hidden" name="formkey" value="{{v.formkey}}">
+										<div class="input-group mb-2">
+											<textarea  id="sig-text" class="form-control rounded" aria-label="With textarea" placeholder="Enter a signature..." rows="3" name="sig" form="profile-sig" maxlength="200">{% if v.sig %}{{v.sig}}{% endif %}</textarea>
+										</div>
+										<div class="d-flex">
+											<pre style="padding-top:0.7rem" class="btn btn-secondary format d-inline-block m-0 fas fa-bold" aria-hidden="true" onclick="makeBold('sig-text')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="" data-bs-original-title="Bold"></pre>
+											&nbsp;
+											<pre style="padding-top:0.7rem" class="btn btn-secondary format d-inline-block m-0 fas fa-italic" aria-hidden="true" onclick="makeItalics('sig-text')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="" data-bs-original-title="Italicize"></pre>
+											&nbsp;
+											<pre style="padding-top:0.7rem" class="btn btn-secondary format d-inline-block m-0 fas fa-quote-right" aria-hidden="true" onclick="makeQuote('sig-text')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="" data-bs-original-title="Quote"></pre>
+											&nbsp;
+											<pre style="padding-top:0.7rem;line-height:1;" class="btn btn-secondary format d-inline-block m-0 font-weight-bolder text-uppercase" onclick="commentForm('sig-text');getGif()" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#gifModal" data-bs-toggle="tooltip" data-bs-placement="bottom" title="" data-bs-original-title="Add GIF">GIF</pre>
+											&nbsp;
+											<pre style="padding-top:0.7rem" class="btn btn-secondary format d-inline-block m-0 fas fa-smile-beam" onclick="loadEmojis('sig-text')" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#emojiModal" data-bs-toggle="tooltip" data-bs-placement="bottom" title="" data-bs-original-title="Add Emoji"></pre>
+										</div>
+										<pre></pre>
+										<div class="d-flex">
+											<small>Limit of 200 characters</small>
+											<input class="btn btn-primary ml-auto" id="sigSave" type="submit" value="Save Changes">
+										</div>
+									</form>
+								</div>
+								
+							</div>
+							{% endif %}
 
 						<div class="d-lg-flex border-bottom">
 

@@ -1,15 +1,17 @@
 from files.helpers.wrappers import *
 from files.helpers.get import *
+from files.helpers.alerts import send_notification
 from files.classes import *
 from flask import *
-from files.__main__ import app, limiter
+from files.__main__ import app, limiter, cache
 from sqlalchemy.orm import joinedload
-
+from .front import frontlist
 
 @app.get("/votes")
 @auth_desired
 def admin_vote_info_get(v):
 
+	if v and v.shadowbanned: return render_template('errors/500.html', v=v), 500
 
 	link = request.values.get("link")
 	if not link: return render_template("votes.html", v=v)
@@ -19,6 +21,8 @@ def admin_vote_info_get(v):
 		elif "t3_" in link: thing = get_comment(int(link.split("t3_")[1]), v=v)
 		else: abort(400)
 	except: abort(400)
+
+	if thing.author.shadowbanned and not (v and v.admin_level): return render_template('errors/500.html', v=v), 500
 
 	if isinstance(thing, Submission):
 
@@ -59,15 +63,17 @@ def admin_vote_info_get(v):
 @validate_formkey
 def api_vote_post(post_id, new, v):
 
+	if v.is_banned and not v.unban_utc: return {"error": "forbidden."}, 403
+
 	if new not in ["-1", "0", "1"]: abort(400)
 
-	if request.headers.get("X-User-Type","") == "Bot": abort(403)
+	if request.headers.get("Authorization"): abort(403)
 
 	new = int(new)
 
 	post = get_post(post_id)
 
-	existing = g.db.query(Vote).options(lazyload('*')).filter_by(user_id=v.id, submission_id=post.id).first()
+	existing = g.db.query(Vote).filter_by(user_id=v.id, submission_id=post.id).first()
 
 	if existing and existing.vote_type == new: return "", 204
 
@@ -97,10 +103,15 @@ def api_vote_post(post_id, new, v):
 					)
 		g.db.add(vote)
 	
+	if post.stickied and post.stickied.startswith("t:") and int(time.time()) > int(post.stickied[2:]):
+		post.stickied = None
+		g.db.add(post)
+		cache.delete_memoized(frontlist)
+
 	try:
 		g.db.flush()
-		post.upvotes = g.db.query(Vote.id).options(lazyload('*')).filter_by(submission_id=post.id, vote_type=1).count()
-		post.downvotes = g.db.query(Vote.id).options(lazyload('*')).filter_by(submission_id=post.id, vote_type=-1).count()
+		post.upvotes = g.db.query(Vote.id).filter_by(submission_id=post.id, vote_type=1).count()
+		post.downvotes = g.db.query(Vote.id).filter_by(submission_id=post.id, vote_type=-1).count()
 		g.db.add(post)
 		g.db.commit()
 	except: g.db.rollback()
@@ -111,9 +122,11 @@ def api_vote_post(post_id, new, v):
 @validate_formkey
 def api_vote_comment(comment_id, new, v):
 
+	if v.is_banned and not v.unban_utc: return {"error": "forbidden."}, 403
+
 	if new not in ["-1", "0", "1"]: abort(400)
 
-	if request.headers.get("X-User-Type","") == "Bot": abort(403)
+	if request.headers.get("Authorization"): abort(403)
 
 	new = int(new)
 
@@ -124,7 +137,7 @@ def api_vote_comment(comment_id, new, v):
 
 	comment = get_comment(comment_id)
 
-	existing = g.db.query(CommentVote).options(lazyload('*')).filter_by(user_id=v.id, comment_id=comment.id).first()
+	existing = g.db.query(CommentVote).filter_by(user_id=v.id, comment_id=comment.id).first()
 
 	if existing and existing.vote_type == new: return "", 204
 
@@ -155,10 +168,14 @@ def api_vote_comment(comment_id, new, v):
 
 		g.db.add(vote)
 
+	if comment.is_pinned and comment.is_pinned.startswith("t:") and int(time.time()) > int(comment.is_pinned[2:]):
+		comment.is_pinned = None
+		g.db.add(comment)
+
 	try:
 		g.db.flush()
-		comment.upvotes = g.db.query(CommentVote.id).options(lazyload('*')).filter_by(comment_id=comment.id, vote_type=1).count()
-		comment.downvotes = g.db.query(CommentVote.id).options(lazyload('*')).filter_by(comment_id=comment.id, vote_type=-1).count()
+		comment.upvotes = g.db.query(CommentVote.id).filter_by(comment_id=comment.id, vote_type=1).count()
+		comment.downvotes = g.db.query(CommentVote.id).filter_by(comment_id=comment.id, vote_type=-1).count()
 		g.db.add(comment)
 		g.db.commit()
 	except: g.db.rollback()
@@ -177,7 +194,7 @@ def api_vote_poll(comment_id, v):
 	comment_id = int(comment_id)
 	comment = get_comment(comment_id)
 
-	existing = g.db.query(CommentVote).options(lazyload('*')).filter_by(user_id=v.id, comment_id=comment.id).first()
+	existing = g.db.query(CommentVote).filter_by(user_id=v.id, comment_id=comment.id).first()
 
 	if existing and existing.vote_type == new: return "", 204
 
@@ -192,7 +209,7 @@ def api_vote_poll(comment_id, v):
 
 	try:
 		g.db.flush()
-		comment.upvotes = g.db.query(CommentVote.id).options(lazyload('*')).filter_by(comment_id=comment.id, vote_type=1).count()
+		comment.upvotes = g.db.query(CommentVote.id).filter_by(comment_id=comment.id, vote_type=1).count()
 		g.db.add(comment)
 		g.db.commit()
 	except: g.db.rollback()

@@ -1,0 +1,101 @@
+{% extends "default.html" %}
+
+{% block title %}
+<title>Shop</title>
+{% endblock %}
+
+{% block pagetype %}message{% endblock %}
+
+{% block Banner %}
+	<header class="container pb-1 text-center">
+		<img src="/assets/images/shop.webp" width="50%">
+		<h3 class="mt-4">Stir drama. Earn coins.</h3>
+		<h5 class="mt-4">Total sales: {{sales}} coins</h3>
+		<h5 class="mt-4">Dramacoins spent by you: {{v.coins_spent}} coins</h3>
+	</header>
+{% endblock %}
+
+{% block content %}
+	{% if error %}
+	<div class="alert alert-danger alert-dismissible fade show my-3" role="alert">
+		<i class="fas fa-exclamation-circle my-auto"></i>
+		<span>
+			{{error}}
+		</span>
+		<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+			<span aria-hidden="true"><i class="far fa-times"></i></span>
+		</button>
+	</div>
+	{% endif %}
+	{% if msg %}
+	<div class="alert alert-success alert-dismissible fade show my-3" role="alert">
+		<i class="fas fa-check-circle my-auto" aria-hidden="true"></i>
+		<span>
+			{{msg}}
+		</span>
+		<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+			<span aria-hidden="true"><i class="far fa-times"></i></span>
+		</button>
+	</div>
+	{% endif %}
+
+	<pre>
+
+
+	</pre>
+
+	<table class="table table-striped shop">
+		<thead class="bg-primary text-white">
+				<tr>
+					<th scope="col">Icon</th>
+					<th scope="col">Title</th>
+					<th scope="col">Price</th>
+					<th scope="col">Owned</th>
+					<th scope="col">Buy</th>
+				</tr>
+			</thead>
+			<tbody>
+		{% for a in awards %}
+			<tr data-bs-toggle="tooltip" data-bs-placement="bottom" title="" data-bs-original-title="{{a['description']}}">
+				<td><i class="{{a['icon']}} {{a['color']}}" style="font-size: 30px"></i></td>
+				<td style="font-weight: bold">{{a['title']}}</td>
+				<td style="font-weight: bold">{{a['price']}}</td>
+				<td style="font-weight: bold">{{a['owned']}}</td>
+				{% set kind = a['kind'] %}
+				<td style="font-weight: bold">
+					<a class="d-flex btn btn-success {% if v.coins < a['price'] %}disabled{% endif %}" href="javascript:void(0)" onclick="post_toast('/buy/{{kind}}')"><span class="m-auto">Buy</span></a>
+					{% if v.procoins and a['MB'] %}<a class="d-flex marseybux btn btn-success {% if v.procoins < a['price'] %}disabled{% endif %}" href="javascript:void(0)" onclick="post_toast('/buy/{{kind}}?mb=true')"><span class="m-auto">Buy with Marseybux</span></a>{% endif %}
+				</td>
+			</tr>
+		{% endfor %}
+	</table>
+	<pre>
+
+
+
+
+
+	</pre>
+
+	<style>
+		@media (max-width: 768px) {
+			.table th {
+				padding-left: 0.3rem !important;
+				padding-right: 0.3rem !important;
+			}
+			.table td {
+				padding-left: 0.3rem !important;
+				padding-right: 0.3rem !important;
+				font-size: 0.9rem;
+			}
+			.marseybux {
+				font-size: 0.7rem !important;
+			}
+		}
+
+		.tooltip-inner {
+			font-size: 1.5rem;
+			max-width: 300px;
+		}
+	</style>
+{% endblock %}

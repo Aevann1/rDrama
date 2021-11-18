@@ -11,25 +11,25 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<meta name="description" content="">
 	<meta name="author" content="">
-	<meta name="thumbnail" content="/assets/images/{{'SITE_NAME' | app_config}}/preview.webp">
-	<link rel="icon" type="image/png" href="/assets/images/{{'SITE_NAME' | app_config}}/icon.webp">
+	<meta name="thumbnail" content="/assets/images/{{'SITE_NAME' | app_config}}/preview.webp?v=2">
+	<link rel="icon" type="image/png" href="/assets/images/{{'SITE_NAME' | app_config}}/icon.webp?v=1">
 
-	<meta property="og:type" content="article" />
-	<meta property="og:title" content="{{'SITE_NAME' | app_config}}" />
-	<meta property="og:site_name" content="{{request.host}}" />
-	<meta property="og:image" content="{{'SITE_NAME' | app_config}}/assets/images/{{'SITE_NAME' | app_config}}/preview.webp" />
+	<meta property="og:type" content="article" >
+	<meta property="og:title" content="{{'SITE_NAME' | app_config}}" >
+	<meta property="og:site_name" content="{{request.host}}" >
+	<meta property="og:image" content="{{'SITE_NAME' | app_config}}/assets/images/{{'SITE_NAME' | app_config}}/preview.webp?v=2" >
 	<meta property="og:url" content="{{request.path | full_link}}">
 	<meta property="og:description" name="description" content="{{'SITE_NAME' | app_config}} - {{'SLOGAN' | app_config}}">
-	<meta property="og:author" name="author" content="{{request.host_url}}" />
-	<meta property="og:site_name" content="{{request.host}}" />
+	<meta property="og:author" name="author" content="{{request.host_url}}" >
+	<meta property="og:site_name" content="{{request.host}}" >
 
-	<meta name="twitter:card" content="summary_large_image"/>
+	<meta name="twitter:card" content="summary_large_image">
 	<meta name="twitter:site" content="{{request.host_url}}">
-	<meta name="twitter:title" content="{{'SITE_NAME' | app_config}}" />
+	<meta name="twitter:title" content="{{'SITE_NAME' | app_config}}" >
 	<meta name="twitter:creator" content="{{request.host_url}}">
-	<meta name="twitter:description" content="{{'SITE_NAME' | app_config}} - {{'SLOGAN' | app_config}}" />
-	<meta name="twitter:image" content="/assets/images/{{'SITE_NAME' | app_config}}/preview.webp" />
-	<meta name="twitter:url" content="{{request.path | full_link}}" />
+	<meta name="twitter:description" content="{{'SITE_NAME' | app_config}} - {{'SLOGAN' | app_config}}" >
+	<meta name="twitter:image" content="/assets/images/{{'SITE_NAME' | app_config}}/preview.webp?v=2" >
+	<meta name="twitter:url" content="{{request.path | full_link}}" >
 
 
 
@@ -40,10 +40,10 @@
 	
 	{% if v %}
 		<style>:root{--primary:#{{v.themecolor}}}</style>
-		<link rel="stylesheet" href="/assets/css/main.css?v=79"><link rel="stylesheet" href="/assets/css/{{v.theme}}.css?v=79">
+		<link rel="stylesheet" href="/assets/css/main.css?v=118"><link rel="stylesheet" href="/assets/css/{{v.theme}}.css?v=117">
 	{% else %}
 		<style>:root{--primary:#{{'DEFAULT_COLOR' | app_config}}</style>
-		<link rel="stylesheet" href="/assets/css/main.css?v=79"><link rel="stylesheet" href="/assets/css/{{'DEFAULT_THEME' | app_config}}.css?v=79">
+		<link rel="stylesheet" href="/assets/css/main.css?v=118"><link rel="stylesheet" href="/assets/css/{{'DEFAULT_THEME' | app_config}}.css?v=117">
 	{% endif %}
 
 		<link href="/assets/css/fa.css?v=52" rel="stylesheet"> 
@@ -55,11 +55,11 @@
 
 {% block subNav %}
 
-{% set mod = (v.admin_level==6) %}
+{% set mod = (v and v.admin_level > 1) %}
 <div class="container-fluid bg-white sticky d-none d-md-block" style="padding-top: 50px; padding-bottom: 0 !important;">
 	<div class="row box-shadow-bottom">
 			<div class="col">
-				<div class="container">
+				<div class="container" style="padding-bottom: 0;">
 					<div class="row box-shadow-bottom bg-white">
 						<div class="col">
 							<div class="d-flex flex-row-reverse justify-content-end">
@@ -90,7 +90,7 @@
 			</div>
 		</div>
 	</div>
-		<div class="container-fluid bg-white sticky d-md-none" style="padding-top: 20px; padding-bottom: 20px !important;">
+		<div class="container-fluid bg-white sticky d-md-none" style="padding-top: 20px; padding-bottom: 0; margin-bottom: 20px;">
 		<div class="row box-shadow-bottom">
 			<div class="col px-0">
 				<div class="d-flex flex-row-reverse justify-content-center">

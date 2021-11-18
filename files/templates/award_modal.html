@@ -1,4 +1,4 @@
-<script src="/assets/js/award_modal.js?v=53"></script>
+<script src="/assets/js/award_modal.js?v=57"></script>
 
 <div class="modal fade" id="awardModal" tabindex="-1" role="dialog" aria-labelledby="awardModalTitle" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered" role="document">
@@ -24,10 +24,14 @@
 							</a>
 						{% endfor %}
 					</div>
-					<label for="note" class="pt-4">Note (optional):</label>
+					<label id="notelabel" for="note" class="pt-4">Note (optional):</label>
 					<input id="kind" name="kind" value="" hidden>
-					<textarea id="note" name="note" class="form-control" placeholder="Note to include in award notification"></textarea>
+					<textarea id="note" maxlength="200" name="note" class="form-control" placeholder="Note to include in award notification..."></textarea>
 					<input id="giveaward" class="btn btn-primary" style="float:right" type="submit" value="Give Award" disabled>
+					<pre>
+
+
+					</pre>
 				</form>
 			</div>
 		</div>
@@ -54,7 +58,7 @@
 		opacity: 0.6;
 	}
 
-	.awards-wrapper a:hover, .picked {
+	.awards-wrapper a:hover:not(.disabled), .awards-wrapper .picked {
 		background-color: var(--primary)!important;
 	}
 
@@ -62,9 +66,13 @@
 		background-color: var(--primary)!important;
 	}
 
+	.award-columns {
+		column-count: 2;
+	}
+
 	@media (min-width: 767.98px) {
 		.award-columns {
-			column-count: 3 !important;
+			column-count: 8 !important;
 		}
 	}
 </style>

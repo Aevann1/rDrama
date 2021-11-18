@@ -77,12 +77,11 @@ class CustomRenderer(HTMLRenderer):
 		try:
 			if g.v.admin_level == 0 and g.v.any_block_exists(user):
 				return f"{space}@{target}"
-		except BaseException:
-			pass
+		except BaseException: pass
 
 		if not user: return f"{space}@{target}"
 
-		return f'{space}<a href="{user.url}" class="d-inline-block mention-user" data-bs-original-name="{user.original_username}"><img loading="lazy" src="/uid/{user.id}/pic/profile" class="profile-pic-20 mr-1">@{user.username}</a>'
+		return f'{space}<a href="{user.url}"><img loading="lazy" src="/uid/{user.id}/pic" class="pp20">@{user.username}</a>'
 			
 	def render_sub_mention(self, token):
 		space = token.target[0]
@@ -123,7 +122,7 @@ class Renderer(HTMLRenderer):
 
 		if not user: return f"{space}@{target}"
 
-		return f'{space}<a href="{user.url}" class="d-inline-block mention-user" data-bs-original-name="{user.original_username}">@{user.username}</a>'
+		return f'{space}<a href="{user.url}">@{user.username}</a>'
 			
 	def render_sub_mention(self, token):
 		space = token.target[0]

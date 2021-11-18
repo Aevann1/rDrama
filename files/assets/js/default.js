@@ -1,6 +1,3 @@
-const observer = lozad();
-observer.observe();
-
 makeBold = function (form) {
 	var text = document.getElementById(form);
 	var startIndex = text.selectionStart,

@@ -4,13 +4,12 @@ function post(url) {
 	var form = new FormData()
 	form.append("formkey", formkey());
 	xhr.withCredentials=true;
-	xhr.onload = function() {window.location.reload(true);};
+	xhr.onload = function() {location.reload(true);};
 	xhr.send(form);
 };
 
 function updatebgselection(){
 	var bgselector = document.getElementById("backgroundSelector");
-	var selection = bgselector.options[bgselector.selectedIndex].text;
 	const backgrounds = [
 		{
 			folder: "fantasy",
@@ -67,7 +66,7 @@ function updatebgselection(){
 		let bgsDir = backgrounds[bgselector.selectedIndex].folder;
 		for (i=0; i < bgsToDisplay.length; i++) {
 			let onclickPost = bgsDir + "/" + bgsToDisplay[i];
-			str += `<button class="btn btn-secondary m-1 p-0" style="width:15rem; overflow: hidden;"><img loading="lazy" style="padding:0.25rem; width: 15rem" src="/assets/images/backgrounds/${bgsDir}/${bgsToDisplay[i]}" alt="${bgsToDisplay[i]}-background" onclick="post('/settings/profile?background=${onclickPost}')"/></button>`;
+			str += `<button class="btn btn-secondary m-1 p-0" style="width:15rem; overflow: hidden;"><img loading="lazy" style="padding:0.25rem; width: 15rem" src="/assets/images/backgrounds/${bgsDir}/${bgsToDisplay[i]}" alt="${bgsToDisplay[i]}-background" onclick="post('/settings/profile?background=${onclickPost}')"></button>`;
 		}
 		bgContainer.innerHTML = str;
 	}

@@ -11,14 +11,15 @@ BOT_TOKEN = environ.get("DISCORD_BOT_TOKEN").strip()
 COINS_NAME = environ.get("COINS_NAME").strip()
 DISCORD_ENDPOINT = "https://discordapp.com/api/v6"
 WELCOME_CHANNEL="846509313941700618"
+SITE_NAME = environ.get("SITE_NAME", "").strip()
 
 @app.get("/discord")
 @auth_required
 def join_discord(v):
 	
-	if v.is_suspended != 0: return "You're banned"
+	if v.is_suspended != 0 and v.admin_level == 0: return "Banned users cannot join the discord server!"
 	
-	if 'rama' in request.host and v.admin_level == 0 and v.patron == 0 and v.truecoins < 150: return f"You must earn 150 {COINS_NAME} before entering the Discord server. You earn {COINS_NAME} by making posts/comments and getting upvoted."
+	if SITE_NAME == 'Drama' and v.admin_level == 0 and v.patron == 0 and v.truecoins < 150: return f"You must earn 150 {COINS_NAME} before entering the Discord server. You earn {COINS_NAME} by making posts/comments and getting upvoted."
 	
 	if v.shadowbanned or v.agendaposter: return ""
 
@@ -66,7 +67,7 @@ def discord_redirect(v):
 	}
 	url="https://discord.com/api/oauth2/token"
 
-	x=requests.post(url, headers=headers, data=data)
+	x=requests.post(url, headers=headers, data=data, timeout=5)
 
 	x=x.json()
 
@@ -81,7 +82,7 @@ def discord_redirect(v):
 	headers={
 		'Authorization': f"Bearer {token}"
 	}
-	x=requests.get(url, headers=headers)
+	x=requests.get(url, headers=headers, timeout=5)
 
 	x=x.json()
 
@@ -94,9 +95,9 @@ def discord_redirect(v):
 
 	if v.discord_id and v.discord_id != x['id']:
 		url=f"https://discord.com/api/guilds/{SERVER_ID}/members/{v.discord_id}"
-		requests.delete(url, headers=headers)
+		requests.delete(url, headers=headers, timeout=5)
 
-	if g.db.query(User).options(lazyload('*')).filter(User.id!=v.id, User.discord_id==x["id"]).first():
+	if g.db.query(User).filter(User.id!=v.id, User.discord_id==x["id"]).first():
 		return render_template("message.html", title="Discord account already linked.", error="That Discord account is already in use by another user.", v=v)
 
 	v.discord_id=x["id"]
@@ -111,12 +112,12 @@ def discord_redirect(v):
 		"nick":name,
 	}
 
-	x=requests.put(url, headers=headers, json=data)
+	x=requests.put(url, headers=headers, json=data, timeout=5)
 
 	if x.status_code in [201, 204]:
 
-		if v.id == 1:
-			add_role(v, "shrigma")
+		if v.admin_level > 2:
+			add_role(v, "owner")
 			time.sleep(0.1)
 		
 		if v.admin_level > 0: add_role(v, "admin")
@@ -139,7 +140,7 @@ def discord_redirect(v):
 			"nick": name
 		}
 
-		requests.patch(url, headers=headers, json=data)
+		requests.patch(url, headers=headers, json=data, timeout=5)
 
 	g.db.commit()
 

@@ -1,19 +1,20 @@
+from os import environ
 import re
+import time
 from urllib.parse import urlencode, urlparse, parse_qs
 from flask import *
 from sqlalchemy import *
-from sqlalchemy.orm import relationship, deferred, lazyload
-from files.classes.votes import CommentVote
-from files.helpers.lazy import lazy
-from files.helpers.const import SLURS
+from sqlalchemy.orm import relationship
 from files.__main__ import Base
+from files.classes.votes import CommentVote
+from files.helpers.const import AUTOPOLLER_ID, censor_slurs
+from files.helpers.lazy import lazy
 from .flags import CommentFlag
-from os import environ
-import time
-from files.helpers.const import AUTOPOLLER_ACCOUNT
+from random import randint
 
 site = environ.get("DOMAIN").strip()
-
+if site == 'pcmemes.net': cc = "splash mountain"
+else: cc = "country club"
 
 class Comment(Base):
 
@@ -39,20 +40,19 @@ class Comment(Base):
 	notifiedto=Column(Integer)
 	app_id = Column(Integer, ForeignKey("oauth_apps.id"))
 	oauth_app = relationship("OauthApp", viewonly=True)
-	upvotes = Column(Integer, default=0)
+	upvotes = Column(Integer, default=1)
 	downvotes = Column(Integer, default=0)
-	body = deferred(Column(String))
-	body_html = deferred(Column(String))
+	body = Column(String)
+	body_html = Column(String)
 	ban_reason = Column(String)
 
 	post = relationship("Submission", viewonly=True)
-	flags = relationship("CommentFlag", lazy="dynamic", viewonly=True)
 	author = relationship("User", primaryjoin="User.id==Comment.author_id")
 	senttouser = relationship("User", primaryjoin="User.id==Comment.sentto", viewonly=True)
 	parent_comment = relationship("Comment", remote_side=[id], viewonly=True)
 	child_comments = relationship("Comment", remote_side=[parent_comment_id], viewonly=True)
 	awards = relationship("AwardRelationship", viewonly=True)
-
+	
 	def __init__(self, *args, **kwargs):
 
 		if "created_utc" not in kwargs:
@@ -64,9 +64,15 @@ class Comment(Base):
 
 		return f"<Comment(id={self.id})>"
 
+	@property
+	@lazy
+	def flags(self):
+		return g.db.query(CommentFlag).filter_by(comment_id=self.id)
+
+	@lazy
 	def poll_voted(self, v):
 		if v:
-			vote = g.db.query(CommentVote).options(lazyload('*')).filter_by(user_id=v.id, comment_id=self.id).first()
+			vote = g.db.query(CommentVote).filter_by(user_id=v.id, comment_id=self.id).first()
 			if vote: return vote.vote_type
 			else: return None
 		else: return None
@@ -74,7 +80,13 @@ class Comment(Base):
 	@property
 	@lazy
 	def options(self):
-		return [x for x in self.child_comments if x.author_id == AUTOPOLLER_ACCOUNT]
+		return [x for x in self.child_comments if x.author_id == AUTOPOLLER_ID]
+
+	def total_poll_voted(self, v):
+		if v:
+			for option in self.options:
+				if option.poll_voted(v): return True
+		return False
 
 	@property
 	@lazy
@@ -173,7 +185,7 @@ class Comment(Base):
 	def replies(self):
 		r = self.__dict__.get("replies", None)
 		if r: r = [x for x in r if not x.author.shadowbanned]
-		if not r and r != []:  r = sorted([x for x in self.child_comments if not x.author.shadowbanned and x.author_id != AUTOPOLLER_ACCOUNT], key=lambda x: x.score, reverse=True)
+		if not r and r != []: r = sorted([x for x in self.child_comments if not x.author.shadowbanned and x.author_id != AUTOPOLLER_ID], key=lambda x: x.score, reverse=True)
 		return r
 
 	@replies.setter
@@ -191,21 +203,21 @@ class Comment(Base):
 	@property
 	def replies3(self):
 		r = self.__dict__.get("replies", None)
-		if not r and r != []:  r = sorted([x for x in self.child_comments if x.author_id != AUTOPOLLER_ACCOUNT], key=lambda x: x.score, reverse=True)
+		if not r and r != []: r = sorted([x for x in self.child_comments if x.author_id != AUTOPOLLER_ID], key=lambda x: x.score, reverse=True)
 		return r
 
 	@property
 	@lazy
 	def shortlink(self):
-		return f"https://{site}/comment/{self.id}"
+		return f"http://{site}/comment/{self.id}#context"
 
 	@property
 	@lazy
 	def permalink(self):
-		if self.post and self.post.club: return f"/comment/{self.id}/"
+		if self.post and self.post.club: return f"/comment/{self.id}?context=9#context"
 
-		if self.post: return f"{self.post.permalink}/{self.id}/"
-		else: return f"/comment/{self.id}/"
+		if self.post: return f"{self.post.permalink}/{self.id}?context=9#context"
+		else: return f"/comment/{self.id}?context=9#context"
 
 	@property
 	@lazy
@@ -292,14 +304,13 @@ class Comment(Base):
 		return data
 
 	def realbody(self, v):
-		if self.post and self.post.club and not (v and v.paid_dues): return "<p>COUNTRY CLUB ONLY</p>"
+		if self.post and self.post.club and not (v and v.paid_dues): return f"<p>{cc} ONLY</p>"
 
 		body = self.body_html
 
 		if not body: return ""
 
-		if not v or v.slurreplacer: 
-			for s, r in SLURS.items(): body = body.replace(s, r) 
+		body = censor_slurs(body, v)
 
 		if v and not v.oldreddit: body = body.replace("old.reddit.com", "reddit.com")
 
@@ -316,17 +327,23 @@ class Comment(Base):
 				url_noquery = url.split('?')[0]
 				body = body.replace(url, f"{url_noquery}?{urlencode(p, True)}")
 
+		if v and v.shadowbanned and v.id == self.author_id and 86400 > time.time() - self.created_utc > 600:
+			rand = randint(1,16)
+			if self.upvotes < rand:
+				self.upvotes = rand
+				g.db.add(self)
+				g.db.commit()
+
 		return body
 
 	def plainbody(self, v):
-		if self.post and self.post.club and not (v and v.paid_dues): return "<p>COUNTRY CLUB ONLY</p>"
+		if self.post and self.post.club and not (v and v.paid_dues): return f"<p>{cc} ONLY</p>"
 
 		body = self.body
 
 		if not body: return ""
 
-		if not v or v.slurreplacer: 
-			for s, r in SLURS.items(): body = body.replace(s, r) 
+		body = censor_slurs(body, v)
 
 		if v and not v.oldreddit: body = body.replace("old.reddit.com", "reddit.com")
 
@@ -348,16 +365,13 @@ class Comment(Base):
 	@lazy
 	def collapse_for_user(self, v):
 
-		if self.over_18 and not (v and v.over_18) and not self.post.over_18:
-			return True
+		if self.over_18 and not (v and v.over_18) and not (self.post and self.post.over_18): return True
 
-		if not v:
-			return False
+		if not v: return False
 			
-		if any([x in self.body for x in v.filter_words]):
-			return True
+		if v.filter_words and self.body and any([x in self.body for x in v.filter_words]): return True
 		
-		if self.is_banned or self.author.shadowbanned: return True
+		if self.is_banned: return True
 		
 		return False
 

@@ -23,7 +23,7 @@
 
 
 * {
-    font-family: 'Lato' !important;
+	font-family: 'Lato' !important;
 }
 
 blockquote {
@@ -43,7 +43,7 @@ blockquote {
 }
 
 .dropdown-item:hover, .dropdown-item:focus, .dropdown-item.active {
-    background-color: #bda78e !important;
+	background-color: #bda78e !important;
 }
 
 .transparent {

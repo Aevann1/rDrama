@@ -3,7 +3,7 @@
 
 		function delete_post(){	
 
-			this.innerHTML='<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Deleting post';	
+			this.innerHTML='Deleting post';	
 			this.disabled = true; 
 
 			var url = '/delete_post/' + id
@@ -12,8 +12,8 @@
 			var form = new FormData()
 			form.append("formkey", formkey());
 			xhr.withCredentials=true;
+			xhr.onload = function() {location.reload(true);};
 			xhr.send(form);
-			location.reload();
 		}
 
 		document.getElementById("deletePostButton-mobile").onclick = delete_post;

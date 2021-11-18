@@ -37,13 +37,13 @@
 
 				<form id="banModalForm">
 
-					<input type="hidden" name="formkey" value="{{v.formkey}}" />
+					<input type="hidden" name="formkey" value="{{v.formkey}}" >
 
 					<label for="ban-modal-link">Public ban reason (optional)</label>
-					<textarea name="reason" form="banModalForm" class="form-control" id="ban-modal-link" aria-label="With textarea" placeholder="Enter reason"></textarea>
+					<textarea maxlength="64" name="reason" form="banModalForm" class="form-control" id="ban-modal-link" aria-label="With textarea" placeholder="Enter reason"></textarea>
 
 					<label for="days" class="mt-3">Duration days</label>
-					<input type="number" step="any" name="days" id="days" class="form-control" placeholder="leave blank for permanent" />
+					<input type="number" step="any" name="days" id="days" class="form-control" placeholder="leave blank for permanent" >
 
 					<div class="custom-control custom-switch mt-3">
 						<input type="checkbox" class="custom-control-input" id="alts" name="alts">

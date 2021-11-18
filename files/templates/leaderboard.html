@@ -17,16 +17,46 @@
 {% for user in users1 %}
 	<tr>
 		<td style="font-weight:bold;">{{users1.index(user)+1}}</td>
-		<td><a style="color:#{{user.namecolor}};  font-weight:bold;" href="/@{{user.username}}"><img loading="lazy" src="/uid/{{user.id}}/pic/profile" class="profile-pic-20 mr-1"><span {% if user.patron %}class="patron" style="background-color:#{{user.namecolor}};"{% endif %}>{{user.username}}</span></a></td>
+		<td><a style="color:#{{user.namecolor}};  font-weight:bold;" href="/@{{user.username}}"><img loading="lazy" src="/uid/{{user.id}}/pic" class="pp20"><span {% if user.patron %}class="patron" style="background-color:#{{user.namecolor}};"{% endif %}>{{user.username}}</span></a></td>
 		<td style="font-weight:bold; text-align:right;">{{user.coins}}</td>
 	</tr>
 {% endfor %}
 </table>
+
+
 <pre>
 
 
 </pre>
-<h5 style="font-weight:bold;text-align: center;">Top 10 by followers</h5>
+<h5 style="font-weight:bold;text-align: center;">Top 20 by coins spent in shop</h5>
+<pre>
+
+
+</pre>
+<table class="table table-striped mb-5">
+<thead class="bg-primary text-white">
+	<tr>
+		<th style="font-weight:bold;">#</th>
+		<th style="font-weight:bold;">Name</th>
+		<th style="font-weight:bold; text-align:right;">Coins</th>
+	</tr>
+</thead>
+
+{% for user in users7 %}
+	<tr>
+		<td style="font-weight:bold;">{{users7.index(user)+1}}</td>
+		<td><a style="color:#{{user.namecolor}};  font-weight:bold; fonts" href="/@{{user.username}}"><img loading="lazy" src="/uid/{{user.id}}/pic" class="pp20"><span {% if user.patron %}class="patron" style="background-color:#{{user.namecolor}};"{% endif %}>{{user.username}}</span></a></td>
+		<td style="font-weight:bold; text-align:right;">{{user.coins_spent}}</td>
+	</tr>
+{% endfor %}
+</table>
+
+
+<pre>
+
+
+</pre>
+<h5 style="font-weight:bold;text-align: center;">Top 15 by followers</h5>
 <pre>
 
 
@@ -42,7 +72,7 @@
 {% for user in users2 %}
 	<tr>
 		<td style="font-weight:bold;">{{users2.index(user)+1}}</td>
-		<td><a style="color:#{{user.namecolor}};  font-weight:bold;" href="/@{{user.username}}"><img loading="lazy" src="/uid/{{user.id}}/pic/profile" class="profile-pic-20 mr-1"><span {% if user.patron %}class="patron" style="background-color:#{{user.namecolor}};"{% endif %}>{{user.username}}</span></a></td>
+		<td><a style="color:#{{user.namecolor}};  font-weight:bold;" href="/@{{user.username}}"><img loading="lazy" src="/uid/{{user.id}}/pic" class="pp20"><span {% if user.patron %}class="patron" style="background-color:#{{user.namecolor}};"{% endif %}>{{user.username}}</span></a></td>
 		<td style="font-weight:bold; text-align:right;">{{user.stored_subscriber_count}}</td>
 	</tr>
 {% endfor %}
@@ -67,7 +97,7 @@
 {% for user in users3 %}
 	<tr>
 		<td style="font-weight:bold;">{{users3.index(user)+1}}</td>
-		<td><a style="color:#{{user.namecolor}};  font-weight:bold;" href="/@{{user.username}}"><img loading="lazy" src="/uid/{{user.id}}/pic/profile" class="profile-pic-20 mr-1"><span {% if user.patron %}class="patron" style="background-color:#{{user.namecolor}};"{% endif %}>{{user.username}}</span></a></td>
+		<td><a style="color:#{{user.namecolor}};  font-weight:bold;" href="/@{{user.username}}"><img loading="lazy" src="/uid/{{user.id}}/pic" class="pp20"><span {% if user.patron %}class="patron" style="background-color:#{{user.namecolor}};"{% endif %}>{{user.username}}</span></a></td>
 		<td style="font-weight:bold; text-align:right;">{{user.post_count}}</td>
 	</tr>
 {% endfor %}
@@ -92,7 +122,7 @@
 {% for user in users4 %}
 	<tr>
 		<td style="font-weight:bold;">{{users4.index(user)+1}}</td>
-		<td><a style="color:#{{user.namecolor}};  font-weight:bold; fonts" href="/@{{user.username}}"><img loading="lazy" src="/uid/{{user.id}}/pic/profile" class="profile-pic-20 mr-1"><span {% if user.patron %}class="patron" style="background-color:#{{user.namecolor}};"{% endif %}>{{user.username}}</span></a></td>
+		<td><a style="color:#{{user.namecolor}};  font-weight:bold; fonts" href="/@{{user.username}}"><img loading="lazy" src="/uid/{{user.id}}/pic" class="pp20"><span {% if user.patron %}class="patron" style="background-color:#{{user.namecolor}};"{% endif %}>{{user.username}}</span></a></td>
 		<td style="font-weight:bold; text-align:right;">{{user.comment_count}}</td>
 	</tr>
 {% endfor %}
@@ -119,11 +149,13 @@
 {% for user in users5 %}
 	<tr>
 		<td style="font-weight:bold;">{{users5.index(user)+1}}</td>
-		<td><a style="color:#{{user.namecolor}};  font-weight:bold; fonts" href="/@{{user.username}}"><img loading="lazy" src="/uid/{{user.id}}/pic/profile" class="profile-pic-20 mr-1"><span {% if user.patron %}class="patron" style="background-color:#{{user.namecolor}};"{% endif %}>{{user.username}}</span></a></td>
+		<td><a style="color:#{{user.namecolor}};  font-weight:bold; fonts" href="/@{{user.username}}"><img loading="lazy" src="/uid/{{user.id}}/pic" class="pp20"><span {% if user.patron %}class="patron" style="background-color:#{{user.namecolor}};"{% endif %}>{{user.username}}</span></a></td>
 		<td style="font-weight:bold; text-align:right;">{{user.received_award_count}}</td>
 	</tr>
 {% endfor %}
 </table>
+
+
 {% if "pcm" in request.host %}
 	<pre>
 
@@ -145,7 +177,7 @@
 	{% for user in users6 %}
 		<tr>
 			<td style="font-weight:bold;">{{users6.index(user)+1}}</td>
-			<td><a style="color:#{{user.namecolor}};  font-weight:bold; fonts" href="/@{{user.username}}"><img loading="lazy" src="/uid/{{user.id}}/pic/profile" class="profile-pic-20 mr-1"><span {% if user.patron %}class="patron" style="background-color:#{{user.namecolor}};"{% endif %}>{{user.username}}</span></a></td>
+			<td><a style="color:#{{user.namecolor}};  font-weight:bold; fonts" href="/@{{user.username}}"><img loading="lazy" src="/uid/{{user.id}}/pic" class="pp20"><span {% if user.patron %}class="patron" style="background-color:#{{user.namecolor}};"{% endif %}>{{user.username}}</span></a></td>
 			<td style="font-weight:bold; text-align:right;">{{user.basedcount}}</td>
 		</tr>
 	{% endfor %}

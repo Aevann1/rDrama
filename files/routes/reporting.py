@@ -12,7 +12,7 @@ def api_flag_post(pid, v):
 	post = get_post(pid)
 
 	if v and not v.shadowbanned:
-		existing = g.db.query(Flag).options(lazyload('*')).filter_by(user_id=v.id, post_id=post.id).first()
+		existing = g.db.query(Flag.id).filter_by(user_id=v.id, post_id=post.id).first()
 
 		if existing: return "", 409
 
@@ -21,7 +21,7 @@ def api_flag_post(pid, v):
 
 		for i in re.finditer(':(.{1,30}?):', reason):
 			if path.isfile(f'./files/assets/images/emojis/{i.group(1)}.webp'):
-				reason = reason.replace(f':{i.group(1)}:', f'<img loading="lazy" data-bs-toggle="tooltip" title="{i.group(1)}" delay="0" height=20 src="https://{site}/assets/images/emojis/{i.group(1)}.webp">')
+				reason = reason.replace(f':{i.group(1)}:', f'<img loading="lazy" data-bs-toggle="tooltip" title="{i.group(1)}" delay="0" height=20 src="http://{site}/assets/images/emojis/{i.group(1)}.webp">')
 
 		flag = Flag(post_id=post.id,
 					user_id=v.id,
@@ -44,7 +44,7 @@ def api_flag_comment(cid, v):
 	comment = get_comment(cid)
 	
 	if v and not v.shadowbanned:
-		existing = g.db.query(CommentFlag).options(lazyload('*')).filter_by(
+		existing = g.db.query(CommentFlag.id).filter_by(
 			user_id=v.id, comment_id=comment.id).first()
 
 		if existing: return "", 409
@@ -53,7 +53,7 @@ def api_flag_comment(cid, v):
 
 		for i in re.finditer(':(.{1,30}?):', reason):
 			if path.isfile(f'./files/assets/images/emojis/{i.group(1)}.webp'):
-				reason = reason.replace(f':{i.group(1)}:', f'<img loading="lazy" data-bs-toggle="tooltip" title="{i.group(1)}" delay="0" height=20 src="https://{site}/assets/images/emojis/{i.group(1)}.webp">')
+				reason = reason.replace(f':{i.group(1)}:', f'<img loading="lazy" data-bs-toggle="tooltip" title="{i.group(1)}" delay="0" height=20 src="http://{site}/assets/images/emojis/{i.group(1)}.webp">')
 
 		flag = CommentFlag(comment_id=comment.id,
 					user_id=v.id,
@@ -69,17 +69,14 @@ def api_flag_comment(cid, v):
 
 @app.post('/del_report/<report_fn>')
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def remove_report(report_fn, v):
 
-	if v.admin_level < 6:
-		return {"error": "go outside"}, 403
-
 	if report_fn.startswith('c'):
-		report = g.db.query(CommentFlag).options(lazyload('*')).filter_by(id=int(report_fn.lstrip('c'))).first()
+		report = g.db.query(CommentFlag).filter_by(id=int(report_fn.lstrip('c'))).first()
 	elif report_fn.startswith('p'):
-		report = g.db.query(Flag).options(lazyload('*')).filter_by(id=int(report_fn.lstrip('p'))).first()
+		report = g.db.query(Flag).filter_by(id=int(report_fn.lstrip('p'))).first()
 	else:
 		return {"error": "Invalid report ID"}, 400
 

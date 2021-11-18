@@ -66,7 +66,7 @@ def activate(v):
 	if not validate_hash(f"{email}+{id}+{timestamp}", token):
 		abort(403)
 
-	user = g.db.query(User).options(lazyload('*')).filter_by(id=id).first()
+	user = g.db.query(User).filter_by(id=id).first()
 	if not user:
 		abort(404)
 

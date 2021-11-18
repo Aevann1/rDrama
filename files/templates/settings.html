@@ -22,8 +22,8 @@
 
 	<style>
 		.navsettings {
-			padding-left: 0.75rem !important;
-			padding-right: 0.75rem !important;
+			padding-left: 0.9rem !important;
+			padding-right: 0.9rem !important;
 		}
 	</style>
 
@@ -32,31 +32,31 @@
 	<meta name="description" content="">
 	<meta name="author" content="">
 
-	<link rel="icon" type="image/png" href="/assets/images/{{'SITE_NAME' | app_config}}/icon.webp">
+	<link rel="icon" type="image/png" href="/assets/images/{{'SITE_NAME' | app_config}}/icon.webp?v=1">
 
 	<title>{% block pagetitle %}Settings - {{'SITE_NAME' | app_config}}{% endblock %}</title>
-		<meta property="og:type" content="article" />
-		<meta property="og:title" content="{{'SITE_NAME' | app_config}}" />
-		<meta property="og:site_name" content="{{request.host}}" />
-		<meta property="og:image" content="{{'SITE_NAME' | app_config}}/assets/images/{{'SITE_NAME' | app_config}}/preview.webp" />
+		<meta property="og:type" content="article" >
+		<meta property="og:title" content="{{'SITE_NAME' | app_config}}" >
+		<meta property="og:site_name" content="{{request.host}}" >
+		<meta property="og:image" content="{{'SITE_NAME' | app_config}}/assets/images/{{'SITE_NAME' | app_config}}/preview.webp?v=2" >
 		<meta property="og:url" content="{{request.host}}">
 		<meta property="og:description" name="description" content="{{'SITE_NAME' | app_config}} - {{'SLOGAN' | app_config}}">
-		<meta property="og:author" name="author" content="@{{request.host_url}}" />
-		<meta property="og:site_name" content="{{request.host}}" />
+		<meta property="og:author" name="author" content="@{{request.host_url}}" >
+		<meta property="og:site_name" content="{{request.host}}" >
 
-		<meta name="twitter:card" content="summary_large_image"/>
+		<meta name="twitter:card" content="summary_large_image">
 		<meta name="twitter:site" content="@{{request.host_url}}">
-		<meta name="twitter:title" content="{{'SITE_NAME' | app_config}}" />
+		<meta name="twitter:title" content="{{'SITE_NAME' | app_config}}" >
 		<meta name="twitter:creator" content="@{{request.host_url}}">
-		<meta name="twitter:description" content="{{'SITE_NAME' | app_config}} - {{'SLOGAN' | app_config}}" />
-		<meta name="twitter:image" content="{{'SITE_NAME' | app_config}}/assets/images/{{'SITE_NAME' | app_config}}/preview.webp" />
-		<meta name="twitter:url" content="{{request.host}}" />
+		<meta name="twitter:description" content="{{'SITE_NAME' | app_config}} - {{'SLOGAN' | app_config}}" >
+		<meta name="twitter:image" content="{{'SITE_NAME' | app_config}}/assets/images/{{'SITE_NAME' | app_config}}/preview.webp?v=2" >
+		<meta name="twitter:url" content="{{request.host}}" >
 	<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600&display=swap" rel="stylesheet">
 
 
 	<style>:root{--primary:#{{v.themecolor}}}</style>
-	<link rel="stylesheet" href="/assets/css/main.css?v=79"><link rel="stylesheet" href="/assets/css/{{v.theme}}.css?v=79">
-	{% if v.agendaposter %}<link rel="stylesheet" href="/assets/css/agendaposter.css?v=79">{% elif v.css %}<link rel="stylesheet" href="/@{{v.username}}/css">{% endif %}
+	<link rel="stylesheet" href="/assets/css/main.css?v=118"><link rel="stylesheet" href="/assets/css/{{v.theme}}.css?v=117">
+	{% if v.agendaposter %}<link rel="stylesheet" href="/assets/css/agendaposter.css?v=117">{% elif v.css %}<link rel="stylesheet" href="/@{{v.username}}/css">{% endif %}
 
 		<link href="/assets/css/fa.css?v=52" rel="stylesheet"> 
 </head>
@@ -97,7 +97,7 @@
 
 			<h1 class="d-none d-md-block">Settings</h1>
 
-			<h2 class="h3 d-md-none">Settings</h2>
+			<h2 class="h3 mt-5 d-md-none">Settings</h2>
 
 		</div>
 
@@ -127,9 +127,6 @@
 				<li class="nav-item">
 					<a class="nav-link{% if request.path=='/settings/apps' %} active{% endif %}" href="/settings/apps">Apps</a>
 				</li>
-				<li class="nav-item">
-					<a class="nav-link{% if 'shop' in request.path %} active{% endif %}" href="/settings/shop">Shop</a>
-				</li>
 			</ul>
 
 		</div>
@@ -158,9 +155,6 @@
 				</li>
 				<li class="nav-item">
 					<a class="nav-link{% if request.path=='/settings/apps' %} active{% endif %} navsettings" href="/settings/apps"><i class="fas fa-code text-base mr-0"></i></a>
-				</li>
-				<li class="nav-item">
-					<a class="nav-link{% if 'shop' in request.path %} active{% endif %} navsettings" href="/settings/shop"><i class="fas fa-store text-base mr-0"></i></a>
 				</li>
 			</ul>
 
@@ -193,7 +187,7 @@
 								<span class="font-weight-bold">Step 1:</span> Scan this barcode (or enter the code) using a two-factor authentication app such as Google Authenticator or Authy.
 							</p>
 							<div class="text-center mb-3">
-								<img loading="lazy" class="img-fluid" style="width: 175px;" src="/2faqr/{{mfa_secret}}">
+								<img loading="lazy" class="img-fluid" width=175 src="/2faqr/{{mfa_secret}}">
 								<pre></pre>
 								<div class="text-small text-muted">Or enter this code: {{mfa_secret}}</div>
 							</div>

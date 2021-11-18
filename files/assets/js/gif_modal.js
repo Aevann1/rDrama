@@ -68,7 +68,7 @@ async function getGif(searchTerm) {
 
 function insertGIF(url,form) {
 
-	var gif = "![](" + url +")";
+	var gif = "\n\n![](" + url +")";
 
 	var commentBox = document.getElementById(form);
 

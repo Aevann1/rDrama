@@ -15,7 +15,7 @@ site_name = environ.get("SITE_NAME").strip()
 def static_rules(v):
 
 	if not path.exists(f'./{site_name} rules.html'):
-		if v and v.admin_level == 6:
+		if v and v.admin_level > 1:
 			return render_template('norules.html', v=v)
 		else:
 			abort(404)
@@ -35,28 +35,28 @@ def participation_stats(v):
 	day = now - 86400
 
 	data = {"valid_users": g.db.query(User.id).count(),
-			"private_users": g.db.query(User.id).options(lazyload('*')).filter_by(is_private=True).count(),
-			"banned_users": g.db.query(User.id).options(lazyload('*')).filter(User.is_banned > 0).count(),
-			"verified_email_users": g.db.query(User.id).options(lazyload('*')).filter_by(is_activated=True).count(),
+			"private_users": g.db.query(User.id).filter_by(is_private=True).count(),
+			"banned_users": g.db.query(User.id).filter(User.is_banned > 0).count(),
+			"verified_email_users": g.db.query(User.id).filter_by(is_activated=True).count(),
 			"total_coins": g.db.query(func.sum(User.coins)).scalar(),
-			"signups_last_24h": g.db.query(User.id).options(lazyload('*')).filter(User.created_utc > day).count(),
+			"signups_last_24h": g.db.query(User.id).filter(User.created_utc > day).count(),
 			"total_posts": g.db.query(Submission.id).count(),
 			"posting_users": g.db.query(Submission.author_id).distinct().count(),
-			"listed_posts": g.db.query(Submission.id).options(lazyload('*')).filter_by(is_banned=False).filter(Submission.deleted_utc == 0).count(),
-			"removed_posts": g.db.query(Submission.id).options(lazyload('*')).filter_by(is_banned=True).count(),
-			"deleted_posts": g.db.query(Submission.id).options(lazyload('*')).filter(Submission.deleted_utc > 0).count(),
-			"posts_last_24h": g.db.query(Submission.id).options(lazyload('*')).filter(Submission.created_utc > day).count(),
+			"listed_posts": g.db.query(Submission.id).filter_by(is_banned=False).filter(Submission.deleted_utc == 0).count(),
+			"removed_posts": g.db.query(Submission.id).filter_by(is_banned=True).count(),
+			"deleted_posts": g.db.query(Submission.id).filter(Submission.deleted_utc > 0).count(),
+			"posts_last_24h": g.db.query(Submission.id).filter(Submission.created_utc > day).count(),
 			"total_comments": g.db.query(Comment.id).count(),
 			"commenting_users": g.db.query(Comment.author_id).distinct().count(),
-			"removed_comments": g.db.query(Comment.id).options(lazyload('*')).filter_by(is_banned=True).count(),
-			"deleted_comments": g.db.query(Comment.id).options(lazyload('*')).filter(Comment.deleted_utc>0).count(),
-			"comments_last_24h": g.db.query(Comment.id).options(lazyload('*')).filter(Comment.created_utc > day).count(),
+			"removed_comments": g.db.query(Comment.id).filter_by(is_banned=True).count(),
+			"deleted_comments": g.db.query(Comment.id).filter(Comment.deleted_utc>0).count(),
+			"comments_last_24h": g.db.query(Comment.id).filter(Comment.created_utc > day).count(),
 			"post_votes": g.db.query(Vote.id).count(),
 			"post_voting_users": g.db.query(Vote.user_id).distinct().count(),
 			"comment_votes": g.db.query(CommentVote.id).count(),
 			"comment_voting_users": g.db.query(CommentVote.user_id).distinct().count(),
 			"total_awards": g.db.query(AwardRelationship.id).count(),
-			"awards_given": g.db.query(AwardRelationship.id).options(lazyload('*')).filter(or_(AwardRelationship.submission_id != None, AwardRelationship.comment_id != None)).count()
+			"awards_given": g.db.query(AwardRelationship.id).filter(or_(AwardRelationship.submission_id != None, AwardRelationship.comment_id != None)).count()
 			}
 
 
@@ -87,18 +87,20 @@ def cached_chart():
 											 )
 	today_cutoff = calendar.timegm(midnight_this_morning)
 
-	day = 3600 * 24
+	day = 3600 * 200
 
 	day_cutoffs = [today_cutoff - day * i for i in range(days)]
 	day_cutoffs.insert(0, calendar.timegm(now))
 
-	daily_times = [time.strftime("%d", time.gmtime(day_cutoffs[i + 1])) for i in range(len(day_cutoffs) - 1)][2:][::-1]
+	daily_times = [time.strftime("%d/%m", time.gmtime(day_cutoffs[i + 1])) for i in range(len(day_cutoffs) - 1)][2:][::-1]
 
-	daily_signups = [g.db.query(User.id).options(lazyload('*')).filter(User.created_utc < day_cutoffs[i], User.created_utc > day_cutoffs[i + 1]).count() for i in range(len(day_cutoffs) - 1)][2:][::-1]
+	daily_signups = [g.db.query(User.id).filter(User.created_utc < day_cutoffs[i], User.created_utc > day_cutoffs[i + 1]).count() for i in range(len(day_cutoffs) - 1)][2:][::-1]
 
-	post_stats = [g.db.query(Submission.id).options(lazyload('*')).filter(Submission.created_utc < day_cutoffs[i], Submission.created_utc > day_cutoffs[i + 1], Submission.is_banned == False).count() for i in range(len(day_cutoffs) - 1)][2:][::-1]
+	post_stats = [g.db.query(Submission.id).filter(Submission.created_utc < day_cutoffs[i], Submission.created_utc > day_cutoffs[i + 1], Submission.is_banned == False).count() for i in range(len(day_cutoffs) - 1)][2:][::-1]
 
-	comment_stats = [g.db.query(Comment.id).options(lazyload('*')).filter(Comment.created_utc < day_cutoffs[i], Comment.created_utc > day_cutoffs[i + 1],Comment.is_banned == False, Comment.author_id != 1).count() for i in range(len(day_cutoffs) - 1)][2:][::-1]
+	comment_stats = [g.db.query(Comment.id).filter(Comment.created_utc < day_cutoffs[i], Comment.created_utc > day_cutoffs[i + 1],Comment.is_banned == False, Comment.author_id != 1).count() for i in range(len(day_cutoffs) - 1)][2:][::-1]
+
+	plt.rcParams["figure.figsize"] = (20,20)
 
 	signup_chart = plt.subplot2grid((20, 4), (0, 0), rowspan=5, colspan=4)
 	posts_chart = plt.subplot2grid((20, 4), (7, 0), rowspan=5, colspan=4)
@@ -160,20 +162,22 @@ def patrons(v):
 	return render_template("patrons.html", v=v, result=result)
 
 @app.get("/admins")
+@app.get("/badmins")
 @auth_desired
 def admins(v):
-	admins = g.db.query(User).options(lazyload('*')).filter_by(admin_level=6).order_by(User.coins.desc()).all()
+	admins = g.db.query(User).filter(User.admin_level>1).order_by(User.coins.desc()).all()
 	return render_template("admins.html", v=v, admins=admins)
 
 
 @app.get("/log")
+@app.get("/modlog")
 @auth_desired
 def log(v):
 
 	page=int(request.args.get("page",1))
 
-	if v and v.admin_level == 6: actions = g.db.query(ModAction).order_by(ModAction.id.desc()).offset(25 * (page - 1)).limit(26).all()
-	else: actions=g.db.query(ModAction).filter(ModAction.kind!="shadowban", ModAction.kind!="unshadowban", ModAction.kind!="club", ModAction.kind!="unclub").order_by(ModAction.id.desc()).offset(25*(page-1)).limit(26).all()
+	if v and v.admin_level > 1: actions = g.db.query(ModAction).order_by(ModAction.id.desc()).offset(25 * (page - 1)).limit(26).all()
+	else: actions=g.db.query(ModAction).filter(ModAction.kind!="shadowban", ModAction.kind!="unshadowban", ModAction.kind!="club", ModAction.kind!="unclub", ModAction.kind!="check").order_by(ModAction.id.desc()).offset(25*(page-1)).limit(26).all()
 
 	next_exists=len(actions)>25
 	actions=actions[:25]
@@ -189,7 +193,7 @@ def log_item(id, v):
 		try: id = int(id, 36)
 		except: abort(404)
 
-	action=g.db.query(ModAction).options(lazyload('*')).filter_by(id=id).first()
+	action=g.db.query(ModAction).filter_by(id=id).first()
 
 	if not action:
 		abort(404)
@@ -215,6 +219,8 @@ def api(v):
 	return render_template("api.html", v=v)
 
 @app.get("/contact")
+@app.get("/press")
+@app.get("/media")
 @auth_required
 def contact(v):
 
@@ -224,7 +230,7 @@ def contact(v):
 @limiter.limit("1/second")
 @auth_required
 def submit_contact(v):
-	message = f'This message has been sent automatically to all admins via https://{site}/contact, user email is "{v.email}"\n\nMessage:\n\n' + request.values.get("message", "")
+	message = f'This message has been sent automatically to all admins via http://{site}/contact, user email is "{v.email}"\n\nMessage:\n\n' + request.values.get("message", "")
 	send_admin(v.id, message)
 	g.db.commit()
 	return render_template("contact.html", v=v, msg="Your message has been sent.")
@@ -247,6 +253,10 @@ def static_service(path):
 		resp.headers.remove("Cache-Control")
 		resp.headers.add("Cache-Control", "public, max-age=2628000")
 
+	if request.path.endswith('.webp'):
+		resp.headers.remove("Content-Type")
+		resp.headers.add("Content-Type", "image/webp")
+
 	return resp
 
 @app.get('/images/<path:path>')
@@ -256,6 +266,9 @@ def images(path):
 	resp = make_response(send_from_directory('/images', path))
 	resp.headers.remove("Cache-Control")
 	resp.headers.add("Cache-Control", "public, max-age=2628000")
+	if request.path.endswith('.webp'):
+		resp.headers.remove("Content-Type")
+		resp.headers.add("Content-Type", "image/webp")
 	return resp
 
 @app.get("/robots.txt")
@@ -305,7 +318,7 @@ def blocks(v):
 def banned(v):
 
 
-	users = [x for x in g.db.query(User).options(lazyload('*')).filter(User.is_banned > 0, User.unban_utc == 0).all()]
+	users = [x for x in g.db.query(User).filter(User.is_banned > 0, User.unban_utc == 0).all()]
 	return render_template("banned.html", v=v, users=users)
 
 @app.get("/formatting")

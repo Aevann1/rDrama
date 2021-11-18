@@ -26,7 +26,7 @@
 			f.append("formkey", formkey());
 			xhr.onload=function(){
 				if (xhr.status<300) {
-					window.location.reload(true);
+					location.reload(true);
 				}
 				else {
 					var myToast = new bootstrap.Toast(document.getElementById('toast-post-success'));
@@ -94,14 +94,14 @@
 				<tr>
 					<td>
 						<a href="{{block.target.permalink}}">
-							<img loading="lazy" src="{{block.target.profile_url}}" class="profile-pic-20 align-top mr-2">@{{block.target.username}}</a>
+							<img loading="lazy" src="{{block.target.profile_url}}" class="pp20 align-top mr-2">@{{block.target.username}}</a>
 					</td>
 
 					<td>{{block.created_date}}</td>
 
 						<td>
 							<div class="dropdown float-right dropdown-actions">
-								<a href="#" role="button" id="dropdownMoreLink" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="line-height: 0;">
+								<a href="javascript:void(0)" role="button" id="dropdownMoreLink" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="line-height: 0;">
 									<i class="fas fa-ellipsis-h text-muted"></i>
 								</a>
 								<div class="dropdown-menu border-0 shadow dropdown-menu-right mt-2" aria-labelledby="dropdownMoreLink" x-placement="bottom-end" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(21px, 18px, 0px);">
@@ -129,7 +129,7 @@
 
 <div class="modal fade" id="blockmodal" tabindex="-1" role="dialog" aria-labelledby="blockmodal" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered" role="document">
-		<form action="/settings/block" id="exile-form" method="post" onsubmit="return false;">
+		<form class="m-auto" action="/settings/block" id="exile-form" method="post" onsubmit="return false;">
 			<div class="modal-content">
 				<div class="modal-header">
 					<h5 class="modal-title">Block users</h5>

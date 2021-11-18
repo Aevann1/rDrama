@@ -10,7 +10,7 @@ from files.__main__ import app, cache, limiter
 import youtube_dl
 from .front import frontlist
 import os
-from .posts import filter_title
+from files.helpers.sanitize import filter_title
 from files.helpers.discord import add_role
 from shutil import copyfile
 import requests
@@ -21,6 +21,7 @@ valid_password_regex = re.compile("^.{8,100}$")
 YOUTUBE_KEY = environ.get("YOUTUBE_KEY", "").strip()
 COINS_NAME = environ.get("COINS_NAME").strip()
 GUMROAD_TOKEN = environ.get("GUMROAD_TOKEN", "").strip()
+SITE_NAME = environ.get("SITE_NAME", "").strip()
 
 tiers={
 	"(Paypig)": 1,
@@ -44,7 +45,9 @@ def removebackground(v):
 @auth_required
 @validate_formkey
 def settings_profile_post(v):
-	if request.content_length > 4 * 1024 * 1024: return "Max file size is 4 MB.", 413
+	if v and v.patron:
+		if request.content_length > 8 * 1024 * 1024: return "Max file size is 8 MB.", 413
+	elif request.content_length > 4 * 1024 * 1024: return "Max file size is 4 MB.", 413
 
 	updated = False
 
@@ -52,74 +55,266 @@ def settings_profile_post(v):
 		updated = True
 		v.background = request.values.get("background", None)
 
-	if request.values.get("slurreplacer", v.slurreplacer) != v.slurreplacer:
+	elif request.values.get("slurreplacer", v.slurreplacer) != v.slurreplacer:
 		updated = True
 		v.slurreplacer = request.values.get("slurreplacer", None) == 'true'
 
-	if request.values.get("hidevotedon", v.hidevotedon) != v.hidevotedon:
+	elif request.values.get("hidevotedon", v.hidevotedon) != v.hidevotedon:
 		updated = True
 		v.hidevotedon = request.values.get("hidevotedon", None) == 'true'
 
-	if request.values.get("cardview", v.cardview) != v.cardview:
+	elif request.values.get("cardview", v.cardview) != v.cardview:
 		updated = True
 		v.cardview = request.values.get("cardview", None) == 'true'
 
-	if request.values.get("highlightcomments", v.highlightcomments) != v.highlightcomments:
+	elif request.values.get("highlightcomments", v.highlightcomments) != v.highlightcomments:
 		updated = True
 		v.highlightcomments = request.values.get("highlightcomments", None) == 'true'
 
-	if request.values.get("newtab", v.newtab) != v.newtab:
+	elif request.values.get("newtab", v.newtab) != v.newtab:
 		updated = True
 		v.newtab = request.values.get("newtab", None) == 'true'
 
-	if request.values.get("newtabexternal", v.newtabexternal) != v.newtabexternal:
+	elif request.values.get("newtabexternal", v.newtabexternal) != v.newtabexternal:
 		updated = True
 		v.newtabexternal = request.values.get("newtabexternal", None) == 'true'
 
-	if request.values.get("oldreddit", v.oldreddit) != v.oldreddit:
+	elif request.values.get("oldreddit", v.oldreddit) != v.oldreddit:
 		updated = True
 		v.oldreddit = request.values.get("oldreddit", None) == 'true'
 
-	if request.values.get("nitter", v.nitter) != v.nitter:
+	elif request.values.get("nitter", v.nitter) != v.nitter:
 		updated = True
 		v.nitter = request.values.get("nitter", None) == 'true'
 
-	if request.values.get("controversial", v.controversial) != v.controversial:
+	elif request.values.get("controversial", v.controversial) != v.controversial:
 		updated = True
 		v.controversial = request.values.get("controversial", None) == 'true'
 
-	if request.values.get("over18", v.over_18) != v.over_18:
+	elif request.values.get("sigs_disabled", v.sigs_disabled) != v.sigs_disabled:
+		updated = True
+		v.sigs_disabled = request.values.get("sigs_disabled", None) == 'true'
+
+	elif request.values.get("over18", v.over_18) != v.over_18:
 		updated = True
 		v.over_18 = request.values.get("over18", None) == 'true'
 		
-	if request.values.get("private", v.is_private) != v.is_private:
+	elif request.values.get("private", v.is_private) != v.is_private:
 		updated = True
 		v.is_private = request.values.get("private", None) == 'true'
 
-	if request.values.get("nofollow", v.is_nofollow) != v.is_nofollow:
+	elif request.values.get("nofollow", v.is_nofollow) != v.is_nofollow:
 		updated = True
 		v.is_nofollow = request.values.get("nofollow", None) == 'true'
 
-	if request.values.get("bio"):
+	elif request.values.get("bio") or request.files.get('file') and request.headers.get("cf-ipcountry") != "T1":
 		bio = request.values.get("bio")[:1500]
 
 		for i in re.finditer('^(https:\/\/.*\.(png|jpg|jpeg|gif|webp|PNG|JPG|JPEG|GIF|WEBP|9999))', bio, re.MULTILINE):
 			if "wikipedia" not in i.group(1): bio = bio.replace(i.group(1), f'![]({i.group(1)})')
-		bio = re.sub('([^\n])\n([^\n])', r'\1\n\n\2', bio)
 
-		if request.files.get('file') and request.headers.get("cf-ipcountry") != "T1":
-			
+		if request.files.get('file'):
 			file = request.files['file']
 			if not file.content_type.startswith('image/'):
 				if request.headers.get("Authorization"): return {"error": f"Image files only"}, 400
 				else: return render_template("settings_profile.html", v=v, error=f"Image files only."), 400
 
-			name = f'/images/{int(time.time())}{secrets.token_urlsafe(2)}.gif'
+			name = f'/images/{int(time.time())}{secrets.token_urlsafe(2)}.webp'
 			file.save(name)
 			url = request.host_url[:-1] + process_image(name)
 
 			bio += f"\n\n![]({url})"
+		
+		bio_html = CustomRenderer().render(mistletoe.Document(bio))
+		bio_html = sanitize(bio_html)
+		bans = filter_comment_html(bio_html)
 
+		if bans:
+			ban = bans[0]
+			reason = f"Remove the {ban.domain} link from your bio and try again."
+			if ban.reason:
+				reason += f" {ban.reason}"
+				
+			return {"error": reason}, 401
+
+		if len(bio_html) > 10000:
+			return render_template("settings_profile.html",
+								   v=v,
+								   error="Your bio is too long")
+
+		v.bio = bio[:1500]
+		v.bio_html=bio_html
+		g.db.add(v)
+		g.db.commit()
+		return render_template("settings_profile.html",
+							   v=v,
+							   msg="Your bio has been updated.")
+
+
+	elif request.values.get("sig") == "":
+		v.sig = None
+		v.sig_html = None
+		g.db.add(v)
+		g.db.commit()
+		return render_template("settings_profile.html", v=v, msg="Your sig has been updated.")
+
+	elif request.values.get("friends") == "":
+		v.friends = None
+		v.friends_html = None
+		g.db.add(v)
+		g.db.commit()
+		return render_template("settings_profile.html", v=v, msg="Your friends list has been updated.")
+
+	elif request.values.get("enemies") == "":
+		v.enemies = None
+		v.enemies_html = None
+		g.db.add(v)
+		g.db.commit()
+		return render_template("settings_profile.html", v=v, msg="Your enemies list has been updated.")
+
+	elif (v.patron or v.id == 1904) and request.values.get("sig"):
+		sig = request.values.get("sig")[:200]
+
+		for i in re.finditer('^(https:\/\/.*\.(png|jpg|jpeg|gif|webp|PNG|JPG|JPEG|GIF|WEBP|9999))', sig, re.MULTILINE):
+			if "wikipedia" not in i.group(1): sig = sig.replace(i.group(1), f'![]({i.group(1)})')
+
+		sig_html = CustomRenderer().render(mistletoe.Document(sig))
+		sig_html = sanitize(sig_html)
+		bans = filter_comment_html(sig_html)
+
+
+		if bans:
+			ban = bans[0]
+			reason = f"Remove the {ban.domain} link from your sig and try again."
+			if ban.reason:
+				reason += f" {ban.reason}"
+				
+			return {"error": reason}, 401
+
+		if len(sig_html) > 1000:
+			return render_template("settings_profile.html",
+								   v=v,
+								   error="Your sig is too long")
+
+		v.sig = sig[:200]
+		v.sig_html=sig_html
+		g.db.add(v)
+		g.db.commit()
+		return render_template("settings_profile.html",
+							   v=v,
+							   msg="Your sig has been updated.")
+
+
+
+
+	elif request.values.get("friends"):
+		friends = request.values.get("friends")[:500]
+
+		for i in re.finditer('^(https:\/\/.*\.(png|jpg|jpeg|gif|webp|PNG|JPG|JPEG|GIF|WEBP|9999))', friends, re.MULTILINE):
+			if "wikipedia" not in i.group(1): friends = friends.replace(i.group(1), f'![]({i.group(1)})')
+
+		friends_html = CustomRenderer().render(mistletoe.Document(friends))
+		friends_html = sanitize(friends_html)
+		bans = filter_comment_html(friends_html)
+
+		if bans:
+			ban = bans[0]
+			reason = f"Remove the {ban.domain} link from your friends list and try again."
+			if ban.reason: reason += f" {ban.reason}"
+			return {"error": reason}, 401
+
+		if len(friends_html) > 2000:
+			return render_template("settings_profile.html",
+								   v=v,
+								   error="Your friends list is too long")
+
+
+		notify_users = set()
+		soup = BeautifulSoup(friends_html, features="html.parser")
+		for mention in soup.find_all("a", href=re.compile("^/@(\w+)")):
+			username = mention["href"].split("@")[1]
+			user = g.db.query(User).filter_by(username=username).first()
+			if user and not v.any_block_exists(user) and user.id != v.id: notify_users.add(user.id)
+			
+		if request.host == 'rdrama.net' and 'aevann' in friends_html.lower() and 1 not in notify_users: notify_users.add(1)
+
+		for x in notify_users:
+			message = f"@{v.username} has added you to their friends list!"
+			existing = g.db.query(Comment.id).filter(Comment.author_id == NOTIFICATIONS_ID, Comment.body == message, Comment.notifiedto == x).first()
+			if not existing: send_notification(x, message)
+
+		v.friends = friends[:500]
+		v.friends_html=friends_html
+		g.db.add(v)
+		g.db.commit()
+		return render_template("settings_profile.html",
+							   v=v,
+							   msg="Your friends list has been updated.")
+
+
+	elif request.values.get("enemies"):
+		enemies = request.values.get("enemies")[:500]
+
+		for i in re.finditer('^(https:\/\/.*\.(png|jpg|jpeg|gif|webp|PNG|JPG|JPEG|GIF|WEBP|9999))', enemies, re.MULTILINE):
+			if "wikipedia" not in i.group(1): enemies = enemies.replace(i.group(1), f'![]({i.group(1)})')
+
+		enemies_html = CustomRenderer().render(mistletoe.Document(enemies))
+		enemies_html = sanitize(enemies_html)
+		bans = filter_comment_html(enemies_html)
+
+		if bans:
+			ban = bans[0]
+			reason = f"Remove the {ban.domain} link from your enemies list and try again."
+			if ban.reason: reason += f" {ban.reason}"
+			return {"error": reason}, 401
+
+		if len(enemies_html) > 2000:
+			return render_template("settings_profile.html",
+								   v=v,
+								   error="Your enemies list is too long")
+
+
+		notify_users = set()
+		soup = BeautifulSoup(enemies_html, features="html.parser")
+		for mention in soup.find_all("a", href=re.compile("^/@(\w+)")):
+			username = mention["href"].split("@")[1]
+			user = g.db.query(User).filter_by(username=username).first()
+			if user and not v.any_block_exists(user) and user.id != v.id: notify_users.add(user.id)
+			
+		if request.host == 'rdrama.net' and 'aevann' in enemies_html.lower() and 1 not in notify_users: notify_users.add(1)
+
+		for x in notify_users:
+			message = f"@{v.username} has added you to their enemies list!"
+			existing = g.db.query(Comment.id).filter(Comment.author_id == NOTIFICATIONS_ID, Comment.body == message, Comment.notifiedto == x).first()
+			if not existing: send_notification(x, message)
+
+		v.enemies = enemies[:500]
+		v.enemies_html=enemies_html
+		g.db.add(v)
+		g.db.commit()
+		return render_template("settings_profile.html",
+							   v=v,
+							   msg="Your enemies list has been updated.")
+
+
+	elif request.values.get("bio") or request.files.get('file') and request.headers.get("cf-ipcountry") != "T1":
+		bio = request.values.get("bio")[:1500]
+
+		for i in re.finditer('^(https:\/\/.*\.(png|jpg|jpeg|gif|webp|PNG|JPG|JPEG|GIF|WEBP|9999))', bio, re.MULTILINE):
+			if "wikipedia" not in i.group(1): bio = bio.replace(i.group(1), f'![]({i.group(1)})')
+
+		if request.files.get('file'):
+			file = request.files['file']
+			if not file.content_type.startswith('image/'):
+				if request.headers.get("Authorization"): return {"error": f"Image files only"}, 400
+				else: return render_template("settings_profile.html", v=v, error=f"Image files only."), 400
+
+			name = f'/images/{int(time.time())}{secrets.token_urlsafe(2)}.webp'
+			file.save(name)
+			url = request.host_url[:-1] + process_image(name)
+
+			bio += f"\n\n![]({url})"
+		
 		bio_html = CustomRenderer().render(mistletoe.Document(bio))
 		bio_html = sanitize(bio_html)
 		bans = filter_comment_html(bio_html)
@@ -146,23 +341,6 @@ def settings_profile_post(v):
 		return render_template("settings_profile.html",
 							   v=v,
 							   msg="Your bio has been updated.")
-
-	if request.values.get("filters"):
-
-		filters=request.values.get("filters")[:1000].strip()
-
-		if filters==v.custom_filter_list:
-			return render_template("settings_profile.html",
-								   v=v,
-								   error="You didn't change anything")
-
-		v.custom_filter_list=filters
-		g.db.add(v)
-		g.db.commit()
-		return render_template("settings_profile.html",
-							   v=v,
-							   msg="Your custom filters have been updated.")
-
 
 
 	frontsize = request.values.get("frontsize")
@@ -243,6 +421,19 @@ def settings_profile_post(v):
 	else:
 		return {"error": "You didn't change anything."}, 400
 
+
+@app.post("/settings/filters")
+@auth_required
+def filters(v):
+	filters=request.values.get("filters")[:1000].strip()
+
+	if filters == v.custom_filter_list: return render_template("settings_filters.html", v=v, error="You didn't change anything")
+
+	v.custom_filter_list=filters
+	g.db.add(v)
+	g.db.commit()
+	return render_template("settings_filters.html", v=v, msg="Your custom filters have been updated.")
+
 @app.post("/changelogsub")
 @auth_required
 @validate_formkey
@@ -287,7 +478,7 @@ def themecolor(v):
 @auth_required
 @validate_formkey
 def gumroad(v):
-	if 'rama' in request.host: patron = 'Paypig'
+	if SITE_NAME == 'Drama': patron = 'Paypig'
 	else: patron = 'Patron'
 
 	if not (v.email and v.is_activated): return {"error": f"You must have a verified email to verify {patron} status and claim your rewards"}, 400
@@ -296,7 +487,7 @@ def gumroad(v):
 		'access_token': GUMROAD_TOKEN,
 		'email': v.email
 	}
-	response = requests.get('https://api.gumroad.com/v2/sales', data=data).json()["sales"]
+	response = requests.get('https://api.gumroad.com/v2/sales', data=data, timeout=5).json()["sales"]
 
 	if len(response) == 0: return {"error": "Email not found"}, 404
 
@@ -304,54 +495,29 @@ def gumroad(v):
 	tier = tiers[response["variants_and_quantity"]]
 	if v.patron == tier: return {"error": f"{patron} rewards already claimed"}, 400
 
+	if v.patron:
+		badge = v.has_badge(20+tier)
+		if badge: g.db.delete(badge)
+	
 	v.patron = tier
+	if v.discord_id: add_role(v, f"{tier}")
+
+	if v.patron == 1: procoins = 2000
+	elif v.patron == 2: procoins = 5000
+	elif v.patron == 3: procoins = 10000
+	elif v.patron == 4: procoins = 25000
+	elif v.patron == 5 or v.patron == 8: procoins = 50000
+
+	v.procoins += procoins
+	send_notification(v.id, f"You were given {procoins} Marseybux! You can use them to buy awards in the [shop](/shop).")
+
+	if v.truecoins > 150 and v.patron > 0: v.cluballowed = True
+	if v.patron > 3 and v.verified == None: v.verified = "Verified"
+
 	g.db.add(v)
 
-	grant_awards = {}
-	if tier == 1:
-		if v.discord_id: add_role(v, "1")
-		grant_awards["shit"] = 2
-		grant_awards["fireflies"] = 2
-	elif tier == 2:
-		if v.discord_id: add_role(v, "2")
-		grant_awards["shit"] = 5
-		grant_awards["fireflies"] = 5
-		grant_awards["ban"] = 1
-	elif tier == 3:
-		if v.discord_id: add_role(v, "3")
-		grant_awards["shit"] = 10
-		grant_awards["fireflies"] = 10
-		grant_awards["ban"] = 2
-	elif tier == 4:
-		if v.discord_id: add_role(v, "4")
-		grant_awards["shit"] = 25
-		grant_awards["fireflies"] = 25
-		grant_awards["ban"] = 5
-	elif tier == 5 or tier == 8:
-		if v.discord_id: add_role(v, "5")
-		grant_awards["shit"] = 50
-		grant_awards["fireflies"] = 50
-		grant_awards["ban"] = 10
-
-	thing = g.db.query(AwardRelationship).order_by(AwardRelationship.id.desc()).first().id
-
-	for name in grant_awards:
-		for count in range(grant_awards[name]):
-
-			thing += 1
-
-			award = AwardRelationship(
-				id=thing,
-				user_id=v.id,
-				kind=name
-			)
-
-			g.db.add(award)
-
 	if not v.has_badge(20+tier):
-		new_badge = Badge(badge_id=20+tier,
-						user_id=v.id,
-						)
+		new_badge = Badge(badge_id=20+tier, user_id=v.id)
 		g.db.add(new_badge)
 
 	g.db.commit()
@@ -365,11 +531,23 @@ def gumroad(v):
 def titlecolor(v):
 	titlecolor = str(request.values.get("titlecolor", "")).strip()
 	if titlecolor.startswith('#'): titlecolor = titlecolor[1:]
-	if len(titlecolor) != 6: return render_template("settings_security.html", v=v, error="Invalid color code")
+	if len(titlecolor) != 6: return render_template("settings_profile.html", v=v, error="Invalid color code")
 	v.titlecolor = titlecolor
 	g.db.add(v)
 	g.db.commit()
+	return redirect("/settings/profile")
 
+@app.post("/settings/verifiedcolor")
+@limiter.limit("1/second")
+@auth_required
+@validate_formkey
+def verifiedcolor(v):
+	verifiedcolor = str(request.values.get("verifiedcolor", "")).strip()
+	if verifiedcolor.startswith('#'): verifiedcolor = verifiedcolor[1:]
+	if len(verifiedcolor) != 6: return render_template("settings_profile.html", v=v, error="Invalid color code")
+	v.verifiedcolor = verifiedcolor
+	g.db.add(v)
+	g.db.commit()
 	return redirect("/settings/profile")
 
 @app.post("/settings/security")
@@ -410,7 +588,7 @@ def settings_security_post(v):
 		if new_email == v.email:
 			return redirect("/settings/security?error=That email is already yours!")
 
-		existing = g.db.query(User).options(lazyload('*')).filter(User.id != v.id,
+		existing = g.db.query(User.id).filter(User.id != v.id,
 										   func.lower(User.email) == new_email.lower()).first()
 		if existing:
 			return redirect("/settings/security?error=" +
@@ -501,24 +679,28 @@ def settings_log_out_others(v):
 @auth_required
 @validate_formkey
 def settings_images_profile(v):
-	if request.content_length > 4 * 1024 * 1024: return "Max file size is 4 MB.", 413
+	if v and v.patron:
+		if request.content_length > 8 * 1024 * 1024: return "Max file size is 8 MB.", 413
+	elif request.content_length > 4 * 1024 * 1024: return "Max file size is 4 MB.", 413
 
 	if request.headers.get("cf-ipcountry") == "T1": return "Image uploads are not allowed through TOR.", 403
 
 	file = request.files["profile"]
 
-	name = f'/images/{int(time.time())}{secrets.token_urlsafe(2)}.gif'
+	name = f'/images/{int(time.time())}{secrets.token_urlsafe(2)}.webp'
 	file.save(name)
 	highres = request.host_url[:-1] + process_image(name)
 
 	if not highres: abort(400)
 
-	name2 = name.replace('.gif', 'r.gif')
+	name2 = name.replace('.webp', 'r.webp')
 	copyfile(name, name2)
 	imageurl = request.host_url[:-1] + process_image(name2, True)
 
 	if not imageurl: abort(400)
 
+	if v.highres and '/images/' in v.highres : os.remove('/images/' + v.highres.split('/images/')[1])
+	if v.profileurl and '/images/' in v.profileurl : os.remove('/images/' + v.profileurl.split('/images/')[1])
 	v.highres = highres
 	v.profileurl = imageurl
 	g.db.add(v)
@@ -533,18 +715,21 @@ def settings_images_profile(v):
 @auth_required
 @validate_formkey
 def settings_images_banner(v):
-	if request.content_length > 4 * 1024 * 1024: return "Max file size is 4 MB.", 413
+	if v and v.patron:
+		if request.content_length > 8 * 1024 * 1024: return "Max file size is 8 MB.", 413
+	elif request.content_length > 4 * 1024 * 1024: return "Max file size is 4 MB.", 413
 
 	if request.headers.get("cf-ipcountry") == "T1": return "Image uploads are not allowed through TOR.", 403
 
 	file = request.files["banner"]
 
-	name = f'/images/{int(time.time())}{secrets.token_urlsafe(2)}.gif'
+	name = f'/images/{int(time.time())}{secrets.token_urlsafe(2)}.webp'
 	file.save(name)
-	imageurl = request.host_url[:-1] + process_image(name)
+	bannerurl = request.host_url[:-1] + process_image(name)
 
-	if imageurl:
-		v.bannerurl = imageurl
+	if bannerurl:
+		if v.bannerurl and '/images/' in v.bannerurl : os.remove('/images/' + v.bannerurl.split('/images/')[1])
+		v.bannerurl = bannerurl
 		g.db.add(v)
 		g.db.commit()
 
@@ -608,14 +793,14 @@ def settings_css(v):
 @auth_required
 def settings_profilecss_get(v):
 
-	if v.coins < 1000 and not v.patron and v.admin_level < 6: return f"You must have +1000 {COINS_NAME} or be a patron to set profile css."
+	if v.truecoins < 1000 and not v.patron and v.admin_level == 0 : return f"You must have +1000 {COINS_NAME} or be a patron to set profile css."
 	return render_template("settings_profilecss.html", v=v)
 
 @app.post("/settings/profilecss")
 @limiter.limit("1/second")
 @auth_required
 def settings_profilecss(v):
-	if v.coins < 1000 and not v.patron: return f"You must have +1000 {COINS_NAME} or be a patron to set profile css."
+	if v.truecoins < 1000 and not v.patron: return f"You must have +1000 {COINS_NAME} or be a patron to set profile css."
 	profilecss = request.values.get("profilecss").strip().replace('\\', '').strip()[:4000]
 	v.profilecss = profilecss
 	g.db.add(v)
@@ -640,7 +825,7 @@ def settings_block_user(v):
 	if v.has_block(user):
 		return {"error": f"You have already blocked @{user.username}."}, 409
 
-	if user.id == NOTIFICATIONS_ACCOUNT:
+	if user.id == NOTIFICATIONS_ID:
 		return {"error": "You can't block this user."}, 409
 
 	new_block = UserBlock(user_id=v.id,
@@ -650,7 +835,7 @@ def settings_block_user(v):
 
 	
 
-	existing = g.db.query(Notification).options(lazyload('*')).filter_by(blocksender=v.id, user_id=user.id).first()
+	existing = g.db.query(Notification.id).filter_by(blocksender=v.id, user_id=user.id).first()
 	if not existing: send_block_notif(v.id, user.id, f"@{v.username} has blocked you!")
 
 	cache.delete_memoized(frontlist)
@@ -677,7 +862,7 @@ def settings_unblock_user(v):
 
 	
 
-	existing = g.db.query(Notification).options(lazyload('*')).filter_by(unblocksender=v.id, user_id=user.id).first()
+	existing = g.db.query(Notification.id).filter_by(unblocksender=v.id, user_id=user.id).first()
 	if not existing: send_unblock_notif(v.id, user.id, f"@{v.username} has unblocked you!")
 
 	cache.delete_memoized(frontlist)
@@ -723,6 +908,8 @@ def settings_content_get(v):
 @validate_formkey
 def settings_name_change(v):
 
+	if v.is_banned and not v.unban_utc: return {"error": "forbidden."}, 403
+
 	new_name=request.values.get("name").strip()
 
 	if new_name==v.username:
@@ -737,9 +924,7 @@ def settings_name_change(v):
 
 	name=new_name.replace('_','\_')
 
-	x= g.db.query(User).options(
-		lazyload('*')
-		).filter(
+	x= g.db.query(User).filter(
 		or_(
 			User.username.ilike(name),
 			User.original_username.ilike(name)
@@ -751,7 +936,7 @@ def settings_name_change(v):
 						   v=v,
 						   error=f"Username `{new_name}` is already in use.")
 
-	v=g.db.query(User).with_for_update().options(lazyload('*')).filter_by(id=v.id).first()
+	v=g.db.query(User).with_for_update().filter_by(id=v.id).first()
 
 	v.username=new_name
 	v.name_changed_utc=int(time.time())
@@ -771,7 +956,7 @@ def settings_name_change(v):
 def settings_song_change(v):
 	song=request.values.get("song").strip()
 
-	if song == "" and v.song and path.isfile(f"/songs/{v.song}.mp3") and g.db.query(User.id).options(lazyload('*')).filter_by(song=v.song).count() == 1:
+	if song == "" and v.song and path.isfile(f"/songs/{v.song}.mp3") and g.db.query(User.id).filter_by(song=v.song).count() == 1:
 		os.remove(f"/songs/{v.song}.mp3")
 		v.song = None
 		g.db.add(v)
@@ -798,7 +983,7 @@ def settings_song_change(v):
 		return redirect("/settings/profile")
 		
 	
-	req = requests.get(f"https://www.googleapis.com/youtube/v3/videos?id={id}&key={YOUTUBE_KEY}&part=contentDetails").json()
+	req = requests.get(f"https://www.googleapis.com/youtube/v3/videos?id={id}&key={YOUTUBE_KEY}&part=contentDetails", timeout=5).json()
 	duration = req['items'][0]['contentDetails']['duration']
 	if "H" in duration:
 		return render_template("settings_profile.html",
@@ -813,7 +998,7 @@ def settings_song_change(v):
 						error=f"Duration of the video must not exceed 10 minutes.")
 
 
-	if v.song and path.isfile(f"/songs/{v.song}.mp3") and g.db.query(User.id).options(lazyload('*')).filter_by(song=v.song).count() == 1:
+	if v.song and path.isfile(f"/songs/{v.song}.mp3") and g.db.query(User.id).filter_by(song=v.song).count() == 1:
 		os.remove(f"/songs/{v.song}.mp3")
 
 	ydl_opts = {
@@ -856,16 +1041,14 @@ def settings_title_change(v):
 	
 	new_name=request.values.get("title").strip()[:100].replace("𒐪","")
 
-	if new_name==v.customtitle:
-		return render_template("settings_profile.html",
-						   v=v,
-						   error="You didn't change anything")
+	if new_name==v.customtitle: return render_template("settings_profile.html", v=v, error="You didn't change anything")
 
 	v.customtitleplain = new_name
 
 	v.customtitle = filter_title(new_name)
 
-	g.db.add(v)
-	g.db.commit()
+	if len(v.customtitle) < 1000:
+		g.db.add(v)
+		g.db.commit()
 
 	return redirect("/settings/profile")

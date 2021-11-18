@@ -22,7 +22,7 @@
 {% for badge in badges if badge.kind==1 %}
 	<tr>
 		<td>{{badge.name}}</td>
-		<td><img loading="lazy" src="{{badge.path}}" style="width:50px;height:50px">
+		<td><img loading="lazy" src="{{badge.path}}" width=50 height=50>
 		<td>{{badge.description}}</td>
 	</tr>
 {% endfor %}
@@ -43,7 +43,7 @@
 {% for badge in badges if badge.kind==3 %}
 	<tr>
 		<td>{{badge.name}}</td>
-		<td><img loading="lazy" src="{{badge.path}}" style="width:50px;height:50px">
+		<td><img loading="lazy" src="{{badge.path}}" width=50 height=50>
 		<td>{{badge.description}}</td>
 	</tr>
 {% endfor %}
@@ -63,7 +63,7 @@
 {% for badge in badges if badge.kind==4 %}
 	<tr>
 		<td>{{badge.name}}</td>
-		<td><img loading="lazy" src="{{badge.path}}" style="width:50px;height:50px">
+		<td><img loading="lazy" src="{{badge.path}}" width=50 height=50>
 		<td>{{badge.description}}</td>
 	</tr>
 {% endfor %}

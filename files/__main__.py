@@ -20,6 +20,7 @@ app = Flask(__name__, template_folder='./templates')
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=3)
 app.url_map.strict_slashes = False
 app.jinja_env.cache = {}
+app.jinja_env.auto_reload = True
 import faulthandler
 faulthandler.enable()
 
@@ -33,7 +34,7 @@ app.config["SERVER_NAME"] = environ.get("DOMAIN").strip()
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 86400
 app.config["SESSION_COOKIE_NAME"] = "session_" + environ.get("SITE_NAME").strip().lower()
 app.config["VERSION"] = "1.0.0"
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+app.config['MAX_CONTENT_LENGTH'] = 8 * 1024 * 1024
 app.config["SESSION_COOKIE_SECURE"] = bool(int(environ.get("FORCE_HTTPS", 1)))
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 app.config["PERMANENT_SESSION_LIFETIME"] = 60 * 60 * 24 * 365
@@ -41,7 +42,7 @@ app.config["SESSION_REFRESH_EACH_REQUEST"] = True
 app.config["SLOGAN"] = environ.get("SLOGAN", "").strip()
 app.config["DEFAULT_COLOR"] = environ.get("DEFAULT_COLOR", "ff0000").strip()
 app.config["DEFAULT_THEME"] = environ.get("DEFAULT_THEME", "midnight").strip()
-app.config["FORCE_HTTPS"] = int(environ.get("FORCE_HTTPS", 1)) if ("localhost" not in app.config["SERVER_NAME"] and "127.0.0.1" not in app.config["SERVER_NAME"]) else 0
+app.config["FORCE_HTTPS"] = int(environ.get("FORCE_HTTPS", 1)) if ("127.0.0.1" not in app.config["SERVER_NAME"] and "127.0.0.1" not in app.config["SERVER_NAME"]) else 0
 app.config["UserAgent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36"
 app.config["HCAPTCHA_SITEKEY"] = environ.get("HCAPTCHA_SITEKEY","").strip()
 app.config["HCAPTCHA_SECRET"] = environ.get("HCAPTCHA_SECRET","").strip()
@@ -72,7 +73,7 @@ r=redis.Redis(host=environ.get("REDIS_URL", "redis://127.0.0.1"),  decode_respon
 limiter = Limiter(
 	app,
 	key_func=get_ipaddr,
-	default_limits=["50/minute"],
+	default_limits=["3/second;30/minute;100/hour"],
 	headers_enabled=True,
 	strategy="fixed-window"
 )
@@ -92,7 +93,7 @@ def before_request():
 
 	if request.method.lower() != "get" and app.config["READ_ONLY"]: return {"error":f"{app.config['SITE_NAME']} is currently in read-only mode."}, 500
 
-	if app.config["BOT_DISABLE"] and request.headers.get("X-User-Type")=="Bot": abort(503)
+	if app.config["BOT_DISABLE"] and request.headers.get("Authorization"): abort(503)
 
 	g.db = db_session()
 
@@ -102,7 +103,7 @@ def before_request():
 		session.permanent = True
 		if not session.get("session_id"): session["session_id"] = secrets.token_hex(16)
 
-	if app.config["FORCE_HTTPS"] and request.url.startswith("http://") and "localhost" not in app.config["SERVER_NAME"]:
+	if app.config["FORCE_HTTPS"] and request.url.startswith("http://") and "127.0.0.1" not in app.config["SERVER_NAME"]:
 		url = request.url.replace("http://", "https://", 1)
 		return redirect(url, code=301)
 

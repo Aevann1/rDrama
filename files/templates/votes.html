@@ -28,7 +28,7 @@
 	<thead class="bg-primary text-white"><tr><th>User</th></tr></thead>
 
 	{% for vote in ups %}
-		<tr><td><a style="color:#{{vote.user.namecolor}};  font-weight:bold;" href="/@{{vote.user.username}}"><img loading="lazy" src="/uid/{{vote.user.id}}/pic/profile" class="profile-pic-20 mr-1"><span {% if vote.user.patron %}class="patron" style="background-color:#{{vote.user.namecolor}};"{% endif %}>{{vote.user.username}}</span></a></td></tr>
+		<tr><td><a style="color:#{{vote.user.namecolor}};  font-weight:bold;" href="/@{{vote.user.username}}"><img loading="lazy" src="/uid/{{vote.user.id}}/pic" class="pp20"><span {% if vote.user.patron %}class="patron" style="background-color:#{{vote.user.namecolor}};"{% endif %}>{{vote.user.username}}</span></a></td></tr>
 	{% endfor %}
 </table>
 
@@ -37,7 +37,7 @@
 	<thead class="bg-primary text-white"><tr><th>User</th></tr></thead>
 
 	{% for vote in downs %}
-		<tr><td><a style="color:#{{vote.user.namecolor}};  font-weight:bold;" href="/@{{vote.user.username}}"><img loading="lazy" src="/uid/{{vote.user.id}}/pic/profile" class="profile-pic-20 mr-1"><span {% if vote.user.patron %}class="patron" style="background-color:#{{vote.user.namecolor}};"{% endif %}>{{vote.user.username}}</span></a></td></tr>
+		<tr><td><a style="color:#{{vote.user.namecolor}};  font-weight:bold;" href="/@{{vote.user.username}}"><img loading="lazy" src="/uid/{{vote.user.id}}/pic" class="pp20"><span {% if vote.user.patron %}class="patron" style="background-color:#{{vote.user.namecolor}};"{% endif %}>{{vote.user.username}}</span></a></td></tr>
 	{% endfor %}
 </table>
 

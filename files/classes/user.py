@@ -15,6 +15,7 @@ from .clients import *
 from files.__main__ import Base, cache
 from files.helpers.security import *
 import random
+from os import environ
 
 site = environ.get("DOMAIN").strip()
 site_name = environ.get("SITE_NAME").strip()
@@ -22,53 +23,6 @@ defaulttheme = environ.get("DEFAULT_THEME", "midnight").strip()
 defaultcolor = environ.get("DEFAULT_COLOR", "fff").strip()
 defaulttimefilter = environ.get("DEFAULT_TIME_FILTER", "all").strip()
 cardview = bool(int(environ.get("CARD_VIEW", 1)))
-
-if site_name == "Drama":
-	AWARDS = {
-		"ban": {
-			"kind": "ban",
-			"title": "One-Day Ban",
-			"description": "Bans the author for a day.",
-			"icon": "fas fa-gavel",
-			"color": "text-danger",
-			"price": 5000
-		},
-		"shit": {
-			"kind": "shit",
-			"title": "Shit",
-			"description": "Makes flies swarm a post.",
-			"icon": "fas fa-poop",
-			"color": "text-black-50",
-			"price": 1000
-		},
-		"fireflies": {
-			"kind": "fireflies",
-			"title": "Fireflies",
-			"description": "Puts stars on the post.",
-			"icon": "fas fa-sparkles",
-			"color": "text-warning",
-			"price": 1000
-		}
-	}
-else:
-	AWARDS = {
-		"shit": {
-			"kind": "shit",
-			"title": "Shit",
-			"description": "Makes flies swarm a post.",
-			"icon": "fas fa-poop",
-			"color": "text-black-50",
-			"price": 1000
-		},
-		"fireflies": {
-			"kind": "fireflies",
-			"title": "Fireflies",
-			"description": "Puts stars on the post.",
-			"icon": "fas fa-sparkles",
-			"color": "text-warning",
-			"price": 1000
-		}
-	}
 
 class User(Base):
 	__tablename__ = "users"
@@ -83,7 +37,7 @@ class User(Base):
 	namecolor = Column(String, default=defaultcolor)
 	background = Column(String)
 	customtitle = Column(String)
-	customtitleplain = Column(String)
+	customtitleplain = deferred(Column(String))
 	titlecolor = Column(String, default=defaultcolor)
 	theme = Column(String, default=defaulttheme)
 	themecolor = Column(String, default=defaultcolor)
@@ -94,7 +48,10 @@ class User(Base):
 	bannerurl = Column(String)
 	patron = Column(Integer, default=0)
 	verified = Column(String)
-	email = Column(String)
+	verifiedcolor = Column(String)
+	marseyawarded = Column(Integer)
+	longpost = Column(Integer)
+	email = deferred(Column(String))
 	css = deferred(Column(String))
 	profilecss = deferred(Column(String))
 	passhash = deferred(Column(String))
@@ -108,6 +65,7 @@ class User(Base):
 	fail_utc = Column(Integer, default=0)
 	fail2_utc = Column(Integer, default=0)
 	admin_level = Column(Integer, default=0)
+	coins_spent = Column(Integer, default=0)
 	agendaposter = Column(Boolean, default=False)
 	agendaposter_expires_utc = Column(Integer, default=0)
 	changelogsub = Column(Boolean, default=False)
@@ -117,24 +75,37 @@ class User(Base):
 	hidevotedon = Column(Boolean, default=False)
 	highlightcomments = Column(Boolean, default=True)
 	slurreplacer = Column(Boolean, default=True)
-	flairchanged = Column(Boolean, default=False)
+	flairchanged = Column(Integer)
 	newtab = Column(Boolean, default=False)
 	newtabexternal = Column(Boolean, default=True)
 	oldreddit = Column(Boolean, default=True)
 	nitter = Column(Boolean)
+	mute = Column(Boolean)
+	unmutable = Column(Boolean)
+	eye = Column(Boolean)
+	alt = Column(Boolean)
 	frontsize = Column(Integer, default=25)
 	controversial = Column(Boolean, default=False)
-	bio = Column(String)
+	bio = deferred(Column(String))
 	bio_html = Column(String)
+	sig = deferred(Column(String))
+	sig_html = Column(String)
+	fp = Column(String)
+	sigs_disabled = Column(Boolean)
+	friends = deferred(Column(String))
+	friends_html = deferred(Column(String))
+	enemies = deferred(Column(String))
+	enemies_html = deferred(Column(String))
 	is_banned = Column(Integer, default=0)
 	unban_utc = Column(Integer, default=0)
-	ban_reason = Column(String)
+	ban_reason = deferred(Column(String))
 	club_banned = Column(Boolean, default=False)
 	club_allowed = Column(Boolean, default=False)
 	login_nonce = Column(Integer, default=0)
-	reserved = Column(String)
+	reserved = deferred(Column(String))
 	coins = Column(Integer, default=0)
 	truecoins = Column(Integer, default=0)
+	procoins = Column(Integer, default=0)
 	mfa_secret = deferred(Column(String))
 	is_private = Column(Boolean, default=False)
 	stored_subscriber_count = Column(Integer, default=0)
@@ -148,18 +119,15 @@ class User(Base):
 	original_username = deferred(Column(String))
 	referred_by = Column(Integer, ForeignKey("users.id"))
 
-	submissions = relationship("Submission", lazy="dynamic", primaryjoin="Submission.author_id==User.id", viewonly=True)
-	badges = relationship("Badge", lazy="dynamic", viewonly=True)
-	notifications = relationship("Notification", lazy="dynamic", viewonly=True)
+	badges = relationship("Badge", viewonly=True)
 	subscriptions = relationship("Subscription", viewonly=True)
 	following = relationship("Follow", primaryjoin="Follow.user_id==User.id", viewonly=True)
 	followers = relationship("Follow", primaryjoin="Follow.target_id==User.id", viewonly=True)
 	viewers = relationship("ViewerRelationship", primaryjoin="User.id == ViewerRelationship.user_id", viewonly=True)
 	blocking = relationship("UserBlock", lazy="dynamic", primaryjoin="User.id==UserBlock.user_id", viewonly=True)
 	blocked = relationship("UserBlock", lazy="dynamic", primaryjoin="User.id==UserBlock.target_id", viewonly=True)
-	apps = relationship("OauthApp", lazy="dynamic", viewonly=True)
-	authorizations = relationship("ClientAuth", lazy="dynamic", viewonly=True)
-	awards = relationship("AwardRelationship", lazy="dynamic", primaryjoin="User.id==AwardRelationship.user_id", viewonly=True)
+	authorizations = relationship("ClientAuth", viewonly=True)
+	awards = relationship("AwardRelationship", primaryjoin="User.id==AwardRelationship.user_id", viewonly=True)
 	referrals = relationship("User", viewonly=True)
 
 	def __init__(self, **kwargs):
@@ -175,40 +143,49 @@ class User(Base):
 
 	@property
 	@lazy
+	def csslazy(self):
+		return self.css
+
+	@property
+	@lazy
+	def notifications(self):
+		return g.db.query(Notification).filter_by(user_id=self.id)
+
+	@property
+	@lazy
 	def created_date(self):
 
 		return time.strftime("%d %b %Y", time.gmtime(self.created_utc))
 
 	@property
 	@lazy
-	def user_awards(v):
+	def user_awards(self):
 
-		return_value = list(AWARDS.values())
+		return_value = list(AWARDS2.values())
 
-		user_awards = v.awards
+		user_awards = g.db.query(AwardRelationship).filter_by(user_id=self.id)
 
 		for val in return_value: val['owned'] = user_awards.filter_by(kind=val['kind'], submission_id=None, comment_id=None).count()
 
 		return return_value
 
 	@property
-	@lazy
 	def referral_count(self):
 		return len(self.referrals)
 
 	def has_block(self, target):
 
-		return g.db.query(UserBlock).options(lazyload('*')).filter_by(
+		return g.db.query(UserBlock).filter_by(
 			user_id=self.id, target_id=target.id).first()
 
 	@property
 	@lazy
 	def paid_dues(self):
-		return self.admin_level == 6 or self.club_allowed or (self.truecoins > int(environ.get("DUES").strip()) and not self.club_banned)
+		return self.admin_level > 1 or self.club_allowed or (self.truecoins > int(environ.get("DUES").strip()) and not self.club_banned)
 
 	def any_block_exists(self, other):
 
-		return g.db.query(UserBlock).options(lazyload('*')).filter(
+		return g.db.query(UserBlock).filter(
 			or_(and_(UserBlock.user_id == self.id, UserBlock.target_id == other.id), and_(
 				UserBlock.user_id == other.id, UserBlock.target_id == self.id))).first()
 
@@ -238,12 +215,12 @@ class User(Base):
 	@cache.memoize(timeout=86400)
 	def userpagelisting(self, v=None, page=1, sort="new", t="all"):
 
-		if self.shadowbanned and not (v and (v.admin_level >= 3 or v.id == self.id)):
+		if self.shadowbanned and not (v and (v.admin_level > 1 or v.id == self.id)):
 			return []
 
-		posts = g.db.query(Submission.id).options(lazyload('*')).filter_by(author_id=self.id, is_pinned=False)
+		posts = g.db.query(Submission.id).filter_by(author_id=self.id, is_pinned=False)
 
-		if not (v and (v.admin_level >= 3 or v.id == self.id)):
+		if not (v and (v.admin_level > 1 or v.id == self.id)):
 			posts = posts.filter_by(deleted_utc=0, is_banned=False, private=False)
 
 		now = int(time.time())
@@ -280,6 +257,11 @@ class User(Base):
 
 	@property
 	@lazy
+	def bio_html_eager(self):
+		return self.bio_html.replace('data-src', 'src').replace('src="/assets/images/loading.webp"', '')
+
+	@property
+	@lazy
 	def fullname(self):
 		return f"t1_{self.id}"
 
@@ -290,7 +272,7 @@ class User(Base):
 		return g.db.query(User).filter_by(id=self.is_banned).first()
 
 	def has_badge(self, badgedef_id):
-		return self.badges.filter_by(badge_id=badgedef_id).first()
+		return g.db.query(Badge).filter_by(user_id=self.id, badge_id=badgedef_id).first()
 
 	def hash_password(self, password):
 		return generate_password_hash(
@@ -352,11 +334,11 @@ class User(Base):
 
 		awards = {}
 
-		posts_idlist = [x[0] for x in g.db.query(Submission.id).options(lazyload('*')).filter_by(author_id=self.id).all()]
-		comments_idlist = [x[0] for x in g.db.query(Comment.id).options(lazyload('*')).filter_by(author_id=self.id).all()]
+		posts_idlist = [x[0] for x in g.db.query(Submission.id).filter_by(author_id=self.id).all()]
+		comments_idlist = [x[0] for x in g.db.query(Comment.id).filter_by(author_id=self.id).all()]
 
-		post_awards = g.db.query(AwardRelationship).options(lazyload('*')).filter(AwardRelationship.submission_id.in_(posts_idlist)).all()
-		comment_awards = g.db.query(AwardRelationship).options(lazyload('*')).filter(AwardRelationship.comment_id.in_(comments_idlist)).all()
+		post_awards = g.db.query(AwardRelationship).filter(AwardRelationship.submission_id.in_(posts_idlist)).all()
+		comment_awards = g.db.query(AwardRelationship).filter(AwardRelationship.comment_id.in_(comments_idlist)).all()
 
 		total_awards = post_awards + comment_awards
 
@@ -371,22 +353,20 @@ class User(Base):
 
 	@property
 	@lazy
-	def post_notifications_count(self):
-		return self.notifications.filter(Notification.read == False).join(Notification.comment).filter(Comment.author_id == AUTOJANNY_ACCOUNT).count()
+	def notifications_count(self):
+		return g.db.query(Notification.id).join(Comment).filter(Notification.user_id == self.id, Notification.read == False, Comment.is_banned == False, Comment.deleted_utc == 0).count()
 
 	@property
 	@lazy
-	def notifications_count(self):
+	def post_notifications_count(self):
+		return g.db.query(Notification.id).join(Comment).filter(Notification.user_id == self.id, Notification.read == False, Comment.author_id == AUTOJANNY_ID).count()
 
-		return self.notifications.join(Notification.comment).filter(Notification.read == False,
-																	Comment.is_banned == False,
-																	Comment.deleted_utc == 0).count()
 
 	@property
 	@lazy
 	def alts(self):
 
-		subq = g.db.query(Alt).options(lazyload('*')).filter(
+		subq = g.db.query(Alt).filter(
 			or_(
 				Alt.user1 == self.id,
 				Alt.user2 == self.id
@@ -417,20 +397,20 @@ class User(Base):
 
 	def has_follower(self, user):
 
-		return g.db.query(Follow).options(lazyload('*')).filter_by(target_id=self.id, user_id=user.id).first()
+		return g.db.query(Follow).filter_by(target_id=self.id, user_id=user.id).first()
 
 	@property
 	@lazy
 	def banner_url(self):
 		if self.bannerurl: return self.bannerurl
-		else: return f"https://{site}/assets/images/{site_name}/preview.webp"
+		else: return f"http://{site}/assets/images/{site_name}/preview.webp?v=2"
 
 	@property
 	@lazy
 	def profile_url(self):
 		if self.profileurl: return self.profileurl
-		elif "rama" in site: return f"https://{site}/assets/images/defaultpictures/{random.randint(1, 150)}.webp"
-		else: return f"https://{site}/assets/images/default-profile-pic.webp"
+		elif "rama" in site: return f"http://{site}/assets/images/defaultpictures/{random.randint(1, 150)}.webp?v=1"
+		else: return f"http://{site}/assets/images/default-profile-pic.webp"
 
 	@property
 	@lazy
@@ -487,35 +467,40 @@ class User(Base):
 			self.profileurl = None
 			if self.discord_id: remove_user(self)
 
-		self.is_banned = admin.id if admin else AUTOJANNY_ACCOUNT
+		self.is_banned = admin.id if admin else AUTOJANNY_ID
 		if reason: self.ban_reason = reason
 
 		g.db.add(self)
 
 
-
 	@property
 	@lazy
 	def is_suspended(self):
+		if self.unban_utc and self.unban_utc < time.time():
+			self.is_banned = 0
+			self.unban_utc = 0
+			self.ban_evade = 0
+			g.db.add(self)
+			g.db.commit()
 		return (self.is_banned and (not self.unban_utc or self.unban_utc > time.time()))
 
 
 	@property
 	@lazy
 	def applications(self):
-		return [x for x in self.apps.order_by(OauthApp.id.asc()).all()]
+		return g.db.query(OauthApp).filter_by(author_id=self.id).order_by(OauthApp.id.asc()).all()
 
 	@lazy
 	def subscribed_idlist(self, page=1):
-		posts = g.db.query(Subscription.submission_id).options(lazyload('*')).filter_by(user_id=self.id).all()
+		posts = g.db.query(Subscription.submission_id).filter_by(user_id=self.id).all()
 		return [x[0] for x in posts]
 
 	@lazy
 	def saved_idlist(self, page=1):
 
-		posts = g.db.query(Submission.id).options(lazyload('*')).filter_by(is_banned=False, deleted_utc=0)
+		posts = g.db.query(Submission.id).filter_by(is_banned=False, deleted_utc=0)
 
-		saved = [x[0] for x in g.db.query(SaveRelationship.submission_id).options(lazyload('*')).filter(SaveRelationship.user_id == self.id).all()]
+		saved = [x[0] for x in g.db.query(SaveRelationship.submission_id).filter(SaveRelationship.user_id == self.id).all()]
 		posts = posts.filter(Submission.id.in_(saved))
 
 		if self.admin_level == 0:
@@ -538,8 +523,9 @@ class User(Base):
 	@lazy
 	def saved_comment_idlist(self):
 
-		saved = [x[0] for x in g.db.query(SaveRelationship.comment_id).options(lazyload('*')).filter(SaveRelationship.user_id == self.id).all()]
-		comments = g.db.query(Comment.id).options(lazyload('*')).filter(Comment.id.in_(saved))
+		try: saved = [x[0] for x in g.db.query(SaveRelationship.comment_id).filter(SaveRelationship.user_id == self.id).all()]
+		except: return []
+		comments = g.db.query(Comment.id).filter(Comment.id.in_(saved))
 
 		if self.admin_level == 0:
 			blocking = [x[0] for x in g.db.query(

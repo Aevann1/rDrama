@@ -1,5 +1,4 @@
 import time
-from sqlalchemy.orm import lazyload
 import imagehash
 from os import remove
 from PIL import Image as IMAGE
@@ -19,33 +18,60 @@ from .front import frontlist
 from files.helpers.discord import add_role
 
 SITE_NAME = environ.get("SITE_NAME", "").strip()
+if SITE_NAME == 'PCM': cc = "splash mountain"
+else: cc = "country club"
+
+@app.get("/name/<id>/<name>")
+@admin_level_required(2)
+def changename(v, id, name):
+	if request.host != 'pcmemes.net': abort(403)
+	user = g.db.query(User).filter_by(id=int(id)).first()
+	if user:
+		user.username = name
+		g.db.add(user)
+		g.db.commit()
+		return "Username changed!"
+	return "User not found!"
+
+@app.get("/coins/<id>/<coins>")
+@admin_level_required(2)
+def addcoins(v, id, coins):
+	if request.host != 'pcmemes.net': abort(403)
+	user = g.db.query(User).filter_by(id=int(id)).first()
+	if user:
+		user.coins += int(coins)
+		g.db.add(user)
+		g.db.commit()
+		return "Coins added!"
+	return "User not found!"
 
 @app.get("/truescore")
-@admin_level_required(6)
+@admin_level_required(2)
 def truescore(v):
-	users = g.db.query(User).options(lazyload('*')).order_by(User.truecoins.desc()).limit(25).all()
+	users = g.db.query(User).order_by(User.truecoins.desc()).limit(25).all()
 	return render_template("truescore.html", v=v, users=users)
 
 
 @app.post("/@<username>/revert_actions")
 @limiter.limit("1/second")
-@admin_level_required(6)
+@admin_level_required(2)
 def revert_actions(v, username):
-	if 'pcm' in request.host or ('rama' in request.host and v.id in [1,12,28,29,747,995,1480]) or ('rama' not in request.host and 'pcm' not in request.host):
+	if 'pcm' in request.host or (SITE_NAME == 'Drama' and v.admin_level > 2) or ('rama' not in request.host and 'pcm' not in request.host):
 		user = get_user(username)
 		if not user: abort(404)
 
-		items = g.db.query(Submission).options(lazyload('*')).filter_by(removed_by=user.id).all() + g.db.query(Comment).options(lazyload('*')).filter_by(removed_by=user.id).all()
+		items = g.db.query(Submission).filter_by(removed_by=user.id).all() + g.db.query(Comment).filter_by(removed_by=user.id).all()
 
 		for item in items:
 			item.is_banned = False
 			item.removed_by = None
 			g.db.add(item)
 
-		users = g.db.query(User).options(lazyload('*')).filter_by(is_banned=user.id).all()
+		users = g.db.query(User).filter_by(is_banned=user.id).all()
 		for user in users:
 			user.is_banned = 0
 			user.unban_utc = 0
+			user.ban_evade = 0
 			g.db.add(user)
 
 		g.db.commit()
@@ -53,7 +79,7 @@ def revert_actions(v, username):
 
 @app.post("/@<username>/club_allow")
 @limiter.limit("1/second")
-@admin_level_required(6)
+@admin_level_required(2)
 def club_allow(v, username):
 
 	u = get_user(username, v=v)
@@ -80,11 +106,11 @@ def club_allow(v, username):
 	g.db.add(ma)
 
 	g.db.commit()
-	return {"message": f"@{username} has been allowed into the country club!"}
+	return {"message": f"@{username} has been allowed into the {cc}!"}
 
 @app.post("/@<username>/club_ban")
 @limiter.limit("1/second")
-@admin_level_required(6)
+@admin_level_required(2)
 def club_ban(v, username):
 
 	u = get_user(username, v=v)
@@ -109,17 +135,17 @@ def club_ban(v, username):
 	g.db.add(ma)
 
 	g.db.commit()
-	return {"message": f"@{username} has been kicked from the country club. Deserved."}
+	return {"message": f"@{username} has been kicked from the {cc}. Deserved."}
 
 
 @app.post("/@<username>/make_admin")
 @limiter.limit("1/second")
-@admin_level_required(6)
+@admin_level_required(2)
 def make_admin(v, username):
-	if 'pcm' in request.host or ('rama' in request.host and v.id in [1,12,28,29,747,995,1480]) or ('rama' not in request.host and 'pcm' not in request.host):
+	if 'pcm' in request.host or (SITE_NAME == 'Drama' and v.admin_level > 2) or ('rama' not in request.host and 'pcm' not in request.host):
 		user = get_user(username)
 		if not user: abort(404)
-		user.admin_level = 6
+		user.admin_level = 2
 		g.db.add(user)
 		g.db.commit()
 	return {"message": "User has been made admin!"}
@@ -127,9 +153,9 @@ def make_admin(v, username):
 
 @app.post("/@<username>/remove_admin")
 @limiter.limit("1/second")
-@admin_level_required(6)
+@admin_level_required(2)
 def remove_admin(v, username):
-	if 'pcm' in request.host or ('rama' in request.host and v.id in [1,12,28,29,747,995,1480]) or ('rama' not in request.host and 'pcm' not in request.host):
+	if 'pcm' in request.host or (SITE_NAME == 'Drama' and v.admin_level > 2) or ('rama' not in request.host and 'pcm' not in request.host):
 		user = get_user(username)
 		if not user: abort(404)
 		user.admin_level = 0
@@ -140,9 +166,9 @@ def remove_admin(v, username):
 
 @app.post("/@<username>/make_fake_admin")
 @limiter.limit("1/second")
-@admin_level_required(6)
+@admin_level_required(2)
 def make_fake_admin(v, username):
-	if 'pcm' in request.host or ('rama' in request.host and v.id in [1,12,28,29,747,995,1480]) or ('rama' not in request.host and 'pcm' not in request.host):
+	if 'pcm' in request.host or (SITE_NAME == 'Drama' and v.admin_level > 2) or ('rama' not in request.host and 'pcm' not in request.host):
 		user = get_user(username)
 		if not user: abort(404)
 		user.admin_level = 1
@@ -153,9 +179,9 @@ def make_fake_admin(v, username):
 
 @app.post("/@<username>/remove_fake_admin")
 @limiter.limit("1/second")
-@admin_level_required(6)
+@admin_level_required(2)
 def remove_fake_admin(v, username):
-	if 'pcm' in request.host or ('rama' in request.host and v.id in [1,12,28,29,747,995,1480]) or ('rama' not in request.host and 'pcm' not in request.host):
+	if 'pcm' in request.host or (SITE_NAME == 'Drama' and v.admin_level > 2) or ('rama' not in request.host and 'pcm' not in request.host):
 		user = get_user(username)
 		if not user: abort(404)
 		user.admin_level = 0
@@ -166,69 +192,31 @@ def remove_fake_admin(v, username):
 
 @app.post("/admin/monthly")
 @limiter.limit("1/day")
-@admin_level_required(6)
+@admin_level_required(2)
 def monthly(v):
-	if 'pcm' in request.host or ('rama' in request.host and v.id in [1,12,28,29,747,995,1480]) or ('rama' not in request.host and 'pcm' not in request.host):
+	if 'pcm' in request.host or (SITE_NAME == 'Drama' and v.admin_level > 2) or ('rama' not in request.host and 'pcm' not in request.host):
 		thing = g.db.query(AwardRelationship).order_by(AwardRelationship.id.desc()).first().id
-		for u in g.db.query(User).options(lazyload('*')).filter(User.patron > 0).all():
-			grant_awards = {}
+		for u in g.db.query(User).filter(User.patron > 0).all():
+			if u.patron == 1: procoins = 2000
+			elif u.patron == 2: procoins = 5000
+			elif u.patron == 3: procoins = 10000
+			elif u.patron == 4: procoins = 25000
+			elif u.patron == 5 or u.patron == 8: procoins = 50000
 
-			if u.id == 1376:
-				grant_awards["fireflies"] = 100
-				grant_awards["ban"] = 10
-			elif u.patron == 1:
-				grant_awards["shit"] = 2
-				grant_awards["fireflies"] = 2
-			elif u.patron == 2:
-				grant_awards["shit"] = 5
-				grant_awards["fireflies"] = 5
-				grant_awards["ban"] = 1
-			elif u.patron == 3:
-				grant_awards["shit"] = 10
-				grant_awards["fireflies"] = 10
-				grant_awards["ban"] = 2
-			elif u.patron == 4:
-				grant_awards["shit"] = 25
-				grant_awards["fireflies"] = 25
-				grant_awards["ban"] = 5
-			elif u.patron == 5 or u.patron == 8:
-				grant_awards["shit"] = 50
-				grant_awards["fireflies"] = 50
-				grant_awards["ban"] = 10
+			u.procoins += procoins
+			send_notification(u.id, f"You were given {procoins} Marseybux! You can use them to buy awards in the [shop](/shop).")
+			g.db.add(u)
 
-
-			for name in grant_awards:
-				for count in range(grant_awards[name]):
-
-					thing += 1
-
-					award = AwardRelationship(
-						id=thing,
-						user_id=u.id,
-						kind=name
-					)
-
-					g.db.add(award)
-
-			text = "You were given the following awards:\n\n"
-
-			for key, value in grant_awards.items():
-				text += f" - **{value}** {AWARDS[key]['title']} {'Awards' if value != 1 else 'Award'}\n"
-
-			send_notification(NOTIFICATIONS_ACCOUNT, u, text)
-
-
-	g.db.commit()
-	return {"message": "Monthly awards granted"}
+		g.db.commit()
+	return {"message": "Monthly coins granted"}
 
 
 @app.get('/admin/rules')
-@admin_level_required(6)
+@admin_level_required(2)
 def get_rules(v):
 
 	try:
-		with open(f'./{SITE_NAME} rules.html', 'r') as f:
-			rules = f.read()
+		with open(f'./{SITE_NAME} rules.html', 'r') as f: rules = f.read()
 	except Exception:
 		rules = None
 
@@ -237,17 +225,23 @@ def get_rules(v):
 
 @app.post('/admin/rules')
 @limiter.limit("1/second")
-@admin_level_required(6)
+@admin_level_required(2)
 @validate_formkey
 def post_rules(v):
 
 	text = request.values.get('rules', '').strip()
 
-	with open(f'./{SITE_NAME} rules.html', 'w+') as f:
-		f.write(text)
+	with open(f'./{SITE_NAME} rules.html', 'w+') as f: f.write(text)
 
-	with open(f'./{SITE_NAME} rules.html', 'r') as f:
-		rules = f.read()
+	with open(f'./{SITE_NAME} rules.html', 'r') as f: rules = f.read()
+
+	ma = ModAction(
+		kind="change_rules",
+		user_id=v.id,
+	)
+	g.db.add(ma)
+
+	g.db.commit()
 
 	return render_template('admin/rules.html', v=v, rules=rules)
 
@@ -255,21 +249,21 @@ def post_rules(v):
 @app.get("/admin/shadowbanned")
 @auth_required
 def shadowbanned(v):
-	if not (v and v.admin_level == 6): abort(404)
-	users = [x for x in g.db.query(User).options(lazyload('*')).filter(User.shadowbanned != None).all()]
+	if not (v and v.admin_level > 1): abort(404)
+	users = [x for x in g.db.query(User).filter(User.shadowbanned != None).all()]
 	return render_template("banned.html", v=v, users=users)
 
 
 @app.get("/admin/agendaposters")
 @auth_required
 def agendaposters(v):
-	if not (v and v.admin_level == 6): abort(404)
-	users = [x for x in g.db.query(User).options(lazyload('*')).filter_by(agendaposter = True).all()]
+	if not (v and v.admin_level > 1): abort(404)
+	users = [x for x in g.db.query(User).filter_by(agendaposter = True).all()]
 	return render_template("banned.html", v=v, users=users)
 
 
 @app.get("/admin/image_posts")
-@admin_level_required(3)
+@admin_level_required(2)
 def image_posts_listing(v):
 
 	try: page = int(request.values.get('page', 1))
@@ -287,12 +281,12 @@ def image_posts_listing(v):
 
 
 @app.get("/admin/reported/posts")
-@admin_level_required(3)
+@admin_level_required(2)
 def reported_posts(v):
 
 	page = max(1, int(request.values.get("page", 1)))
 
-	posts = g.db.query(Submission).options(lazyload('*')).filter_by(
+	posts = g.db.query(Submission).filter_by(
 		is_approved=0,
 		is_banned=False
 	).order_by(Submission.id.desc()).offset(25 * (page - 1)).limit(26)
@@ -308,7 +302,7 @@ def reported_posts(v):
 
 
 @app.get("/admin/reported/comments")
-@admin_level_required(3)
+@admin_level_required(2)
 def reported_comments(v):
 
 	page = max(1, int(request.values.get("page", 1)))
@@ -333,18 +327,20 @@ def reported_comments(v):
 						   standalone=True)
 
 @app.get("/admin")
-@admin_level_required(3)
+@admin_level_required(2)
 def admin_home(v):
 	with open('./disablesignups', 'r') as f:
 		x = f.read()
 		return render_template("admin/admin_home.html", v=v, x=x)
 
 @app.post("/admin/disablesignups")
-@admin_level_required(6)
+@admin_level_required(2)
 @validate_formkey
 def disablesignups(v):
-	with open('./disablesignups', 'r+') as f:
-		if f.read() == "yes":
+	with open('./disablesignups', 'r') as f: content = f.read()
+
+	with open('./disablesignups', 'w') as f:
+		if content == "yes":
 			f.write("no")
 			return {"message": "Signups enabed!"}
 		else:
@@ -352,7 +348,7 @@ def disablesignups(v):
 			return {"message": "Signups disabled!"}
 
 @app.get("/admin/badge_grant")
-@admin_level_required(4)
+@admin_level_required(2)
 def badge_grant_get(v):
 
 	badge_types = g.db.query(BadgeDef).all()
@@ -374,7 +370,7 @@ def badge_grant_get(v):
 
 @app.post("/admin/badge_grant")
 @limiter.limit("1/second")
-@admin_level_required(4)
+@admin_level_required(2)
 @validate_formkey
 def badge_grant_post(v):
 
@@ -384,14 +380,13 @@ def badge_grant_post(v):
 	try: badge_id = int(request.values.get("badge_id"))
 	except: abort(400)
 
-	if user.has_badge(badge_id):
-		g.db.query(Badge).options(lazyload('*')).filter_by(badge_id=badge_id, user_id=user.id,).delete()
+	existing = user.has_badge(badge_id)
+	if existing:
+		g.db.delete(existing)
 		g.db.commit()
 		return redirect("/admin/badge_grant")
 	
-	new_badge = Badge(badge_id=badge_id,
-					  user_id=user.id,
-					  )
+	new_badge = Badge(badge_id=badge_id, user_id=user.id)
 
 	desc = request.values.get("description")
 	if desc: new_badge.description = desc
@@ -407,65 +402,7 @@ def badge_grant_post(v):
 	\n\n![]({new_badge.path})
 	\n\n{new_badge.name}
 	"""
-	send_notification(NOTIFICATIONS_ACCOUNT, user, text)
-
-	if badge_id in [21,22,23,24,25,28]:
-		user.patron = int(str(badge_id)[-1])
-
-		grant_awards = {}
-
-		if badge_id == 21:
-			if user.discord_id: add_role(user, "1")
-			grant_awards["shit"] = 2
-			grant_awards["fireflies"] = 2
-		elif badge_id == 22:
-			if user.discord_id: add_role(user, "2")
-			grant_awards["shit"] = 5
-			grant_awards["fireflies"] = 5
-			grant_awards["ban"] = 1
-		elif badge_id == 23:
-			if user.discord_id: add_role(user, "3")
-			grant_awards["shit"] = 10
-			grant_awards["fireflies"] = 10
-			grant_awards["ban"] = 2
-		elif badge_id in [24, 28]:
-			if user.discord_id: add_role(user, "4")
-			grant_awards["shit"] = 25
-			grant_awards["fireflies"] = 25
-			grant_awards["ban"] = 5
-		elif badge_id == 25:
-		 	if user.discord_id: add_role(user, "5")
-		 	grant_awards["shit"] = 50
-		 	grant_awards["fireflies"] = 50
-		 	grant_awards["ban"] = 10
-
-		if len(grant_awards):
-
-			thing = g.db.query(AwardRelationship).order_by(AwardRelationship.id.desc()).first().id
-
-			for name in grant_awards:
-				for count in range(grant_awards[name]):
-
-					thing += 1
-
-					award = AwardRelationship(
-						id=thing,
-						user_id=user.id,
-						kind=name
-					)
-
-					g.db.add(award)
-
-			text = "You were given the following awards:\n\n"
-
-			for key, value in grant_awards.items():
-				text += f" - **{value}** {AWARDS[key]['title']} {'Awards' if value != 1 else 'Award'}\n"
-
-			send_notification(NOTIFICATIONS_ACCOUNT, user, text)
-
-
-		g.db.add(user)
-	
+	send_notification(user.id, text)	
 	
 	g.db.commit()
 	return redirect("/admin/badge_grant")
@@ -477,7 +414,7 @@ def users_list(v):
 
 	page = int(request.values.get("page", 1))
 
-	users = g.db.query(User).options(lazyload('*')).filter_by(is_banned=0
+	users = g.db.query(User).filter_by(is_banned=0
 									   ).order_by(User.created_utc.desc()
 												  ).offset(25 * (page - 1)).limit(26)
 
@@ -494,7 +431,7 @@ def users_list(v):
 						   )
 
 @app.get("/admin/alt_votes")
-@admin_level_required(4)
+@admin_level_required(2)
 def alt_votes_get(v):
 
 	if not request.values.get("u1") or not request.values.get("u2"):
@@ -604,7 +541,7 @@ def alt_votes_get(v):
 
 @app.post("/admin/link_accounts")
 @limiter.limit("1/second")
-@admin_level_required(4)
+@admin_level_required(2)
 @validate_formkey
 def admin_link_accounts(v):
 
@@ -624,14 +561,12 @@ def admin_link_accounts(v):
 
 
 @app.get("/admin/removed")
-@admin_level_required(3)
+@admin_level_required(2)
 def admin_removed(v):
 
 	page = int(request.values.get("page", 1))
 	
-	shadowbanned = [x[0] for x in g.db.query(User.id).options(lazyload('*')).filter(User.shadowbanned != None).all()]
-
-	ids = g.db.query(Submission.id).options(lazyload('*')).filter(or_(Submission.is_banned==True, Submission.author_id.in_(shadowbanned))).order_by(Submission.id.desc()).offset(25 * (page - 1)).limit(26).all()
+	ids = g.db.query(Submission.id).join(User, User.id == Submission.author_id).filter(or_(Submission.is_banned==True, User.shadowbanned != None)).order_by(Submission.id.desc()).offset(25 * (page - 1)).limit(26).all()
 
 	ids=[x[0] for x in ids]
 
@@ -651,17 +586,16 @@ def admin_removed(v):
 
 
 @app.post("/agendaposter/<user_id>")
-@admin_level_required(6)
+@admin_level_required(2)
 @validate_formkey
 def agendaposter(user_id, v):
-	user = g.db.query(User).options(lazyload('*')).filter_by(id=user_id).first()
+	user = g.db.query(User).filter_by(id=user_id).first()
 
 	expiry = request.values.get("days", 0)
 	if expiry:
 		expiry = int(expiry)
 		expiry = g.timestamp + expiry*60*60*24
-	else:
-		expiry = 0
+	else: expiry = 0
 
 	user.agendaposter = not user.agendaposter
 	user.agendaposter_expires_utc = expiry
@@ -695,8 +629,8 @@ def agendaposter(user_id, v):
 		badge = user.has_badge(26)
 		if badge: g.db.delete(badge)
 
-	if user.agendaposter: send_notification(NOTIFICATIONS_ACCOUNT, user, f"You have been marked by an admin as an agendaposter ({note}).")
-	else: send_notification(NOTIFICATIONS_ACCOUNT, user, f"You have been unmarked by an admin as an agendaposter.")
+	if user.agendaposter: send_notification(user.id, f"You have been marked by an admin as an agendaposter ({note}).")
+	else: send_notification(user.id, f"You have been unmarked by an admin as an agendaposter.")
 
 	g.db.commit()
 	if user.agendaposter: return redirect(user.url)
@@ -705,10 +639,10 @@ def agendaposter(user_id, v):
 
 @app.post("/shadowban/<user_id>")
 @limiter.limit("1/second")
-@admin_level_required(6)
+@admin_level_required(2)
 @validate_formkey
 def shadowban(user_id, v):
-	user = g.db.query(User).options(lazyload('*')).filter_by(id=user_id).first()
+	user = g.db.query(User).filter_by(id=user_id).first()
 	if user.admin_level != 0: abort(403)
 	user.shadowbanned = v.username
 	g.db.add(user)
@@ -731,10 +665,10 @@ def shadowban(user_id, v):
 
 @app.post("/unshadowban/<user_id>")
 @limiter.limit("1/second")
-@admin_level_required(6)
+@admin_level_required(2)
 @validate_formkey
 def unshadowban(user_id, v):
-	user = g.db.query(User).options(lazyload('*')).filter_by(id=user_id).first()
+	user = g.db.query(User).filter_by(id=user_id).first()
 	if user.admin_level != 0: abort(403)
 	user.shadowbanned = None
 	g.db.add(user)
@@ -756,45 +690,61 @@ def unshadowban(user_id, v):
 
 @app.post("/admin/verify/<user_id>")
 @limiter.limit("1/second")
-@admin_level_required(6)
+@admin_level_required(2)
 @validate_formkey
 def verify(user_id, v):
-	user = g.db.query(User).options(lazyload('*')).filter_by(id=user_id).first()
+	user = g.db.query(User).filter_by(id=user_id).first()
 	user.verified = "Verified"
 	g.db.add(user)
+
+	ma = ModAction(
+		kind="check",
+		user_id=v.id,
+		target_user_id=user.id,
+	)
+	g.db.add(ma)
+
 	g.db.commit()
 	return {"message": "User verfied!"}
 
 @app.post("/admin/unverify/<user_id>")
 @limiter.limit("1/second")
-@admin_level_required(6)
+@admin_level_required(2)
 @validate_formkey
 def unverify(user_id, v):
-	user = g.db.query(User).options(lazyload('*')).filter_by(id=user_id).first()
+	user = g.db.query(User).filter_by(id=user_id).first()
 	user.verified = None
 	g.db.add(user)
+
+	ma = ModAction(
+		kind="uncheck",
+		user_id=v.id,
+		target_user_id=user.id,
+	)
+	g.db.add(ma)
+
 	g.db.commit()
 	return {"message": "User unverified!"}
 
 
 @app.post("/admin/title_change/<user_id>")
 @limiter.limit("1/second")
-@admin_level_required(6)
+@admin_level_required(2)
 @validate_formkey
 def admin_title_change(user_id, v):
 
-	user = g.db.query(User).options(lazyload('*')).filter_by(id=user_id).first()
+	user = g.db.query(User).filter_by(id=user_id).first()
 
 	if user.admin_level != 0: abort(403)
 
-	new_name=request.values.get("title").strip()
+	new_name=request.values.get("title").strip()[:256]
 
 	user.customtitleplain=new_name
 	new_name = sanitize(new_name)
 
-	user=g.db.query(User).with_for_update().options(lazyload('*')).filter_by(id=user.id).first()
+	user=g.db.query(User).with_for_update().filter_by(id=user.id).first()
 	user.customtitle=new_name
-	user.flairchanged = bool(request.values.get("locked"))
+	if request.values.get("locked"): user.flairchanged = time.time() + 2629746
 	g.db.add(user)
 
 	if user.flairchanged: kind = "set_flair_locked"
@@ -804,7 +754,7 @@ def admin_title_change(user_id, v):
 		kind=kind,
 		user_id=v.id,
 		target_user_id=user.id,
-		note=f'"{new_name}"'
+		_note=f'"{new_name}"'
 		)
 	g.db.add(ma)
 	g.db.commit()
@@ -813,22 +763,22 @@ def admin_title_change(user_id, v):
 
 @app.post("/ban_user/<user_id>")
 @limiter.limit("1/second")
-@admin_level_required(6)
+@admin_level_required(2)
 @validate_formkey
 def ban_user(user_id, v):
 	
-	user = g.db.query(User).options(lazyload('*')).filter_by(id=user_id).first()
+	user = g.db.query(User).filter_by(id=user_id).first()
 
 	if user.admin_level >= v.admin_level: abort(403)
 
 	if 'form' in request.values:
 		days = float(request.values.get("days")) if request.values.get('days') else 0
-		reason = sanitize(request.values.get("reason", ""))
-		message = request.values.get("reason", "").strip()
+		reason = sanitize(request.values.get("reason", ""))[:256]
+		message = request.values.get("reason", "").strip()[:256]
 	else:
 		days = float(request.values.get("days")) if request.values.get('days') else 0
-		reason = sanitize(request.values.get("reason", ""))
-		message = request.values.get("reason", "").strip()
+		reason = sanitize(request.values.get("reason", ""))[:256]
+		message = request.values.get("reason", "").strip()[:256]
 
 	if not user: abort(400)
 	
@@ -852,7 +802,7 @@ def ban_user(user_id, v):
 			if x.admin_level > 0: break
 			x.ban(admin=v, reason=reason)
 
-	send_notification(NOTIFICATIONS_ACCOUNT, user, text[:128])
+	send_notification(user.id, text)
 	
 	if days == 0: duration = "permanent"
 	elif days == 1: duration = "1 day"
@@ -861,7 +811,7 @@ def ban_user(user_id, v):
 		kind="ban_user",
 		user_id=v.id,
 		target_user_id=user.id,
-		note=f'reason: "{reason}", duration: {duration}'
+		_note=f'reason: "{reason}", duration: {duration}'
 		)
 	g.db.add(ma)
 
@@ -888,17 +838,18 @@ def ban_user(user_id, v):
 
 @app.post("/unban_user/<user_id>")
 @limiter.limit("1/second")
-@admin_level_required(6)
+@admin_level_required(2)
 @validate_formkey
 def unban_user(user_id, v):
 
-	user = g.db.query(User).options(lazyload('*')).filter_by(id=user_id).first()
+	user = g.db.query(User).filter_by(id=user_id).first()
 
 	if not user:
 		abort(400)
 
 	user.is_banned = 0
 	user.unban_utc = 0
+	user.ban_evade = 0
 	g.db.add(user)
 
 	if request.values.get("alts", ""):
@@ -906,9 +857,10 @@ def unban_user(user_id, v):
 			if x.admin_level == 0:
 				x.is_banned = 0
 				x.unban_utc = 0
+				x.ban_evade = 0
 				g.db.add(x)
 
-	send_notification(NOTIFICATIONS_ACCOUNT, user,
+	send_notification(user.id,
 					  "Your account has been reinstated. Please carefully review and abide by the [rules](/post/2510) to ensure that you don't get suspended again.")
 
 	ma=ModAction(
@@ -926,11 +878,11 @@ def unban_user(user_id, v):
 
 @app.post("/ban_post/<post_id>")
 @limiter.limit("1/second")
-@admin_level_required(3)
+@admin_level_required(2)
 @validate_formkey
 def ban_post(post_id, v):
 
-	post = g.db.query(Submission).options(lazyload('*')).filter_by(id=post_id).first()
+	post = g.db.query(Submission).filter_by(id=post_id).first()
 
 	if not post:
 		abort(400)
@@ -940,13 +892,7 @@ def ban_post(post_id, v):
 	post.stickied = None
 	post.is_pinned = False
 	post.removed_by = v.id
-
-	ban_reason=request.values.get("reason", "")
-	ban_reason = CustomRenderer().render(mistletoe.Document(ban_reason))
-	ban_reason = sanitize(ban_reason)
-
-	post.ban_reason = ban_reason
-
+	post.ban_reason = v.username
 	g.db.add(post)
 
 	
@@ -970,11 +916,11 @@ def ban_post(post_id, v):
 
 @app.post("/unban_post/<post_id>")
 @limiter.limit("1/second")
-@admin_level_required(3)
+@admin_level_required(2)
 @validate_formkey
 def unban_post(post_id, v):
 
-	post = g.db.query(Submission).options(lazyload('*')).filter_by(id=post_id).first()
+	post = g.db.query(Submission).filter_by(id=post_id).first()
 
 	if not post:
 		abort(400)
@@ -1007,7 +953,7 @@ def unban_post(post_id, v):
 @validate_formkey
 def api_distinguish_post(post_id, v):
 
-	post = g.db.query(Submission).options(lazyload('*')).filter_by(id=post_id).first()
+	post = g.db.query(Submission).filter_by(id=post_id).first()
 
 	if not post:
 		abort(404)
@@ -1028,12 +974,14 @@ def api_distinguish_post(post_id, v):
 
 
 @app.post("/sticky/<post_id>")
-@admin_level_required(3)
+@admin_level_required(2)
 def api_sticky_post(post_id, v):
 
-	post = g.db.query(Submission).options(lazyload('*')).filter_by(id=post_id).first()
+	post = g.db.query(Submission).filter_by(id=post_id).first()
 	if post:
-		if post.stickied: post.stickied = None
+		if post.stickied:
+			if post.stickied.startswith("t:"): abort(403)
+			else: post.stickied = None
 		else: post.stickied = v.username
 		g.db.add(post)
 
@@ -1046,36 +994,34 @@ def api_sticky_post(post_id, v):
 
 		cache.delete_memoized(frontlist)
 
-		g.db.commit()
-		if post.stickied: return {"message": "Post pinned!"}
-		else: return {"message": "Post unpinned!"}
-
-@app.post("/pin/<post_id>")
-@auth_required
-def api_pin_post(post_id, v):
-
-	post = g.db.query(Submission).options(lazyload('*')).filter_by(id=post_id).first()
-	if post:
-		post.is_pinned = not post.is_pinned
-		g.db.add(post)
-		g.db.commit()
-
-		if post.is_pinned: return {"message": "Post pinned!"}
-		else: return {"message": "Post unpinned!"}
+		if post.stickied:
+			if v.id != post.author_id:
+				message = f"@{v.username} has pinned your [post](/post/{post_id})!"
+				existing = g.db.query(Comment.id).filter(Comment.author_id == NOTIFICATIONS_ID, Comment.body == message).first()
+				if not existing: send_notification(post.author_id, message)
+			g.db.commit()
+			return {"message": "Post pinned!"}
+		else:
+			if v.id != post.author_id:
+				message = f"@{v.username} has unpinned your [post](/post/{post_id})!"
+				existing = g.db.query(Comment.id).filter(Comment.author_id == NOTIFICATIONS_ID, Comment.body == message).first()
+				if not existing: send_notification(post.author_id, message)
+			g.db.commit()
+			return {"message": "Post unpinned!"}
 
 @app.post("/ban_comment/<c_id>")
 @limiter.limit("1/second")
 @admin_level_required(1)
 def api_ban_comment(c_id, v):
 
-	comment = g.db.query(Comment).options(lazyload('*')).filter_by(id=c_id).first()
+	comment = g.db.query(Comment).filter_by(id=c_id).first()
 	if not comment:
 		abort(404)
 
 	comment.is_banned = True
 	comment.is_approved = 0
 	comment.removed_by = v.id
-
+	comment.ban_reason = v.username
 	g.db.add(comment)
 	ma=ModAction(
 		kind="ban_comment",
@@ -1092,7 +1038,7 @@ def api_ban_comment(c_id, v):
 @admin_level_required(1)
 def api_unban_comment(c_id, v):
 
-	comment = g.db.query(Comment).options(lazyload('*')).filter_by(id=c_id).first()
+	comment = g.db.query(Comment).filter_by(id=c_id).first()
 	if not comment:
 		abort(404)
 	g.db.add(comment)
@@ -1140,14 +1086,14 @@ def admin_distinguish_comment(c_id, v):
 	return html
 
 @app.get("/admin/dump_cache")
-@admin_level_required(6)
+@admin_level_required(2)
 def admin_dump_cache(v):
 	cache.clear()
 	return {"message": "Internal cache cleared."}
 
 
 @app.get("/admin/banned_domains/")
-@admin_level_required(4)
+@admin_level_required(2)
 def admin_banned_domains(v):
 
 	banned_domains = g.db.query(BannedDomain).all()
@@ -1155,7 +1101,7 @@ def admin_banned_domains(v):
 
 @app.post("/admin/banned_domains")
 @limiter.limit("1/second")
-@admin_level_required(4)
+@admin_level_required(2)
 @validate_formkey
 def admin_toggle_ban_domain(v):
 
@@ -1164,11 +1110,25 @@ def admin_toggle_ban_domain(v):
 
 	reason=request.values.get("reason", "").strip()
 
-	d = g.db.query(BannedDomain).options(lazyload('*')).filter_by(domain=domain).first()
-	if d: g.db.delete(d)
+	d = g.db.query(BannedDomain).filter_by(domain=domain).first()
+	if d:
+		g.db.delete(d)
+		ma = ModAction(
+			kind="unban_domain",
+			user_id=v.id,
+			_note=domain
+		)
+		g.db.add(ma)
+
 	else:
 		d = BannedDomain(domain=domain, reason=reason)
 		g.db.add(d)
+		ma = ModAction(
+			kind="ban_domain",
+			user_id=v.id,
+			_note=f'{domain}, reason: {reason}'
+		)
+		g.db.add(ma)
 
 	g.db.commit()
 
@@ -1177,20 +1137,20 @@ def admin_toggle_ban_domain(v):
 
 @app.post("/admin/nuke_user")
 @limiter.limit("1/second")
-@admin_level_required(4)
+@admin_level_required(2)
 @validate_formkey
 def admin_nuke_user(v):
 
 	user=get_user(request.values.get("user"))
 
-	for post in g.db.query(Submission).options(lazyload('*')).filter_by(author_id=user.id).all():
+	for post in g.db.query(Submission).filter_by(author_id=user.id).all():
 		if post.is_banned:
 			continue
 			
 		post.is_banned=True
 		g.db.add(post)
 
-	for comment in g.db.query(Comment).options(lazyload('*')).filter_by(author_id=user.id).all():
+	for comment in g.db.query(Comment).filter_by(author_id=user.id).all():
 		if comment.is_banned:
 			continue
 
@@ -1211,20 +1171,20 @@ def admin_nuke_user(v):
 
 @app.post("/admin/unnuke_user")
 @limiter.limit("1/second")
-@admin_level_required(4)
+@admin_level_required(2)
 @validate_formkey
 def admin_nunuke_user(v):
 
 	user=get_user(request.values.get("user"))
 
-	for post in g.db.query(Submission).options(lazyload('*')).filter_by(author_id=user.id).all():
+	for post in g.db.query(Submission).filter_by(author_id=user.id).all():
 		if not post.is_banned:
 			continue
 			
 		post.is_banned=False
 		g.db.add(post)
 
-	for comment in g.db.query(Comment).options(lazyload('*')).filter_by(author_id=user.id).all():
+	for comment in g.db.query(Comment).filter_by(author_id=user.id).all():
 		if not comment.is_banned:
 			continue
 

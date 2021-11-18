@@ -56,10 +56,10 @@
 				</button>
 {% if v %}
 				<button type="button" class="col px-0 mr-3 btn btn-dead m-0" style="background: None !important; border: None;">
-						<a href="{{v.url}}" class="text-decoration-none" role="button">
-								<div class="text-center {% if request.path==v.url %}text-primary{% else %}text-muted{% endif %}">
-										<i class="fas fa-user-circle text-lg"></i>
-										<div class="text-small">Profile</div>
+						<a href="/shop" class="text-decoration-none" role="button">
+								<div class="text-center {% if request.path=='/shop' %}text-primary{% else %}text-muted{% endif %}">
+										<i class="fas fa-store text-lg"></i>
+										<div class="text-small">Shop</div>
 								</div>
 						</a>
 				</button>

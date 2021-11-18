@@ -13,9 +13,9 @@
 {% for uid,row in result.items() %}
 	<tr>
 		<td style="font-weight:bold;">{{loop.index}}</td>
-		<td><a style="color:#{{row['namecolor']}};  font-weight:bold;" href="/@{{row['username']}}"><img loading="lazy" src="/uid/{{uid}}/pic/profile" class="profile-pic-20 mr-1"><span {% if row['patron'] %}class="patron" style="background-color:#{{row['namecolor']}};"{% endif %}>{{row['username']}}</span></a></td>
+		<td><a style="color:#{{row['namecolor']}};  font-weight:bold;" href="/@{{row['username']}}"><img loading="lazy" src="/uid/{{uid}}/pic" class="pp20"><span {% if row['patron'] %}class="patron" style="background-color:#{{row['namecolor']}};"{% endif %}>{{row['username']}}</span></a></td>
 
-		<td><img loading="lazy" style="width: 32px; height: 32px" src="/assets/images/badges/patron-{{row['patron']}}.webp"></td>
+		<td><img loading="lazy" width=32 height=32 src="/assets/images/badges/patron-{{row['patron']}}.webp?v=1"></td>
 
 		<td style="font-weight:bold;">
 			{% for (a,count) in row['awards'].values() %}

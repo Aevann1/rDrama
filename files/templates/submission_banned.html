@@ -12,26 +12,26 @@
 {% block title %}
 <title>{{p.plaintitle(v)}}</title>
 {% if p.is_banned %}
-<meta name="description" content="[removed by admins]">
+<meta name="description" content="removed by @{{p.ban_reason}}">
 {% else %}
 <meta name="description" content="[deleted by user]">
 {% endif %}
 {% endblock %}
 
 {% block adminpanel %}
-{% if v.admin_level >=3 %}
+{% if v.admin_level > 1 %}
 <form action="/sticky/{{p.id}}" method="post">
 <input type="hidden" name="formkey", value="{{v.formkey}}">
 <input type="submit" value="{% if p.stickied %}Un-sticky{% else %}Pin{% endif %}">
 </form>
 {% endif %}
-{% if v.admin_level >=3 and v.id==p.author_id %}
+{% if v.admin_level > 1 and v.id==p.author_id %}
 <form action="/distinguish/{{p.id}}" method="post">
 <input type="hidden" name="formkey", value="{{v.formkey}}">
 <input type="submit" value="{% if p.distinguish_level %}Un-distinguish{% else %}Distinguish{% endif %}">
 </form>
 {% endif %}
-{% if v.admin_level >=1 and v.admin_level > p.author.admin_level %}
+{% if v.admin_level > 1 and v.admin_level > p.author.admin_level %}
 {% if p.is_banned %}
 <form action="/unban_post/{{p.id}}" method="post">
 <input type="hidden" name="formkey", value="{{v.formkey}}">
@@ -54,9 +54,9 @@
 
 												<div id="post-{{p.id}}" class="card d-flex flex-row-reverse flex-nowrap justify-content-end border-0 p-0 {% if voted==1 %} upvoted{% elif voted==-1 %} downvoted{% endif %}">
 														<div class="card-block my-md-auto{% if p.is_banned %} banned{% endif %}">
-																<div class="post-meta text-left d-md-none mb-1">{% if p.over_18 %}<span class="badge badge-danger">+18</span> {% endif %}{% if p.is_banned %}[Removed by admins]{% else %}[Deleted by user]{% endif %}</div>
+																<div class="post-meta text-left d-md-none mb-1">{% if p.over_18 %}<span class="badge badge-danger">+18</span> {% endif %}{% if p.is_banned %}removed by @{{p.ban_reason}}{% else %}[Deleted by user]{% endif %}</div>
 																<h5 class="card-title post-title text-left mb-0 mb-md-1">{{p.plaintitle(v)}}</h5>
-																<div class="post-meta text-left d-none d-md-block">{% if p.over_18 %}<span class="badge badge-danger">+18</span> {% endif %}{% if p.is_banned %}[Removed by admins]{% else %}[Deleted by user]{% endif %}</div>
+																<div class="post-meta text-left d-none d-md-block">{% if p.over_18 %}<span class="badge badge-danger">+18</span> {% endif %}{% if p.is_banned %}removed by @{{p.ban_reason}}{% else %}[Deleted by user]{% endif %}</div>
 
 														</div>
 
@@ -72,10 +72,7 @@
 														</div>
 
 												</div>
-			{% if p.is_banned and p.ban_reason %}
-			<div class="text-danger mt-4 mb-2">Reason: {{p.ban_reason | safe}}</div>
-			{% endif %}
-			{% if v and v.admin_level >=3 and p.body_html %}
+			{% if v and v.admin_level > 1 and p.body_html %}
 												<div class="post-body mt-4 mb-2"> 
 				{{p.body_html | safe}}
 			</div>

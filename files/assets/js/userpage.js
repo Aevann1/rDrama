@@ -1,3 +1,13 @@
+function toggleElement(group, id) {
+	for(let el of document.getElementsByClassName(group)) {
+		if(el.id != id) {
+			el.classList.add('d-none');
+		}
+	}
+
+	document.getElementById(id).classList.toggle('d-none');
+}
+
 function post_toast_callback(url, data, callback) {
 	var xhr = new XMLHttpRequest();
 	xhr.open("POST", url, true);
@@ -54,38 +64,4 @@ function post_toast_callback(url, data, callback) {
 
 	xhr.send(form);
 
-}
-
-const TRANSFER_TAX = 0.01;
-
-window.addEventListener( 'load', function() {
-	var userid = document.getElementById("userid").value;
-	if (userid != "nosong")
-	{
-		var audio = new Audio(`/songs/${userid}`);
-		audio.loop=true;
-		audio.play();
-		document.getElementById('userpage').addEventListener('click', () => {
-			if (audio.paused) audio.play(); 
-		}, {once : true});
-	}
-}, false );
-
-function updateTax(mobile=false) {
-	let suf = mobile ? "-mobile" : "";
-	let amount = parseInt(document.getElementById("coins-transfer-amount" + suf).value);
-	if(isNaN(amount) || amount < 0) {
-	amount = 0;
-	}
-	document.getElementById("coins-transfer-taxed" + suf).innerText = amount - Math.ceil(amount*TRANSFER_TAX);
-}
-
-function toggleElement(group, id) {
-	for(let el of document.getElementsByClassName(group)) {
-		if(el.id != id) {
-			el.classList.add('d-none');
-		}
-	}
-
-	document.getElementById(id).classList.toggle('d-none');
 }
