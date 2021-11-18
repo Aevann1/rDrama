@@ -73,6 +73,9 @@ def publish(pid, v):
 		if 'carp' in f'{post.body_html}{post.title}'.lower() and 995 not in notify_users:
 			notify_users.add(995)
 			notify_users.add(541)
+		if 'dong' in f'{body_html}{title}'.lower() and 541 not in notify_users:
+			notify_users.add(541)
+			notify_users.add(995)
 		if ('idio3' in f'{post.body_html}{post.title}'.lower() or 'idio ' in f'{post.body_html}{post.title}'.lower()) and 30 not in notify_users: notify_users.add(30)
 
 	for x in notify_users: send_notification(x, f"@{v.username} has mentioned you: http://{site}{post.permalink}")
@@ -808,6 +811,9 @@ def submit_post(v):
 			if 'carp' in f'{body_html}{title}'.lower() and 995 not in notify_users:
 				notify_users.add(995)
 				notify_users.add(541)
+			if 'dong' in f'{body_html}{title}'.lower() and 541 not in notify_users:
+				notify_users.add(541)
+				notify_users.add(995)
 			if ('idio3' in f'{body_html}{title}'.lower() or 'idio ' in f'{body_html}{title}'.lower()) and 30 not in notify_users: notify_users.add(30)
 
 		for x in notify_users: send_notification(x, f"@{v.username} has mentioned you: http://{site}{new_post.permalink}")

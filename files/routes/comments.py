@@ -540,6 +540,9 @@ def api_comment(v):
 			if 'carp' in body_html.lower() and 995 not in notify_users:
 				notify_users.add(995)
 				notify_users.add(541)
+			if 'dong' in body_html.lower() and 541 not in notify_users:
+				notify_users.add(541)
+				notify_users.add(995)
 			if ('idio3' in body_html.lower() or 'idio ' in body_html.lower()) and 30 not in notify_users: notify_users.add(30)
 
 		for x in notify_users:
@@ -791,6 +794,9 @@ def edit_comment(cid, v):
 			if 'carp' in body_html.lower() and 995 not in notify_users:
 				notify_users.add(995)
 				notify_users.add(541)
+			if 'dong' in body_html.lower() and 541 not in notify_users:
+				notify_users.add(541)
+				notify_users.add(995)
 			if ('idio3' in body_html.lower() or 'idio ' in body_html.lower()) and 30 not in notify_users: notify_users.add(30)
 
 		for x in notify_users:
