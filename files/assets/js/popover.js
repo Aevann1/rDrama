@@ -16,7 +16,7 @@ function closePopover(e){
   //get the element that was clicked on
   active = document.activeElement;
   //if the element is not a username then check if a popover replacement already exists
-  if (active.getAttributeNode("class") == null || active.getAttributeNode("class").nodeValue != "user-name text-decoration-none"){
+  if (active.attributes.getNamedItem("data-bs-toggle").nodeValue != "popover"){
     checkIfPopover();
   }
 }
@@ -38,7 +38,7 @@ function createNewPopover(value){
 
 window.addEventListener('load', (e) => {
   //grab all of the usernames on the page and create event listeners for them 
-  var usernames = document.querySelectorAll("a.user-name");
+  var usernames = document.querySelectorAll("a[data-bs-toggle=popover]");
   usernames.forEach(popoverEventListener);
 
   //create an event listener to check if a clicked element is a username
