@@ -417,7 +417,7 @@ def buy(v, award):
 
 	if request.values.get("mb"):
 		if v.procoins < price: return {"error": "Not enough marseybux."}, 400
-		if award != "grass": return {"error": "You can't buy the grass award with marseybux."}, 403
+		if award == "grass": return {"error": "You can't buy the grass award with marseybux."}, 403
 		v.procoins -= price
 	else:
 		if v.coins < price: return {"error": "Not enough coins."}, 400
