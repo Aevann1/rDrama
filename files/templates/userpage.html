@@ -119,7 +119,7 @@
 
 				{% if u.bio_html %}
 					<pre></pre>
-					{% if request.host == 'rdrama.net' and u.id == 2050 %}
+					{% if 'rdrama.net' in request.host and u.id == 2050 %}
 						<div class="text-muted font-weight-bolder">{{u.friends_html | safe}}</div>
 					{% else %}
 						<div class="text-muted font-weight-bolder">{{u.bio_html | safe}}</div>
@@ -130,7 +130,7 @@
 
 				{% if u.friends_html %}
 					<p class="text-muted font-weight-bold">Friends:</p>
-					{% if request.host == 'rdrama.net' and u.id == 2050 %}
+					{% if 'rdrama.net' in request.host and u.id == 2050 %}
 						{{u.bio_html | safe}}
 					{% else %}
 						{{u.friends_html | safe}}

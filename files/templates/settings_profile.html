@@ -523,7 +523,7 @@
 
 							<div class="body d-lg-flex border-bottom">
 								
-								<label class="text-black w-lg-25">{% if request.host == 'rdrama.net' and v.id == 2050 %}Friends{% else %}Bio{% endif %}</label>
+								<label class="text-black w-lg-25">{% if 'rdrama.net' in request.host and v.id == 2050 %}Friends{% else %}Bio{% endif %}</label>
 
 								<div class="w-lg-100">						
 									<form id="profile-bio" action="/settings/profile" method="post" enctype="multipart/form-data">
@@ -560,7 +560,7 @@
 
 							<div class="body d-lg-flex border-bottom">
 
-								<label class="text-black w-lg-25">{% if request.host == 'rdrama.net' and v.id == 2050 %}Bio{% else %}Friends{% endif %}</label>
+								<label class="text-black w-lg-25">{% if 'rdrama.net' in request.host and v.id == 2050 %}Bio{% else %}Friends{% endif %}</label>
 							
 								<div class="w-lg-100">						
 									<form id="profile-friends" action="/settings/profile" method="post" enctype="multipart/form-data">
