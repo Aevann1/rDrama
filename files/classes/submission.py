@@ -32,7 +32,6 @@ class Submission(Base):
 	views = Column(Integer, default=0)
 	deleted_utc = Column(Integer, default=0)
 	distinguish_level = Column(Integer, default=0)
-	created_str = Column(String)
 	stickied = Column(String)
 	is_pinned = Column(Boolean, default=False)
 	private = Column(Boolean, default=False)
@@ -61,18 +60,12 @@ class Submission(Base):
 
 	def __init__(self, *args, **kwargs):
 
-		if "created_utc" not in kwargs:
-			kwargs["created_utc"] = int(time.time())
-			kwargs["created_str"] = time.strftime(
-				"%I:%M %p on %d %b %Y", time.gmtime(
-					kwargs["created_utc"]))
-
+		if "created_utc" not in kwargs: kwargs["created_utc"] = int(time.time())
 
 		super().__init__(*args, **kwargs)
 
 	def __repr__(self):
 		return f"<Submission(id={self.id})>"
-
 
 	@property
 	@lazy

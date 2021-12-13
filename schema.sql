@@ -560,7 +560,6 @@ CREATE TABLE public.submissions (
     is_banned boolean,
     over_18 boolean,
     distinguish_level integer,
-    created_str character varying(255),
     deleted_utc integer NOT NULL,
     domain_ref integer,
     is_approved integer NOT NULL,

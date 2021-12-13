@@ -53,6 +53,7 @@ def publish(pid, v):
 	post = get_post(pid)
 	if not post.author_id == v.id: abort(403)
 	post.private = False
+	post.created_utc = int(time.time())
 	g.db.add(post)
 	
 	notify_users = NOTIFY_USERS(f'{post.body_html}{post.title}', v.id)
@@ -958,7 +959,8 @@ def submit_post(v):
 		body_html=body_html,
 		embed_url=embed,
 		title=title[:500],
-		title_html=title_html
+		title_html=title_html,
+		created_utc=int(time.time())
 	)
 
 	g.db.add(new_post)
