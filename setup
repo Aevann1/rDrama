@@ -11,8 +11,8 @@ sudo apt -y install python3-pip
 sudo pip3 install -r requirements.txt
 sudo apt -y install gunicorn
 sudo apt -y install ffmpeg
-mkdir /drama/songs
-mkdir /drama/images
+mkdir /songs
+mkdir /images
 cp ./env /env
 . /env
 gunicorn files.__main__:app -k gevent -w 2 --reload -b localhost:80 --max-requests 1000 --max-requests-jitter 500
