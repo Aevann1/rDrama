@@ -100,21 +100,22 @@ def admin_level_required(x):
 	def wrapper_maker(f):
 
 		def wrapper(*args, **kwargs):
+			try:
+				v = get_logged_in_user()
 
-			v = get_logged_in_user()
+				if not v: abort(401)
 
-			if not v: abort(401)
+				if v.admin_level < x: abort(403)
 
-			if v.admin_level < x: abort(403)
+				g.v = v
 
-			g.v = v
+				response = f(*args, v=v, **kwargs)
 
-			response = f(*args, v=v, **kwargs)
+				if isinstance(response, tuple): resp = make_response(response[0])
+				else: resp = make_response(response)
 
-			if isinstance(response, tuple): resp = make_response(response[0])
-			else: resp = make_response(response)
-
-			return resp
+				return resp
+			except: abort(403)
 
 		wrapper.__name__ = f.__name__
 		return wrapper
