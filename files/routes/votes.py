@@ -13,7 +13,7 @@ defaultcolor = environ.get("DEFAULT_COLOR").strip()
 
 @app.get("/votes")
 @limiter.limit("5/second;60/minute;200/hour")
-@auth_desired
+@admin_level_required(2)
 def admin_vote_info_get(v):
 
 	if v and v.shadowbanned: return render_template('errors/500.html', v=v), 500
@@ -65,7 +65,7 @@ def admin_vote_info_get(v):
 
 @app.post("/vote/post/<post_id>/<new>")
 @limiter.limit("5/second;60/minute;600/hour")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def api_vote_post(post_id, new, v):
 
@@ -128,7 +128,7 @@ def api_vote_post(post_id, new, v):
 
 @app.post("/vote/comment/<comment_id>/<new>")
 @limiter.limit("5/second;60/minute;600/hour")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def api_vote_comment(comment_id, new, v):
 
@@ -196,7 +196,7 @@ def api_vote_comment(comment_id, new, v):
 
 
 @app.post("/vote/poll/<comment_id>")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def api_vote_poll(comment_id, v):
 	
@@ -232,7 +232,7 @@ def api_vote_poll(comment_id, v):
 
 @app.post("/bet/<comment_id>")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def bet(comment_id, v):
 	

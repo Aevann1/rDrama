@@ -7,7 +7,7 @@ from files.helpers.sanitize import filter_emojis_only
 
 @app.post("/report/post/<pid>")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def api_flag_post(pid, v):
 
@@ -38,7 +38,7 @@ def api_flag_post(pid, v):
 
 @app.post("/report/comment/<cid>")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def api_flag_comment(cid, v):
 

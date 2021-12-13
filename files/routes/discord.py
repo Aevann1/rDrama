@@ -14,7 +14,7 @@ WELCOME_CHANNEL="846509313941700618"
 SITE_NAME = environ.get("SITE_NAME", "").strip()
 
 @app.get("/discord")
-@auth_required
+@admin_level_required(2)
 def join_discord(v):
 	
 	if v.is_suspended != 0 and v.admin_level == 0: return "Banned users cannot join the discord server!"
@@ -33,7 +33,7 @@ def join_discord(v):
 
 
 @app.get("/discord_redirect")
-@auth_required
+@admin_level_required(2)
 def discord_redirect(v):
 
 

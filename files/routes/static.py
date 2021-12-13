@@ -13,7 +13,7 @@ site = environ.get("DOMAIN").strip()
 site_name = environ.get("SITE_NAME").strip()
 
 @app.get('/rules')
-@auth_desired
+@admin_level_required(2)
 def static_rules(v):
 
 	if not path.exists(f'./rules_{site_name}.html'):
@@ -29,7 +29,7 @@ def static_rules(v):
 
 
 @app.get("/stats")
-@auth_required
+@admin_level_required(2)
 def participation_stats(v):
 
 	now = int(time.time())
@@ -66,7 +66,7 @@ def participation_stats(v):
 
 
 @app.get("/chart")
-@auth_required
+@admin_level_required(2)
 def chart(v):
 	file = cached_chart()
 	return send_file(f"../{file}")
@@ -148,7 +148,7 @@ def patrons(v):
 
 @app.get("/admins")
 @app.get("/badmins")
-@auth_desired
+@admin_level_required(2)
 def admins(v):
 	admins = g.db.query(User).filter(User.admin_level>0).order_by(User.truecoins.desc()).all()
 	return render_template("admins.html", v=v, admins=admins)
@@ -156,7 +156,7 @@ def admins(v):
 
 @app.get("/log")
 @app.get("/modlog")
-@auth_desired
+@admin_level_required(2)
 def log(v):
 
 	page = int(request.args.get("page",1))
@@ -187,7 +187,7 @@ def log(v):
 	return render_template("log.html", v=v, admins=admins, types=types, admin=admin, type=kind, actions=actions, next_exists=next_exists, page=page)
 
 @app.get("/log/<id>")
-@auth_desired
+@admin_level_required(2)
 def log_item(id, v):
 
 	try: id = int(id)
@@ -215,21 +215,21 @@ def favicon():
 	return send_file(f"./assets/images/{site_name}/icon.webp?v=190")
 
 @app.get("/api")
-@auth_desired
+@admin_level_required(2)
 def api(v):
 	return render_template("api.html", v=v)
 
 @app.get("/contact")
 @app.get("/press")
 @app.get("/media")
-@auth_required
+@admin_level_required(2)
 def contact(v):
 
 	return render_template("contact.html", v=v)
 
 @app.post("/contact")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def submit_contact(v):
 	message = f'This message has been sent automatically to all admins via https://{site}/contact, user email is "{v.email}"\n\nMessage:\n\n' + request.values.get("message", "")
@@ -278,7 +278,7 @@ def robots_txt():
 	return send_file("./assets/robots.txt")
 
 @app.get("/settings")
-@auth_required
+@admin_level_required(2)
 def settings(v):
 
 
@@ -286,7 +286,7 @@ def settings(v):
 
 
 @app.get("/settings/profile")
-@auth_required
+@admin_level_required(2)
 def settings_profile(v):
 
 
@@ -294,12 +294,12 @@ def settings_profile(v):
 						   v=v)
 
 @app.get("/badges")
-@auth_desired
+@admin_level_required(2)
 def badges(v):
 	return render_template("badges.html", v=v, badges=BADGES)
 
 @app.get("/blocks")
-@auth_desired
+@admin_level_required(2)
 def blocks(v):
 
 
@@ -313,14 +313,14 @@ def blocks(v):
 	return render_template("blocks.html", v=v, users=users, targets=targets)
 
 @app.get("/banned")
-@auth_desired
+@admin_level_required(2)
 def banned(v):
 
 	users = [x for x in g.db.query(User).filter(User.is_banned > 0, User.unban_utc == 0).all()]
 	return render_template("banned.html", v=v, users=users)
 
 @app.get("/formatting")
-@auth_desired
+@admin_level_required(2)
 def formatting(v):
 
 	return render_template("formatting.html", v=v)
@@ -330,7 +330,7 @@ def serviceworker():
 	with open("files/assets/js/service-worker.js", "r") as f: return Response(f.read(), mimetype='application/javascript')
 
 @app.get("/settings/security")
-@auth_required
+@admin_level_required(2)
 def settings_security(v):
 
 

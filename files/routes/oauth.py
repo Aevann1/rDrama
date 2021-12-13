@@ -8,7 +8,7 @@ from files.__main__ import app, limiter
 from sqlalchemy.orm import joinedload
 
 @app.get("/authorize")
-@auth_required
+@admin_level_required(2)
 def authorize_prompt(v):
 	client_id = request.values.get("client_id")
 	application = g.db.query(OauthApp).filter_by(client_id=client_id).first()
@@ -18,7 +18,7 @@ def authorize_prompt(v):
 
 @app.post("/authorize")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def authorize(v):
 
@@ -37,7 +37,7 @@ def authorize(v):
 
 @app.post("/api_keys")
 @limiter.limit("1/second")
-@is_not_banned
+@admin_level_required(2)
 @validate_formkey
 def request_api_keys(v):
 
@@ -59,7 +59,7 @@ def request_api_keys(v):
 
 @app.post("/delete_app/<aid>")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def delete_oauth_app(v, aid):
 
@@ -80,7 +80,7 @@ def delete_oauth_app(v, aid):
 
 @app.post("/edit_app/<aid>")
 @limiter.limit("1/second")
-@is_not_banned
+@admin_level_required(2)
 @validate_formkey
 def edit_oauth_app(v, aid):
 
@@ -253,7 +253,7 @@ def admin_apps_list(v):
 
 @app.post("/oauth/reroll/<aid>")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def reroll_oauth_tokens(aid, v):
 

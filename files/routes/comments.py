@@ -24,7 +24,7 @@ beams_client = PushNotifications(
 @app.get("/post/<pid>/<anything>/<cid>")
 @app.get("/logged_out/comment/<cid>")
 @app.get("/logged_out/post/<pid>/<anything>/<cid>")
-@auth_desired
+@admin_level_required(2)
 def post_pid_comment_cid(cid, pid=None, anything=None, v=None):
 	
 	if not v and not request.path.startswith('/logged_out'): return redirect(f"/logged_out{request.full_path}")
@@ -131,7 +131,7 @@ def post_pid_comment_cid(cid, pid=None, anything=None, v=None):
 @app.post("/comment")
 @limiter.limit("1/second")
 @limiter.limit("6/minute")
-@is_not_banned
+@admin_level_required(2)
 @validate_formkey
 def api_comment(v):
 	if v and v.patron:
@@ -602,7 +602,7 @@ def api_comment(v):
 
 @app.post("/edit_comment/<cid>")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def edit_comment(cid, v):
 	if v and v.patron:
@@ -834,7 +834,7 @@ def edit_comment(cid, v):
 
 @app.post("/delete/comment/<cid>")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def delete_comment(cid, v):
 
@@ -856,7 +856,7 @@ def delete_comment(cid, v):
 
 @app.post("/undelete/comment/<cid>")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def undelete_comment(cid, v):
 
@@ -880,7 +880,7 @@ def undelete_comment(cid, v):
 
 
 @app.post("/pin_comment/<cid>")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def toggle_pin_comment(cid, v):
 	
@@ -926,7 +926,7 @@ def toggle_pin_comment(cid, v):
 	
 @app.post("/save_comment/<cid>")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def save_comment(cid, v):
 
@@ -945,7 +945,7 @@ def save_comment(cid, v):
 
 @app.post("/unsave_comment/<cid>")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def unsave_comment(cid, v):
 

@@ -33,7 +33,7 @@ def searchparse(text):
 
 
 @app.get("/search/posts")
-@auth_desired
+@admin_level_required(2)
 def searchposts(v):
 
 
@@ -175,7 +175,7 @@ def searchposts(v):
 						   )
 
 @app.get("/search/comments")
-@auth_desired
+@admin_level_required(2)
 def searchcomments(v):
 
 
@@ -254,7 +254,7 @@ def searchcomments(v):
 
 
 @app.get("/search/users")
-@auth_desired
+@admin_level_required(2)
 def searchusers(v):
 
 

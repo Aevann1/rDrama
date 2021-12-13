@@ -235,7 +235,7 @@ def post_rules(v):
 
 
 @app.get("/admin/shadowbanned")
-@auth_required
+@admin_level_required(2)
 def shadowbanned(v):
 	if not (v and v.admin_level > 1): abort(404)
 	users = [x for x in g.db.query(User).filter(User.shadowbanned != None).all()]
@@ -243,7 +243,7 @@ def shadowbanned(v):
 
 
 @app.get("/admin/agendaposters")
-@auth_required
+@admin_level_required(2)
 def agendaposters(v):
 	if not (v and v.admin_level > 1): abort(404)
 	users = [x for x in g.db.query(User).filter_by(agendaposter = True).all()]

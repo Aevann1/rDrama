@@ -19,7 +19,7 @@ beams_client = PushNotifications(instance_id=PUSHER_INSTANCE_ID, secret_key=PUSH
 
 
 @app.get("/@<username>/upvoters")
-@auth_desired
+@admin_level_required(2)
 def upvoters(v, username):
 	id = get_user(username).id
 
@@ -38,7 +38,7 @@ def upvoters(v, username):
 	return render_template("voters.html", v=v, users=users, name='Up', name2=f'@{username} biggest simps')
 
 @app.get("/@<username>/downvoters")
-@auth_desired
+@admin_level_required(2)
 def downvoters(v, username):
 	id = get_user(username).id
 
@@ -57,7 +57,7 @@ def downvoters(v, username):
 	return render_template("voters.html", v=v, users=users, name='Down', name2=f'@{username} biggest haters')
 
 @app.get("/@<username>/upvoting")
-@auth_desired
+@admin_level_required(2)
 def upvoting(v, username):
 	id = get_user(username).id
 
@@ -76,7 +76,7 @@ def upvoting(v, username):
 	return render_template("voters.html", v=v, users=users, name='Up', name2=f'Who @{username} simps for')
 
 @app.get("/@<username>/downvoting")
-@auth_desired
+@admin_level_required(2)
 def downvoting(v, username):
 	id = get_user(username).id
 
@@ -96,7 +96,7 @@ def downvoting(v, username):
 
 @app.post("/pay_rent")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def pay_rent(v):
 	if v.coins < 500: return "You must have more than 500 coins."
@@ -113,7 +113,7 @@ def pay_rent(v):
 
 @app.post("/steal")
 @limiter.limit("1/second")
-@is_not_banned
+@admin_level_required(2)
 @validate_formkey
 def steal(v):
 	if int(time.time()) - v.created_utc < 604800:
@@ -151,14 +151,14 @@ def steal(v):
 
 
 @app.get("/rentoids")
-@auth_desired
+@admin_level_required(2)
 def rentoids(v):
 	users = g.db.query(User).filter(User.rent_utc > 0).all()
 	return render_template("rentoids.html", v=v, users=users)
 
 
 @app.get("/thiefs")
-@auth_desired
+@admin_level_required(2)
 def thiefs(v):
 	successful = g.db.query(User).filter(User.steal_utc > 0).all()
 	failed = g.db.query(User).filter(User.fail_utc > 0).all()
@@ -168,7 +168,7 @@ def thiefs(v):
 
 @app.post("/@<username>/suicide")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def suicide(v, username):
 	t = int(time.time())
@@ -183,7 +183,7 @@ def suicide(v, username):
 
 
 @app.get("/@<username>/coins")
-@auth_required
+@admin_level_required(2)
 def get_coins(v, username):
 	user = get_user(username)
 	if user != None: return {"coins": user.coins}, 200
@@ -191,7 +191,7 @@ def get_coins(v, username):
 
 @app.post("/@<username>/transfer_coins")
 @limiter.limit("1/second")
-@is_not_banned
+@admin_level_required(2)
 @validate_formkey
 def transfer_coins(v, username):
 	receiver = g.db.query(User).filter_by(username=username).first()
@@ -242,7 +242,7 @@ def transfer_coins(v, username):
 
 
 @app.get("/leaderboard")
-@auth_desired
+@admin_level_required(2)
 def leaderboard(v):
 	users = g.db.query(User)
 	users1 = users.order_by(User.coins.desc()).limit(25).all()
@@ -314,7 +314,7 @@ def song(song):
 
 @app.post("/subscribe/<post_id>")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def subscribe(v, post_id):
 	new_sub = Subscription(user_id=v.id, submission_id=post_id)
@@ -324,7 +324,7 @@ def subscribe(v, post_id):
 	
 @app.post("/unsubscribe/<post_id>")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def unsubscribe(v, post_id):
 	sub=g.db.query(Subscription).filter_by(user_id=v.id, submission_id=post_id).first()
@@ -334,14 +334,14 @@ def unsubscribe(v, post_id):
 	return {"message": "Post unsubscribed!"}
 
 @app.get("/report_bugs")
-@auth_required
+@admin_level_required(2)
 def reportbugs(v):
 	return redirect(f'/post/{BUG_THREAD}')
 
 @app.post("/@<username>/message")
 @limiter.limit("1/second")
 @limiter.limit("10/hour")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def message2(v, username):
 
@@ -405,7 +405,7 @@ def message2(v, username):
 @app.post("/reply")
 @limiter.limit("1/second")
 @limiter.limit("6/minute")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def messagereply(v):
 
@@ -440,7 +440,7 @@ def messagereply(v):
 	return render_template("comments.html", v=v, comments=[new_comment])
 
 @app.get("/2faqr/<secret>")
-@auth_required
+@admin_level_required(2)
 def mfa_qr(secret, v):
 	x = pyotp.TOTP(secret)
 	qr = qrcode.QRCode(
@@ -457,7 +457,7 @@ def mfa_qr(secret, v):
 
 
 @app.get("/is_available/<name>")
-@auth_desired
+@admin_level_required(2)
 def api_is_available(name, v):
 
 	name=name.strip()
@@ -490,7 +490,7 @@ def redditor_moment_redirect(username):
 	return redirect(f"/@{username}")
 
 @app.get("/@<username>/followers")
-@auth_required
+@admin_level_required(2)
 def followers(username, v):
 	u = get_user(username, v=v)
 	# if request.host == 'rdrama.net' and u.id == 147: abort(404)
@@ -499,7 +499,7 @@ def followers(username, v):
 	return render_template("followers.html", v=v, u=u, users=users)
 
 @app.get("/@<username>/following")
-@auth_required
+@admin_level_required(2)
 def following(username, v):
 	u = get_user(username, v=v)
 	# if request.host == 'rdrama.net' and u.id == 147: abort(404)
@@ -508,7 +508,7 @@ def following(username, v):
 	return render_template("following.html", v=v, u=u, users=users)
 
 @app.get("/views")
-@auth_required
+@admin_level_required(2)
 def visitors(v):
 	if request.host == 'rdrama.net' and v.admin_level < 1 and not v.patron: return render_template("errors/patron.html", v=v)
 	viewers=sorted(v.viewers, key = lambda x: x.last_view_utc, reverse=True)
@@ -517,7 +517,7 @@ def visitors(v):
 
 @app.get("/@<username>")
 @app.get("/logged_out/@<username>")
-@auth_desired
+@admin_level_required(2)
 def u_username(username, v=None):
 
 
@@ -624,7 +624,7 @@ def u_username(username, v=None):
 
 @app.get("/@<username>/comments")
 @app.get("/logged_out/@<username>/comments")
-@auth_desired
+@admin_level_required(2)
 def u_username_comments(username, v=None):
 
 
@@ -718,7 +718,7 @@ def u_username_comments(username, v=None):
 
 
 @app.get("/@<username>/info")
-@auth_desired
+@admin_level_required(2)
 def u_username_info(username, v=None):
 
 	user=get_user(username, v=v)
@@ -733,7 +733,7 @@ def u_username_info(username, v=None):
 
 @app.post("/follow/<username>")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def follow_user(username, v):
 
@@ -759,7 +759,7 @@ def follow_user(username, v):
 
 @app.post("/unfollow/<username>")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def unfollow_user(username, v):
 
@@ -786,7 +786,7 @@ def unfollow_user(username, v):
 
 @app.post("/remove_follow/<username>")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def remove_follow(username, v):
 	target = get_user(username)
@@ -826,7 +826,7 @@ def user_profile_name(username):
 	return redirect(x.profile_url)
 
 @app.get("/@<username>/saved/posts")
-@auth_required
+@admin_level_required(2)
 def saved_posts(v, username):
 
 	page=int(request.values.get("page",1))
@@ -850,7 +850,7 @@ def saved_posts(v, username):
 
 
 @app.get("/@<username>/saved/comments")
-@auth_required
+@admin_level_required(2)
 def saved_comments(v, username):
 
 	page=int(request.values.get("page",1))
@@ -878,7 +878,7 @@ def saved_comments(v, username):
 
 
 @app.post("/fp/<fp>")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def fp(v, fp):
 	if v.username != fp:

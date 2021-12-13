@@ -12,7 +12,7 @@ from files.__main__ import app, limiter
 
 
 @app.errorhandler(400)
-@auth_desired
+@admin_level_required(2)
 def error_400(e, v):
 	if request.headers.get("Authorization"): return {"error": "400 Bad Request"}, 400
 	else: return render_template('errors/400.html', v=v), 400
@@ -30,35 +30,35 @@ def error_401(e):
 
 
 @app.errorhandler(403)
-@auth_desired
+@admin_level_required(2)
 def error_403(e, v):
 	if request.headers.get("Authorization"): return {"error": "403 Forbidden"}, 403
 	else: return render_template('errors/403.html', v=v), 403
 
 
 @app.errorhandler(404)
-@auth_desired
+@admin_level_required(2)
 def error_404(e, v):
 	if request.headers.get("Authorization"): return {"error": "404 Not Found"}, 404
 	else: return render_template('errors/404.html', v=v), 404
 
 
 @app.errorhandler(405)
-@auth_desired
+@admin_level_required(2)
 def error_405(e, v):
 	if request.headers.get("Authorization"): return {"error": "405 Method Not Allowed"}, 405
 	else: return render_template('errors/405.html', v=v), 405
 
 
 @app.errorhandler(429)
-@auth_desired
+@admin_level_required(2)
 def error_429(e, v):
 	if request.headers.get("Authorization"): return {"error": "429 Too Many Requests"}, 429
 	else: return render_template('errors/429.html', v=v), 429
 
 
 @app.errorhandler(500)
-@auth_desired
+@admin_level_required(2)
 def error_500(e, v):
 	g.db.rollback()
 
@@ -74,7 +74,7 @@ def allow_nsfw():
 
 
 @app.get("/error/<error>")
-@auth_desired
+@admin_level_required(2)
 def error_all_preview(error, v):
 
 	try:

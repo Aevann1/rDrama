@@ -9,7 +9,7 @@ valid_password_regex = re.compile("^.{8,100}$")
 
 
 @app.get("/login")
-@auth_desired
+@admin_level_required(2)
 def login_get(v):
 
 	redir = request.values.get("redirect", "/").replace("/logged_out", "").strip()
@@ -148,7 +148,7 @@ def login_post():
 
 @app.get("/me")
 @app.get("/@me")
-@auth_required
+@admin_level_required(2)
 def me(v):
 	if request.headers.get("Authorization"): return v.json
 	else: return redirect(v.url)
@@ -156,7 +156,7 @@ def me(v):
 
 @app.post("/logout")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def logout(v):
 
@@ -167,7 +167,7 @@ def logout(v):
 
 
 @app.get("/signup")
-@auth_desired
+@admin_level_required(2)
 def sign_up_get(v):
 	with open('./disablesignups', 'r') as f:
 		if f.read() == "yes": return "New account registration is currently closed. Please come back later.", 403
@@ -215,7 +215,7 @@ def sign_up_get(v):
 @app.post("/signup")
 @limiter.limit("1/second")
 @limiter.limit("5/day")
-@auth_desired
+@admin_level_required(2)
 def sign_up_post(v):
 	with open('./disablesignups', 'r') as f:
 		if f.read() == "yes": return "New account registration is currently closed. Please come back later.", 403
@@ -435,7 +435,7 @@ def get_reset():
 
 @app.post("/reset")
 @limiter.limit("1/second")
-@auth_desired
+@admin_level_required(2)
 def post_reset(v):
 	if v:
 		return redirect('/')
@@ -478,7 +478,7 @@ def post_reset(v):
 						   message="Login normally to access your account.")
 
 @app.get("/lost_2fa")
-@auth_desired
+@admin_level_required(2)
 def lost_2fa(v):
 
 	return render_template(

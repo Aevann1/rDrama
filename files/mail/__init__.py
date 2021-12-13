@@ -42,7 +42,7 @@ def send_verification_email(user, email=None):
 
 @app.post("/verify_email")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def api_verify_email(v):
 
@@ -52,7 +52,7 @@ def api_verify_email(v):
 
 
 @app.get("/activate")
-@auth_desired
+@admin_level_required(2)
 def activate(v):
 
 	email = request.values.get("email", "").strip()

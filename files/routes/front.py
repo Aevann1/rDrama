@@ -12,7 +12,7 @@ def slash_post():
 	return redirect("/")
 
 @app.post("/clear")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def clear(v):
 	for n in v.notifications.filter_by(read=False).all():
@@ -22,7 +22,7 @@ def clear(v):
 	return {"message": "Notifications cleared!"}
 
 @app.get("/notifications")
-@auth_required
+@admin_level_required(2)
 def notifications(v):
 	try: page = int(request.values.get('page', 1))
 	except: page = 1
@@ -119,7 +119,7 @@ def notifications(v):
 
 @app.get("/")
 @app.get("/logged_out")
-@auth_desired
+@admin_level_required(2)
 def front_all(v):
 
 	if not v and request.path == "/" and not request.headers.get("Authorization"): return redirect(f"/logged_out{request.full_path}")
@@ -279,7 +279,7 @@ def frontlist(v=None, sort="hot", page=1, t="all", ids_only=True, filter_words='
 
 
 @app.get("/changelog")
-@auth_desired
+@admin_level_required(2)
 def changelog(v):
 
 
@@ -358,7 +358,7 @@ def changeloglist(v=None, sort="new", page=1 ,t="all"):
 
 
 @app.get("/random")
-@auth_desired
+@admin_level_required(2)
 def random_post(v):
 
 	x = g.db.query(Submission).filter(Submission.deleted_utc == 0, Submission.is_banned == False)
@@ -422,7 +422,7 @@ def comment_idlist(page=1, v=None, nsfw=False, sort="new", t="all", shadowbanned
 	return [x[0] for x in comments]
 
 @app.get("/comments")
-@auth_desired
+@admin_level_required(2)
 def all_comments(v):
 
 

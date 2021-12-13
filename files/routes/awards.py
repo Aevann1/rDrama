@@ -45,7 +45,7 @@ AWARDS3 = {
 
 @app.get("/shop")
 @app.get("/settings/shop")
-@auth_required
+@admin_level_required(2)
 def shop(v):
 	AWARDS = {
 		"shit": {
@@ -242,7 +242,7 @@ def shop(v):
 
 
 @app.post("/buy/<award>")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def buy(v, award):
 	AWARDS = {
@@ -463,7 +463,7 @@ def buy(v, award):
 
 @app.post("/post/<pid>/awards")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def award_post(pid, v):
 
@@ -628,7 +628,7 @@ def award_post(pid, v):
 
 @app.post("/comment/<cid>/awards")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def award_comment(cid, v):
 

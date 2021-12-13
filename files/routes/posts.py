@@ -29,7 +29,7 @@ if path.exists(f'snappy_{site_name}.txt'):
 		snappyquotes = f.read().split("{[para]}")
 
 @app.post("/toggle_club/<pid>")
-@auth_required
+@admin_level_required(2)
 def toggle_club(pid, v):
 
 	post = get_post(pid)
@@ -47,7 +47,7 @@ def toggle_club(pid, v):
 
 @app.post("/publish/<pid>")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def publish(pid, v):
 	post = get_post(pid)
@@ -76,7 +76,7 @@ def publish(pid, v):
 	return {"message": "Post published!"}
 
 @app.get("/submit")
-@auth_required
+@admin_level_required(2)
 def submit_get(v):
 
 	return render_template("submit.html",
@@ -86,7 +86,7 @@ def submit_get(v):
 @app.get("/post/<pid>/<anything>")
 @app.get("/logged_out/post/<pid>")
 @app.get("/logged_out/post/<pid>/<anything>")
-@auth_desired
+@admin_level_required(2)
 def post_id(pid, anything=None, v=None):
 
 	if not v and not request.path.startswith('/logged_out') and not request.headers.get("Authorization"): return redirect(f"/logged_out{request.full_path}")
@@ -224,7 +224,7 @@ def post_id(pid, anything=None, v=None):
 
 @app.post("/viewmore/<pid>/<sort>/<offset>")
 @limiter.limit("1/second")
-@auth_desired
+@admin_level_required(2)
 def viewmore(v, pid, sort, offset):
 	offset = int(offset)
 	if v:
@@ -324,7 +324,7 @@ def viewmore(v, pid, sort, offset):
 
 @app.post("/morecomments/<cid>")
 @limiter.limit("1/second")
-@auth_desired
+@admin_level_required(2)
 def morecomments(v, cid):
 	if v:
 		votes = g.db.query(CommentVote).filter_by(user_id=v.id).subquery()
@@ -368,7 +368,7 @@ def morecomments(v, cid):
 
 @app.post("/edit_post/<pid>")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def edit_post(pid, v):
 	if v and v.patron:
@@ -556,7 +556,7 @@ def edit_post(pid, v):
 
 @app.get("/submit/title")
 @limiter.limit("6/minute")
-@auth_required
+@admin_level_required(2)
 def get_post_title(v):
 
 	url = request.values.get("url", None)
@@ -707,7 +707,7 @@ def thumbnail_thread(pid):
 @app.post("/submit")
 @limiter.limit("1/second")
 @limiter.limit("6/minute")
-@is_not_banned
+@admin_level_required(2)
 @validate_formkey
 def submit_post(v):
 	if v and v.patron:
@@ -1206,7 +1206,7 @@ def submit_post(v):
 
 @app.post("/delete_post/<pid>")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def delete_post_pid(pid, v):
 
@@ -1228,7 +1228,7 @@ def delete_post_pid(pid, v):
 
 @app.post("/undelete_post/<pid>")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def undelete_post_pid(pid, v):
 	post = get_post(pid)
@@ -1244,7 +1244,7 @@ def undelete_post_pid(pid, v):
 
 
 @app.post("/toggle_comment_nsfw/<cid>")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def toggle_comment_nsfw(cid, v):
 
@@ -1260,7 +1260,7 @@ def toggle_comment_nsfw(cid, v):
 	else: return {"message": "Comment has been unmarked as +18!"}
 	
 @app.post("/toggle_post_nsfw/<pid>")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def toggle_post_nsfw(pid, v):
 
@@ -1287,7 +1287,7 @@ def toggle_post_nsfw(pid, v):
 
 @app.post("/save_post/<pid>")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def save_post(pid, v):
 
@@ -1304,7 +1304,7 @@ def save_post(pid, v):
 
 @app.post("/unsave_post/<pid>")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def unsave_post(pid, v):
 
@@ -1319,7 +1319,7 @@ def unsave_post(pid, v):
 	return {"message": "Post unsaved!"}
 
 @app.post("/pin/<post_id>")
-@auth_required
+@admin_level_required(2)
 def api_pin_post(post_id, v):
 
 	post = g.db.query(Submission).filter_by(id=post_id).first()

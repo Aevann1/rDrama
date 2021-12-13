@@ -33,7 +33,7 @@ tiers={
 
 @app.post("/settings/removebackground")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def removebackground(v):
 	v.background = None
@@ -43,7 +43,7 @@ def removebackground(v):
 
 @app.post("/settings/profile")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def settings_profile_post(v):
 	if v and v.patron:
@@ -439,7 +439,7 @@ def settings_profile_post(v):
 
 
 @app.post("/settings/filters")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def filters(v):
 	filters=request.values.get("filters")[:1000].strip()
@@ -452,7 +452,7 @@ def filters(v):
 	return render_template("settings_filters.html", v=v, msg="Your custom filters have been updated.")
 
 @app.post("/changelogsub")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def changelogsub(v):
 	v.changelogsub = not v.changelogsub
@@ -466,7 +466,7 @@ def changelogsub(v):
 
 @app.post("/settings/namecolor")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def namecolor(v):
 	color = str(request.values.get("color", "")).strip()
@@ -479,7 +479,7 @@ def namecolor(v):
 	
 @app.post("/settings/themecolor")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def themecolor(v):
 	themecolor = str(request.values.get("themecolor", "")).strip()
@@ -492,7 +492,7 @@ def themecolor(v):
 
 @app.post("/settings/gumroad")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def gumroad(v):
 	if SITE_NAME == 'Drama': patron = 'Paypig'
@@ -552,7 +552,7 @@ def gumroad(v):
 
 @app.post("/settings/titlecolor")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def titlecolor(v):
 	titlecolor = str(request.values.get("titlecolor", "")).strip()
@@ -565,7 +565,7 @@ def titlecolor(v):
 
 @app.post("/settings/verifiedcolor")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def verifiedcolor(v):
 	verifiedcolor = str(request.values.get("verifiedcolor", "")).strip()
@@ -578,7 +578,7 @@ def verifiedcolor(v):
 
 @app.post("/settings/security")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def settings_security_post(v):
 	if request.values.get("new_password"):
@@ -688,7 +688,7 @@ def settings_security_post(v):
 
 @app.post("/settings/log_out_all_others")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def settings_log_out_others(v):
 
@@ -709,7 +709,7 @@ def settings_log_out_others(v):
 
 @app.post("/settings/images/profile")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def settings_images_profile(v):
 	if v and v.patron:
@@ -745,7 +745,7 @@ def settings_images_profile(v):
 
 @app.post("/settings/images/banner")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def settings_images_banner(v):
 	if v and v.patron:
@@ -771,7 +771,7 @@ def settings_images_banner(v):
 
 @app.post("/settings/delete/profile")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def settings_delete_profile(v):
 
@@ -785,7 +785,7 @@ def settings_delete_profile(v):
 
 @app.post("/settings/delete/banner")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def settings_delete_banner(v):
 
@@ -798,20 +798,20 @@ def settings_delete_banner(v):
 
 
 @app.get("/settings/blocks")
-@auth_required
+@admin_level_required(2)
 def settings_blockedpage(v):
 
 	return render_template("settings_blocks.html", v=v)
 
 @app.get("/settings/css")
-@auth_required
+@admin_level_required(2)
 def settings_css_get(v):
 
 	return render_template("settings_css.html", v=v)
 
 @app.post("/settings/css")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def settings_css(v):
 	css = request.values.get("css").strip().replace('\\', '').strip()[:4000]
@@ -823,7 +823,7 @@ def settings_css(v):
 	return render_template("settings_css.html", v=v)
 
 @app.get("/settings/profilecss")
-@auth_required
+@admin_level_required(2)
 def settings_profilecss_get(v):
 
 	if v.truecoins < 1000 and not v.patron and v.admin_level == 0 : return f"You must have +1000 {COINS_NAME} or be a paypig to set profile css."
@@ -831,7 +831,7 @@ def settings_profilecss_get(v):
 
 @app.post("/settings/profilecss")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def settings_profilecss(v):
 	if v.truecoins < 1000 and not v.patron: return f"You must have +1000 {COINS_NAME} or be a paypig to set profile css."
@@ -844,7 +844,7 @@ def settings_profilecss(v):
 
 @app.post("/settings/block")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def settings_block_user(v):
 
@@ -882,7 +882,7 @@ def settings_block_user(v):
 
 @app.post("/settings/unblock")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def settings_unblock_user(v):
 
@@ -905,7 +905,7 @@ def settings_unblock_user(v):
 
 
 @app.get("/settings/apps")
-@auth_required
+@admin_level_required(2)
 def settings_apps(v):
 
 	return render_template("settings_apps.html", v=v)
@@ -913,7 +913,7 @@ def settings_apps(v):
 
 @app.post("/settings/remove_discord")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def settings_remove_discord(v):
 
@@ -927,14 +927,14 @@ def settings_remove_discord(v):
 	return redirect("/settings/profile")
 
 @app.get("/settings/content")
-@auth_required
+@admin_level_required(2)
 def settings_content_get(v):
 
 	return render_template("settings_filters.html", v=v)
 
 @app.post("/settings/name_change")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def settings_name_change(v):
 
@@ -981,7 +981,7 @@ def settings_name_change(v):
 
 @app.post("/settings/song_change")
 @limiter.limit("5/day;1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def settings_song_change(v):
 	song=request.values.get("song").strip()
@@ -1063,7 +1063,7 @@ def settings_song_change(v):
 
 @app.post("/settings/title_change")
 @limiter.limit("1/second")
-@auth_required
+@admin_level_required(2)
 @validate_formkey
 def settings_title_change(v):
 
