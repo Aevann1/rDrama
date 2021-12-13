@@ -32,6 +32,7 @@ def error_401(e):
 @app.errorhandler(403)
 @auth_desired
 def error_403(e, v):
+	if request.host == 'old.rdrama.net': return redirect(request.full_path.replace('old.',''))
 	if request.headers.get("Authorization"): return {"error": "403 Forbidden"}, 403
 	else: return render_template('errors/403.html', v=v), 403
 
