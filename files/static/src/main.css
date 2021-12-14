@@ -63,7 +63,7 @@
 		@apply mb-3 last:mb-0;
 	}
 	a {
-		@apply text-primary break-all
+		@apply text-primary break-words
 	}
 	blockquote {
 		@apply bg-red-200 border-l-2 border-red-600
