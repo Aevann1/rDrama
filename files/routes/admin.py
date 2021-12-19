@@ -843,7 +843,10 @@ def ban_user(user_id, v):
 	if request.values.get("alts", ""):
 		for x in user.alts:
 			if x.admin_level > 0: break
-			x.ban(admin=v, reason=reason)
+			if days > 0:
+				x.ban(admin=v, reason=reason, days=days)
+			else:
+				x.ban(admin=v, reason=reason)
 
 	send_notification(user.id, text)
 	
