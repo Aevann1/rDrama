@@ -30,7 +30,6 @@ function post_toast3(url, button1, button2) {
 			try {
 				document.getElementById('toast-post-success-text').innerText = JSON.parse(xhr.response)["message"];
 			} catch(e) {
-				document.getElementById('toast-post-success-text').innerText = "Action successful!";
 			}
 			return true
 
@@ -84,9 +83,8 @@ function report_commentModal(id, author) {
 };
 
 function openReplyBox(id) {
-	const element = document.getElementById(`reply-to-${id}`);
+	const element = document.getElementById(id);
 	element.classList.remove('d-none')
-
 	element.getElementsByTagName('textarea')[0].focus()
 }
 

@@ -46,6 +46,25 @@
 					<div class="d-lg-flex border-bottom">
 
 						<div class="title w-lg-25">
+							<label for="oldsite">Use Old Site</label>
+						</div>
+
+						<div class="body w-lg-100">
+
+							<div class="custom-control custom-switch">
+								<input type="checkbox" class="custom-control-input" id="oldsite" name="oldsite"{% if v.oldsite %} checked{% endif %} onchange="post_toast('/settings/profile?oldsite='+document.getElementById('oldsite').checked, 1)">
+								<label class="custom-control-label" for="oldsite"></label>
+							</div>
+
+							<span class="text-small-extra text-muted">Enable if you would like to display images and videos in full size on the frontpage.</span>
+
+						</div>
+
+					</div>
+
+					<div class="d-lg-flex border-bottom">
+
+						<div class="title w-lg-25">
 							<label for="cardview">Card View</label>
 						</div>
 
@@ -544,7 +563,7 @@
 											&nbsp;
 											<label class="btn btn-secondary format d-inline-block m-0">
 												<div id="filename-show"><i class="far fa-image"></i></div>
-												<input id="file-upload" type="file" name="file" {% if request.headers.get('cf-ipcountry')=="T1" %}disabled{% endif %} accept="image/*" onchange="document.getElementById('filename-show').innerHTML='image';" hidden>
+												<input id="file-upload" type="file" name="file" {% if request.headers.get('cf-ipcountry')=="T1" %}disabled{% endif %} accept="image/*, video/*" onchange="document.getElementById('filename-show').innerHTML='image/video';" hidden>
 											</label>
 										</div>
 										<pre></pre>

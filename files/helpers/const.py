@@ -129,7 +129,9 @@ if 'rdrama.net' in SITE:
 	DAD_ID = 2513
 	MOM_ID = 4588
 	DONGER_ID = 541
-	FARTBINN_ID = 2256 
+	FARTBINN_ID = 2256
+	PW1_ID = 3750
+	PW2_ID = 7626
 	BUG_THREAD = 29748
 	EMOJI_THREAD = 16583
 elif SITE == "pcmemes.net":
@@ -155,6 +157,8 @@ elif SITE == "pcmemes.net":
 	MOM_ID = 0
 	DONGER_ID = 0
 	FARTBINN_ID = 0
+	PW1_ID = 0
+	PW2_ID = 0
 	BUG_THREAD = 4103
 	EMOJI_THREAD = 0
 else:
@@ -180,6 +184,8 @@ else:
 	MOM_ID = 0
 	DONGER_ID = 0
 	FARTBINN_ID = 0
+	PW1_ID = 0
+	PW2_ID = 0
 	BUG_THREAD = 0
 	EMOJI_THREAD = 0
 

@@ -29,7 +29,6 @@ function post_toast_callback(url, data, callback) {
 					document.getElementById('toast-post-success-text').innerText = JSON.parse(xhr.response)["message"];
 				}
 			} catch(e) {
-				document.getElementById('toast-post-success-text').innerText = "Action successful!";
 			}
 
 			return true;

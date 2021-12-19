@@ -14,11 +14,11 @@
 
 		{% if v %}
 			<style>:root{--primary:#{{v.themecolor}}}</style>
-			<link rel="stylesheet" href="/assets/CHRISTMAS/css/main.css?v=400"><link rel="stylesheet" href="/assets/CHRISTMAS/css/{{v.theme}}.css?v=200">
+			<link rel="stylesheet" href="/assets/CHRISTMAS/css/main.css?v=432"><link rel="stylesheet" href="/assets/CHRISTMAS/css/{{v.theme}}.css?v=200">
 			{% if v.agendaposter %}<link rel="stylesheet" href="/assets/CHRISTMAS/css/agendaposter.css?v=200">{% elif v.css %}<link rel="stylesheet" href="/@{{v.username}}/css">{% endif %}
 		{% else %}
 			<style>:root{--primary:#{{'DEFAULT_COLOR' | app_config}}</style>
-			<link rel="stylesheet" href="/assets/CHRISTMAS/css/main.css?v=400"><link rel="stylesheet" href="/assets/CHRISTMAS/css/{{'DEFAULT_THEME' | app_config}}.css?v=200">
+			<link rel="stylesheet" href="/assets/CHRISTMAS/css/main.css?v=432"><link rel="stylesheet" href="/assets/CHRISTMAS/css/{{'DEFAULT_THEME' | app_config}}.css?v=200">
 		{% endif %}
 
 </head>

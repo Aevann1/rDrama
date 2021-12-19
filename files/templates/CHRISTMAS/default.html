@@ -186,9 +186,9 @@
 
 		{% block stylesheets %}
 
-		<link rel="stylesheet" href="/assets/CHRISTMAS/css/main.css?v=400">
+		<link rel="stylesheet" href="/assets/CHRISTMAS/css/main.css?v=432">
 
-      	<link rel="stylesheet" href="/static/dist/main.css?v=405">
+      	<link rel="stylesheet" href="/static/dist/main.css?v=432">
 
     	<link rel="stylesheet" href="/assets/CHRISTMAS/css/mistletoe.css?v=400">
 
@@ -217,12 +217,18 @@
 
  </head>
 
- <body id="{% if request.path != '/comments' %}{% block pagetype %}frontpage{% endblock %}{% endif %}" class="overflow-hidden overflow-y-auto sm:overflow-y-none antialiased bg-cover bg-center bg-gray-500 text-gray-900">
+ {% if v and (v.theme == 'theme-iron dark' or v.theme == 'theme-evergreen') %}
+ 	{% set theme = v.theme %}
+ {% else %}
+ 	{% set theme = 'theme-iron dark' %}
+ {% endif %}
+
+ <body id="{% if request.path != '/comments' %}{% block pagetype %}frontpage{% endblock %}{% endif %}" class="{{ theme }} overflow-hidden overflow-y-auto sm:overflow-y-none antialiased bg-cover bg-center bg-gray-500 text-gray-900 dark:bg-gray-700 dark:text-gray-100">
 
 {% block Banner %}
 {% endblock %}
 
-{% include "header-tw.html" %}
+{% include "CHRISTMAS/header-tw.html" %}
 
 {% block mobileUserBanner %}
 {% endblock %}
@@ -233,7 +239,7 @@
 {% block postNav %}
 {% endblock %}
 
-<div class="flex h-screen pt-16 bg-gray-500">
+<div class="flex h-screen pt-16 bg-gray-500 dark:bg-gray-700 dark:text-gray-200">
 	<div class="w-full sm:overflow-y-auto">
 
 			{% block desktopUserBanner %}
@@ -251,7 +257,7 @@
 		{% endblock %}
 
 		<div class="w-full md:px-4">
-			<div class="w-full max-w-screen-2xl mx-auto mb-4 md:px-4 grid grid-cols-12 gap-6 bg-gray-300 md:bg-gray-200 rounded-b" id="main-content-row">
+			<div class="w-full max-w-screen-2xl mx-auto mb-4 md:px-4 grid grid-cols-12 gap-6 bg-gray-300 md:bg-gray-200 dark:bg-gray-700 md:dark:bg-gray-800 rounded-b" id="main-content-row">
 
 				{% block searchText %}
 				{% endblock %}
@@ -267,7 +273,7 @@
 			</div>
 		</div>
 
-		{% include "footer.html" %}
+		{% include "CHRISTMAS/footer.html" %}
 	</div>
 </div>
 
@@ -275,42 +281,36 @@
 	<div id="formkey" class="hidden">{{ v.formkey }}</div>
 {% endif %}
 
-{% include "ProfilePopover.html" %}
+{% include "CHRISTMAS/ProfilePopover.html" %}
 
 {% block mobilenavbar %}
-	{% include "mobile_navigation_bar.html" %}
+	{% include "CHRISTMAS/mobile_navigation_bar.html" %}
 {% endblock %}
 
-{% block actionsModal %}
-{% endblock %}
+{% block actionsModal %}{% endblock %}
 
-{% block reportCommentModal %}
-{% endblock %}
+{% block reportCommentModal %}{% endblock %}
 
-{% block GIFtoast %}
-{% endblock %}
+{% block GIFtoast %}{% endblock %}
 
-{% block GIFpicker %}
-{% endblock %}
-
+{% block GIFpicker %}{% endblock %}
 
 <!-- Import toast notifications -->
-{% include "/toasts/toasts.html" %}
+{% include "CHRISTMAS/toasts/toasts.html" %}
 
-{% block modals %}
-{% endblock %}
+{% block modals %}{% endblock %}
 
-{% block popovers %}
-{% endblock %}
+{% if v %}
+	{% include "CHRISTMAS/modals/ModalThemePicker.html" %}
+{% endif %}
 
-{% block fixedMobileBarJS %}
-{% endblock %}
+{% block popovers %}{% endblock %}
 
-{% block scripts %}
-{% endblock %}
+{% block fixedMobileBarJS %}{% endblock %}
+
+{% block scripts %}{% endblock %}
 
 <!-- Scripts -->
-
 <script src="/assets/CHRISTMAS/js/header.js?v=200"></script>
 
 <!-- Lazy Loading -->
@@ -334,11 +334,11 @@
 	});
 </script>
 
-<link rel="stylesheet" href="/assets/CHRISTMAS/css/lite-youtube.css?v=200">
+<link rel="stylesheet" href="/assets/CHRISTMAS/css/lite-youtube.css?v=202">
 <script src="/assets/CHRISTMAS/js/lite-youtube.js?v=200"></script>
 
 <script src="/assets/CHRISTMAS/js/gif_modal.js?v=200"></script>
-<script src="/assets/CHRISTMAS/js/emoji_modal.js?v=202"></script>
+<script src="/assets/CHRISTMAS/js/emoji_modal.js?v=205"></script>
 
 <script defer src="/assets/CHRISTMAS/js/popover.js?v=200"></script>
 
@@ -346,8 +346,23 @@
 
 {% if v %}
 	<script>function formkey() {return '{{v.formkey}}';}</script>
-	<script src="/assets/CHRISTMAS/js/default.js?v=200"></script>
+
+	<script>
+		var previousTheme = '{{ v.theme }}'.split(' ');
+		function changeTheme(theme) {
+			const body = document.body;
+			// if previous selection has a value, remove them from body tag
+			if (previousTheme.length) {
+				previousTheme.map(v => body.classList.toggle(v));
+			}
+			// toggle classes in body tag
+			theme.map(v => body.classList.toggle(v));
+			// Set global previous selection to current selection
+			previousTheme = theme;
+		}
+	</script>
 {% endif %}
+	<script src="/assets/CHRISTMAS/js/default.js?v=204"></script>
 
 </body>
 </html>

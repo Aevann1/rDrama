@@ -1,6 +1,6 @@
 <script src="/assets/js/award_modal.js?v=190"></script>
 <div class="modal fade" id="awardModal" tabindex="-1" role="dialog" aria-labelledby="awardModalTitle" aria-hidden="true">
-	<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered" role="document">
+	<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered awardmodal" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title">Give Award</h5>
@@ -23,11 +23,6 @@
 								<div class="text-muted">{{award.owned}} owned</div>
 							</a>
 						{% endfor %}
-						<a class="card disabled d-md-none" style="border:none">
-							<i class="fas fa-volume-mute" style="opacity:0"></i>
-							<div class="pt-2" style="font-weight: bold; font-size: 14px; color:#E1E1E1">&nbsp;</div>
-							<div class="text-muted">&nbsp;</div>
-						</a>
 					</div>
 					<label id="notelabel" for="note" class="pt-4">Note (optional):</label>
 					<input id="kind" name="kind" value="" hidden>
@@ -79,5 +74,9 @@
 		.award-columns {
 			column-count: 7 !important;
 		}
+	}
+
+	.awardmodal {
+		max-width: 90% !important;
 	}
 </style>

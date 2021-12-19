@@ -1,4 +1,4 @@
-{% extends "default.html" %}
+{% extends "CHRISTMAS/default.html" %}
 
 {% block pagetype %}search{% endblock %}
 
@@ -8,7 +8,7 @@
 
 {% block subHeader %}
 <div class="relative max-w-screen-2xl mx-auto px-4 py-4 grid grid-cols-12 rounded-t">
-	<div class="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-gray-300 to-gray-200 rounded-t sub-header-shadow"></div>
+	<div class="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-gray-300 to-gray-200 dark:bg-none dark:bg-gray-800 rounded-t sub-header-shadow dark:border-b dark:border-gray-700"></div>
 	<div class="relative col-span-full flex items-center">
 		<div class="truncate">
 			<h1 class="font-bold text-xl font-heading leading-normal mb-0 truncate ellipsis">
@@ -46,7 +46,7 @@
 		</div>
 		{% if not '/users/' in request.path %}
 		<div class="ml-auto pl-3 md:pl-0">
-			{% include "/dropdowns/SearchSorts.html" %}
+			{% include "CHRISTMAS/dropdowns/SearchSorts.html" %}
 		</div>
 		{% endif %}
 	</div>
@@ -65,7 +65,7 @@
 <div class="col-span-full px-4 md:px-0">
 	<div class="posts" id="posts">
 		{% block listing_template %}
-		{% include "submission_listing.html" %}
+		{% include "CHRISTMAS/submission_listing.html" %}
 		{% endblock %}
 	</div>
 </div>

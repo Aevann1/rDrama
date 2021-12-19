@@ -467,34 +467,6 @@ input[type=button].btn-block {
   bottom: auto;
 }
 
-/*.dropdown-item {
-  display: block;
-  width: 100%;
-  padding: 0.25rem 1.5rem;
-  clear: both;
-  font-weight: 400;
-  color: #212529;
-  text-align: inherit;
-  white-space: nowrap;
-  background-color: transparent;
-  border: 0;
-}
-.dropdown-item:hover, .dropdown-item:focus {
-  color: #16181b;
-  text-decoration: none;
-  background-color: #f8f9fa;
-}
-.dropdown-item.active, .dropdown-item:active {
-  color: #fff;
-  text-decoration: none;
-  background-color: var(--primary);
-}
-.dropdown-item.disabled, .dropdown-item:disabled {
-  color: #6c757d;
-  pointer-events: none;
-  background-color: transparent;
-}*/
-
 .dropdown-menu.show {
   display: block;
 }
@@ -646,7 +618,6 @@ input[type=button].btn-block {
   display: block;
   width: 1rem;
   height: 1rem;
-  pointer-events: none;
   content: "";
   background-color: #fff;
   border: #adb5bd solid 1px;
@@ -1280,6 +1251,7 @@ a.close.disabled {
   padding: 0.75rem;
 }
 
+
 .modal-open {
   overflow: hidden;
 }
@@ -1312,8 +1284,8 @@ a.close.disabled {
 }
 @media (prefers-reduced-motion: reduce) {
   .modal.fade .modal-dialog {
-   transition: none;
- }
+  transition: none;
+  }
 }
 .modal.show .modal-dialog {
   transform: none;
@@ -1430,34 +1402,34 @@ a.close.disabled {
 
 @media (min-width: 576px) {
   .modal-dialog {
-   max-width: 500px;
-   margin: 1.75rem auto;
- }
+  max-width: 500px;
+  margin: 1.75rem auto;
+  }
 
- .modal-dialog-scrollable {
-   max-height: calc(100% - 3.5rem);
- }
- .modal-dialog-scrollable .modal-content {
-   max-height: calc(100vh - 3.5rem);
- }
+  .modal-dialog-scrollable {
+  max-height: calc(100% - 3.5rem);
+  }
+  .modal-dialog-scrollable .modal-content {
+  max-height: calc(100vh - 3.5rem);
+  }
 
- .modal-dialog-centered {
-   min-height: calc(100% - 3.5rem);
- }
- .modal-dialog-centered::before {
-   height: calc(100vh - 3.5rem);
- }
+  .modal-dialog-centered {
+  min-height: calc(100% - 3.5rem);
+  }
+  .modal-dialog-centered::before {
+  height: calc(100vh - 3.5rem);
+  }
 }
 @media (min-width: 992px) {
-
-  .modal-xl {
-   max-width: 800px;
- }
+  
+.modal-xl {
+  max-width: 800px;
+  }
 }
 @media (min-width: 1200px) {
   .modal-xl {
-   max-width: 1140px;
- }
+  max-width: 1140px;
+  }
 }
 .tooltip {
   position: absolute;
@@ -4152,7 +4124,6 @@ img.emoji {
     bottom: 0;
     left: 0;
     z-index: -1;
-    pointer-events: none;
   }
 
   @media (max-width: 767.98px) {
@@ -4218,7 +4189,7 @@ blockquote p {
 @media (min-width: 576px)
 {
   .modal-dialog {
-   max-width: 90% !important;
+   max-width: 50% !important;
    margin: 1.75rem auto !important;
  }
 }

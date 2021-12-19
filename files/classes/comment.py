@@ -26,7 +26,6 @@ class Comment(Base):
 	created_utc = Column(Integer, default=0)
 	edited_utc = Column(Integer, default=0)
 	is_banned = Column(Boolean, default=False)
-	removed_by = Column(Integer)
 	bannedfor = Column(Boolean)
 	distinguish_level = Column(Integer, default=0)
 	deleted_utc = Column(Integer, default=0)
@@ -54,6 +53,7 @@ class Comment(Base):
 	parent_comment = relationship("Comment", remote_side=[id], viewonly=True)
 	child_comments = relationship("Comment", remote_side=[parent_comment_id], viewonly=True)
 	awards = relationship("AwardRelationship", viewonly=True)
+	reports = relationship("CommentFlag", viewonly=True)
 	
 	def __init__(self, *args, **kwargs):
 
@@ -405,7 +405,7 @@ class Comment(Base):
 			else: html += f''' onchange="poll_vote_no_v('{o.id}', '{self.id}')"'''
 			html += f'''><label class="custom-control-label" for="{o.id}">{o.body_html}<span class="presult-{self.id}'''
 			if not self.total_poll_voted(v): html += ' d-none'	
-			html += f'"> - <a href="/votes?link=t3_{o.id}"><span id="poll-{o.id}">{o.upvotes}</span> votes</a></span></label></div><pre></pre>'
+			html += f'"> - <a href="/votes?link=t3_{o.id}"><span id="poll-{o.id}">{o.upvotes}</span> votes</a></span></label></div>'
 		return html
 
 class Notification(Base):

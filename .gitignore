@@ -2,14 +2,10 @@ image.*
 video.mp4
 video.webm
 cache/
-/images/
-/songs/
 __pycache__/
 disablesignups
-*_rules.html
 .idea/
 **/.pytest_cache/
 venv/
 .vscode/
-disablesignups
 .sass-cache/

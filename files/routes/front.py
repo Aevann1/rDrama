@@ -107,7 +107,9 @@ def notifications(v):
 
 	if request.headers.get("Authorization"): return {"data":[x.json for x in listing]}
 
-	return render_template("notifications.html",
+	if v and v.oldsite: template = ''
+	else: template = 'CHRISTMAS/'
+	return render_template(f"{template}notifications.html",
 							v=v,
 							notifications=listing,
 							next_exists=next_exists,
@@ -190,7 +192,9 @@ def front_all(v):
 			g.db.commit()
 
 	if request.headers.get("Authorization"): return {"data": [x.json for x in posts], "next_exists": next_exists}
-	else: return render_template("home.html", v=v, listing=posts, next_exists=next_exists, sort=sort, t=t, page=page)
+	if v and v.oldsite: template = ''
+	else: template = 'CHRISTMAS/'
+	return render_template(f"{template}home.html", v=v, listing=posts, next_exists=next_exists, sort=sort, t=t, page=page)
 
 
 
@@ -199,10 +203,8 @@ def frontlist(v=None, sort="hot", page=1, t="all", ids_only=True, filter_words='
 
 	posts = g.db.query(Submission)
 
-	if SITE_NAME == 'Drama' and sort == "hot":
-		cutoff = int(time.time()) - 86400
-		posts = posts.filter(Submission.created_utc >= cutoff)
-	elif t != 'all':
+	if t == 'all': cutoff = 0
+	else:
 		now = int(time.time())
 		if t == 'hour': cutoff = now - 3600
 		elif t == 'week': cutoff = now - 604800
@@ -210,7 +212,6 @@ def frontlist(v=None, sort="hot", page=1, t="all", ids_only=True, filter_words='
 		elif t == 'year': cutoff = now - 31536000
 		else: cutoff = now - 86400
 		posts = posts.filter(Submission.created_utc >= cutoff)
-	else: cutoff = 0
 
 	if sort != "hot": posts = posts.filter_by(is_banned=False, private=False, deleted_utc = 0)
 	else: posts = posts.filter_by(is_banned=False, stickied=None, private=False, deleted_utc = 0)
@@ -302,7 +303,9 @@ def changelog(v):
 	posts = get_posts(ids, v=v)
 
 	if request.headers.get("Authorization"): return {"data": [x.json for x in posts], "next_exists": next_exists}
-	else: return render_template("changelog.html", v=v, listing=posts, next_exists=next_exists, sort=sort, t=t, page=page)
+	if v and v.oldsite: template = ''
+	else: template = 'CHRISTMAS/'
+	return render_template(f"{template}changelog.html", v=v, listing=posts, next_exists=next_exists, sort=sort, t=t, page=page)
 
 
 @cache.memoize(timeout=86400)
@@ -370,7 +373,7 @@ def random_post(v):
 	return redirect(f"/post/{post.id}")
 
 @cache.memoize(timeout=86400)
-def comment_idlist(page=1, v=None, nsfw=False, sort="new", t="all", shadowbanned=False):
+def comment_idlist(page=1, v=None, nsfw=False, sort="new", t="all"):
 
 	posts = g.db.query(Submission)
 	cc_idlist = [x[0] for x in g.db.query(Submission.id).filter(Submission.club == True).all()]
@@ -418,7 +421,6 @@ def comment_idlist(page=1, v=None, nsfw=False, sort="new", t="all", shadowbanned
 	elif sort == "bottom":
 		comments = comments.order_by(Comment.upvotes - Comment.downvotes)
 
-	if shadowbanned: comments = comments.join(User, User.id == Comment.author_id).filter(User.shadowbanned != None)
 	comments = comments.offset(25 * (page - 1)).limit(26).all()
 	return [x[0] for x in comments]
 
@@ -432,20 +434,19 @@ def all_comments(v):
 	sort=request.values.get("sort", "new")
 	t=request.values.get("t", defaulttimefilter)
 
-	if request.values.get("shadowbanned") and v and v.admin_level > 1: shadowbanned = True
-	else: shadowbanned = False
-
 	idlist = comment_idlist(v=v,
 							page=page,
 							sort=sort,
 							t=t,
-							shadowbanned=shadowbanned
-							)		
-	comments = get_comments(idlist, v=v, shadowbanned=shadowbanned)
+							)
+
+	comments = get_comments(idlist, v=v)
 
 	next_exists = len(idlist) > 25
 
 	idlist = idlist[:25]
 
 	if request.headers.get("Authorization"): return {"data": [x.json for x in comments]}
-	else: return render_template("home_comments.html", v=v, sort=sort, t=t, page=page, comments=comments, standalone=True, next_exists=next_exists, shadowbanned=shadowbanned)
+	if v and v.oldsite: template = ''
+	else: template = 'CHRISTMAS/'
+	return render_template(f"{template}home_comments.html", v=v, sort=sort, t=t, page=page, comments=comments, standalone=True, next_exists=next_exists)

@@ -216,7 +216,7 @@ def get_comment(i, v=None, graceful=False):
 	return comment
 
 
-def get_comments(cids, v=None, load_parent=False, shadowbanned=False):
+def get_comments(cids, v=None, load_parent=False):
 
 	if not cids: return []
 
@@ -235,8 +235,8 @@ def get_comments(cids, v=None, load_parent=False, shadowbanned=False):
 			blocking.c.id,
 			blocked.c.id,
 		).filter(Comment.id.in_(cids))
-
-		if not shadowbanned and not v.shadowbanned and v.admin_level < 2:
+ 
+		if not (v and (v.shadowbanned or v.admin_level > 1)):
 			comments = comments.join(User, User.id == Comment.author_id).filter(User.shadowbanned == None)
 
 		comments = comments.join(

@@ -18,6 +18,7 @@ from PIL import Image as PILimage
 from .front import frontlist, changeloglist
 from urllib.parse import ParseResult, urlunparse, urlparse, quote
 from os import path
+import requests
 
 site = environ.get("DOMAIN").strip()
 site_name = environ.get("SITE_NAME").strip()
@@ -32,8 +33,8 @@ if path.exists(f'snappy_{site_name}.txt'):
 @auth_required
 def toggle_club(pid, v):
 
+	if v.club_banned: abort(403)
 	post = get_post(pid)
-
 	if post.author_id != v.id and v.admin_level == 0: abort(403)
 
 	post.club = not post.club
@@ -80,7 +81,9 @@ def publish(pid, v):
 @auth_required
 def submit_get(v):
 
-	return render_template("submit.html",
+	if v and v.oldsite: template = ''
+	else: template = 'CHRISTMAS/'
+	return render_template(f"{template}submit.html",
 						   v=v)
 
 @app.get("/post/<pid>")
@@ -89,6 +92,8 @@ def submit_get(v):
 @app.get("/logged_out/post/<pid>/<anything>")
 @auth_desired
 def post_id(pid, anything=None, v=None):
+	if v and v.oldsite: template2 = ''
+	else: template2 = 'CHRISTMAS/'
 
 	if not v and not request.path.startswith('/logged_out') and not request.headers.get("Authorization"): return redirect(f"/logged_out{request.full_path}")
 
@@ -111,7 +116,7 @@ def post_id(pid, anything=None, v=None):
 
 	post = get_post(pid, v=v)
 
-	if not (v and v.admin_level > 1) and (post.club and not (v and (v.paid_dues or v.id == post.author_id)) or post.private and not (v and v.id == post.author_id)): abort(403)
+	if post.club and not (v and (v.paid_dues or v.id == post.author_id)): abort(403)
 
 	if v:
 		votes = g.db.query(CommentVote).filter_by(user_id=v.id).subquery()
@@ -211,16 +216,15 @@ def post_id(pid, anything=None, v=None):
 
 	post.views += 1
 	g.db.add(post)
-	if isinstance(session.get('over_18', 0), dict): session["over_18"] = 0
-	if post.over_18 and not (v and v.over_18) and not session.get('over_18', 0) >= int(time.time()):
+	if request.host != 'old.rdrama.net' and post.over_18 and not (v and v.over_18) and session.get('over_18', 0) < int(time.time()):
 		if request.headers.get("Authorization"): return {"error":"Must be 18+ to view"}, 451
-		else: return render_template("errors/nsfw.html", v=v)
+		return render_template(f"{template2}errors/nsfw.html", v=v)
 
 	g.db.commit()
 	if request.headers.get("Authorization"): return post.json
 	else:
-		if post.is_banned and not (v and (v.admin_level > 1 or post.author_id == v.id)): template = "submission_banned.html"
-		else: template = "submission.html"
+		if post.is_banned and not (v and (v.admin_level > 1 or post.author_id == v.id)): template = f"{template2}submission_banned.html"
+		else: template = f"{template2}submission.html"
 		return render_template(template, v=v, p=post, sort=sort, render_replies=True, offset=offset)
 
 @app.post("/viewmore/<pid>/<sort>/<offset>")
@@ -320,7 +324,9 @@ def viewmore(v, pid, sort, offset):
 	if len(comments) == len(comments2): offset = None
 	comments = comments2
 
-	return render_template("comments.html", v=v, comments=comments, render_replies=True, pid=pid, sort=sort, offset=offset)
+	if v and v.oldsite: template = ''
+	else: template = 'CHRISTMAS/'
+	return render_template(f"{template}comments.html", v=v, comments=comments, render_replies=True, pid=pid, sort=sort, offset=offset)
 
 
 @app.post("/morecomments/<cid>")
@@ -365,7 +371,9 @@ def morecomments(v, cid):
 		c = g.db.query(Comment).filter_by(id=cid).first()
 		comments = c.replies
 
-	return render_template("comments.html", v=v, comments=comments, render_replies=True)
+	if v and v.oldsite: template = ''
+	else: template = 'CHRISTMAS/'
+	return render_template(f"{template}comments.html", v=v, comments=comments, render_replies=True)
 
 @app.post("/edit_post/<pid>")
 @limiter.limit("1/second")
@@ -421,13 +429,17 @@ def edit_post(pid, v):
 
 	if request.files.get("file") and request.headers.get("cf-ipcountry") != "T1":
 		file=request.files["file"]
-		if not file.content_type.startswith('image/'): return {"error": "That wasn't an image!"}, 400
-
-		name = f'/images/{time.time()}'.replace('.','')[:-5] + '.webp'
-		file.save(name)
-		url = process_image(name)
-		
-		body += f"\n\n![]({url})"
+		if file.content_type.startswith('image/'):
+			name = f'/images/{time.time()}'.replace('.','')[:-5] + '.webp'
+			file.save(name)
+			url = process_image(name)
+			body += f"\n\n![]({url})"
+		elif file.content_type.startswith('video/'):
+			file.save("video.mp4")
+			with open("video.mp4", 'rb') as f:
+				url = requests.request("POST", "https://api.imgur.com/3/upload", headers={'Authorization': f'Client-ID {CATBOX_KEY}'}, files=[('video', f)]).json()['data']['link']
+			body += f"\n\n{url}"
+		else: return {"error": f"Image/Video files only"}, 400
 
 	if body != p.body:
 		for i in re.finditer('^(https:\/\/.*\.(png|jpg|jpeg|gif|webp|PNG|JPG|JPEG|GIF|WEBP|9999))', body, re.MULTILINE):
@@ -744,7 +756,7 @@ def submit_post(v):
 		for rd in ["https://reddit.com/", "https://new.reddit.com/", "https://www.reddit.com/", "https://redd.it/"]:
 			url = url.replace(rd, "https://old.reddit.com/")
 
-		url = url.replace("old.reddit.com/gallery", "new.reddit.com/gallery").replace("https://youtu.be/", "https://youtube.com/watch?v=").replace("https://music.youtube.com/watch?v=", "https://youtube.com/watch?v=").replace("https://open.spotify.com/", "https://open.spotify.com/embed/").replace("https://streamable.com/", "https://streamable.com/e/").replace("https://youtube.com/shorts/", "https://youtube.com/watch?v=").replace("https://mobile.twitter", "https://twitter").replace("https://m.facebook", "https://facebook").replace("https://m.wikipedia", "https://wikipedia").replace("https://m.youtube", "https://youtube").replace("https://www.youtube", "https://youtube")
+		url = url.replace("old.reddit.com/gallery", "new.reddit.com/gallery").replace("https://youtu.be/", "https://youtube.com/watch?v=").replace("https://music.youtube.com/watch?v=", "https://youtube.com/watch?v=").replace("https://open.spotify.com/", "https://open.spotify.com/embed/").replace("https://streamable.com/", "https://streamable.com/e/").replace("https://youtube.com/shorts/", "https://youtube.com/watch?v=").replace("https://mobile.twitter", "https://twitter").replace("https://m.facebook", "https://facebook").replace("m.wikipedia.org", "wikipedia.org").replace("https://m.youtube", "https://youtube").replace("https://www.youtube", "https://youtube")
 
 		if url.startswith("https://streamable.com/") and not url.startswith("https://streamable.com/e/"): url = url.replace("https://streamable.com/", "https://streamable.com/e/")
 
@@ -774,7 +786,9 @@ def submit_post(v):
 		domain_obj = get_domain(domain)
 		if domain_obj:
 			if request.headers.get("Authorization"): return {"error":domain_obj.reason}, 400
-			else: return render_template("submit.html", v=v, error=domain_obj.reason, title=title, url=url, body=request.values.get("body", "")), 400
+			if v and v.oldsite: template = ''
+			else: template = 'CHRISTMAS/'
+			return render_template(f"{template}submit.html", v=v, error=domain_obj.reason, title=title, url=url, body=request.values.get("body", "")), 400
 		elif "twitter.com" == domain:
 			try: embed = requests.get("https://publish.twitter.com/oembed", timeout=5, params={"url":url, "omit_script":"t"}).json()["html"]
 			except: embed = None
@@ -795,11 +809,15 @@ def submit_post(v):
 
 	if not url and not request.values.get("body") and not request.files.get("file", None):
 		if request.headers.get("Authorization"): return {"error": "`url` or `body` parameter required."}, 400
-		else: return render_template("submit.html", v=v, error="Please enter a url or some text.", title=title, url=url, body=request.values.get("body", "")), 400
+		if v and v.oldsite: template = ''
+		else: template = 'CHRISTMAS/'
+		return render_template(f"{template}submit.html", v=v, error="Please enter a url or some text.", title=title, url=url, body=request.values.get("body", "")), 400
 
 	if not title:
 		if request.headers.get("Authorization"): return {"error": "Please enter a better title"}, 400
-		else: return render_template("submit.html", v=v, error="Please enter a better title.", title=title, url=url, body=request.values.get("body", "")), 400
+		if v and v.oldsite: template = ''
+		else: template = 'CHRISTMAS/'
+		return render_template(f"{template}submit.html", v=v, error="Please enter a better title.", title=title, url=url, body=request.values.get("body", "")), 400
 
 
 	elif len(title) > 500:
@@ -889,12 +907,16 @@ def submit_post(v):
 	if len(str(body)) > 10000:
 
 		if request.headers.get("Authorization"): return {"error":"10000 character limit for text body."}, 400
-		else: return render_template("submit.html", v=v, error="10000 character limit for text body.", title=title, url=url, body=request.values.get("body", "")), 400
+		if v and v.oldsite: template = ''
+		else: template = 'CHRISTMAS/'
+		return render_template(f"{template}submit.html", v=v, error="10000 character limit for text body.", title=title, url=url, body=request.values.get("body", "")), 400
 
 	if len(url) > 2048:
 
 		if request.headers.get("Authorization"): return {"error":"2048 character limit for URLs."}, 400
-		else: return render_template("submit.html", v=v, error="2048 character limit for URLs.", title=title, url=url,body=request.values.get("body", "")), 400
+		if v and v.oldsite: template = ''
+		else: template = 'CHRISTMAS/'
+		return render_template(f"{template}submit.html", v=v, error="2048 character limit for URLs.", title=title, url=url,body=request.values.get("body", "")), 400
 
 	for i in re.finditer('^(https:\/\/.*\.(png|jpg|jpeg|gif|webp|PNG|JPG|JPEG|GIF|WEBP|9999))', body, re.MULTILINE):
 		if "wikipedia" not in i.group(1): body = body.replace(i.group(1), f'![]({i.group(1)})')
@@ -917,13 +939,21 @@ def submit_post(v):
 
 	if request.files.get("file2") and request.headers.get("cf-ipcountry") != "T1":
 		file=request.files["file2"]
-		if not file.content_type.startswith('image/'): return {"error": "That wasn't an image!"}, 400
-
-		name = f'/images/{time.time()}'.replace('.','')[:-5] + '.webp'
-		file.save(name)
-		url = process_image(name)
-		
-		body += f"\n\n![]({url})"
+		if file.content_type.startswith('image/'):
+			name = f'/images/{time.time()}'.replace('.','')[:-5] + '.webp'
+			file.save(name)
+			url = process_image(name)
+			body += f"\n\n![]({url})"
+		elif file.content_type.startswith('video/'):
+			file.save("video.mp4")
+			with open("video.mp4", 'rb') as f:
+				url = requests.request("POST", "https://api.imgur.com/3/upload", headers={'Authorization': f'Client-ID {CATBOX_KEY}'}, files=[('video', f)]).json()['data']['link']
+			body += f"\n\n{url}"
+		else:
+			if request.headers.get("Authorization"): return {"error": f"Image/Video files only"}, 400
+			if v and v.oldsite: template = ''
+			else: template = 'CHRISTMAS/'
+			return render_template(f"{template}submit.html", v=v, error=f"Image/Video files only."), 400
 
 	body_html = sanitize(CustomRenderer().render(mistletoe.Document(body)))
 
@@ -942,9 +972,11 @@ def submit_post(v):
 		reason = f"Remove the {ban.domain} link from your post and try again."
 		if ban.reason: reason += f" {ban.reason}"
 		if request.headers.get("Authorization"): return {"error": reason}, 403
-		else: return render_template("submit.html", v=v, error=reason, title=title, url=url, body=request.values.get("body", "")), 403
+		if v and v.oldsite: template = ''
+		else: template = 'CHRISTMAS/'
+		return render_template(f"{template}submit.html", v=v, error=reason, title=title, url=url, body=request.values.get("body", "")), 403
 
-	if v.paid_dues: club = bool(request.values.get("club",""))
+	if not v.club_banned: club = bool(request.values.get("club",""))
 	else: club = False
 
 	if embed and len(embed) > 1500: embed = None
@@ -1002,21 +1034,9 @@ def submit_post(v):
 
 		if not file.content_type.startswith(('image/', 'video/')):
 			if request.headers.get("Authorization"): return {"error": f"File type not allowed"}, 400
-			else: return render_template("submit.html", v=v, error=f"File type not allowed.", title=title, body=request.values.get("body", "")), 400
-
-		if file.content_type.startswith('video/') and v.truecoins < app.config["VIDEO_COIN_REQUIREMENT"] and v.admin_level < 1:
-			if request.headers.get("Authorization"):
-				return {
-					"error": f"You need at least {app.config['VIDEO_COIN_REQUIREMENT']} coins to upload videos"
-				}, 403
-			else:
-				return render_template(
-					"submit.html",
-					v=v,
-					error=f"You need at least {app.config['VIDEO_COIN_REQUIREMENT']} coins to upload videos.",
-					title=title,
-					body=request.values.get("body", "")
-				), 403
+			if v and v.oldsite: template = ''
+			else: template = 'CHRISTMAS/'
+			return render_template(f"{template}submit.html", v=v, error=f"File type not allowed.", title=title, body=request.values.get("body", "")), 400
 
 		if file.content_type.startswith('image/'):
 			name = f'/images/{time.time()}'.replace('.','')[:-5] + '.webp'
@@ -1026,7 +1046,8 @@ def submit_post(v):
 		elif file.content_type.startswith('video/'):
 			file.save("video.mp4")
 			with open("video.mp4", 'rb') as f:
-				new_post.url = requests.post('https://catbox.moe/user/api.php', timeout=5, data={'userhash':CATBOX_KEY, 'reqtype':'fileupload'}, files={'fileToUpload':f}).text
+				url = requests.request("POST", "https://api.imgur.com/3/upload", headers={'Authorization': f'Client-ID {CATBOX_KEY}'}, files=[('video', f)]).json()['data']['link']
+			new_post.url = url
 
 		g.db.add(new_post)
 	
@@ -1146,8 +1167,10 @@ def submit_post(v):
 				rev = new_post.url.replace('https://old.reddit.com/', '')
 				rev = f"* [unddit.com](https://unddit.com/{rev})\n"
 			else: rev = ''
-			body += f"Snapshots:\n\n{rev}* [archive.org](https://web.archive.org/{new_post.url})\n* [archive.ph](https://archive.ph/?url={quote(new_post.url)}&run=1) (click to archive)\n\n"			
-			gevent.spawn(archiveorg, new_post.url)
+			newposturl = new_post.url
+			if newposturl.startswith('/'): newposturl = f"https://{site}{newposturl}"
+			body += f"Snapshots:\n\n{rev}* [archive.org](https://web.archive.org/{newposturl})\n* [archive.ph](https://archive.ph/?url={quote(newposturl)}&run=1) (click to archive)\n\n"			
+			gevent.spawn(archiveorg, newposturl)
 
 		url_regex = '<a (target=\"_blank\"  )?(rel=\"nofollow noopener noreferrer\" )?href=\"(https?://[a-z]{1,20}\.[^\"]+)\"( rel=\"nofollow noopener noreferrer\" target=\"_blank\")?>([^\"]+)</a>'
 		for url_match in re.finditer(url_regex, new_post.body_html, flags=re.M|re.I):

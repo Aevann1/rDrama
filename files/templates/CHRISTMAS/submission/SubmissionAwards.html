@@ -1,6 +1,6 @@
 <!-- Train award -->
 {% if p.award_count("train") %}
-{% include "/awards/Christmas/Sleighs.html" %}
+{% include "CHRISTMAS/awards/Christmas/Sleighs.html" %}
 {% endif %}
 
 <!-- Poop award -->
@@ -39,13 +39,13 @@
 
 <!-- Ginger Marsey award -->
 {% if p.award_count("gingerbread") %}
-	{% include "/awards/Christmas/Gingerbread.html" %}
+	{% include "CHRISTMAS/awards/Christmas/Gingerbread.html" %}
 {% endif %}
 
 <!-- Snow award -->
 {% if p.award_count("snow") %}
 
-{% include "/awards/Christmas/Snow.html" %}
+{% include "CHRISTMAS/awards/Christmas/Snow.html" %}
 {% if p.award_count("snow") > 5 %}
 	<div class="frost"></div>
 {% endif %}
@@ -143,6 +143,6 @@
 
 <!-- Fireplace award -->
 {% if p.award_count("fireplace")%}
-	{% include "/awards/Christmas/Fireplace.html" %}
+	{% include "CHRISTMAS/awards/Christmas/Fireplace.html" %}
 {% endif %}
 

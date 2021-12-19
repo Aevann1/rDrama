@@ -96,8 +96,8 @@
 							<div><img loading="lazy" src="{{v.profile_url}}" class="profile-pic-35"></div>
 							<div class="text-left pl-2">
 								<div style="color: #{{v.namecolor}}" class="text-small font-weight-bold {% if v.patron %}patron{% endif %}"><span {% if v.patron %}class="patron" style="background-color:#{{v.namecolor}};"{% endif %}>{{v.username}}</span></div>
-								<div class="text-small-extra text-primary"><img class="mr-1 ml-1" data-bs-toggle="tooltip" data-bs-placement="bottom" height="13" src="/assets/CHRISTMAS/images/emojis/marseycoin.webp" data-bs-original-title="{{'COINS_NAME' | app_config}}" aria-label="{{'COINS_NAME' | app_config}}"><span id="user-coins-amount">{{v.coins}}</span> {{'COINS_NAME' | app_config}}</div>
-								{% if v.procoins %}<div class="text-small-extra text-primary"><img class="mr-1 ml-1" data-bs-toggle="tooltip" data-bs-placement="bottom" height="13" src="/assets/CHRISTMAS/images/emojis/marseybux.webp" data-bs-original-title="Marseybux" aria-label="Marseybux"><span>{{v.procoins}}</span> Marseybux</div>{% endif %}
+								<div class="text-small-extra text-primary"><img class="mr-1 ml-1" data-bs-toggle="tooltip" data-bs-placement="bottom" height="13" src="/assets/images/emojis/marseycoin.webp" data-bs-original-title="{{'COINS_NAME' | app_config}}" aria-label="{{'COINS_NAME' | app_config}}"><span id="user-coins-amount">{{v.coins}}</span> {{'COINS_NAME' | app_config}}</div>
+								{% if v.procoins %}<div class="text-small-extra text-primary"><img class="mr-1 ml-1" data-bs-toggle="tooltip" data-bs-placement="bottom" height="13" src="/assets/images/emojis/marseybux.webp" data-bs-original-title="Marseybux" aria-label="Marseybux"><span>{{v.procoins}}</span> Marseybux</div>{% endif %}
 							</div>
 						</div>
 					</a>
@@ -111,7 +111,7 @@
 								<button class="dropdown-item copy-link" data-clipboard-text="/signup?ref={{v.username}}"><i class="fad fa-user-friends fa-fw text-left mr-3"></i>Invite friends</button>
 							</div>
 							<div class="px-2">
-								<a class="dropdown-item" href="/assets/CHRISTMAS/{{'SITE_NAME' | app_config}}.apk?v=200"><i class="fab fa-android fa-fw text-left mr-3"></i>Android app</a>
+								<a class="dropdown-item" href="/assets/CHRISTMAS/{{'SITE_NAME' | app_config}}.apk?v=201"><i class="fab fa-android fa-fw text-left mr-3"></i>Android app</a>
 
 								<a class="dropdown-item" href="/rules"><i class="fas fa-balance-scale fa-fw text-left mr-3"></i>Rules</a>
 
@@ -175,7 +175,7 @@
 			<li class="nav-item">
 				<a class="nav-link" href="/settings"><i class="fas fa-cog fa-fw mr-3"></i>Settings</a>
 			</li>
-			<a class="nav-item nav-link" href="/assets/CHRISTMAS/{{'SITE_NAME' | app_config}}.apk?v=200"><i class="fab fa-android fa-fw mr-3"></i>Android app</a>
+			<a class="nav-item nav-link" href="/assets/CHRISTMAS/{{'SITE_NAME' | app_config}}.apk?v=201"><i class="fab fa-android fa-fw mr-3"></i>Android app</a>
 
 			<a class="nav-item nav-link" href="/rules"><i class="fas fa-balance-scale fa-fw mr-3"></i>Rules</a>
 
@@ -224,6 +224,6 @@
 	}
 </style>
 
-{% if v %}
+{% if v and not error %}
 	<div id="formkey" class="d-none">{{v.formkey}}</div>
 {% endif %}

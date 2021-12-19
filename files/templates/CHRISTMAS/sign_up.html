@@ -26,9 +26,9 @@
 
 	<title>{% if ref_user %}{{ref_user.username}} invites you to {{'SITE_NAME' | app_config}}{% else %}Sign up - {{'SITE_NAME' | app_config}}{% endif %}</title>
 
-	<link rel="stylesheet" href="/assets/CHRISTMAS/css/main.css?v=400">
+	<link rel="stylesheet" href="/assets/CHRISTMAS/css/main.css?v=432">
 
-	<link rel="stylesheet" href="/static/dist/main.css?v=400">
+	<link rel="stylesheet" href="/static/dist/main.css?v=432">
 
 	<style>:root{--primary:#{{'DEFAULT_COLOR' | app_config}}</style>
 
@@ -150,14 +150,14 @@
 
 		</div>
 
-		{% include '/awards/Christmas/Snow.html' %}
+		{% include 'CHRISTMAS//awards/Christmas/Snow.html' %}
 
 	</div>
 
 	<script src="/assets/CHRISTMAS/js/signup.js?v=200"></script>
 
 	{% if hcaptcha %}
-	<script src="/assets/CHRISTMAS/js/hcaptcha.js?v=200"></script>
+	<script src="/assets/CHRISTMAS/js/hcaptcha.js?v=201"></script>
 	{% endif %}
 
 	<script defer src="/assets/CHRISTMAS/js/christmas/snow.js?v=200"></script>

@@ -96,7 +96,7 @@
 						</button>
 					</li>
 
-					{% if v.admin_level > 1 or v.id == p.author.id and v.paid_dues %}
+					{% if v.admin_level > 1 or v.id == p.author.id and not v.club_banned %}
 					<li id="club2-{{p.id}}" class="{% if p.club %}hidden{% endif %}">
 						<button class="btn btn-gray w-full text-left" onclick="post_toast2('/toggle_club/{{p.id}}','club2-{{p.id}}','unclub2-{{p.id}}')">
 							<i class="fas fa-eye-slash fa-fw mr-4"></i>Mark club

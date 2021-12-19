@@ -3,7 +3,7 @@
 	<input type="hidden" name="parent_fullname" value="t2_{{p.id}}">
 	<input id="reply-form-submission-{{p.fullname}}" type="hidden" name="submission" value="{{p.id}}">
 	<div class="relative comment-box rounded-lg border border-gray-300 bg-gray-100 shadow-inner w-full">
-		<textarea maxlength="10000" id="reply-form-body-{{p.fullname}}" data-fullname="{{p.fullname}}" class="w-full rounded-t-md p-3 bg-transparent focus:bg-white shadow-inner resize-y focus:outline-none" id="comment-form" name="body" form="reply-to-{{p.fullname}}" aria-label="With textarea" placeholder="Add your comment..." rows="3" oninput="charLimit('reply-form-body-{{p.fullname}}','charcount-reply')"></textarea>
+		<textarea maxlength="10000" id="reply-form-body-{{p.fullname}}" data-fullname="{{p.fullname}}" class="text-black w-full rounded-t-md p-3 bg-transparent focus:bg-white shadow-inner resize-y focus:outline-none placehoder:text-gray-400" id="comment-form" name="body" form="reply-to-{{p.fullname}}" aria-label="With textarea" placeholder="Add your comment..." rows="3" oninput="charLimit('reply-form-body-{{p.fullname}}','charcount-reply')"></textarea>
 		<ul class="-mt-1 flex space-x-4 px-3 py-2 border-t border-dashed border-gray-400 mb-0">
 			<li>
 				<button type="button" class="text-gray-400 hover:text-gray-500" onclick="makeBold('reply-form-body-{{p.fullname}}')">
@@ -35,7 +35,7 @@
 					<div id="filename-show-reply-{{p.fullname}}">
 						<i class="fas fa-camera fa-fw fa-sm"></i>
 					</div>
-					<input id="file-upload-reply-{{p.fullname}}" type="file" name="file" accept="image/*" onchange="document.getElementById('filename-show-reply-{{p.fullname}}').innerHTML='image';" hidden>
+					<input id="file-upload-reply-{{p.fullname}}" type="file" name="file" accept="image/*, video/*" onchange="document.getElementById('filename-show-reply-{{p.fullname}}').innerHTML='image/video';" hidden>
 				</label>
 			</li>
 			{% endif %}
@@ -46,7 +46,7 @@
 		<a href="/formatting" target="_blank" class="inline-block text-sm text-gray-600">
 			Formatting help
 		</a>
-		<button type="button" id="save-reply-to-{{p.fullname}}" form="reply-to-{{p.fullname}}" class="ml-auto block px-4 py-2 bg-gradient-to-t from-red-800 to-red-700 hover:from-red-700 hover:to-red-800 active:shadow-inner border border-red-900 rounded-md text-shadow-t shadow-inset-t-white-10 text-sm font-bold text-gray-100 focus:text-gray-300 focus:outline-none" onclick="post_comment('{{p.fullname}}', '{{p.id}}')">
+		<button type="button" id="save-reply-to-{{p.fullname}}" form="reply-to-{{p.fullname}}" class="ml-auto btn btn-primary" onclick="post_comment('{{p.fullname}}', '{{p.id}}')">
 			Comment
 		</button>
 	</div>

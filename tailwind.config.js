@@ -3,8 +3,8 @@ const colors = require('tailwindcss/colors')
 module.exports = {
   mode: 'jit',
   purge: [
-    'files/templates/**/*.html',
-    'files/templates/*.html'
+  'files/templates/**/*.html',
+  'files/templates/*.html'
   ],
   darkMode: 'class', // or 'media' or 'class'
   theme: {
@@ -47,16 +47,88 @@ module.exports = {
       },
       colors: {
         gray: {
-          '100': '#f4f6f4',
-          '200': '#e5ebe7',
-          '300': '#d1dbd5',
-          '400': '#9bafa1',
-          '500': '#6a8073',
-          '600': '#4c6351',
-          '700': '#37523e',
-          '800': '#1f3726',
-          '900': '#112817'
-        },
+          100: ({ opacityVariable, opacityValue }) => {
+            if (opacityValue !== undefined) {
+              return `rgba(var(--color-100), ${opacityValue})`;
+            }
+            if (opacityVariable !== undefined) {
+              return `rgba(var(--color-100), var(${opacityVariable}, 1))`;
+            }
+            return `rgb(var(--color-100))`;
+          },
+          200: ({ opacityVariable, opacityValue }) => {
+            if (opacityValue !== undefined) {
+              return `rgba(var(--color-200), ${opacityValue})`;
+            }
+            if (opacityVariable !== undefined) {
+              return `rgba(var(--color-200), var(${opacityVariable}, 1))`;
+            }
+            return `rgb(var(--color-200))`;
+          },
+          300: ({ opacityVariable, opacityValue }) => {
+            if (opacityValue !== undefined) {
+              return `rgba(var(--color-300), ${opacityValue})`;
+            }
+            if (opacityVariable !== undefined) {
+              return `rgba(var(--color-300), var(${opacityVariable}, 1))`;
+            }
+            return `rgb(var(--color-300))`;
+          },
+          400: ({ opacityVariable, opacityValue }) => {
+            if (opacityValue !== undefined) {
+              return `rgba(var(--color-400), ${opacityValue})`;
+            }
+            if (opacityVariable !== undefined) {
+              return `rgba(var(--color-400), var(${opacityVariable}, 1))`;
+            }
+            return `rgb(var(--color-400))`;
+          },
+          500: ({ opacityVariable, opacityValue }) => {
+            if (opacityValue !== undefined) {
+              return `rgba(var(--color-500), ${opacityValue})`;
+            }
+            if (opacityVariable !== undefined) {
+              return `rgba(var(--color-500), var(${opacityVariable}, 1))`;
+            }
+            return `rgb(var(--color-500))`;
+          },
+          600: ({ opacityVariable, opacityValue }) => {
+            if (opacityValue !== undefined) {
+              return `rgba(var(--color-600), ${opacityValue})`;
+            }
+            if (opacityVariable !== undefined) {
+              return `rgba(var(--color-600), var(${opacityVariable}, 1))`;
+            }
+            return `rgb(var(--color-600))`;
+          },
+          700: ({ opacityVariable, opacityValue }) => {
+            if (opacityValue !== undefined) {
+              return `rgba(var(--color-700), ${opacityValue})`;
+            }
+            if (opacityVariable !== undefined) {
+              return `rgba(var(--color-700), var(${opacityVariable}, 1))`;
+            }
+            return `rgb(var(--color-700))`;
+          },
+          800: ({ opacityVariable, opacityValue }) => {
+            if (opacityValue !== undefined) {
+              return `rgba(var(--color-800), ${opacityValue})`;
+            }
+            if (opacityVariable !== undefined) {
+              return `rgba(var(--color-800), var(${opacityVariable}, 1))`;
+            }
+            return `rgb(var(--color-800))`;
+          },
+          900: ({ opacityVariable, opacityValue }) => {
+            if (opacityValue !== undefined) {
+              return `rgba(var(--color-900), ${opacityValue})`;
+            }
+            if (opacityVariable !== undefined) {
+              return `rgba(var(--color-900), var(${opacityVariable}, 1))`;
+            }
+            return `rgb(var(--color-900))`;
+          },
+        }
       }
     },
   },

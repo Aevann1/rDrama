@@ -1,4 +1,4 @@
-{% extends "settings2.html" %}
+{% extends "CHRISTMAS/settings2.html" %}
 
 {% block pagetitle %}Moderation Log{% endblock %}
 
@@ -36,10 +36,10 @@
 						<div class="dropdown dropdown-actions">
 
 							<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-								{% if admin %}<img src="/@{{admin}}/pic" alt="avatar" width=20 height=20 class="rounded-circle mr-2">{{admin}}{% else %}<img src="/assets/CHRISTMAS/images/emojis/marseyjanny.webp" alt="avatar" width=20 height=20 class="rounded-circle mr-2">All{% endif %}
+								{% if admin %}<img src="/@{{admin}}/pic" alt="avatar" width=20 height=20 class="rounded-circle mr-2">{{admin}}{% else %}<img src="/assets/images/emojis/marseyjanny.webp" alt="avatar" width=20 height=20 class="rounded-circle mr-2">All{% endif %}
 							</button>
 							<div class="dropdown-menu" aria-labelledby="dropdownMenuButton" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 31px, 0px);">
-								<a class="dropdown-item" href="/log{% if type %}?kind={{type}}{% endif %}"><img src="/assets/CHRISTMAS/images/emojis/marseyjanny.webp" alt="avatar" width=20 height=20 class="rounded-circle mr-2">All</a>
+								<a class="dropdown-item" href="/log{% if type %}?kind={{type}}{% endif %}"><img src="/assets/images/emojis/marseyjanny.webp" alt="avatar" width=20 height=20 class="rounded-circle mr-2">All</a>
 								{% for a in admins %}
 									<a class="dropdown-item" href="?admin={{a}}{% if type %}&kind={{type}}{% endif %}"><img src="/@{{a}}/pic" alt="avatar" width=20 height=20 class="rounded-circle mr-2">{{a}}</a>
 								{% endfor %}

@@ -1,21 +1,21 @@
-{% extends "default.html" %}
+{% extends "CHRISTMAS/default.html" %}
 
 {% block subHeader %}
 	<div class="relative max-w-screen-2xl mx-auto px-4 py-4 grid grid-cols-12 rounded-t">
-		<div class="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-gray-300 to-gray-200 rounded-t sub-header-shadow"></div>
+		<div class="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-gray-300 to-gray-200 dark:bg-none dark:bg-gray-800 rounded-t sub-header-shadow dark:border-b dark:border-gray-700"></div>
 		<div class="relative col-span-full flex items-center">
 			<div>
 				<h1 class="font-bold text-xl font-heading leading-normal mb-0">
 					Comments
 				</h1>
-				<small class="block text-gray-700">
+				<small class="block text-gray-700 dark:text-gray-400">
 					<span class="capitalize font-bold">{{ sort }}</span>
 					comments {{ 'from all time' if t=='all' else 'in the last' }}
 					{% if t != 'all' %}<strong>{{ t }}</strong>{% endif %}
 				</small>
 			</div>
 			<div class="ml-auto">
-				{% include "/dropdowns/SubmissionSorts.html" %}
+				{% include "CHRISTMAS/dropdowns/SubmissionSorts.html" %}
 			</div>
 		</div>
 	</div>
@@ -23,8 +23,8 @@
 
 {% block content %}
 	<!-- Comments list -->
-	<div class="col-span-full px-2.5 md:px-0" id="posts">
-		{% include "comments.html" %}
+	<div class="col-span-full px-2.5 md:px-0 dark:bg-gray-800" id="posts">
+		{% include "CHRISTMAS/comments.html" %}
 	</div>
 	<!-- Pagination -->
 	<div class="col-span-full">

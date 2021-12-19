@@ -17,12 +17,12 @@
 				</div>
 				<div class="flex space-x-4 mt-1">
 					<small class="flex items-center block mt-1 text-gray-300">
-						<img data-bs-toggle="tooltip" data-bs-placement="bottom" src="/assets/CHRISTMAS/images/emojis/marseycoin.webp" data-bs-original-title="{{'COINS_NAME' | app_config}}" aria-label="{{'COINS_NAME' | app_config}}" class="w-6 h-6 object-contain" alt="coin icon"/>
+						<img data-bs-toggle="tooltip" data-bs-placement="bottom" src="/assets/images/emojis/marseycoin.webp" data-bs-original-title="{{'COINS_NAME' | app_config}}" aria-label="{{'COINS_NAME' | app_config}}" class="w-6 h-6 object-contain" alt="coin icon"/>
 						<span class="pl-2">{{v.coins}}</span>
 					</small>
 					{% if v.procoins %}
 					<small class="flex items-center block mt-1 text-gray-300">
-						<img data-bs-toggle="tooltip" data-bs-placement="bottom" src="/assets/CHRISTMAS/images/emojis/marseybux.webp" data-bs-original-title="MarseyBux" aria-label="MarseyBux" class="w-6 h-6 object-contain" alt="coin icon"/>
+						<img data-bs-toggle="tooltip" data-bs-placement="bottom" src="/assets/images/emojis/marseybux.webp" data-bs-original-title="MarseyBux" aria-label="MarseyBux" class="w-6 h-6 object-contain" alt="coin icon"/>
 						<span class="pl-2">{{v.procoins}}</span>
 					</small>
 					{% endif %}
@@ -68,6 +68,14 @@
 			<a class="dropdown-item block w-full text-left px-4 py-2 text-sm text-gray-200 bg-gradient-to-t hover:from-red-800 hover:to-red-700 hover:shadow-inner focus:shadow-inner focus:bg-gradient-to-t focus:from-red-800 focus:to-red-700" href="/settings">
 				<i class="fas fa-cog fa-sm fa-fw mr-4"></i>Settings
 			</a>
+		</li>
+		<li>
+			<hr class="mt-2 mb-1.5 border-t border-black h-1 shadow-inset-t-white-05"/>
+		</li>
+		<li>
+			<button class="dropdown-item block w-full text-left px-4 py-2 text-sm text-gray-200 bg-gradient-to-t hover:from-red-800 hover:to-red-700 hover:shadow-inner focus:shadow-inner focus:bg-gradient-to-t focus:from-red-800 focus:to-red-700" data-bs-toggle="modal" data-bs-target="#themePickerModal">
+				<i class="fas fa-paint-brush fa-sm fa-fw mr-4"></i>Pick theme
+			</button>
 		</li>
 		<li>
 			<hr class="mt-2 mb-1.5 border-t border-black h-1 shadow-inset-t-white-05"/>

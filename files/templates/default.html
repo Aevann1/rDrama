@@ -6,12 +6,12 @@
 	<script src="/assets/js/bootstrap.js?v=190"></script>
 	{% if v %}
 		<style>:root{--primary:#{{v.themecolor}}}</style>
-		<link rel="stylesheet" href="/assets/css/main.css?v=212">
+		<link rel="stylesheet" href="/assets/css/main.css?v=432">
 		<link rel="stylesheet" href="/assets/css/{{v.theme}}.css?v=190">
 		{% if v.agendaposter %}<link rel="stylesheet" href="/assets/css/agendaposter.css?v=190">{% elif v.css %}<link rel="stylesheet" href="/@{{v.username}}/css">{% endif %}
 	{% else %}
 		<style>:root{--primary:#{{'DEFAULT_COLOR' | app_config}}</style>
-		<link rel="stylesheet" href="/assets/css/main.css?v=212"><link rel="stylesheet" href="/assets/css/{{'DEFAULT_THEME' | app_config}}.css?v=190">
+		<link rel="stylesheet" href="/assets/css/main.css?v=432"><link rel="stylesheet" href="/assets/css/{{'DEFAULT_THEME' | app_config}}.css?v=190">
 	{% endif %}
 
 	<link href="/assets/css/fa.css?v=193" rel="stylesheet"> 
@@ -275,7 +275,7 @@
 
 <div class="toast" id="toast-post-success" style="position: fixed; bottom: 1.5rem; margin: 0 auto; left: 0; right: 0; width: 275px; z-index: 1000" role="alert" aria-live="assertive" aria-atomic="true" data-bs-animation="true" data-bs-autohide="true" data-bs-delay="5000">
 	<div class="toast-body bg-success text-center text-white">
-		<i class="fas fa-comment-alt-smile mr-2"></i><span id="toast-post-success-text"></span>
+		<i class="fas fa-comment-alt-smile mr-2"></i><span id="toast-post-success-text">Action successful!</span>
 	</div>
 </div>
 <div class="toast" id="toast-post-error" style="position: fixed; bottom: 1.5rem; margin: 0 auto; left: 0; right: 0; width: 275px; z-index: 1000" role="alert" aria-live="assertive" aria-atomic="true" data-bs-animation="true" data-bs-autohide="true" data-bs-delay="5000">
@@ -287,12 +287,12 @@
 <script src="/assets/js/lozad.js?v=190"></script>
 
 {% if v %}
-	<script src="/assets/js/post_toast2.js?v=190"></script>
+	<script src="/assets/js/post_toast2.js?v=197"></script>
 	<script src="/assets/js/formatting.js?v=190"></script>
 	<script src="/assets/js/default.js?v=190"></script>
 {% endif %}
 
-<link rel="stylesheet" href="/assets/css/lite-youtube.css?v=190">
+<link rel="stylesheet" href="/assets/css/lite-youtube.css?v=202">
 <script src="/assets/js/lite-youtube.js?v=190"></script>
 
 </body>

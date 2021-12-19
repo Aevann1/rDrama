@@ -260,8 +260,7 @@ CREATE TABLE public.comments (
     app_id integer,
     sentto integer,
     bannedfor boolean,
-    removed_by integer,
-    is_pinned character varying(30),
+=    is_pinned character varying(30),
     body character varying(10000),
     body_html character varying(40000),
     ban_reason character varying(25),
@@ -574,7 +573,6 @@ CREATE TABLE public.submissions (
     is_bot boolean,
     bannedfor boolean,
     comment_count integer DEFAULT 0,
-    removed_by integer,
     club boolean,
     stickied character varying(25),
     title character varying(500),
@@ -768,7 +766,8 @@ CREATE TABLE public.users (
     bird integer,
     fish boolean,
     grinch boolean,
-    grincheffect boolean
+    grincheffect boolean,
+    lootboxes_bought integer
 );
 
 
@@ -1713,6 +1712,7 @@ ALTER TABLE ONLY public.flags
 
 ALTER TABLE ONLY public.notifications
     ADD CONSTRAINT notifications_comment_id_fkey FOREIGN KEY (comment_id) REFERENCES public.comments(id);
+
 
 --
 -- PostgreSQL database dump complete

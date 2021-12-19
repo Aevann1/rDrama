@@ -71,7 +71,9 @@ def searchposts(v):
 		
 	if 'over18' in criteria: posts = posts.filter(Submission.over_18==True)
 
-	if 'author' in criteria: posts = posts.filter(Submission.author_id == get_user(criteria['author']).id)
+	if 'author' in criteria:
+		author = get_user(criteria['author'])
+		if not author.is_private: posts = posts.filter(Submission.author_id == author.id)
 
 	if 'domain' in criteria:
 		domain=criteria['domain']
@@ -92,9 +94,7 @@ def searchposts(v):
 				)
 			)
 
-	if not (v and v.admin_level > 1):
-		posts = posts.filter(Submission.deleted_utc == 0, Submission.is_banned == False)
-		if not (v and v.eye): posts = posts.join(User, User.id==Submission.author_id).filter(User.is_private == False)
+	if not (v and v.admin_level > 1): posts = posts.filter(Submission.deleted_utc == 0, Submission.is_banned == False)
 
 	if v and v.admin_level > 1: pass
 	elif v:
@@ -161,7 +161,9 @@ def searchposts(v):
 		domain_obj=None
 
 	if request.headers.get("Authorization"): return {"total":total, "data":[x.json for x in posts]}
-	else: return render_template("search.html",
+	if v and v.oldsite: template = ''
+	else: template = 'CHRISTMAS/'
+	return render_template(f"{template}search.html",
 						   v=v,
 						   query=query,
 						   total=total,
@@ -202,10 +204,11 @@ def searchcomments(v):
 
 	if 'over18' in criteria: comments = comments.filter(Comment.over_18==True)
 
-	if 'author' in criteria: comments = comments.filter(Comment.author_id == get_user(criteria['author']).id)
+	if 'author' in criteria:
+		author = get_user(criteria['author'])
+		if not author.is_private: comments = comments.filter(Comment.author_id == author.id)
 
-	if not(v and v.admin_level > 1):
-		comments = comments.join(User, User.id==Comment.author_id).filter(User.is_private == False, Comment.deleted_utc == 0, Comment.is_banned == False)
+	if not(v and v.admin_level > 1): comments = comments.filter(Comment.deleted_utc == 0, Comment.is_banned == False)
 
 	if t:
 		now = int(time.time())
@@ -250,7 +253,9 @@ def searchcomments(v):
 	comments = get_comments(ids, v=v)
 
 	if request.headers.get("Authorization"): return {"total":total, "data":[x.json for x in comments]}
-	else: return render_template("search_comments.html", v=v, query=query, total=total, page=page, comments=comments, sort=sort, t=t, next_exists=next_exists)
+	if v and v.oldsite: template = ''
+	else: template = 'CHRISTMAS/'
+	return render_template(f"{template}search_comments.html", v=v, query=query, total=total, page=page, comments=comments, sort=sort, t=t, next_exists=next_exists)
 
 
 @app.get("/search/users")
@@ -279,4 +284,6 @@ def searchusers(v):
 	
 	
 	if request.headers.get("Authorization"): return [x.json for x in users]
-	else: return render_template("search_users.html", v=v, query=query, total=total, page=page, users=users, sort=sort, t=t, next_exists=next_exists)
+	if v and v.oldsite: template = ''
+	else: template = 'CHRISTMAS/'
+	return render_template(f"{template}search_users.html", v=v, query=query, total=total, page=page, users=users, sort=sort, t=t, next_exists=next_exists)

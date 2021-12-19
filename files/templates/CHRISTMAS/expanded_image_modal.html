@@ -1,14 +1,13 @@
 <div class="modal desktop-expanded-image-modal" id="expandImageModal" tabindex="-1" role="dialog" aria-labelledby="expandImageModalTitle" aria-hidden="true">
 	<div class="modal-dialog modal-xl modal-dialog-centered mx-auto expandedimage" role="document">
-		<div class="modal-content bg-transparent shadow-none m-5 m-md-0">
-
+		<div class="modal-content bg-transparent shadow-none m-5 md:m-0">
 			<div class="modal-body text-center p-0">
-				<div class="d-inline-block position-relative">
+				<div class="inline-block relative">
 					<a href="" rel="nofollow noopener noreferrer" target="_blank" id="desktop-expanded-image-wrap-link">
 						<img loading="lazy" src="" class="img-fluid rounded" id="desktop-expanded-image" style="min-width: 250px;">
 					</a>
-					<div class="position-absolute d-flex justify-content-between align-items-center w-100 mt-1">
-						<a href="" rel="nofollow noopener noreferrer" target="_blank" class="text-gray-500 font-weight-bold text-left" id="desktop-expanded-image-link">View original</a>
+					<div class="absolute flex justify-between items-center w-full mt-1">
+						<a href="" rel="nofollow noopener noreferrer" target="_blank" class="text-gray-500 font-bold text-left" id="desktop-expanded-image-link">View original</a>
 					</div>
 				</div>
 			</div>
@@ -20,9 +19,5 @@
 	.expandedimage {
 		width: fit-content;
 		width: -moz-fit-content;
-	}
-
-	.m-5 {
-		margin: 2.5rem !important;
 	}
 </style>

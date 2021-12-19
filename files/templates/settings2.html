@@ -38,10 +38,10 @@
 	
 	{% if v %}
 		<style>:root{--primary:#{{v.themecolor}}}</style>
-		<link rel="stylesheet" href="/assets/css/main.css?v=212"><link rel="stylesheet" href="/assets/css/{{v.theme}}.css?v=190">
+		<link rel="stylesheet" href="/assets/css/main.css?v=432"><link rel="stylesheet" href="/assets/css/{{v.theme}}.css?v=190">
 	{% else %}
 		<style>:root{--primary:#{{'DEFAULT_COLOR' | app_config}}</style>
-		<link rel="stylesheet" href="/assets/css/main.css?v=212"><link rel="stylesheet" href="/assets/css/{{'DEFAULT_THEME' | app_config}}.css?v=190">
+		<link rel="stylesheet" href="/assets/css/main.css?v=432"><link rel="stylesheet" href="/assets/css/{{'DEFAULT_THEME' | app_config}}.css?v=190">
 	{% endif %}
 
 		<link href="/assets/css/fa.css?v=193" rel="stylesheet"> 
@@ -140,7 +140,7 @@
 
 <div class="toast" id="toast-post-success" style="position: fixed; bottom: 1.5rem; margin: 0 auto; left: 0; right: 0; width: 275px; z-index: 1000" role="alert" aria-live="assertive" aria-atomic="true" data-bs-animation="true" data-bs-autohide="true" data-bs-delay="5000">
 	<div class="toast-body bg-success text-center text-white">
-		<i class="fas fa-comment-alt-smile mr-2"></i><span id="toast-post-success-text"></span>
+		<i class="fas fa-comment-alt-smile mr-2"></i><span id="toast-post-success-text">Action successful!</span>
 	</div>
 </div>
 <div class="toast" id="toast-post-error" style="position: fixed; bottom: 1.5rem; margin: 0 auto; left: 0; right: 0; width: 275px; z-index: 1000" role="alert" aria-live="assertive" aria-atomic="true" data-bs-animation="true" data-bs-autohide="true" data-bs-delay="5000">

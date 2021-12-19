@@ -2,17 +2,17 @@
 <title>Create a post - {{'SITE_NAME' | app_config}}</title>
 {% endblock %}
 
-{% extends "default.html" %}
+{% extends "CHRISTMAS/default.html" %}
 
 {% block subHeader %}
 	<div class="relative max-w-screen-2xl mx-auto px-4 py-4 grid grid-cols-12 rounded-t">
-		<div class="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-gray-300 to-gray-200 rounded-t sub-header-shadow"></div>
+		<div class="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-gray-300 to-gray-200 dark:bg-none dark:bg-gray-800 rounded-t sub-header-shadow dark:border-b dark:border-gray-700"></div>
 		<div class="relative col-span-full flex items-center">
 			<div>
 				<h1 class="font-bold text-xl font-heading leading-normal mb-0">
 					Create post
 				</h1>
-				<small class="block text-gray-700">
+				<small class="block text-gray-700 dark:text-gray-400">
 					Share drama with the community.
 				</small>
 			</div>
@@ -29,14 +29,14 @@
 
 	<div class="flex items-center mb-4">
 		<img src="{{ v.profile_url }}" class="w-8 h-8 object-cover rounded" alt="My avatar"/>
-		<div class="text-lg text-black font-bold pl-2">{{ v.username }}</div>
+		<div class="text-lg font-bold pl-2">{{ v.username }}</div>
 	</div>
 
 	<form id="submitform" action="/submit" method="post" enctype="multipart/form-data" class="flex flex-col space-y-6">
 
 		<!-- Post title field section -->
 		<div class="flex flex-col">
-			<label for="post-title" class="label text-black">Title</label>
+			<label for="post-title" class="label text-black dark:text-gray-200">Title</label>
 			<div>
 				<!-- Input field -->
 				<input class="form-input" id="post-title" aria-describedby="titleHelpRegister" type="text" name="title" placeholder="rdrama.net is one of the most malevolent, cruel, coldhearted online communities you'll ever find" value="{{title}}" minlength="1" maxlength="500" required oninput="checkForRequired()">
@@ -49,7 +49,7 @@
 
 		<!-- Link field section -->
 		<div id="urlblock" class="flex flex-col">
-			<label for="url" class="label text-black">
+			<label for="url" class="label text-black dark:text-gray-200">
 				Link
 				<span class="italic text-sm font-normal text-gray-500">(optional if you have text)</span>
 			</label>
@@ -64,7 +64,7 @@
 
 		<!-- Attachment field section -->
 		<div class="flex flex-col">
-			<label for="file" class="label text-black">
+			<label for="file" class="label text-black dark:text-gray-200">
 				Image or Video
 				<span class="italic text-sm font-normal text-gray-500">(optional)</span>
 			</label>
@@ -88,7 +88,7 @@
 
 		<!-- Link field section -->
 		<div class="flex flex-col">
-			<label for="body" class="label text-black">
+			<label for="body" class="label text-black dark:text-gray-200">
 				Post
 				<span class="italic text-sm font-normal text-gray-500">(optional if you have a link)</span>
 			</label>
@@ -144,7 +144,7 @@
 			<input type="checkbox" id="privateCheck-mobile" name="private" form="submitform">
 			<label class="leading-4 ml-2 inline-blue badge badge-blue select-nonee" for="privateCheck">Draft</label>
 		</li>
-		{% if v.paid_dues %}
+		{% if not v.club_banned %}
 		<li class="flex items-center">
 			<input type="checkbox" id="clubCheck-mobile" name="club" form="submitform">
 			<label class="leading-4 ml-2 inline-block badge badge-yellow select-none" for="clubCheck">Country Club Thread</label>
@@ -156,17 +156,17 @@
 {% endblock %}
 
 {% block sidebar %}
-	{% include '/sidebars/SubmitSidebar.html' %}
+	{% include 'CHRISTMAS//sidebars/SubmitSidebar.html' %}
 {% endblock %}
 
 {% block modals %}
-	{% include "emoji_modal.html" %}
-	{% include "gif_modal.html" %}
-	{% include '/awards/Christmas/Snow.html' %}
+	{% include "CHRISTMAS/emoji_modal.html" %}
+	{% include "CHRISTMAS/gif_modal.html" %}
+	{% include 'CHRISTMAS//awards/Christmas/Snow.html' %}
 {% endblock %}
 
 {% block scripts %}
-	<script defer src="/assets/CHRISTMAS/js/marked.js?v=200"></script>
+	<script defer src="/assets/CHRISTMAS/js/marked.js?v=202"></script>
 	<script defer src="/assets/CHRISTMAS/js/submit.js?v=200"></script>
 	<script defer src="/assets/CHRISTMAS/js/christmas/snow.js?v=200"></script>
 {% endblock %}

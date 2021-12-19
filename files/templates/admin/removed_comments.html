@@ -1,0 +1,73 @@
+{% extends "admin/image_posts.html" %}
+
+
+{% block title %}
+<title>Removed Content</title>
+<meta name="description" content="on {{'SITE_NAME' | app_config}}">
+{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-around mx-lg-5 d-lg-none no-gutters">
+	<div class="col bg-light border-bottom rounded-md p-3">
+		<div class="profile-details">
+			<div class="media">
+			<div class="media-body">
+				<pre></pre>
+				<h5 class="h6 d-inline-block">Removed Posts</h5>
+
+			</div>
+
+		</div>
+
+	</div>
+</div>
+</div>
+
+<div class="row no-gutters">
+
+	<div class="col">
+
+		{% block listing %}
+
+
+		<div class="posts">
+			{% with comments=listing %}
+				{% include "comments.html" %}
+			{% endwith %}
+			{% if not listing %}
+			<div class="row no-gutters">	
+				<div class="col">			
+					<div class="text-center py-7">
+						<div class="h4 p-2">There are no comments here (yet).</div>
+					</div>			
+				</div>	
+			</div>
+				{% endif %}
+		</div>
+
+{% endblock %}
+	</div>
+</div>
+{% endblock %}
+
+{% block pagenav %}
+<nav aria-label="Page navigation">
+	<ul class="pagination pagination-sm py-3 pl-3 mb-0">
+		{% if page>1 %}
+		<li class="page-item">
+			<small><a class="page-link" href="?page={{page-1}}" tabindex="-1">Prev</a></small>
+		</li>
+		{% else %}
+		<li class="page-item disabled"><span class="page-link">Prev</span></li>
+		{% endif %}
+		{% if next_exists %}
+		<li class="page-item">
+			<small><a class="page-link" href="?page={{page+1}}">Next</a></small>
+		</li>
+		{% else %}
+		<li class="page-item disabled"><span class="page-link">Next</span></li>
+		{% endif %}
+	</ul>
+</nav>
+{% endblock %}

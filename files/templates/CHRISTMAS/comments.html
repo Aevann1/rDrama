@@ -1,6 +1,6 @@
 {% if v %}
-	{% include "award_modal.html" %}
-	<script defer src="/assets/CHRISTMAS/js/marked.js?v=200"></script>
+	{% include "CHRISTMAS/award_modal.html" %}
+	<script defer src="/assets/CHRISTMAS/js/marked.js?v=202"></script>
 	<script defer src="/assets/CHRISTMAS/js/comments_v.js?v=200"></script>
 {% endif %}
 
@@ -10,7 +10,7 @@
 
 <script defer src="/assets/CHRISTMAS/js/comments.js?v=200"></script>
 
-{% include "expanded_image_modal.html" %}
+{% include "CHRISTMAS/expanded_image_modal.html" %}
 
 <script defer>
 	function poll_vote(cid, parentid) {
@@ -147,22 +147,22 @@
 			{% if c.author_id==v.id and c.child_comments and is_notification_page%}
 			<span>
 				Comment {{'Replies' if (c.child_comments | length)>1 else 'Reply'}}:
-				<a href="{{c.post.permalink}}" class="text-gray-700 hover:text-gray-900">{{c.post.realtitle(v) | safe}}</a>
+				<a href="{{c.post.permalink}}" class="text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200">{{c.post.realtitle(v) | safe}}</a>
 			</span>
 			{% elif c.post.author_id==v.id and c.level == 1 and is_notification_page%}
 			<span>Post Reply:
-				<a href="{{c.post.permalink}}" class="text-gray-700 hover:text-gray-900">{{c.post.realtitle(v) | safe}}</a>
+				<a href="{{c.post.permalink}}" class="text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200">{{c.post.realtitle(v) | safe}}</a>
 			</span>
 			{% elif is_notification_page and c.parent_submission in v.subscribed_idlist() %}
 			<span>Subscribed Thread:
-				<a href="{{c.post.permalink}}" class="text-gray-700 hover:text-gray-900">{{c.post.realtitle(v) | safe}}</a></span>
+				<a href="{{c.post.permalink}}" class="text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200">{{c.post.realtitle(v) | safe}}</a></span>
 			{% elif is_notification_page %}
 			<span>Username Mention:
-				<a href="{{c.post.permalink}}" class="text-gray-700 hover:text-gray-900">{{c.post.realtitle(v) | safe}}</a>
+				<a href="{{c.post.permalink}}" class="text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200">{{c.post.realtitle(v) | safe}}</a>
 			</span>
 			{% else %}
 			<span>
-				<a href="{{c.post.permalink}}" class="text-gray-700 hover:text-gray-900">{{c.post.realtitle(v) | safe}}</a>
+				<a href="{{c.post.permalink}}" class="text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200">{{c.post.realtitle(v) | safe}}</a>
 			</span>
 			{% endif %}
 			{% elif c.author_id==NOTIFICATIONS_ID or c.author_id==AUTOJANNY_ID %}
@@ -191,12 +191,12 @@
 	<div class="flex flex-col flex-shrink-0 items-center mr-2.5 {{ 'md:mr-4' if not c.parent_comment_id or standalone else 'md:mr-3' }}">
 		<div class="relative {{ 'santa' if c.author.patron else 'cap' }}">
 			{% if standalone or level==1 %}
-			<img loading="lazy" src="{{ c.author.profile_url }}" class="hidden md:block flex-shrink-0 w-14 h-14 p-[3px] bg-white border border-gray-300 object-cover lozad" alt="{{ c.author.username }} avatar"/>
+			<img loading="lazy" src="{{ c.author.profile_url }}" class="hidden md:block flex-shrink-0 w-14 h-14 p-[3px] bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 object-cover lozad" alt="{{ c.author.username }} avatar"/>
 			{% else %}
-			<img loading="lazy" src="{{ c.author.profile_url }}" class="hidden md:block flex-shrink-0 w-9 h-9 p-[3px] bg-white border border-gray-300 object-cover lozad" alt="{{ c.author.username }} avatar"/>
+			<img loading="lazy" src="{{ c.author.profile_url }}" class="hidden md:block flex-shrink-0 w-9 h-9 p-[3px] bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 object-cover lozad" alt="{{ c.author.username }} avatar"/>
 			{% endif %}
 		</div>
-		<button onclick="collapse_comment('{{c.id}}')" class="invisible-on-collapse md:ml-4 w-[1px] md:w-4 h-full border-l border-gray-400"></button>
+		<button onclick="collapse_comment('{{c.id}}')" class="invisible-on-collapse md:ml-4 w-[1px] md:w-4 h-full border-l border-gray-400 dark:border-gray-700"></button>
 	</div>
 
 	<div class="w-full">
@@ -228,11 +228,11 @@
 					{% endif %}
 
 					<div class="relative md:hidden flex-shrink-0 {{ 'santa' if c.author.patron else 'cap' }}">
-						<img loading="lazy" src="{{ c.author.profile_url }}" class="flex-shrink-0 w-9 h-9 p-[3px] bg-white border border-gray-300 object-cover lozad" alt="{{ c.author.username }} avatar"/>
+						<img loading="lazy" src="{{ c.author.profile_url }}" class="flex-shrink-0 w-9 h-9 p-[3px] bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 object-cover lozad" alt="{{ c.author.username }} avatar"/>
 					</div>
 
 					<span class="flex-shrink-0">
-						<a class="user-name" onclick='userPopover({{c.author.json_popover | tojson}})' data-bs-placement="bottom" data-bs-toggle="popover" data-bs-trigger="focus" data-content-id="popover" href="javascript:void(0)" tabindex="0" style="color:#{{c.author.namecolor}};">
+						<a class="user-name" onclick='userPopover({{c.author.json_popover(v) | tojson}})' data-bs-placement="bottom" data-bs-toggle="popover" data-bs-trigger="focus" data-content-id="popover" href="javascript:void(0)" tabindex="0" style="color:#{{c.author.namecolor}};">
 							<span class="text-sm font-bold">
 								{% if c.author.patron and not c.distinguish_level %}
 								<span class="patron" style="background-color:#{{c.author.namecolor}};">
@@ -324,7 +324,7 @@
 				<div id="comment-banned-warning" class="hidden-on-collapse text-red-600 mb-0">Removed by @{{c.ban_reason}}</div>
 			{% endif %}
 
-			<div id="comment-text-{{c.id}}" class="hidden-on-collapse text-black mt-2 break-words {% if c.award_count("candycane") %}candycane{% endif %}">
+			<div id="comment-text-{{c.id}}" class="comment-text hidden-on-collapse mt-2 break-words {% if c.award_count("candycane") %}candycane{% endif %}">
 				{{c.realbody(v) | safe}}
 				{% if c.options %}
 					{% for o in c.options %}
@@ -347,24 +347,24 @@
 						<i class="fas fa-reply fa-sm fa-fw mr-1"></i>
 						Reply
 					</button>
-					{% include "/comments/CommentMessageReplyForm.html" %}
+					{% include "CHRISTMAS/comments/CommentMessageReplyForm.html" %}
 				{% endif %}
 			</div>
 			{% if c.parent_submission %}
 				<!-- Author's edit comment form -->
 				{% if v and v.id==c.author_id %}
-					{% include "/comments/CommentEditForm.html" %}
+					{% include "CHRISTMAS/comments/CommentEditForm.html" %}
 				{% endif %}
 				<!-- Comment actions -->
 				<div id="comment-{{c.id}}-actions" class="hidden-on-collapse py-3 {% if voted==1 %} upvoted{% elif voted==-1 %} downvoted{% endif %}">
-					{% include "/comments/CommentActions.html" %}
+					{% include "CHRISTMAS/comments/CommentActions.html" %}
 				</div>
 			{% endif %}
 
 		</div>
 
 		<div id="reply-to-{{c.id}}" class="hidden hidden-on-collapse">
-			{% include "/comments/CommentReplyForm.html" %}
+			{% include "CHRISTMAS/comments/CommentReplyForm.html" %}
 		</div>
 
 	{% if render_replies %} 
@@ -395,7 +395,7 @@
 	{% endif %}
 	</div>
 
-	{% include "/modals/ModalCommentActions.html" %}
+	{% include "CHRISTMAS/modals/ModalCommentActions.html" %}
 
 </div>
 
@@ -414,10 +414,10 @@
 </div>
 
 {% if v %}
-	{% include "gif_modal.html" %}
-	{% include "emoji_modal.html" %}
+	{% include "CHRISTMAS/gif_modal.html" %}
+	{% include "CHRISTMAS/emoji_modal.html" %}
 	{% if v.admin_level > 1 %}
-		{% include "ban_modal.html" %}
+		{% include "CHRISTMAS/ban_modal.html" %}
 	{% endif %}
 
 		<div class="modal fade" id="deleteCommentModal" tabindex="-1" role="dialog" aria-labelledby="deleteCommentModalTitle" aria-hidden="true">
@@ -445,7 +445,7 @@
 		</div>
 	</div>
 
-	{% include "/modals/ModalReportComment.html" %}
+	{% include "CHRISTMAS/modals/ModalReportComment.html" %}
 {% endif %}
 
 	{% if offset %}

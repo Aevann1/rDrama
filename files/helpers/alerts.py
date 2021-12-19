@@ -16,8 +16,9 @@ def send_notification(uid, text, autojanny=False):
 	if autojanny: author_id = AUTOJANNY_ID
 	else:
 		author_id = NOTIFICATIONS_ID
-		existing = g.db.query(Comment.id).filter(Comment.author_id == author_id, Comment.body_html == text_html, Comment.notifiedto == uid).first()
-		if existing: return
+		if ' has gifted you ' not in text:
+			existing = g.db.query(Comment.id).filter(Comment.author_id == author_id, Comment.body_html == text_html, Comment.notifiedto == uid).first()
+			if existing: return
 
 	new_comment = Comment(author_id=author_id,
 							parent_submission=None,
@@ -29,8 +30,7 @@ def send_notification(uid, text, autojanny=False):
 
 	g.db.flush()
 
-	notif = Notification(comment_id=new_comment.id,
-						 user_id=uid)
+	notif = Notification(comment_id=new_comment.id, user_id=uid)
 	g.db.add(notif)
 
 

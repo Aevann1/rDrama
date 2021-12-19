@@ -1,21 +1,21 @@
-{% extends "default.html" %}
+{% extends "CHRISTMAS/default.html" %}
 
 {% block subHeader %}
 	<div class="relative max-w-screen-2xl mx-auto px-4 py-4 grid grid-cols-12 rounded-t">
-		<div class="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-gray-300 to-gray-200 rounded-t sub-header-shadow"></div>
+		<div class="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-gray-300 to-gray-200 dark:bg-none dark:bg-gray-800 rounded-t sub-header-shadow dark:border-b dark:border-gray-700"></div>
 		<div class="relative col-span-full flex items-center">
 			<div>
 				<h1 class="font-bold text-xl font-heading leading-normal mb-0">
 					Home
 				</h1>
-				<small class="block text-gray-700">
+				<small class="block text-gray-700 dark:text-gray-400">
 					<span class="capitalize font-bold">{{ sort }}</span>
 					posts {{ 'from all time' if t=='all' else 'in the last' }}
 					{% if t != 'all' %}<span class="font-bold">{{ t }}{% endif %}
 				</small>
 			</div>
 			<div class="ml-auto">
-				{% include "/dropdowns/SubmissionSorts.html" %}
+				{% include "CHRISTMAS/dropdowns/SubmissionSorts.html" %}
 			</div>
 		</div>
 	</div>
@@ -28,7 +28,7 @@
 <div class="col-span-full xl:col-span-9">
 
 	<ul class="flex flex-col sm:py-4 my-2.5 sm:my-0" id="posts">
-		{% include "submission_listing.html" %}
+		{% include "CHRISTMAS/submission_listing.html" %}
 	</ul>
 
 	{% if listing %}
@@ -57,12 +57,12 @@
 
 <!-- Sidebar -->
 {% block sidebar %}
-	{% include "/sidebars/HomeSidebar.html" %}
+	{% include "CHRISTMAS/sidebars/HomeSidebar.html" %}
 {% endblock %}
 
 {% block modals %}
 	{% if v %}
-		{% include "award_modal.html" %}
+		{% include "CHRISTMAS/award_modal.html" %}
 	{% endif %}
 
 	{% if v.agendaposter %}
@@ -79,7 +79,7 @@
 
 <script src="/assets/CHRISTMAS/js/submission_listing.js?v=200"></script>
 
-{% if not v.fp %}
+{% if v and not v.fp %}
 	<script>
 		function fp(fp) {
 			var xhr = new XMLHttpRequest();

@@ -1,5 +1,5 @@
 {% if v %}
-	{% include "award_modal.html" %}
+	{% include "CHRISTMAS/award_modal.html" %}
 {% endif %}
 
 {% for p in listing %}
@@ -40,13 +40,13 @@
 	</div>
 {% endif %}
 
-<li id="post-{{p.id}}" class="relative p-2.5 mb-2 md:mb-4 md:pb-4 md:pt-0 md:px-0 border-b border-gray-300 {% if p.is_banned %}bg-red-200{% elif p.deleted_utc %}bg-yellow-200{% else %} md:bg-transparent bg-gray-200{% endif %} {% if p.stickied %} stickied{% endif %}{% if voted==1 %} upvoted{% elif voted==-1 %} downvoted{% endif %}{% if p.over_18 %} nsfw{% endif %} list-none {% if p.award_count("snow") %}snowcaps{% endif %} {% if p.award_count("lights") %}lights{% endif %}">
+<li id="post-{{p.id}}" class="relative p-2.5 mb-2 md:mb-4 md:pb-4 md:pt-0 md:px-0 border-b border-gray-300 dark:border-gray-700 {% if p.is_banned %}bg-red-200{% elif p.deleted_utc %}bg-yellow-200{% else %} md:bg-transparent bg-gray-200 dark:bg-gray-800 dark:md:bg-transparent{% endif %} {% if p.stickied %} stickied{% endif %}{% if voted==1 %} upvoted{% elif voted==-1 %} downvoted{% endif %}{% if p.over_18 %} nsfw{% endif %} list-none {% if p.award_count("snow") %}snowcaps{% endif %} {% if p.award_count("lights") %}lights{% endif %}">
 
 	<div class="flex flex-nowrap">
 
 		<div class="relative z-10 hidden md:flex flex-col flex-shrink-0 items-center mr-4">
 			<div class="relative {{ 'santa' if p.author.patron else 'cap' }}">
-				<img loading="lazy" src="{{ p.author.profile_url }}" class="hidden md:block flex-shrink-0 w-14 h-14 p-[3px] bg-white border border-gray-300 object-cover" alt="{{ p.author.username }} avatar"/>
+				<img loading="lazy" src="{{ p.author.profile_url }}" class="hidden md:block flex-shrink-0 w-14 h-14 p-[3px] bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 object-cover" alt="{{ p.author.username }} avatar"/>
 			</div>
 
 			{% if not postembed %}
@@ -86,10 +86,10 @@
 		  
 		<div class="w-full">
 
-			<div class="relative z-10 no-scrollbar overflow-y-hidden overflow-x-auto flex items-center space-x-2 md:-ml-2 mb-1 text-sm text-gray-500 leading-normal {% if p.award_count('ghosts') %}ghosts{% endif %}">
+			<div class="relative z-10 no-scrollbar overflow-y-hidden overflow-x-auto flex items-center space-x-2 md:-ml-2 mb-1 md:mb-0 text-sm text-gray-500 leading-normal {% if p.award_count('ghosts') %}ghosts{% endif %}">
 
 				<div class="relative md:hidden flex-shrink-0 {{ 'santa' if p.author.patron else 'cap' }}">
-					<img loading="lazy" src="{{ p.author.profile_url }}" class="flex-shrink-0 w-9 h-9 p-[3px] bg-white border border-gray-300 object-cover" alt="{{ p.author.username }} avatar"/>
+					<img loading="lazy" src="{{ p.author.profile_url }}" class="flex-shrink-0 w-9 h-9 p-[3px] bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 object-cover" alt="{{ p.author.username }} avatar"/>
 				</div>
 				<span class="flex-shrink-0">
 				{% if v and v.admin_level==6 and p.author.shadowbanned %}
@@ -113,7 +113,7 @@
 				{% endif %}
 				{% if not p.award_count('ghosts') %}
 				<span class="flex-shrink-0">
-					<a class="user-name" onclick='userPopover({{p.author.json_popover | tojson}})' data-bs-placement="bottom" data-bs-toggle="popover" data-bs-trigger="focus" data-content-id="popover" href="javascript:void(0)" tabindex="0" style="color: #{{p.author.namecolor}};">
+					<a class="user-name" onclick='userPopover({{p.author.json_popover(v) | tojson}})' data-bs-placement="bottom" data-bs-toggle="popover" data-bs-trigger="focus" data-content-id="popover" href="javascript:void(0)" tabindex="0" style="color: #{{p.author.namecolor}};">
 						<span class="inline-flex flex-shrink-0 items-center font-bold">
 							{% if p.author.patron and not p.distinguish_level %}
 							<span class="patron flex-shrink-0" style="background-color:#{{p.author.namecolor}};">
@@ -148,7 +148,9 @@
 				{% endif %}
 				
 				{% if p.is_image %}
-					(image post)
+					<span>(image post)</span>
+				{% elif p.is_video %}
+					<span>(video post)</span>
 				{% elif p.realurl(v) %}
 					<a class="flex-shrink-0" class="text-gray-500 hover:underline" href="/search/posts/?q=domain%3A{{p.domain}}&sort=new&t=all" {% if not v or v.newtabexternal %}target="_blank"{% endif %}>
 						({{p.domain}})
@@ -169,66 +171,68 @@
 				{% endif %}
 			</div>
 
-			<ul class="relative z-10 flex flex-wrap gap-2 items-center mb-1">
-				<!-- Flair -->
-				{% if p.flair %}
-				<li>
-					<span class="badge badge-purple">
-						{{p.flair | safe}}
-					</span>
-				</li>
-				{% endif %}
-				<!-- NSFW -->
-				{% if p.over_18 %}
-				<li>
-					<span class="badge badge-red">+18</span>
-				</li>
-				{% endif %}
-				<!-- Country Club -->
-				{% if p.club %}
-				<li>
-					<span class="badge badge-yellow">Country Club</span>
-				</li>
-				{% endif %}
-				<!-- Stickied -->
-				{% if p.stickied %}
-				<li>
-					<span class="badge badge-pink">
-						<i class="fas fa-thumbtack fa-rotate--45 fa-sm fa-fw"></i>
-						Pinned {% if p.stickied.startswith('t:') %}until {{p.stickied[2:]}}{% else %}by @{{p.stickied}}{%endif%}
-					</span>
-				</li>
-				{% endif %}
-				<!-- Pinned -->
-				{% if p.is_pinned and request.path.startswith('/@') %}
-				<li>
-					<span class="badge badge-green">
-						<i class="fas fa-thumbtack fa-rotate--45 fa-sm fa-fw"></i>
-						Pinned to profile
-					</span>
-				</li>
-				{% endif %}
-				<!-- Private -->
-				{% if p.private %}
-				<li>
-					<span class="badge badge-blue">
-						<i class="fas fa-lock-alt fa-sm fa-fw1"></i>
-						Draft
-					</span>
-				</li>
-				{% endif %}
-				<!-- Awards -->
-				{% if p.awards %}
-				{% for a in p.awards %}
-				<li>
-					<i class="{{a.class_list}} fa-sm fa-fw" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{a.title}} Award given by @{{a.user.username}}"></i>
-				</li>
-				{% endfor %}
-				{% endif %}
-			</ul>
-
+			{% if p.flair or p.over_18 or p.club or p.stickied or (p.is_pinned and request.path.startswith('/@')) or p.private or p.awards %}
+				<ul class="relative z-10 flex flex-wrap gap-2 items-center mb-1">
+					<!-- Flair -->
+					{% if p.flair %}
+					<li>
+						<span class="badge badge-purple">
+							{{p.flair | safe}}
+						</span>
+					</li>
+					{% endif %}
+					<!-- NSFW -->
+					{% if p.over_18 %}
+					<li>
+						<span class="badge badge-red">+18</span>
+					</li>
+					{% endif %}
+					<!-- Country Club -->
+					{% if p.club %}
+					<li>
+						<span class="badge badge-yellow">Country Club</span>
+					</li>
+					{% endif %}
+					<!-- Stickied -->
+					{% if p.stickied %}
+					<li>
+						<span class="badge badge-pink">
+							<i class="fas fa-thumbtack fa-rotate--45 fa-sm fa-fw"></i>
+							Pinned {% if p.stickied.startswith('t:') %}until {{p.stickied[2:]}}{% else %}by @{{p.stickied}}{%endif%}
+						</span>
+					</li>
+					{% endif %}
+					<!-- Pinned -->
+					{% if p.is_pinned and request.path.startswith('/@') %}
+					<li>
+						<span class="badge badge-green">
+							<i class="fas fa-thumbtack fa-rotate--45 fa-sm fa-fw"></i>
+							Pinned to profile
+						</span>
+					</li>
+					{% endif %}
+					<!-- Private -->
+					{% if p.private %}
+					<li>
+						<span class="badge badge-blue">
+							<i class="fas fa-lock-alt fa-sm fa-fw1"></i>
+							Draft
+						</span>
+					</li>
+					{% endif %}
+					<!-- Awards -->
+					{% if p.awards %}
+					{% for a in p.awards %}
+					<li>
+						<i class="{{a.class_list}} fa-sm fa-fw" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{a.title}} Award given by @{{a.user.username}}"></i>
+					</li>
+					{% endfor %}
+					{% endif %}
+				</ul>
+			{% endif %}
+			
 			<h5 class="post-title font-medium text-lg md:text-xl leading-5 mb-2">
-				<a {% if v and v.newtab %}target="_blank"{% endif %} href="{{p.permalink}}" class="stretched-link text-black hover:text-primary visited:text-gray-700 break-words" style="word-break: break-word;">
+				<a {% if v and v.newtab %}target="_blank"{% endif %} href="{{p.permalink}}" class="stretched-link text-black dark:text-gray-200 hover:text-primary visited:text-gray-700 dark:visited:text-gray-400 break-words" style="word-break: break-word;">
 				{{p.realtitle(v) | safe}}
 				</a>
 			</h5>
@@ -239,30 +243,30 @@
 				</div>
 			{% endif %}
 
-			<div class="relative z-10 hidden md:block pt-3">
-				{% include "/submission/SubmissionActions.html" %}
+			<div class="relative z-20 hidden md:block pt-3">
+				{% include "CHRISTMAS/submission/SubmissionActions.html" %}
 			</div>
 	</div>
 
 		<div class="relative z-10 flex flex-row flex-nowrap pl-3 md:pl-5 flex-shrink-0">
 			<div style="z-index: 3;">
 				{% if p.club and not (v and v.paid_dues) %}
-					<img loading="lazy" src="/assets/CHRISTMAS/images/emojis/marseyglow.webp" class="post-thumbnail shadow-sm p-[3px] w-24 h-16 md:w-32 md:h-20 object-cover object-cover bg-white border border-gray-300 flex-shrink-0">
+					<img loading="lazy" src="/assets/images/emojis/marseyglow.webp" class="post-thumbnail shadow-sm p-[3px] w-24 h-16 md:w-32 md:h-20 object-cover object-cover bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 flex-shrink-0">
 				{% elif not p.url %}
 					<a {% if v and v.newtab %}target="_blank"{% endif %} {% if v %}href="{{p.permalink}}"{% else %}href="/logged_out{{p.permalink}}"{% endif %}>
-						<img loading="lazy" src="{{p.thumb_url}}" class="post-thumbnail shadow-sm p-[3px] w-24 h-16 md:w-32 md:h-20 object-cover object-cover bg-white border border-gray-300 flex-shrink-0">
+						<img loading="lazy" src="{{p.thumb_url}}" class="post-thumbnail shadow-sm p-[3px] w-24 h-16 md:w-32 md:h-20 object-cover bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 flex-shrink-0">
 					</a>
 				{% elif p.is_image %}
 					<button data-bs-toggle="modal" data-bs-target="#expandImageModal" data-bs-url="{{p.realurl(v)}}" onclick="expandDesktopImage('{{ p.realurl(v) }}')">
-						<img loading="lazy" src="{{p.thumb_url}}" class="post-thumbnail shadow-sm p-[3px] w-24 h-16 md:w-32 md:h-20 object-cover object-cover bg-white border border-gray-300 flex-shrink-0">
+						<img loading="lazy" src="{{p.thumb_url}}" class="post-thumbnail shadow-sm p-[3px] w-24 h-16 md:w-32 md:h-20 object-cover bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 flex-shrink-0">
 					</button>
 				{% elif (p.url and p.url.lower().endswith('.mp4')) or (p.embed_url and "youtu" in p.domain) or (p.url and "streamable.com/e/" in p.url) %}
 					<button onclick="document.getElementById('video-{{p.id}}').classList.toggle('hidden')">
-						<img loading="lazy" src="{{p.thumb_url}}" class="post-thumbnail shadow-sm p-[3px] w-24 h-16 md:w-32 md:h-20 object-cover object-cover bg-white border border-gray-300 flex-shrink-0">
+						<img loading="lazy" src="{{p.thumb_url}}" class="post-thumbnail shadow-sm p-[3px] w-24 h-16 md:w-32 md:h-20 object-cover bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 flex-shrink-0">
 					</button>
 				{% else %}
 					<a {% if not v or v.newtabexternal %}target="_blank"{% endif %} rel="nofollow noopener noreferrer" href="{{p.realurl(v)}}">
-						<img loading="lazy" src="{{p.thumb_url}}" class="post-thumbnail shadow-sm p-[3px] w-24 h-16 md:w-32 md:h-20 object-cover object-cover bg-white border border-gray-300 flex-shrink-0">
+						<img loading="lazy" src="{{p.thumb_url}}" class="post-thumbnail shadow-sm p-[3px] w-24 h-16 md:w-32 md:h-20 object-cover  bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 flex-shrink-0">
 					</a>
 				{% endif %}
 			</div>
@@ -271,21 +275,21 @@
 </div>
 
 	<div class="relative z-10 md:hidden pt-3">
-		{% include "/submission/SubmissionActionsMobile.html" %}
+		{% include "CHRISTMAS/submission/SubmissionActionsMobile.html" %}
 	</div>
 
-{% include "/modals/ModalSubmissionActions.html" %}
+{% include "CHRISTMAS/modals/ModalSubmissionActions.html" %}
 
 {% if p.is_image and not p.over_18 and ((v and v.cardview) or (not v and environ.get('CARD_VIEW') == '1')) %}
 <div class="md:ml-[4.5rem] mt-4">
 	<a target="_blank" rel="nofollow noopener noreferrer" href="{{p.url}}" class="inline-block">
-		<img loading="lazy" src="/assets/CHRISTMAS/images/loading.gif" data-src="{{p.url}}" class="shadow-md p-1 bg-white w-full md:w-64" alt="Post preview">
+		<img loading="lazy" src="/assets/CHRISTMAS/images/loading.gif" data-src="{{p.url}}" class="shadow-md p-1 bg-white dark:bg-gray-900 w-full md:w-64" alt="Post preview">
 	</a>
 </div>
 {% endif %}
 
 {% if not p.club or v and (v.paid_dues or v.id == p.author_id) %}
-	{% if p.url and p.url.lower().endswith('.mp4') %}
+	{% if p.is_video %}
 		<div id="video-{{p.id}}" style="text-align: center" class="{% if p.over_18 or not ((v and v.cardview) or (not v and environ.get('CARD_VIEW') == '1')) %}hidden{% endif %} md:ml-[4.5rem] mt-3">
 			<video controls loop preload="metadata" class="w-full max-h-[20rem]">
 				<source src="{{p.realurl(v)}}" type="video/mp4">
@@ -369,17 +373,17 @@
 {% endfor %}
 
 {% if v %}
-	{% include "delete_post_modal.html" %}
-	{% include "report_post_modal.html" %}
+	{% include "CHRISTMAS/delete_post_modal.html" %}
+	{% include "CHRISTMAS/report_post_modal.html" %}
 	{% if v.admin_level == 6 %}
-		{% include "ban_modal.html" %}
+		{% include "CHRISTMAS/ban_modal.html" %}
 	{% endif %}
 {% endif %}
 
-{% include "expanded_image_modal.html" %}
+{% include "CHRISTMAS/expanded_image_modal.html" %}
 
 <script defer src="/assets/CHRISTMAS/js/new_comments_count.js?v=200"></script>
-<script defer src="/assets/CHRISTMAS/js/submission_listing.js?v=201"></script>
+<script defer src="/assets/CHRISTMAS/js/submission_listing.js?v=202"></script>
 
 <style>
 	.mod:before {

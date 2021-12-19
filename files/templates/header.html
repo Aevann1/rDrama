@@ -112,7 +112,7 @@
 								<button class="dropdown-item copy-link" data-clipboard-text="/signup?ref={{v.username}}"><i class="fad fa-user-friends fa-fw text-left mr-3"></i>Invite friends</button>
 							</div>
 							<div class="px-2">
-								<a class="dropdown-item" href="/assets/{{'SITE_NAME' | app_config}}.apk?v=190"><i class="fab fa-android fa-fw text-left mr-3"></i>Android app</a>
+								<a class="dropdown-item" href="/assets/{{'SITE_NAME' | app_config}}.apk?v=192"><i class="fab fa-android fa-fw text-left mr-3"></i>Android app</a>
 
 								<a class="dropdown-item" href="/rules"><i class="fas fa-balance-scale fa-fw text-left mr-3"></i>Rules</a>
 
@@ -176,7 +176,7 @@
 			<li class="nav-item">
 				<a class="nav-link" href="/settings"><i class="fas fa-cog fa-fw mr-3"></i>Settings</a>
 			</li>
-			<a class="nav-item nav-link" href="/assets/{{'SITE_NAME' | app_config}}.apk?v=190"><i class="fab fa-android fa-fw mr-3"></i>Android app</a>
+			<a class="nav-item nav-link" href="/assets/{{'SITE_NAME' | app_config}}.apk?v=192"><i class="fab fa-android fa-fw mr-3"></i>Android app</a>
 
 			<a class="nav-item nav-link" href="/rules"><i class="fas fa-balance-scale fa-fw mr-3"></i>Rules</a>
 
@@ -226,6 +226,6 @@
 	}
 </style>
 
-{% if v %}
+{% if v and not error %}
 	<div id="formkey" class="d-none">{{v.formkey}}</div>
 {% endif %}

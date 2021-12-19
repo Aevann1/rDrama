@@ -34,7 +34,7 @@
 						<div id="filename-edit-reply-{{c.id}}">
 							<i class="fas fa-camera fa-fw fa-sm"></i>
 						</div>
-						<input id="file-edit-reply-{{c.id}}" type="file" name="file" accept="image/*" onchange="document.getElementById('filename-edit-reply-{{c.id}}').innerHTML='image';" hidden>
+						<input id="file-edit-reply-{{c.id}}" type="file" name="file" accept="image/*, video/*" onchange="document.getElementById('filename-edit-reply-{{c.id}}').innerHTML='image/video';" hidden>
 					</label>
 				</li>
 				{% endif %}
@@ -60,7 +60,7 @@
 			&nbsp;
 			<label class="btn btn-secondary format d-inline-block m-0" for="file-edit-reply-{{c.id}}">
 				<div id="filename-edit-reply-{{c.id}}"><i class="far fa-image"></i></div>
-				<input id="file-edit-reply-{{c.id}}" type="file" name="file" accept="image/*" onchange="document.getElementById('filename-edit-reply-{{c.id}}').innerHTML='image';" hidden>
+				<input id="file-edit-reply-{{c.id}}" type="file" name="file" accept="image/*, video/*" onchange="document.getElementById('filename-edit-reply-{{c.id}}').innerHTML='image/video';" hidden>
 			</label>
 
 			<a id="cancel-edit-{{c.id}}" href="javascript:void(0)" onclick="toggleEdit('{{c.id}}')" class="hidden d-md-block btn btn-link text-muted ml-auto cancel-form">Cancel</a> 

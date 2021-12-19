@@ -16,7 +16,9 @@ site_name = environ.get("SITE_NAME").strip()
 @auth_desired
 def emojis(v):
 	emojis = (x.replace('.webp','') for x in os.listdir("files/assets/images/emojis"))
-	return render_template("emojis.html", v=v, emojis=emojis)
+	if v and v.oldsite: template = ''
+	else: template = 'CHRISTMAS/'
+	return render_template(f"{template}emojis.html", v=v, emojis=emojis)
 
 @app.get('/rules')
 @auth_desired
@@ -68,7 +70,9 @@ def participation_stats(v):
 			}
 
 
-	return render_template("admin/content_stats.html", v=v, title="Content Statistics", data=data)
+	if v and v.oldsite: template = ''
+	else: template = 'CHRISTMAS/'
+	return render_template(f"{template}admin/content_stats.html", v=v, title="Content Statistics", data=data)
 
 
 @app.get("/chart")
@@ -104,7 +108,7 @@ def cached_chart(days):
 		day_cutoffs = [today_cutoff - 86400 * 7 * i for i in range(31)][1:]
 	else:
 		file = "/daily_chart.png"
-		day_cutoffs = [today_cutoff - 86400 * i for i in range(31)]
+		day_cutoffs = [today_cutoff - 86400 * i for i in range(31)][1:]
 
 	day_cutoffs.insert(0, calendar.timegm(now))
 
@@ -157,14 +161,18 @@ def cached_chart(days):
 def patrons(v):
 	users = g.db.query(User).filter(User.patron > 0).order_by(User.patron.desc(), User.id).all()
 
-	return render_template("patrons.html", v=v, users=users)
+	if v and v.oldsite: template = ''
+	else: template = 'CHRISTMAS/'
+	return render_template(f"{template}patrons.html", v=v, users=users)
 
 @app.get("/admins")
 @app.get("/badmins")
 @auth_desired
 def admins(v):
 	admins = g.db.query(User).filter(User.admin_level>0).order_by(User.truecoins.desc()).all()
-	return render_template("admins.html", v=v, admins=admins)
+	if v and v.oldsite: template = ''
+	else: template = 'CHRISTMAS/'
+	return render_template(f"{template}admins.html", v=v, admins=admins)
 
 
 @app.get("/log")
@@ -197,7 +205,9 @@ def log(v):
 
 	admins = [x[0] for x in g.db.query(User.username).filter(User.admin_level > 1).all()]
 
-	return render_template("log.html", v=v, admins=admins, types=types, admin=admin, type=kind, actions=actions, next_exists=next_exists, page=page)
+	if v and v.oldsite: template = ''
+	else: template = 'CHRISTMAS/'
+	return render_template(f"{template}log.html", v=v, admins=admins, types=types, admin=admin, type=kind, actions=actions, next_exists=next_exists, page=page)
 
 @app.get("/log/<id>")
 @auth_desired
@@ -221,7 +231,9 @@ def log_item(id, v):
 	if v and v.admin_level > 1: types = ACTIONTYPES
 	else: types = ACTIONTYPES2
 
-	return render_template("log.html", v=v, actions=[action], next_exists=False, page=1, action=action, admins=admins, types=types)
+	if v and v.oldsite: template = ''
+	else: template = 'CHRISTMAS/'
+	return render_template(f"{template}log.html", v=v, actions=[action], next_exists=False, page=1, action=action, admins=admins, types=types)
 
 @app.get("/assets/favicon.ico")
 def favicon():
@@ -230,7 +242,9 @@ def favicon():
 @app.get("/api")
 @auth_desired
 def api(v):
-	return render_template("api.html", v=v)
+	if v and v.oldsite: template = ''
+	else: template = 'CHRISTMAS/'
+	return render_template(f"{template}api.html", v=v)
 
 @app.get("/contact")
 @app.get("/press")
@@ -238,7 +252,9 @@ def api(v):
 @auth_required
 def contact(v):
 
-	return render_template("contact.html", v=v)
+	if v and v.oldsite: template = ''
+	else: template = 'CHRISTMAS/'
+	return render_template(f"{template}contact.html", v=v)
 
 @app.post("/contact")
 @limiter.limit("1/second")
@@ -248,7 +264,9 @@ def submit_contact(v):
 	message = f'This message has been sent automatically to all admins via [/contact](/contact), user email is "{v.email}"\n\nMessage:\n\n' + request.values.get("message", "")
 	send_admin(v.id, message)
 	g.db.commit()
-	return render_template("contact.html", v=v, msg="Your message has been sent.")
+	if v and v.oldsite: template = ''
+	else: template = 'CHRISTMAS/'
+	return render_template(f"{template}contact.html", v=v, msg="Your message has been sent.")
 
 @app.get('/archives')
 def archivesindex():
@@ -289,6 +307,7 @@ def static_service(path):
 	return resp
 
 @app.get('/images/<path:path>')
+@app.get('/IMAGES/<path:path>')
 @app.get('/hostedimages/<path:path>')
 @limiter.exempt
 def images(path):
@@ -317,13 +336,17 @@ def settings(v):
 def settings_profile(v):
 
 
-	return render_template("settings_profile.html",
+	if v and v.oldsite: template = ''
+	else: template = 'CHRISTMAS/'
+	return render_template(f"{template}settings_profile.html",
 						   v=v)
 
 @app.get("/badges")
 @auth_desired
 def badges(v):
-	return render_template("badges.html", v=v, badges=BADGES)
+	if v and v.oldsite: template = ''
+	else: template = 'CHRISTMAS/'
+	return render_template(f"{template}badges.html", v=v, badges=BADGES)
 
 @app.get("/blocks")
 @auth_desired
@@ -337,20 +360,26 @@ def blocks(v):
 		users.append(get_account(x.user_id))
 		targets.append(get_account(x.target_id))
 
-	return render_template("blocks.html", v=v, users=users, targets=targets)
+	if v and v.oldsite: template = ''
+	else: template = 'CHRISTMAS/'
+	return render_template(f"{template}blocks.html", v=v, users=users, targets=targets)
 
 @app.get("/banned")
 @auth_desired
 def banned(v):
 
 	users = [x for x in g.db.query(User).filter(User.is_banned > 0, User.unban_utc == 0).all()]
-	return render_template("banned.html", v=v, users=users)
+	if v and v.oldsite: template = ''
+	else: template = 'CHRISTMAS/'
+	return render_template(f"{template}banned.html", v=v, users=users)
 
 @app.get("/formatting")
 @auth_desired
 def formatting(v):
 
-	return render_template("formatting.html", v=v)
+	if v and v.oldsite: template = ''
+	else: template = 'CHRISTMAS/'
+	return render_template(f"{template}formatting.html", v=v)
 
 @app.get("/service-worker.js")
 def serviceworker():
@@ -361,7 +390,9 @@ def serviceworker():
 def settings_security(v):
 
 
-	return render_template("settings_security.html",
+	if v and v.oldsite: template = ''
+	else: template = 'CHRISTMAS/'
+	return render_template(f"{template}settings_security.html",
 						   v=v,
 						   mfa_secret=pyotp.random_base32() if not v.mfa_secret else None,
 						   error=request.values.get("error") or None,

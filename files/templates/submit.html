@@ -25,11 +25,11 @@
 		{% block stylesheets %}
 		{% if v %}
 			<style>:root{--primary:#{{v.themecolor}}}</style>
-			<link rel="stylesheet" href="/assets/css/main.css?v=212"><link rel="stylesheet" href="/assets/css/{{v.theme}}.css?v=190">
+			<link rel="stylesheet" href="/assets/css/main.css?v=432"><link rel="stylesheet" href="/assets/css/{{v.theme}}.css?v=190">
 			{% if v.agendaposter %}<link rel="stylesheet" href="/assets/css/agendaposter.css?v=190">{% elif v.css %}<link rel="stylesheet" href="/@{{v.username}}/css">{% endif %}
 		{% else %}
 			<style>:root{--primary:#{{'DEFAULT_COLOR' | app_config}}</style>
-			<link rel="stylesheet" href="/assets/css/main.css?v=212">
+			<link rel="stylesheet" href="/assets/css/main.css?v=432">
 			<link rel="stylesheet" href="/assets/css/{{'DEFAULT_THEME' | app_config}}.css?v=190">
 		{% endif %}
 		{% endblock %}
@@ -122,7 +122,7 @@
 																
 												<label class="format btn btn-secondary m-0 ml-1 {% if v %}d-inline-block{% else %}d-none{% endif %}" for="file-upload-submit">
 													<div id="filename-show-submit"><i class="far fa-image"></i></div>
-													<input id="file-upload-submit" type="file" name="file2" accept="image/*" {% if request.headers.get('cf-ipcountry')=="T1" %}disabled{% endif %} onchange="document.getElementById('filename-show-submit').innerHTML='image';" hidden>
+													<input id="file-upload-submit" type="file" name="file2" accept="image/*, video/*" {% if request.headers.get('cf-ipcountry')=="T1" %}disabled{% endif %} onchange="document.getElementById('filename-show-submit').innerHTML='image/video';" hidden>
 												</label>		
 
 												<pre></pre>
@@ -138,7 +138,7 @@
 														<label class="custom-control-label" for="privateCheck">Draft</label>
 												</div>
 
-												{% if v.paid_dues %}
+												{% if not v.club_banned %}
 													<div class="custom-control custom-checkbox">
 														<input type="checkbox" class="custom-control-input" id="clubCheck" name="club">
 														<label class="custom-control-label" for="clubCheck">{{cc}} thread</label>
@@ -175,7 +175,7 @@
 		</div>
 		{% endblock %}
 
-		<script src="/assets/js/marked.js?v=190"></script>
+		<script src="/assets/js/marked.js?v=191"></script>
 		<script src="/assets/js/formatting.js?v=190"></script>
 		<script src="/assets/js/submit.js?v=190"></script>
 

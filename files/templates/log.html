@@ -6,11 +6,11 @@
 {% block content %}
 {% if v %}
 	<style>:root{--primary:#{{v.themecolor}}}</style>
-	<link rel="stylesheet" href="/assets/css/main.css?v=212"><link rel="stylesheet" href="/assets/css/{{v.theme}}.css?v=190">
+	<link rel="stylesheet" href="/assets/css/main.css?v=432"><link rel="stylesheet" href="/assets/css/{{v.theme}}.css?v=190">
 	{% if v.agendaposter %}<link rel="stylesheet" href="/assets/css/agendaposter.css?v=190">{% elif v.css %}<link rel="stylesheet" href="/@{{v.username}}/css">{% endif %}
 {% else %}
 	<style>:root{--primary:#{{'DEFAULT_COLOR' | app_config}}</style>
-	<link rel="stylesheet" href="/assets/css/main.css?v=212"><link rel="stylesheet" href="/assets/css/{{'DEFAULT_THEME' | app_config}}.css?v=190">
+	<link rel="stylesheet" href="/assets/css/main.css?v=432"><link rel="stylesheet" href="/assets/css/{{'DEFAULT_THEME' | app_config}}.css?v=190">
 {% endif %}
 
 <div class="row justify-content-around">

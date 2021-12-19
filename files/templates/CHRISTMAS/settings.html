@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"></script>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<meta name="description" content="">
@@ -29,9 +28,9 @@
 
 	{% block stylesheets %}
 
-	<link rel="stylesheet" href="/assets/CHRISTMAS/css/main.css?v=400">
+	<link rel="stylesheet" href="/assets/CHRISTMAS/css/main.css?v=432">
 
-  	<link rel="stylesheet" href="/static/dist/main.css?v=400">
+  	<link rel="stylesheet" href="/static/dist/main.css?v=432">
 
 	<link rel="stylesheet" href="/assets/CHRISTMAS/css/mistletoe.css?v=400">
 
@@ -58,9 +57,15 @@
 	</style>
 </head>
 
-<body class="overflow-hidden overflow-y-auto sm:overflow-y-none antialiased bg-cover bg-center bg-gray-500 text-gray-900" {% if v and v.background %}style="background:url(/assets/CHRISTMAS/images/backgrounds/{{v.background}})"{% endif %}>
+ {% if v and (v.theme == 'theme-iron dark' or v.theme == 'theme-evergreen') %}
+ 	{% set theme = v.theme %}
+ {% else %}
+ 	{% set theme = 'theme-iron dark' %}
+ {% endif %}
 
-	{% include "header-tw.html" %}
+<body class="{{ theme }} overflow-hidden overflow-y-auto sm:overflow-y-none antialiased bg-cover bg-center bg-gray-500 text-gray-900" {% if v and v.background %}style="background:url(/assets/CHRISTMAS/images/backgrounds/{{v.background}})"{% endif %}>
+
+	{% include "CHRISTMAS/header-tw.html" %}
 
 	<div class="flex h-screen pt-16 bg-gray-500">
 		<div class="w-full sm:overflow-y-auto">
@@ -144,12 +149,12 @@
 						{% endblock %}
 					</div>
 
-					{% include "/sidebars/SettingsSidebar.html" %}
+					{% include "CHRISTMAS/sidebars/SettingsSidebar.html" %}
 
 				</div>
 			</div>
 
-			{% include "footer.html" %}
+			{% include "CHRISTMAS/footer.html" %}
 		</div>
 	</div>
 
@@ -177,7 +182,8 @@
 	{% endif %}
 
 	{% if v %}
-	{% include "/modals/Modal2FA.html" %}
+	{% include "CHRISTMAS/modals/Modal2FA.html" %}
+	{% include "CHRISTMAS/modals/ModalThemePicker.html" %}
 	{% endif %}
 
 	{% block modals %}{% endblock %}
@@ -215,7 +221,23 @@
 
 	{% if v %}
 		<script>function formkey() {return '{{v.formkey}}';}</script>
-		<script src="/assets/CHRISTMAS/js/default.js?v=200"></script>
+
+		<script>
+			var previousTheme = '{{ v.theme }}'.split(' ');
+			function changeTheme(theme) {
+				const body = document.body;
+				// if previous selection has a value, remove them from body tag
+				if (previousTheme.length) {
+					previousTheme.map(v => body.classList.toggle(v));
+				}
+				// toggle classes in body tag
+				theme.map(v => body.classList.toggle(v));
+				// Set global previous selection to current selection
+				previousTheme = theme;
+			}
+		</script>
 	{% endif %}
+
+	<script src="/assets/CHRISTMAS/js/default.js?v=204"></script>
 </body>
 </html>

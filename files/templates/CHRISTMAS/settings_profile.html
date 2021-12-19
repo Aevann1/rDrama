@@ -1,4 +1,4 @@
-{% extends "settings.html" %}
+{% extends "CHRISTMAS/settings.html" %}
 
 {% block pagetitle %}Profile Settings - {{'SITE_NAME' | app_config}}{% endblock %}
 
@@ -8,6 +8,13 @@
 			<!-- Avatar section -->
 			<div class="rounded-lg divide-y divide-gray-300 bg-gray-100 border border-gray-300 shadow-inset-t-white-10">
 				<div class="px-4 py-4">
+
+					<h2 class="label text-black">Use Old Site</h2>
+					<div class="mb-4">
+						<input type="checkbox" id="oldsite" name="oldsite"{% if v.oldsite%} checked{% endif %} onchange="post_toast('/settings/profile?oldsite='+document.getElementById('oldsite').checked, 1)">
+						<label for="oldsite" class="inline-block pl-2 text-gray-400">Use the old version of the site.</label>
+					</div>
+					
 					<h2 class="label text-black">Avatar</h2>
 					<div class="flex flex-col md:flex-row gap-3">
 						<!-- Avatar -->
@@ -96,7 +103,7 @@
 								<form action="/settings/images/banner" method="post" enctype="multipart/form-data">
 									<input type="hidden" name="formkey" value="{{v.formkey}}">
 									<label class="btn btn-secondary text-capitalize mr-2 mb-0">
-										Update<input type="file" {% if request.headers.get('cf-ipcountry')=="T1" %}disabled{% endif %} accept="image/*" hidden name="banner" onchange="form.submit()">
+										Update<input type="file" {% if request.headers.get('cf-ipcountry')=="T1" %}disabled{% endif %} accept="image/*, video/*" hidden name="banner" onchange="form.submit()">
 									</label>
 								</form>
 
@@ -400,8 +407,8 @@
 {% endblock %}
 
 {% block modals %}
-{% include "emoji_modal.html" %}
-{% include "gif_modal.html" %}
+{% include "CHRISTMAS/emoji_modal.html" %}
+{% include "CHRISTMAS/gif_modal.html" %}
 {% endblock %}
 
 
@@ -409,7 +416,7 @@
 <script src="/assets/CHRISTMAS/js/settings_profile.js?v=200"></script>
 
 <script src="/assets/CHRISTMAS/js/gif_modal.js?v=200"></script>
-<script src="/assets/CHRISTMAS/js/emoji_modal.js?v=200"></script>
+<script src="/assets/CHRISTMAS/js/emoji_modal.js?v=205"></script>
 
 <script>
 	document.onpaste = function(event) {

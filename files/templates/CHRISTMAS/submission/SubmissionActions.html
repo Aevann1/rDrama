@@ -59,6 +59,16 @@
 			<i class="fas fa-bell-slash fa-fw mr-2"></i>Unsubscribe
 		</button>
 	</li>
+	<li id="save-{{p.id}}" class="{% if p.id in v.saved_idlist() %}hidden{% endif %}">
+		<button class="hover:text-gray-400" onclick="post_toast2('/save_post/{{p.id}}','save-{{p.id}}','unsave-{{p.id}}')">
+			<i class="far fa-bookmark fa-fw mr-2"></i>Save
+		</button>
+	</li>
+	<li id="unsave-{{p.id}}" class="{% if not p.id in v.saved_idlist() %}hidden{% endif %}">
+		<button class="hover:text-gray-400" onclick="post_toast2('/unsave_post/{{p.id}}','save-{{p.id}}','unsave-{{p.id}}')">
+			<i class="fas fa-bookmark fa-fw mr-2"></i>Unsave
+		</button>
+	</li>
 	{% endif %}
 	<!-- Does not require auth -->
 	<li class="hidden md:inline-block">
@@ -83,24 +93,8 @@
 						<i class="fas fa-link fa-sm fa-fw mr-4"></i>Copy link
 					</button>
 				</li>
-				<!-- Requies auth -->
-				{% if v %}
-				<li id="save-{{p.id}}" class="{% if p.id in v.saved_idlist() %}hidden{% endif %}">
-					<button class="dropdown-item block w-full text-left px-4 py-2 text-sm text-gray-200 bg-gradient-to-t hover:from-red-800 hover:to-red-700 hover:shadow-inner focus:shadow-inner focus:bg-gradient-to-t focus:from-red-800 focus:to-red-700" onclick="post_toast2('/save_post/{{p.id}}','save-{{p.id}}','unsave-{{p.id}}')">
-						<i class="far fa-bookmark fa-sm fa-fw mr-4"></i>Save
-					</button>
-				</li>
-				<li id="unsave-{{p.id}}" class="{% if not p.id in v.saved_idlist() %}hidden{% endif %}">
-					<button class="dropdown-item block w-full text-left px-4 py-2 text-sm text-gray-200 bg-gradient-to-t hover:from-red-800 hover:to-red-700 hover:shadow-inner focus:shadow-inner focus:bg-gradient-to-t focus:from-red-800 focus:to-red-700" onclick="post_toast2('/unsave_post/{{p.id}}','save-{{p.id}}','unsave-{{p.id}}')">
-						<i class="fas fa-bookmark fa-sm fa-fw mr-4"></i>Unsave
-					</button>
-				</li>
-				{% endif %}
 				<!-- Requires author -->
 				{% if v and v.id==p.author_id %}
-				<li>
-					<hr class="mt-2 mb-1.5 border-t border-black h-1 shadow-inset-t-white-05"/>
-				</li>
 				<li id="pin-profile-{{p.id}}" class="{% if p.is_stickied %}hidden{% endif %}">
 					<button class="dropdown-item block w-full text-left px-4 py-2 text-sm text-gray-200 bg-gradient-to-t hover:from-red-800 hover:to-red-700 hover:shadow-inner focus:shadow-inner focus:bg-gradient-to-t focus:from-red-800 focus:to-red-700" onclick="post_toast2('/pin/{{p.id}}','unpin-profile-{{p.id}}','pin-profile-{{p.id}}')">
 						<i class="fas fa-thumbtack fa-rotate--45 fa-sm fa-fw mr-4"></i>Pin to profile
@@ -124,12 +118,12 @@
 					</button>
 				</li>
 				{% endif %}
-				{% endif %}
-				<!-- Requires auth and admin -->
-				{% if v and v.admin_level>=3 %}
 				<li>
 					<hr class="mt-2 mb-1.5 border-t border-black h-1 shadow-inset-t-white-05"/>
 				</li>
+				{% endif %}
+				<!-- Requires auth and admin -->
+				{% if v and v.admin_level>=3 %}
 				<li id="pin-{{p.id}}" class="{% if p.stickied %}hidden{% endif %}">
 					<button class="dropdown-item block w-full text-left px-4 py-2 text-sm text-gray-200 bg-gradient-to-t hover:from-red-800 hover:to-red-700 hover:shadow-inner focus:shadow-inner focus:bg-gradient-to-t focus:from-red-800 focus:to-red-700" onclick="post_toast2('/sticky/{{p.id}}','pin-{{p.id}}','unpin-{{p.id}}')">
 						<i class="fas fa-thumbtack fa-rotate--45 fa-sm fa-fw mr-4"></i>Pin
@@ -156,7 +150,7 @@
 				{% endif %}
 				{% if v %}
 				<!-- Requires auth and admin and author -->
-				{% if v.admin_level >=3 or v.id == p.author.id and v.paid_dues %}
+				{% if v.admin_level >=3 or v.id == p.author.id and not v.club_banned %}
 				<li>
 					<hr class="mt-2 mb-1.5 border-t border-black h-1 shadow-inset-t-white-05"/>
 				</li>

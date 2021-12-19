@@ -30,7 +30,6 @@ function post_toast(url, reload, data) {
 			try {
 				document.getElementById('toast-post-success-text').innerText = JSON.parse(xhr.response)["message"];
 			} catch(e) {
-				document.getElementById('toast-post-success-text').innerText = "Action successful!";
 			}
 
 			if (reload == 1) {location.reload(true)}

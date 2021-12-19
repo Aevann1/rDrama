@@ -1,4 +1,4 @@
-{% extends "default.html" %}
+{% extends "CHRISTMAS/default.html" %}
 
 {% set ups=p.upvotes %}
 {% set downs=p.downvotes %}
@@ -104,13 +104,13 @@
 
 {% block subHeader %}
 	<div class="relative max-w-screen-2xl mx-auto px-4 py-4 grid grid-cols-12 rounded-t {% if p.award_count("lights") %}lights{% endif %}">
-		<div class="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-gray-300 to-gray-200 rounded-t sub-header-shadow"></div>
+		<div class="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-gray-300 to-gray-200 dark:bg-none dark:bg-gray-800 rounded-t sub-header-shadow dark:border-b dark:border-gray-700"></div>
 		<div class="relative col-span-full flex items-center">
 			<div>
 				<h1 class="font-bold text-xl font-heading leading-normal mb-0">
 					Thread
 				</h1>
-				<ul class="flex space-x-2 text-xs text-gray-500 leading-normal mb-0">
+				<ul class="flex space-x-2 text-xs text-gray-500 dark:text-gray-400 leading-normal mb-0">
 					<li>
 						<a href="/" class="text-gray-500 hover:underline">Home</a>
 					</li>
@@ -118,7 +118,7 @@
 						<i class="fas fa-arrow-alt-right text-shadow fa-fw fa-sm"></i>
 					</li>
 					<li>
-						<a href="{{p.permalink}}" class="text-gray-700 hover:underline">{{p.author.username}}'s post</a>
+						<a href="{{p.permalink}}" class="text-gray-700 dark:text-gray-500 hover:underline">{{p.author.username}}'s post</a>
 					<li>
 				</ul>
 			</div>
@@ -221,7 +221,7 @@
 <!-- Post -->
 <div id="post-root" class="sm:py-4 my-2.5 sm:my-0">
 
-	<div id="post-{{p.id}}" class="w-full p-2.5 md:p-0 bg-gray-200 {% if voted==1 %}upvoted{% elif voted==-1 %}downvoted{% endif %}">
+	<div id="post-{{p.id}}" class="w-full p-2.5 md:p-0 bg-gray-200 dark:bg-gray-800 {% if voted==1 %}upvoted{% elif voted==-1 %}downvoted{% endif %}">
 		<div class="{% if p.deleted_utc > 0 %}deleted {% endif %} flex flex-row-reverse flex-nowrap justify-end">
 
 			{% if not p.is_image and p.thumb_url and not p.embed_url %}
@@ -270,7 +270,7 @@
 						{% endif %}
 						</span>
 						<span class="flex-shrink-0">
-							<a class="user-name" onclick='userPopover({{p.author.json_popover | tojson}})' data-bs-placement="bottom" data-bs-toggle="popover" data-bs-trigger="focus" data-content-id="popover" href="javascript:void(0)" tabindex="0" style="color: #{{p.author.namecolor}}" data-bs-original-title="" title="">
+							<a class="user-name" onclick='userPopover({{p.author.json_popover(v) | tojson}})' data-bs-placement="bottom" data-bs-toggle="popover" data-bs-trigger="focus" data-content-id="popover" href="javascript:void(0)" tabindex="0" style="color: #{{p.author.namecolor}}" data-bs-original-title="" title="">
 								<span class="inline-flex items-center font-bold">
 									{% if p.author.patron and not p.distinguish_level %}
 									<span class="patron" style="background-color:#{{p.author.namecolor}};">
@@ -303,10 +303,13 @@
 						{% endif %}
 
 						{% if p.is_image %}
-							(image post)
+							<span class="flex-shrink-0">(image post)</span>
+						{% elif p.is_video %}
+							<span class="flex-shrink-0">(video post)</span>
 						{% elif p.realurl(v) %}
-							<a class="flex-shrink-0 text-gray-500 hover:underline" href="/search/posts/?q=domain%3A{{p.domain}}&sort=new&t=all" {% if not v or v.newtabexternal %}target="_blank"{% endif %}>({{p.domain}})
-						</a>
+							<a class="flex-shrink-0 text-gray-500 hover:underline" href="/search/posts/?q=domain%3A{{p.domain}}&sort=new&t=all" {% if not v or v.newtabexternal %}target="_blank"{% endif %}>
+								({{p.domain}})
+							</a>
 						{% else %}
 						<span class="flex-shrink-0">(text post)</span>
 						{% endif %}
@@ -317,7 +320,7 @@
 					<!-- Title -->
 					<h1 id="post-title" class="post-title font-medium text-lg md:text-3xl leading-normal mb-2">
 						{% if p.realurl(v) %}
-						<a {% if not v or v.newtabexternal %}target="_blank"{% endif %} rel="nofollow noopener noreferrer" href="{{p.realurl(v)}}" class="text-black hover:text-primary">
+						<a {% if not v or v.newtabexternal %}target="_blank"{% endif %} rel="nofollow noopener noreferrer" href="{{p.realurl(v)}}" class="text-black dark:text-gray-200 hover:text-primary">
 							{{p.realtitle(v) | safe}}
 						</a>
 						{% else %}
@@ -349,27 +352,27 @@
 						</a>
 						{% endif %}
 						{% endif %}
-						<div id="post-text" class="text-black {% if p.award_count("candycane") %}candycane{% endif %}">
+						<div id="post-text" class="text-black dark:text-gray-200 {% if p.award_count("candycane") %}candycane{% endif %}">
 							{% if p.is_image %}
-							<a {% if not v or v.newtabexternal %}target="_blank"{% endif %} rel="nofollow noopener noreferrer" href="{{p.realurl(v)}}">
-								<img loading="lazy" src="{{p.realurl(v)}}" class="img-fluid" style="max-height:500px;" alt="Unable to load image">
-							</a>
-							{% elif p.url and p.url.lower().endswith('.mp4') %}
-							<video controls loop preload="metadata" style="max-width: 100%">
-								<source src="{{ p.realurl(v) }}" type="video/mp4"/>
-							</video>
+								<a {% if not v or v.newtabexternal %}target="_blank"{% endif %} rel="nofollow noopener noreferrer" href="{{p.realurl(v)}}">
+									<img loading="lazy" src="{{p.realurl(v)}}" class="img-fluid" style="max-height:500px;" alt="Unable to load image">
+								</a>
+							{% elif p.is_video %}
+								<video controls loop preload="metadata" style="max-width: 100%">
+									<source src="{{ p.realurl(v) }}" type="video/mp4"/>
+								</video>
 							{% endif %}
 
 							{{p.realbody(v) | safe}}
 
 							<!-- Polls -->
 							{% if p.options.count() %}
-								{% include "Poll.html" %}
+								{% include "CHRISTMAS/Poll.html" %}
 							{% endif %}
 
 							<!-- Bets -->
 							{% if p.bet_options.count() %}
-								{% include "Bets.html" %}
+								{% include "CHRISTMAS/Bets.html" %}
 							{% endif %}
 
 						</div>
@@ -402,12 +405,12 @@
 
 					{% if v and (v.id==p.author_id or v.admin_level > 1 and v.admin_level > 2) %}
 					<div class="py-2">
-						{% include "/submission/SubmissionEditForm.html" %}
+						{% include "CHRISTMAS/submission/SubmissionEditForm.html" %}
 					</div>
 					{% endif %}
 
 					{% if p.embed_url and "http" not in p.embed_url and "<" not in p.embed_url %}
-					<div id="crosspost-embed" class="p-2.5 rounded-md bg-gray-300 border border-gray-400">
+					<div id="crosspost-embed" class="p-2.5 rounded-md bg-gray-300 dark:bg-gray-700 border border-gray-400 dark:border-gray-600">
 						<div class="row no-gutters">
 							<div id="frontpage" class="col-12 pt-0">
 								<div class="posts" id="posts">
@@ -422,7 +425,7 @@
 
 				<!-- Post actions -->
 				<div class="hidden md:block pt-4">
-					{% include "/submission/SubmissionActions.html" %}
+					{% include "CHRISTMAS/submission/SubmissionActions.html" %}
 				</div>
 
 			</div>
@@ -469,7 +472,7 @@
 			</div>
 
 			<div class="md:hidden px-2.5 mt-4">
-				{% include "/submission/SubmissionActionsMobile.html" %}
+				{% include "CHRISTMAS/submission/SubmissionActionsMobile.html" %}
 			</div>
 
 	</div>
@@ -483,11 +486,11 @@
 		{% endif %}
 	</div>
 
-	<div class="shadow-inset-t-white-05 bg-gray-200 md:border-t md:border-gray-300 py-4 mt-3 md:mt-0">
+	<div class="shadow-inset-t-white-05 bg-gray-200 dark:bg-gray-800 md:border-t md:border-gray-300 dark:md:border-gray-900 py-4 mt-3 md:mt-0">
 
 			<div class="flex flex-wrap justify-between mb-2 px-2.5 md:px-0">
 				<div class="md:ml-20 font-bold text-sm">
-					<span class="text-black">
+					<span class="text-black dark:text-gray-300">
 						{{ p.comment_count }} {{ 'Response' if p.comment_count == 1 else 'Responses' }}
 					</span>
 					<!-- Entire thread link -->
@@ -531,7 +534,7 @@
 				<div class="hidden md:block relative flex-shrink-0 mr-4 {{ 'santa' if p.author.patron else 'cap' }}">
 					<img loading="lazy" src="{{v.profile_url}}" class="w-14 h-14 p-[3px] bg-white border border-gray-300 object-cover" alt="my avatar"/>
 				</div>
-				{% include "/comments/CommentForm.html" %}
+				{% include "CHRISTMAS/comments/CommentForm.html" %}
 			</div>
 			{% endif %}
 
@@ -543,7 +546,7 @@
 					</div>
 				</div>
 				<div class="w-full">
-					<textarea maxlength="10000" class="text-lg sm:text-base appearance-none block w-full rounded shadow-inner p-2 bg-gray-300 border border-gray-400 hover:border-gray-500 focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" name="body" aria-label="With textarea" placeholder="Add your comment..." rows="3" onclick="location.href='/login?redirect={{request.path | urlencode}}';"></textarea>
+					<textarea maxlength="10000" class="text-lg sm:text-base appearance-none block w-full rounded shadow-inner p-2 bg-gray-300 dark:bg-gray-700 border border-gray-400 dark:border-gray-600 hover:border-gray-500 focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" name="body" aria-label="With textarea" placeholder="Add your comment..." rows="3" onclick="location.href='/login?redirect={{request.path | urlencode}}';"></textarea>
 					<div class="flex w-full justify-end mt-2">
 						<a href="/login?redirect={{request.path | urlencode}}" class="btn btn-gray">Log in to comment</a>
 					</div>
@@ -554,7 +557,7 @@
 			{% if p.replies %}
 			<div class="comment-section px-2.5 md:px-0" id="comment-section">
 				{% with comments=p.replies %}
-				{% include "comments.html" %}
+				{% include "CHRISTMAS/comments.html" %}
 				{% endwith %}
 			</div>
 			{% elif not p.replies and p.deleted_utc == 0 %}
@@ -584,32 +587,32 @@
 
 <!-- Sidebar -->
 {% block sidebar %}
-	{% include "/sidebars/SubmissionSidebar.html" %}
+	{% include "CHRISTMAS/sidebars/SubmissionSidebar.html" %}
 {% endblock %}
 
 {% block modals %}
 	{% if v %}
 		{% if v.id == p.author_id %}
-			{% include "delete_post_modal.html" %}
+			{% include "CHRISTMAS/delete_post_modal.html" %}
 		{% endif %}
 
-		{% include "report_post_modal.html" %}
-		{% include "award_modal.html" %}
-		{% include "emoji_modal.html" %}
-		{% include "gif_modal.html" %}
+		{% include "CHRISTMAS/report_post_modal.html" %}
+		{% include "CHRISTMAS/award_modal.html" %}
+		{% include "CHRISTMAS/emoji_modal.html" %}
+		{% include "CHRISTMAS/gif_modal.html" %}
 
 		{% if v.admin_level == 6 %}
-			{% include "ban_modal.html" %}
+			{% include "CHRISTMAS/ban_modal.html" %}
 		{% endif %}
 	{% endif %}
 
-	{% include "/modals/ModalSubmissionActions.html" %}
-	{% include "expanded_image_modal.html" %}
+	{% include "CHRISTMAS/modals/ModalSubmissionActions.html" %}
+	{% include "CHRISTMAS/expanded_image_modal.html" %}
 {% endblock %}
 
 {% block scripts %}
 	<!-- This file contains minimal html and javascript required for awards, needs to be near </body> closing tag -->
-	{% include "/submission/SubmissionAwards.html" %}
+	{% include "CHRISTMAS/submission/SubmissionAwards.html" %}
 
 	{% if v %}
 		<script defer src="/assets/CHRISTMAS/js/vote.js?v=200"></script>

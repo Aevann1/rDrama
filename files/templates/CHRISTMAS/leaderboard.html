@@ -1,16 +1,16 @@
-{% extends "default.html" %}
+{% extends "CHRISTMAS/default.html" %}
 
 {% block pagetitle %}Leaderboard{% endblock %}
 
 {% block subHeader %}
 	<div class="relative max-w-screen-2xl mx-auto px-4 py-4 grid grid-cols-12 rounded-t">
-		<div class="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-gray-300 to-gray-200 rounded-t sub-header-shadow"></div>
+		<div class="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-gray-300 to-gray-200 dark:bg-none dark:bg-gray-800 rounded-t sub-header-shadow"></div>
 		<div class="relative col-span-full flex items-center">
 			<div>
 				<h1 class="font-bold text-xl font-heading leading-normal mb-0">
 					Leaderboards
 				</h1>
-				<small class="block text-gray-700 leading-normal">
+				<small class="block text-gray-700 dark:text-gray-400 leading-normal">
 					In-depth analysis of our most terminally online members' careers.
 				</small>
 				<ul class="hidden text-gray-500 text-sm flex items-center space-x-3 leading-normal mb-0">
@@ -52,14 +52,14 @@
 
 {% block content %}
 <div class="col-span-full mb-6">
-	<div class="flex items-center px-4 py-4 bg-gradient-to-t from-gray-200 to-gray-100 sticky top-0 z-10">
+	<div class="flex items-center px-4 py-4 bg-gradient-to-t from-gray-200 to-gray-100 dark:bg-none dark:bg-gray-800 sticky top-0 z-10">
 		<h2 class="text-2xl font-heading font-bold mb-0">
 			rDrama's 25 Greediest Members
 		</h2>
 	</div>
-	<div class="mb-4 flex flex-col bg-gray-100 rounded-lg overflow-hidden">
+	<div class="mb-4 flex flex-col bg-gray-100 dark:bg-gray-900 rounded-lg overflow-hidden">
 		{% for user in users1 %}
-		<div class="flex items-center border-b last:border-b-none border-gray-300 shadow-inset-t-white-05 px-5 py-3 {% if v.username == user.username %}text-red-900 text-shadow-light bg-red-600{% elif users1.index(user) % 2 != 0 %}bg-gray-200{% endif %}">
+		<div class="flex items-center border-b last:border-b-none border-gray-300 dark:border-gray-900 shadow-inset-t-white-05 px-5 py-3 {% if v.username == user.username %}text-gray-900 text-shadow-light bg-primary{% elif users1.index(user) % 2 != 0 %}bg-gray-200 dark:bg-gray-700{% endif %}">
 			<!-- Rank -->
 			<h2 class="flex-shrink-0 text-2xl font-bold font-heading text-center w-16 -ml-5 mb-0 {{ 'text-red-900' if v.username == user.username else 'text-gray-400' }}">
 				{{users1.index(user)+1}}
@@ -72,7 +72,7 @@
 			</div>
 			<!-- User Details -->
 			<div class="ml-3">
-				<a class="block font-heading font-bold text-lg md:text-xl text-black hover:text-red-600" href="/@{{user.username}}">
+				<a class="block font-heading font-bold text-lg md:text-xl text-black dark:text-gray-200 hover:text-primary" href="/@{{user.username}}">
 					{{user.username}}
 				</a>
 				{% if user.customtitle %}
@@ -91,14 +91,14 @@
 	</div>
 </div>
 <div class="col-span-full mb-6">
-	<div class="flex items-center px-4 py-4 bg-gradient-to-t from-gray-200 to-gray-100 sticky top-0 z-10">
+	<div class="flex items-center px-4 py-4 bg-gradient-to-t from-gray-200 to-gray-100 dark:bg-none dark:bg-gray-800 sticky top-0 z-10">
 		<h2 class="text-2xl font-heading font-bold mb-0">
 			rDrama's 20 Top Spenders
 		</h2>
 	</div>
-	<div class="mb-4 flex flex-col bg-gray-100 rounded-lg overflow-hidden">
+	<div class="mb-4 flex flex-col bg-gray-100 dark:bg-gray-900 rounded-lg overflow-hidden">
 		{% for user in users7 %}
-		<div class="flex items-center border-b last:border-b-none border-gray-300 shadow-inset-t-white-05 px-5 py-3 {% if v.username == user.username %}text-red-900 text-shadow-light bg-red-600{% elif users7.index(user) % 2 != 0 %}bg-gray-200{% endif %}">
+		<div class="flex items-center border-b last:border-b-none border-gray-300 dark:border-gray-900 shadow-inset-t-white-05 px-5 py-3 {% if v.username == user.username %}text-red-900 text-shadow-light bg-red-600{% elif users7.index(user) % 2 != 0 %}bg-gray-200 dark:bg-gray-700{% endif %}">
 			<!-- Rank -->
 			<h2 class="flex-shrink-0 text-2xl font-bold font-heading text-center w-16 -ml-5 mb-0 {{ 'text-red-900' if v.username == user.username else 'text-gray-400' }}">
 				{{users7.index(user)+1}}
@@ -111,7 +111,7 @@
 			</div>
 			<!-- User Details -->
 			<div class="ml-3">
-				<a class="block font-heading font-bold text-lg md:text-xl text-black hover:text-red-600" href="/@{{user.username}}">
+				<a class="block font-heading font-bold text-lg md:text-xl text-black dark:text-gray-200 hover:text-primary" href="/@{{user.username}}">
 					{{user.username}}
 				</a>
 				{% if user.customtitle %}
@@ -130,14 +130,14 @@
 	</div>
 </div>
 <div class="col-span-full mb-6">
-	<div class="flex items-center px-4 py-4 bg-gradient-to-t from-gray-200 to-gray-100 sticky top-0 z-10">
+	<div class="flex items-center px-4 py-4 bg-gradient-to-t from-gray-200 to-gray-100 dark:bg-none dark:bg-gray-800 sticky top-0 z-10">
 		<h2 class="text-2xl font-heading font-bold mb-0">
 			rDrama's 15 Most Popular
 		</h2>
 	</div>
-	<div class="mb-4 flex flex-col bg-gray-100 rounded-lg overflow-hidden">
+	<div class="mb-4 flex flex-col bg-gray-100 dark:bg-gray-900 rounded-lg overflow-hidden">
 		{% for user in users2 %}
-		<div class="flex items-center border-b last:border-b-none border-gray-300 shadow-inset-t-white-05 px-5 py-3 {% if v.username == user.username %}text-red-900 text-shadow-light bg-red-600{% elif users2.index(user) % 2 != 0 %}bg-gray-200{% endif %}">
+		<div class="flex items-center border-b last:border-b-none border-gray-300 dark:border-gray-900 shadow-inset-t-white-05 px-5 py-3 {% if v.username == user.username %}text-red-900 text-shadow-light bg-red-600{% elif users2.index(user) % 2 != 0 %}bg-gray-200 dark:bg-gray-700{% endif %}">
 			<!-- Rank -->
 			<h2 class="flex-shrink-0 text-2xl font-bold font-heading text-center w-16 -ml-5 mb-0 {{ 'text-red-900' if v.username == user.username else 'text-gray-400' }}">
 				{{users2.index(user)+1}}
@@ -150,7 +150,7 @@
 			</div>
 			<!-- User Details -->
 			<div class="ml-3">
-				<a class="block font-heading font-bold text-lg md:text-xl text-black hover:text-red-600" href="/@{{user.username}}">
+				<a class="block font-heading font-bold text-lg md:text-xl text-black dark:text-gray-200 hover:text-primary" href="/@{{user.username}}">
 					{{user.username}}
 				</a>
 				{% if user.customtitle %}
@@ -169,14 +169,14 @@
 	</div>
 </div>
 <div class="col-span-full mb-6">
-	<div class="flex items-center px-4 py-4 bg-gradient-to-t from-gray-200 to-gray-100 sticky top-0 z-10">
+	<div class="flex items-center px-4 py-4 bg-gradient-to-t from-gray-200 to-gray-100 dark:bg-none dark:bg-gray-800 sticky top-0 z-10">
 		<h2 class="text-2xl font-heading font-bold mb-0">
 			rDrama's 10 Most Terminally Online (Posts)
 		</h2>
 	</div>
-	<div class="mb-4 flex flex-col bg-gray-100 rounded-lg overflow-hidden">
+	<div class="mb-4 flex flex-col bg-gray-100 dark:bg-gray-900 rounded-lg overflow-hidden">
 		{% for user in users3 %}
-		<div class="flex items-center border-b last:border-b-none border-gray-300 shadow-inset-t-white-05 px-5 py-3 {% if v.username == user.username %}text-red-900 text-shadow-light bg-red-600{% elif users3.index(user) % 2 != 0 %}bg-gray-200{% endif %}">
+		<div class="flex items-center border-b last:border-b-none border-gray-300 dark:border-gray-900 shadow-inset-t-white-05 px-5 py-3 {% if v.username == user.username %}text-red-900 text-shadow-light bg-red-600{% elif users3.index(user) % 2 != 0 %}bg-gray-200 dark:bg-gray-700{% endif %}">
 			<!-- Rank -->
 			<h2 class="flex-shrink-0 text-2xl font-bold font-heading text-center w-16 -ml-5 mb-0 {{ 'text-red-900' if v.username == user.username else 'text-gray-400' }}">
 				{{users3.index(user)+1}}
@@ -189,7 +189,7 @@
 			</div>
 			<!-- User Details -->
 			<div class="ml-3">
-				<a class="block font-heading font-bold text-lg md:text-xl text-black hover:text-red-600" href="/@{{user.username}}">
+				<a class="block font-heading font-bold text-lg md:text-xl text-black dark:text-gray-200 hover:text-primary" href="/@{{user.username}}">
 					{{user.username}}
 				</a>
 				{% if user.customtitle %}
@@ -208,14 +208,14 @@
 	</div>
 </div>
 <div class="col-span-full mb-6">
-	<div class="flex items-center px-4 py-4 bg-gradient-to-t from-gray-200 to-gray-100 sticky top-0 z-10">
+	<div class="flex items-center px-4 py-4 bg-gradient-to-t from-gray-200 to-gray-100 dark:bg-none dark:bg-gray-800 sticky top-0 z-10">
 		<h2 class="text-2xl font-heading font-bold mb-0">
 			rDrama's 10 Most Terminally Online (Comments)
 		</h2>
 	</div>
-	<div class="mb-4 flex flex-col bg-gray-100 rounded-lg overflow-hidden">
+	<div class="mb-4 flex flex-col bg-gray-100 dark:bg-gray-900 rounded-lg overflow-hidden">
 		{% for user in users4 %}
-		<div class="flex items-center border-b last:border-b-none border-gray-300 shadow-inset-t-white-05 px-5 py-3 {% if v.username == user.username %}text-red-900 text-shadow-light bg-red-600{% elif users4.index(user) % 2 != 0 %}bg-gray-200{% endif %}">
+		<div class="flex items-center border-b last:border-b-none border-gray-300 dark:border-gray-900 shadow-inset-t-white-05 px-5 py-3 {% if v.username == user.username %}text-red-900 text-shadow-light bg-red-600{% elif users4.index(user) % 2 != 0 %}bg-gray-200 dark:bg-gray-700{% endif %}">
 			<!-- Rank -->
 			<h2 class="flex-shrink-0 text-2xl font-bold font-heading text-center w-16 -ml-5 mb-0 {{ 'text-red-900' if v.username == user.username else 'text-gray-400' }}">
 				{{users4.index(user)+1}}
@@ -228,7 +228,7 @@
 			</div>
 			<!-- User Details -->
 			<div class="ml-3">
-				<a class="block font-heading font-bold text-lg md:text-xl text-black hover:text-red-600" href="/@{{user.username}}">
+				<a class="block font-heading font-bold text-lg md:text-xl text-black dark:text-gray-200 hover:text-primary" href="/@{{user.username}}">
 					{{user.username}}
 				</a>
 				{% if user.customtitle %}
@@ -247,14 +247,14 @@
 	</div>
 </div>
 <div class="col-span-full mb-6">
-	<div class="flex items-center px-4 py-4 bg-gradient-to-t from-gray-200 to-gray-100 sticky top-0 z-10">
+	<div class="flex items-center px-4 py-4 bg-gradient-to-t from-gray-200 to-gray-100 dark:bg-none dark:bg-gray-800 sticky top-0 z-10">
 		<h2 class="text-2xl font-heading font-bold mb-0">
 			rDrama's 10 Biggest Winners
 		</h2>
 	</div>
-	<div class="mb-4 flex flex-col bg-gray-100 rounded-lg overflow-hidden">
+	<div class="mb-4 flex flex-col bg-gray-100 dark:bg-gray-900 rounded-lg overflow-hidden">
 		{% for user in users5 %}
-		<div class="flex items-center border-b last:border-b-none border-gray-300 shadow-inset-t-white-05 px-5 py-3 {% if v.username == user.username %}text-red-900 text-shadow-light bg-red-600{% elif users5.index(user) % 2 != 0 %}bg-gray-200{% endif %}">
+		<div class="flex items-center border-b last:border-b-none border-gray-300 dark:border-gray-900 shadow-inset-t-white-05 px-5 py-3 {% if v.username == user.username %}text-red-900 text-shadow-light bg-red-600{% elif users5.index(user) % 2 != 0 %}bg-gray-200 dark:bg-gray-700{% endif %}">
 			<!-- Rank -->
 			<h2 class="flex-shrink-0 text-2xl font-bold font-heading text-center w-16 -ml-5 mb-0 {{ 'text-red-900' if v.username == user.username else 'text-gray-400' }}">
 				{{users5.index(user)+1}}
@@ -267,7 +267,7 @@
 			</div>
 			<!-- User Details -->
 			<div class="ml-3">
-				<a class="block font-heading font-bold text-lg md:text-xl text-black hover:text-red-600" href="/@{{user.username}}">
+				<a class="block font-heading font-bold text-lg md:text-xl text-black dark:text-gray-200 hover:text-primary" href="/@{{user.username}}">
 					{{user.username}}
 				</a>
 				{% if user.customtitle %}
@@ -286,14 +286,14 @@
 	</div>
 </div>
 <div class="col-span-full mb-6">
-	<div class="flex items-center px-4 py-4 bg-gradient-to-t from-gray-200 to-gray-100 sticky top-0 z-10">
+	<div class="flex items-center px-4 py-4 bg-gradient-to-t from-gray-200 to-gray-100 dark:bg-none dark:bg-gray-800 sticky top-0 z-10">
 		<h2 class="text-2xl font-heading font-bold mb-0">
 			rDrama's 25 Most Downvoted
 		</h2>
 	</div>
-	<div class="mb-4 flex flex-col bg-gray-100 rounded-lg overflow-hidden">
+	<div class="mb-4 flex flex-col bg-gray-100 dark:bg-gray-900 rounded-lg overflow-hidden">
 		{% for user in users9 %}
-		<div class="flex items-center border-b last:border-b-none border-gray-300 shadow-inset-t-white-05 px-5 py-3 {% if v.username == user.username %}text-red-900 text-shadow-light bg-red-600{% elif users9.index(user) % 2 != 0 %}bg-gray-200{% endif %}">
+		<div class="flex items-center border-b last:border-b-none border-gray-300 dark:border-gray-900 shadow-inset-t-white-05 px-5 py-3 {% if v.username == user.username %}text-red-900 text-shadow-light bg-red-600{% elif users9.index(user) % 2 != 0 %}bg-gray-200 dark:bg-gray-700{% endif %}">
 			<!-- Rank -->
 			<h2 class="flex-shrink-0 text-2xl font-bold font-heading text-center w-16 -ml-5 mb-0 {{ 'text-red-900' if v.username == user.username else 'text-gray-400' }}">
 				{{loop.index}}
@@ -306,7 +306,7 @@
 			</div>
 			<!-- User Details -->
 			<div class="ml-3">
-				<a class="block font-heading font-bold text-lg md:text-xl text-black hover:text-red-600" href="/@{{user[0].username}}">
+				<a class="block font-heading font-bold text-lg md:text-xl text-black dark:text-gray-200 hover:text-primary" href="/@{{user[0].username}}">
 					{{user[0].username}}
 				</a>
 				{% if user[0].customtitle %}
@@ -328,7 +328,7 @@
 
 {% block modals %}
 <div class="frost"></div>
-{% include '/awards/Christmas/Snow.html' %}
+{% include 'CHRISTMAS//awards/Christmas/Snow.html' %}
 {% endblock %}
 
 {% block scripts %}

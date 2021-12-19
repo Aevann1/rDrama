@@ -45,15 +45,25 @@
 			<i class="fas fa-gift fa-fw mr-2" aria-hidden="true"></i>Gift Award
 		</button>
 	</li>
+	<li id="unsave-{{c.id}}" class="hidden {% if c.id in v.saved_comment_idlist() %}md:block{% endif %}">
+		<button class="hover:text-gray-400" onclick="post_toast3('/unsave_comment/{{c.id}}','save-{{c.id}}','unsave-{{c.id}}')">
+			<i class="fas fa-bookmark fa-fw mr-2"></i>Unsave
+		</button>
+	</li>
+	<li id="save-{{c.id}}" class="hidden {% if c.id not in v.saved_comment_idlist() %}md:block{% endif %}">
+		<button class="hover:text-gray-400" onclick="post_toast3('/save_comment/{{c.id}}','save-{{c.id}}','unsave-{{c.id}}')">
+			<i class="far fa-bookmark fa-fw mr-2"></i>Save
+		</button>
+	</li>
 	{% endif %}
 
 	<li class="hidden md:block">
-		<button class="copy-link hover:text-gray-400" data-clipboard-text="{% if 'rama' in request.host %}https://dogpill.life{{c.permalink}}{% else %}{{c.permalink | full_link}}{% endif %}?context=10#context">
+		<button class="copy-link hover:text-gray-400" data-clipboard-text="{% if 'rama' in request.host %}https://dogpill.life{{c.permalink}}{% else %}{{c.permalink | full_link}}{% endif %}">
 			<i class="fas fa-link fa-fw mr-2"></i>Copy link
 		</button>
 	</li>
 	<li class="hidden md:block">
-		<a href="{{c.permalink}}?context=10#context" class="text-gray-500 hover:text-gray-400">
+		<a href="{{c.permalink}}" class="text-gray-500 hover:text-gray-400">
 			<i class="fas fa-book-open fa-fw mr-2"></i>Context
 		</a>
 	</li>
@@ -75,26 +85,11 @@
 					</a>
 				</li>
 				<li class="hidden">
-					<a class="dropdown-item block w-full text-left px-4 py-2 text-sm text-gray-200 bg-gradient-to-t hover:from-red-800 hover:to-red-700 hover:shadow-inner focus:shadow-inner focus:bg-gradient-to-t focus:from-red-800 focus:to-red-700" {% if v %}href="{{c.permalink}}?context=10#context"{% else %}href="/logged_out{{c.permalink}}?context=10#context"{% endif %}>
+					<a class="dropdown-item block w-full text-left px-4 py-2 text-sm text-gray-200 bg-gradient-to-t hover:from-red-800 hover:to-red-700 hover:shadow-inner focus:shadow-inner focus:bg-gradient-to-t focus:from-red-800 focus:to-red-700" href="{{c.permalink}}">
 						<i class="fas fa-book-open fa-sm fa-fw mr-4"></i>Context
 					</a>
 				</li>
-				{% if v %}
-				<li id="unsave-{{c.id}}" class="hidden {% if c.id in v.saved_comment_idlist() %}md:block{% endif %}">
-					<button class="dropdown-item block w-full text-left px-4 py-2 text-sm text-gray-200 bg-gradient-to-t hover:from-red-800 hover:to-red-700 hover:shadow-inner focus:shadow-inner focus:bg-gradient-to-t focus:from-red-800 focus:to-red-700" onclick="post_toast3('/unsave_comment/{{c.id}}','save-{{c.id}}','unsave-{{c.id}}')">
-						<i class="fas fa-bookmark fa-sm fa-fw mr-4"></i>Unsave
-					</button>
-				</li>
-				<li id="save-{{c.id}}" class="hidden {% if c.id not in v.saved_comment_idlist() %}md:block{% endif %}">
-					<button class="dropdown-item block w-full text-left px-4 py-2 text-sm text-gray-200 bg-gradient-to-t hover:from-red-800 hover:to-red-700 hover:shadow-inner focus:shadow-inner focus:bg-gradient-to-t focus:from-red-800 focus:to-red-700" onclick="post_toast3('/save_comment/{{c.id}}','save-{{c.id}}','unsave-{{c.id}}')">
-						<i class="far fa-bookmark fa-sm fa-fw mr-4"></i>Save
-					</button>
-				</li>
-				{% endif %}
 				{% if v and c.parent_submission and c.author_id==v.id %}
-				<li>
-					<hr class="mt-2 mb-1.5 border-t border-black h-1 shadow-inset-t-white-05"/>
-				</li>
 				<li class="hidden md:block">
 					<button class="dropdown-item block w-full text-left px-4 py-2 text-sm text-gray-200 bg-gradient-to-t hover:from-red-800 hover:to-red-700 hover:shadow-inner focus:shadow-inner focus:bg-gradient-to-t focus:from-red-800 focus:to-red-700" onclick="toggleEdit('{{c.id}}')">
 						<i class="fas fa-edit fa-sm fa-fw mr-4"></i>Edit
@@ -114,12 +109,9 @@
 					</button>
 				</li>
 				{% endif %}
-
 				{% endif %}
+
 				{% if v and v.admin_level==6 and v.id==c.author_id %}
-				<li>
-					<hr class="mt-2 mb-1.5 border-t border-black h-1 shadow-inset-t-white-05"/>
-				</li>
 				<li id="undistinguish-{{c.id}}" class="hidden {% if c.distinguish_level %}md:block{% endif %}">
 					<button class="dropdown-item block w-full text-left px-4 py-2 text-sm text-gray-200 bg-gradient-to-t hover:from-red-800 hover:to-red-700 hover:shadow-inner focus:shadow-inner focus:bg-gradient-to-t focus:from-red-800 focus:to-red-700" onclick="post_toast3('/distinguish_comment/{{c.id}}','distinguish-{{c.id}}','undistinguish-{{c.id}}','no')">
 						<i class="fas fa-id-badge text-info fa-sm fa-fw mr-4"></i>Undistinguish
@@ -133,9 +125,6 @@
 				{% endif %}
 
 				{% if v and not v.id==c.author_id and not (c.post and c.post.award_count("ghosts")) %}
-				<li>
-					<hr class="mt-2 mb-1.5 border-t border-black h-1 shadow-inset-t-white-05"/>
-				</li>
 				<li class="hidden {% if c.is_blocking %}md:block{% endif %} text-green-600">
 					<button id="unblock-{{c.id}}" class="dropdown-item block w-full text-left px-4 py-2 text-sm text-gray-200 bg-gradient-to-t hover:from-red-800 hover:to-red-700 hover:shadow-inner focus:shadow-inner focus:bg-gradient-to-t focus:from-red-800 focus:to-red-700" onclick="post_toast3('/settings/unblock?username={{c.author.username}}','block-{{c.id}}','unblock-{{c.id}}')">
 						<i class="fas fa-eye-slash fa-sm fa-fw mr-4"></i>Unblock user

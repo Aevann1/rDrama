@@ -1,12 +1,12 @@
 <div class="container inline-flex sm:hidden">
 
-	<div class="z-100 fixed shadow-sm bottom-0 w-full bg-gradient-to-t from-gray-200 to-gray-100 border-t border-gray-300 px-4 py-3" id="mobile-bottom-navigation-bar" style="transition: transform cubic-bezier(0, 0, 0.2, 1) 220ms;">
+	<div class="z-100 fixed shadow-sm bottom-0 w-full bg-gradient-to-t from-gray-200 to-gray-100 dark:from-gray-800 dark:to-gray-700 border-t border-gray-300 dark:border-gray-900 px-4 py-3" id="mobile-bottom-navigation-bar" style="transition: transform cubic-bezier(0, 0, 0.2, 1) 220ms;">
 
 		<ul class="flex flex-nowrap justify-around text-shadow mb-0">
 			<li>
 				<button type="button" class="px-2">
 					<a href="/" class="text-decoration-none" role="button">
-						<div class="text-center {% if request.path=='/' and request.full_path!='/?sort=hot&t=all' and request.full_path!='/?sort=new&t=all' %}text-gray-700{% else %}text-gray-400{% endif %}">
+						<div class="text-center {% if request.path=='/' and request.full_path!='/?sort=hot&t=all' and request.full_path!='/?sort=new&t=all' %}text-gray-700 dark:text-gray-200{% else %}text-gray-400 dark:text-gray-500{% endif %}">
 							<i class="fas fa-home-alt fa-fw text-lg"></i>
 							<div class="text-sm font-bold">Home</div>
 						</div>
@@ -17,7 +17,7 @@
 			<li>
 				<button type="button" class="px-2">
 					<a href="/?sort=hot&t=all" class="text-decoration-none" role="button">
-						<div class="text-center {% if request.full_path=='/?sort=hot&t=all' %}text-gray-700{% else %}text-gray-400{% endif %}">
+						<div class="text-center {% if request.full_path=='/?sort=hot&t=all' %}text-gray-700 dark:text-gray-200{% else %}text-gray-400 dark:text-gray-500{% endif %}">
 							<i class="fas fa-fire fa-fw text-lg"></i>
 							<div class="text-sm font-bold">Hot</div>
 						</div>
@@ -28,7 +28,7 @@
 			<li>
 				<button type="button" class="px-2">
 					<a href="/?sort=new&t=all" class="text-decoration-none" role="button">
-						<div class="text-center {% if request.full_path=='/?sort=new&t=all' %}text-gray-700{% else %}text-gray-400{% endif %}">
+						<div class="text-center {% if request.full_path=='/?sort=new&t=all' %}text-gray-700 dark:text-gray-200{% else %}text-gray-400 dark:text-gray-500{% endif %}">
 							<i class="fas fa-sparkles fa-fw text-lg"></i>
 							<div class="text-sm font-bold">New</div>
 						</div>
@@ -39,7 +39,7 @@
 			<li>
 				<button type="button" class="px-2">
 					<a href="/comments" class="text-decoration-none" role="button">
-						<div class="text-center {% if request.path=='/comments' %}text-gray-900{% else %}text-gray-400{% endif %}">
+						<div class="text-center {% if request.path=='/comments' %}text-gray-700 dark:text-gray-200{% else %}text-gray-400 dark:text-gray-500{% endif %}">
 							<i class="fas fa-comment-dots fa-fw text-lg"></i>
 							<div class="text-sm font-bold">Comments</div>
 						</div>
@@ -49,7 +49,7 @@
 			<li>
 				<button type="button" class="px-2">
 					<a href="/leaderboard" class="text-decoration-none" role="button">
-						<div class="text-center {% if request.path=='/leaderboard' %}text-gray-700{% else %}text-gray-400{% endif %}">
+						<div class="text-center {% if request.path=='/leaderboard' %}text-gray-700 dark:text-gray-200{% else %}text-gray-400 dark:text-gray-500{% endif %}">
 							<i class="fas fa-trophy fa-fw text-lg"></i>
 							<div class="text-sm font-bold">Members</div>
 						</div>
@@ -60,7 +60,7 @@
 			<li>
 				<button type="button" class="px-2">
 					<a href="/shop" class="text-decoration-none" role="button">
-						<div class="text-center {% if request.path=='/shop' %}text-gray-700{% else %}text-gray-400{% endif %}">
+						<div class="text-center {% if request.path=='/shop' %}text-gray-700 dark:text-gray-200{% else %}text-gray-400 dark:text-gray-500{% endif %}">
 							<i class="fas fa-store fa-fw text-lg"></i>
 							<div class="text-sm font-bold">Shop</div>
 						</div>

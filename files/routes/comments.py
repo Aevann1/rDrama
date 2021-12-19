@@ -10,10 +10,12 @@ from pusher_push_notifications import PushNotifications
 from flask import *
 from files.__main__ import app, limiter
 from files.helpers.sanitize import filter_emojis_only
+import requests
 
 site = environ.get("DOMAIN").strip()
 if site == 'pcmemes.net': cc = "SPLASH MOUNTAIN"
 else: cc = "COUNTRY CLUB"
+CATBOX_KEY = environ.get("CATBOX_KEY").strip()
 
 beams_client = PushNotifications(
 		instance_id=PUSHER_INSTANCE_ID,
@@ -190,13 +192,17 @@ def api_comment(v):
 
 	if request.files.get("file") and request.headers.get("cf-ipcountry") != "T1":
 		file=request.files["file"]
-		if not file.content_type.startswith('image/'): return {"error": "That wasn't an image!"}, 400
-
-		name = f'/images/{time.time()}'.replace('.','')[:-5] + '.webp'
-		file.save(name)
-		url = process_image(name)
-		
-		body += f"\n\n![]({url})"
+		if file.content_type.startswith('image/'):
+			name = f'/images/{time.time()}'.replace('.','')[:-5] + '.webp'
+			file.save(name)
+			url = process_image(name)
+			body += f"\n\n![]({url})"
+		elif file.content_type.startswith('video/'):
+			file.save("video.mp4")
+			with open("video.mp4", 'rb') as f:
+				url = requests.request("POST", "https://api.imgur.com/3/upload", headers={'Authorization': f'Client-ID {CATBOX_KEY}'}, files=[('video', f)]).json()['data']['link']
+			body += f"\n\n{url}"
+		else: return {"error": f"Image/Video files only"}, 400
 
 	if v.agendaposter and not v.marseyawarded:
 		for k, l in AJ_REPLACEMENTS.items(): body = body.replace(k, l)
@@ -596,7 +602,9 @@ def api_comment(v):
 	g.db.commit()
 
 	if request.headers.get("Authorization"): return c.json
-	else: return render_template("comments.html", v=v, comments=[c])
+	if v and v.oldsite: template = ''
+	else: template = 'CHRISTMAS/'
+	return render_template(f"{template}comments.html", v=v, comments=[c])
 
 
 
@@ -678,7 +686,9 @@ def edit_comment(cid, v):
 			if ban.reason: reason += f" {ban.reason}"	
 		
 			if request.headers.get("Authorization"): return {'error': f'A blacklisted domain was used.'}, 400
-			else: return render_template("comment_failed.html",
+			if v and v.oldsite: template = ''
+			else: template = 'CHRISTMAS/'
+			return render_template(f"{template}comment_failed.html",
 													action=f"/edit_comment/{c.id}",
 													badlinks=[x.domain for x in bans],
 													body=body,
@@ -720,13 +730,18 @@ def edit_comment(cid, v):
 
 		if request.files.get("file") and request.headers.get("cf-ipcountry") != "T1":
 			file=request.files["file"]
-			if not file.content_type.startswith('image/'): return {"error": "That wasn't an image!"}, 400
+			if file.content_type.startswith('image/'):
+				name = f'/images/{time.time()}'.replace('.','')[:-5] + '.webp'
+				file.save(name)
+				url = process_image(name)
+				body += f"\n\n![]({url})"
+			elif file.content_type.startswith('video/'):
+				file.save("video.mp4")
+				with open("video.mp4", 'rb') as f:
+					url = requests.request("POST", "https://api.imgur.com/3/upload", headers={'Authorization': f'Client-ID {CATBOX_KEY}'}, files=[('video', f)]).json()['data']['link']
+				body += f"\n\n{url}"
+			else: return {"error": f"Image/Video files only"}, 400
 
-			name = f'/images/{time.time()}'.replace('.','')[:-5] + '.webp'
-			file.save(name)
-			url = process_image(name)
-
-			body += f"\n\n![]({url})"
 			body_md = CustomRenderer().render(mistletoe.Document(body))
 			body_html = sanitize(body_md)
 

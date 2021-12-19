@@ -3,7 +3,7 @@
 		<form id="reply-to-message-{{c.id}}" action="/reply" method="post" class="input-group" enctype="multipart/form-data">
 			<input type="hidden" name="formkey" value="{{v.formkey}}"> 
 			<div class="relative comment-box rounded-lg border border-gray-300 bg-gray-100 shadow-inner w-full"> 
-				<textarea maxlength="10000" name="body" form="reply-to-t3_{{c.id}}" data-id="{{c.id}}" class="w-full rounded-t-md p-3 bg-transparent focus:bg-white shadow-inner resize-y focus:outline-none" placeholder="Write a reply..." id="reply-form-body-{{c.id}}" aria-label="With textarea" rows="3"></textarea>
+				<textarea maxlength="10000" name="body" form="reply-to-t3_{{c.id}}" data-id="{{c.id}}" class="text-black w-full rounded-t-md p-3 bg-transparent focus:bg-white shadow-inner resize-y focus:outline-none placehoder:text-gray-400" placeholder="Write a reply..." id="reply-form-body-{{c.id}}" aria-label="With textarea" rows="3"></textarea>
 				<ul class="-mt-1 flex space-x-4 px-3 py-2 border-t border-dashed border-gray-400 mb-0">
 					<li>
 						<button type="button" class="text-gray-400 hover:text-gray-500" onclick="makeBold('reply-form-body-{{c.id}}')">

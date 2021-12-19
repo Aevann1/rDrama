@@ -4,7 +4,7 @@
 		<input type="hidden" name="parent_fullname" value="{{c.fullname}}"> 
 		<input id="reply-form-submission-{{c.fullname}}" type="hidden" name="submission" value="{{c.post.id}}">
 		<div class="relative comment-box rounded-lg border border-gray-300 bg-gray-100 shadow-inner w-full"> 
-			<textarea {% if v.longpost %}minlength="280"{% endif %} maxlength="{% if v.bird %}140{% else %}10000{% endif %}" id="reply-form-body-{{c.fullname}}" data-fullname="{{c.fullname}}" name="body" form="reply-to-t3_{{c.id}}" class="w-full rounded-t-md p-3 bg-transparent focus:bg-white shadow-inner resize-y focus:outline-none" aria-label="With textarea" placeholder="Write your reply..." rows="3" oninput="charLimit('reply-form-body-{{c.fullname}}','charcount-{{c.id}}')"></textarea>
+			<textarea {% if v.longpost %}minlength="280"{% endif %} maxlength="{% if v.bird %}140{% else %}10000{% endif %}" id="reply-form-body-{{c.fullname}}" data-fullname="{{c.fullname}}" name="body" form="reply-to-t3_{{c.id}}" class="text-black w-full rounded-t-md p-3 bg-transparent focus:bg-white shadow-inner resize-y focus:outline-none placehoder:text-gray-400" aria-label="With textarea" placeholder="Write your reply..." rows="3" oninput="charLimit('reply-form-body-{{c.fullname}}','charcount-{{c.id}}')"></textarea>
 			<ul class="-mt-1 flex space-x-4 px-3 py-2 border-t border-dashed border-gray-400 mb-0">
 				<li>
 					<button type="button" class="text-gray-400 hover:text-gray-500" onclick="makeBold('reply-form-body-{{c.fullname}}')">
@@ -36,7 +36,7 @@
 						<div id="filename-show-reply-{{c.fullname}}">
 							<i class="fas fa-camera fa-fw fa-sm"></i>
 						</div>
-						<input id="file-upload-reply-{{c.fullname}}" type="file" name="file" accept="image/*" onchange="document.getElementById('filename-show-reply-{{c.fullname}}').innerHTML='image';" hidden>
+						<input id="file-upload-reply-{{c.fullname}}" type="file" name="file" accept="image/*, video/*" onchange="document.getElementById('filename-show-reply-{{c.fullname}}').innerHTML='image/video';" hidden>
 					</label>
 				</li>
 				{% endif %}
@@ -67,7 +67,7 @@
 			&nbsp;
 			<label class="btn btn-secondary format d-inline-block m-0" for="file-upload-reply-{{c.fullname}}">
 				<div id="filename-show-reply-{{c.fullname}}"><i class="far fa-image"></i></div>
-				<input id="file-upload-reply-{{c.fullname}}" type="file" name="file" accept="image/*" onchange="document.getElementById('filename-show-reply-{{c.fullname}}').innerHTML='image';" hidden>
+				<input id="file-upload-reply-{{c.fullname}}" type="file" name="file" accept="image/*, video/*" onchange="document.getElementById('filename-show-reply-{{c.fullname}}').innerHTML='image/video';" hidden>
 			</label>
 			<a href="javascript:void(0)" onclick="document.getElementById('reply-to-{{c.id}}').classList.add('hidden')" class="hidden d-md-block btn btn-link text-muted ml-auto cancel-form">Cancel</a> 
 			<a id="save-reply-to-{{c.fullname}}" class="hidden d-md-block btn btn-primary text-muted ml-2" onclick="post_comment('{{c.fullname}}', '{{c.post.id}}');" href="javascript:void(0)">Comment</a>

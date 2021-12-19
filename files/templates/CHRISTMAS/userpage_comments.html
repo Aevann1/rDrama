@@ -1,4 +1,4 @@
-{% extends "userpage.html" %}
+{% extends "CHRISTMAS/userpage.html" %}
 
 <!-- 
 <div class="row no-gutters">
@@ -30,19 +30,19 @@
 	<div class="sm:py-4 my-2.5 sm:my-0">
 		{% if not "saved" in request.full_path %}
 		<div class="flex justify-end md:justify-start mb-3 md:m-0 px-2.5 md:px-0">
-			{% include "/dropdowns/SubmissionSorts.html" %}
+			{% include "CHRISTMAS/dropdowns/SubmissionSorts.html" %}
 		</div>
 		<hr class="hidden md:block my-4 shadow-inset-t-white-05 border-t border-gray-300"/>
 		{% endif %}
 		{% if listing %}
 		<div id="comments">
 		{% with comments=listing %}
-			{% include "comments.html" %}
+			{% include "CHRISTMAS/comments.html" %}
 		{% endwith %}
 		</div>
 		{% else %}
 		<div class="md:max-w-xl text-center">
-			<img loading="lazy" src="/assets/CHRISTMAS/images/emojis/marseydead.webp?v=200" class="w-14 h-14 object-contain mb-4">
+			<img loading="lazy" src="/assets/images/emojis/marseydead.webp?v=200" class="w-14 h-14 object-contain mb-4">
 			{% if '/saved/' in request.path %}
 			<h3 class="h5">You have no saved comments</h3>
 			<p class="text-gray-500 mb-3">

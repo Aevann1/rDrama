@@ -16,9 +16,7 @@ import gevent
 from werkzeug.middleware.proxy_fix import ProxyFix
 import redis
 
-if int(environ.get("CHRISTMAS", 0)): templates = 'templates/CHRISTMAS'
-else: templates = 'templates'
-app = Flask(__name__, template_folder=templates)
+app = Flask(__name__, template_folder='templates')
 
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=3)
 app.url_map.strict_slashes = False
@@ -35,7 +33,7 @@ app.config['DATABASE_URL'] = environ.get("DATABASE_URL")
 app.config['SECRET_KEY'] = environ.get('MASTER_KEY')
 app.config["SERVER_NAME"] = environ.get("DOMAIN").strip()
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 86400
-app.config["SESSION_COOKIE_NAME"] = "session_" + environ.get("SITE_NAME").strip().lower()
+app.config["SESSION_COOKIE_NAME"] = "session_" + environ.get("DOMAIN")
 app.config["VERSION"] = "1.0.0"
 app.config['MAX_CONTENT_LENGTH'] = 8 * 1024 * 1024
 app.config["SESSION_COOKIE_SECURE"] = bool(int(environ.get("FORCE_HTTPS", 1)))
@@ -54,7 +52,6 @@ app.config["SPAM_SIMILAR_COUNT_THRESHOLD"] = int(environ.get("SPAM_SIMILAR_COUNT
 app.config["SPAM_URL_SIMILARITY_THRESHOLD"] = float(environ.get("SPAM_URL_SIMILARITY_THRESHOLD", 0.5))
 app.config["COMMENT_SPAM_SIMILAR_THRESHOLD"] = float(environ.get("COMMENT_SPAM_SIMILAR_THRESHOLD", 0.5))
 app.config["COMMENT_SPAM_COUNT_THRESHOLD"] = int(environ.get("COMMENT_SPAM_COUNT_THRESHOLD", 0.5))
-app.config["VIDEO_COIN_REQUIREMENT"] = int(environ.get("VIDEO_COIN_REQUIREMENT", 0))
 app.config["READ_ONLY"]=bool(int(environ.get("READ_ONLY", "0")))
 app.config["BOT_DISABLE"]=bool(int(environ.get("BOT_DISABLE", False)))
 app.config["RATELIMIT_KEY_PREFIX"] = "flask_limiting_"
@@ -63,7 +60,7 @@ app.config["RATELIMIT_DEFAULTS_DEDUCT_WHEN"]=lambda:True
 app.config["RATELIMIT_DEFAULTS_EXEMPT_WHEN"]=lambda:False
 app.config["RATELIMIT_HEADERS_ENABLED"]=True
 app.config["CACHE_TYPE"] = "filesystem"
-app.config["CACHE_DIR"] = "/cache"
+app.config["CACHE_DIR"] = "cache"
 app.config["RATELIMIT_STORAGE_URL"] = environ.get("REDIS_URL", "redis://localhost")
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587

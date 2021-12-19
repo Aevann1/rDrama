@@ -19,7 +19,7 @@
 				script.onload = resolve;
 				script.onerror = reject;
 				script.async = true;
-				script.src = '/assets/js/fp.js?v=3';
+				script.src = '/assets/js/fp.js?v=4';
 				document.head.appendChild(script);
 			})
 				.then(() => FingerprintJS.load({token: '{{environ.get("FP")}}'}));

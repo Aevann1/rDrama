@@ -27,7 +27,6 @@ class Submission(Base):
 	created_utc = Column(BigInteger, default=0)
 	thumburl = Column(String)
 	is_banned = Column(Boolean, default=False)
-	removed_by = Column(Integer)
 	bannedfor = Column(Boolean)
 	views = Column(Integer, default=0)
 	deleted_utc = Column(Integer, default=0)
@@ -57,6 +56,7 @@ class Submission(Base):
 	oauth_app = relationship("OauthApp", viewonly=True)
 	approved_by = relationship("User", uselist=False, primaryjoin="Submission.is_approved==User.id", viewonly=True)
 	awards = relationship("AwardRelationship", viewonly=True)
+	reports = relationship("Flag", viewonly=True)
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
@@ -207,6 +207,7 @@ class Submission(Base):
 	@property
 	@lazy
 	def domain(self):
+		if self.url.startswith('/'): return site
 		domain = urlparse(self.url).netloc
 		if domain.startswith("www."): domain = domain.split("www.")[1]
 		return domain.replace("old.reddit.com", "reddit.com")
@@ -223,6 +224,18 @@ class Submission(Base):
 
 	@property
 	@lazy
+	def full_thumb(self):
+		if self.thumb_url.startswith('/'): return f'https://{site}' + self.thumb_url
+		return self.thumb_url
+
+	@property
+	@lazy
+	def full_url(self):
+		if self.url.startswith('/'): return f'https://{site}' + self.url
+		return self.url
+
+	@property
+	@lazy
 	def json_raw(self):
 		flags = {}
 		for f in self.flags: flags[f.user.username] = f.reason
@@ -236,9 +249,9 @@ class Submission(Base):
 				'title': self.title,
 				'is_nsfw': self.over_18,
 				'is_bot': self.is_bot,
-				'thumb_url': self.thumb_url,
+				'thumb_url': self.full_thumb,
 				'domain': self.domain,
-				'url': self.url,
+				'url': self.full_url,
 				'body': self.body,
 				'body_html': self.body_html,
 				'created_utc': self.created_utc,
@@ -384,6 +397,11 @@ class Submission(Base):
 		title = censor_slurs(title, v)
 
 		return title
+
+	@property
+	@lazy
+	def is_video(self):
+		return self.url and any((self.url.lower().endswith(x) for x in ('.mp4','.webm','.mov')))
 
 	@property
 	@lazy

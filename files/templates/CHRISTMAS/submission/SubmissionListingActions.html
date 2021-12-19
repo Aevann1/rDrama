@@ -24,9 +24,9 @@
 	{% if v %}
 	<a id="save-{{p.id}}" class="{% if p.id in v.saved_idlist() %}d-none{% endif %} list-inline-item" href="javascript:void(0)" onclick="post_toast2('/save_post/{{p.id}}','save-{{p.id}}','unsave-{{p.id}}')"><i class="fas fa-save"></i>Save</a>
 	<a id="unsave-{{p.id}}" class="{% if not p.id in v.saved_idlist() %}d-none{% endif %} list-inline-item" href="javascript:void(0)" onclick="post_toast2('/unsave_post/{{p.id}}','save-{{p.id}}','unsave-{{p.id}}')"><i class="fas fa-save"></i>Unsave</a>
-	{% endif %}
-
+	
 	<a class="list-inline-item" href="javascript:void(0)" data-bs-toggle="modal" data-bs-dismiss="modal" data-bs-target="#reportPostModal" onclick="report_postModal('{{p.id}}')"><i class="fas fa-flag"></i>Report</a>
+	{% endif %}
 
 	{% if v and v.id==p.author_id %}
 	<a id="pin-profile-{{p.id}}" class="{% if p.is_stickied %}d-none{% endif %} list-inline-item text-muted" href="javascript:void(0)" onclick="post_toast2('/pin/{{p.id}}','unpin-profile-{{p.id}}','pin-profile-{{p.id}}')"><i class="fas fa-thumbtack fa-rotate--45"></i>Pin to profile</a>
@@ -49,7 +49,7 @@
 	{% endif %}
 
 	{% if v %}
-	{% if v.admin_level >=3 or v.id == p.author.id and v.paid_dues %}
+	{% if v.admin_level >=3 or v.id == p.author.id and not v.club_banned %}
 	<a id="club-{{p.id}}" class="{% if p.club %}d-none{% endif %} list-inline-item text-info" href="javascript:void(0)" onclick="post_toast2('/toggle_club/{{p.id}}','club-{{p.id}}','unclub-{{p.id}}')"><i class="fas fa-eye-slash"></i>Mark club</a>
 	<a id="unclub-{{p.id}}" class="{% if not p.club %}d-none{% endif %} list-inline-item text-info" href="javascript:void(0)" onclick="post_toast2('/toggle_club/{{p.id}}','club-{{p.id}}','unclub-{{p.id}}')"><i class="fas fa-eye"></i>Unmark club</a>
 	{% endif %}

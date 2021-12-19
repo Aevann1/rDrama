@@ -1,0 +1,77 @@
+<div class="modal fade" id="themePickerModal" tabindex="-1" role="dialog" aria-labelledby="themePickerModalTitle" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered" role="document">
+		<div class="modal-content bg-gray-100 dark:bg-gray-700 dark:text-gray-200 rounded-md shadow-lg">
+			<div class="modal-header">
+				<h5 class="font-bold text-xl font-heading leading-normal">Select theme</h5>
+				<button type="button" class="close text-gray-700 hover:text-gray-900 dark:text-gray-500 dark:hover:text-gray-400" data-bs-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true"><i class="far fa-times"></i></span>
+				</button>
+			</div>
+			<div id="themePickerModalBody" class="overflow-y-auto px-4 py-2">
+				<!-- List of themes -->
+				<div class="flex flex-wrap -mx-2 overflow-hidden">
+					<!-- Evergreen -->
+					<div class="my-2 px-2 w-1/2 overflow-hidden lg:w-1/4 flex items-center justify-center">
+						<input hidden name="kind" value="theme-evergreen" type="radio" id="evergreen-theme" class="peer" onchange="changeTheme(['theme-evergreen']); post_toast2('/settings/profile?theme='+value, '1')" {% if v.theme == 'theme-evergreen'%}checked{% endif %}>
+						<label for="evergreen-theme" class="flex flex-col items-center justify-center w-full h-full text-center border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 peer-checked:border-primary rounded-lg overflow-hidden">
+							<div class="flex flex-col w-full h-full bg-[#37523e]">
+								<div class="h-3 w-full bg-[#37523e]"></div>
+								<div class="h-4 w-full bg-[#d1dbd5]"></div>
+								<ul class="flex flex-col space-y-1 h-12 w-full bg-[#e5ebe7] p-2 mb-0">
+									<li class="flex">
+										<i class="fas fa-arrow-alt-up text-[8px] text-[#dc2626]"></i>
+										<div class="ml-1 h-2 w-2/4 rounded-full bg-black/50"></div>
+										<div class="ml-auto h-2 w-1/4 rounded-full bg-[#dc2626]"></div>
+									</li>
+									<li class="flex">
+										<i class="fas fa-arrow-alt-up text-[8px] text-gray-400"></i>
+										<div class="ml-1 h-2 w-2/4 rounded-full bg-black/50"></div>
+										<div class="ml-auto h-2 w-1/4 rounded-full bg-transparent"></div>
+									</li>
+									<li class="flex">
+										<i class="fas fa-arrow-alt-up text-[8px] text-gray-400"></i>
+										<div class="ml-1 h-2 w-2/4 rounded-full bg-black/50"></div>
+										<div class="ml-auto h-2 w-1/4 rounded-full bg-transparent"></div>
+									</li>
+								</ul>
+							</div>
+							<div class="w-full border-t border-gray-200 dark:border-gray-600 p-2 text-center">
+								<span class="font-bold text-base">Evergreen</span>
+							</div>
+						</label>
+					</div>
+					<!-- Iron -->
+					<div class="my-2 px-2 w-1/2 overflow-hidden lg:w-1/4 flex items-center justify-center">
+						<input hidden name="kind" value="theme-iron dark" type="radio" id="iron-theme" class="peer" onchange="changeTheme(['theme-iron','dark']); post_toast2('/settings/profile?theme='+value, '1')" {% if v.theme == 'theme-iron dark'%}checked{% endif %}>
+						<label for="iron-theme" class="flex flex-col items-center justify-center w-full h-full text-center border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 peer-checked:border-primary rounded-lg overflow-hidden">
+							<div class="flex flex-col w-full h-full bg-[#3f3f46]">
+								<div class="h-3 w-full bg-[#3f3f46]"></div>
+								<div class="h-4 w-full bg-[#27272a]"></div>
+								<ul class="flex flex-col space-y-1 h-12 w-full bg-[#27272a] p-2 mb-0">
+									<li class="flex">
+										<i class="fas fa-arrow-alt-up text-[8px] text-[#db2777]"></i>
+										<div class="ml-1 h-2 w-2/4 rounded-full bg-white/50"></div>
+										<div class="ml-auto h-2 w-1/4 rounded-full bg-[#db2777]"></div>
+									</li>
+									<li class="flex">
+										<i class="fas fa-arrow-alt-up text-[8px] text-gray-400"></i>
+										<div class="ml-1 h-2 w-2/4 rounded-full bg-white/50"></div>
+										<div class="ml-auto h-2 w-1/4 rounded-full bg-transparent"></div>
+									</li>
+									<li class="flex">
+										<i class="fas fa-arrow-alt-up text-[8px] text-gray-400"></i>
+										<div class="ml-1 h-2 w-2/4 rounded-full bg-white/50"></div>
+										<div class="ml-auto h-2 w-1/4 rounded-full bg-transparent"></div>
+									</li>
+								</ul>
+							</div>
+							<div class="w-full border-t border-gray-200 dark:border-gray-600 p-2 text-center">
+								<span class="font-bold text-base">Iron (Dark)</span>
+							</div>
+						</label>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

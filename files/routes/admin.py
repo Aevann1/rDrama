@@ -45,32 +45,47 @@ def distribute(v, cid):
 @admin_level_required(2)
 def truescore(v):
 	users = g.db.query(User).order_by(User.truecoins.desc()).limit(25).all()
-	return render_template("truescore.html", v=v, users=users)
+	if v and v.oldsite: template = ''
+	else: template = 'CHRISTMAS/'
+	return render_template(f"{template}truescore.html", v=v, users=users)
 
 @app.post("/@<username>/revert_actions")
 @limiter.limit("1/second")
-@admin_level_required(2)
+@admin_level_required(3)
 @validate_formkey
 def revert_actions(v, username):
-	if 'pcm' in request.host or (SITE_NAME == 'Drama' and v.admin_level > 2) or ('rama' not in request.host and 'pcm' not in request.host):
-		user = get_user(username)
-		if not user: abort(404)
+	user = get_user(username)
+	if not user: abort(404)
+	
+	cutoff = int(time.time()) - 86400
 
-		items = g.db.query(Submission).filter_by(removed_by=user.id).all() + g.db.query(Comment).filter_by(removed_by=user.id).all()
+	posts = [x[0] for x in g.db.query(ModAction.target_submission_id).filter(ModAction.user_id == user.id, ModAction.created_utc > cutoff, ModAction.kind == 'ban_post').all()]
+	posts = g.db.query(Submission).filter(Submission.id.in_(posts)).all()
 
-		for item in items:
-			item.is_banned = False
-			item.removed_by = None
-			g.db.add(item)
+	comments = [x[0] for x in g.db.query(ModAction.target_comment_id).filter(ModAction.user_id == user.id, ModAction.created_utc > cutoff, ModAction.kind == 'ban_comment').all()]
+	comments = g.db.query(Comment).filter(Comment.id.in_(comments)).all()
+	
+	for item in posts + comments:
+		item.is_banned = False
+		g.db.add(item)
 
-		users = g.db.query(User).filter_by(is_banned=user.id).all()
-		for user in users:
-			user.is_banned = 0
-			user.unban_utc = 0
-			user.ban_evade = 0
-			g.db.add(user)
+	users = (x[0] for x in g.db.query(ModAction.target_user_id).filter(ModAction.user_id == user.id, ModAction.created_utc > cutoff, ModAction.kind.in_(('shadowban', 'ban_user'))).all())
+	users = g.db.query(User).filter(User.id.in_(users)).all()
 
-		g.db.commit()
+	for user in users:
+		user.shadowbanned = None
+		user.is_banned = 0
+		user.unban_utc = 0
+		user.ban_evade = 0
+		g.db.add(user)
+		for u in user.alts:
+			u.shadowbanned = None
+			u.is_banned = 0
+			u.unban_utc = 0
+			u.ban_evade = 0
+			g.db.add(u)
+
+	g.db.commit()
 	return {"message": "Admin actions reverted!"}
 
 @app.post("/@<username>/club_allow")
@@ -239,7 +254,9 @@ def post_rules(v):
 def shadowbanned(v):
 	if not (v and v.admin_level > 1): abort(404)
 	users = [x for x in g.db.query(User).filter(User.shadowbanned != None).all()]
-	return render_template("shadowbanned.html", v=v, users=users)
+	if v and v.oldsite: template = ''
+	else: template = 'CHRISTMAS/'
+	return render_template(f"{template}shadowbanned.html", v=v, users=users)
 
 
 @app.get("/admin/agendaposters")
@@ -247,7 +264,9 @@ def shadowbanned(v):
 def agendaposters(v):
 	if not (v and v.admin_level > 1): abort(404)
 	users = [x for x in g.db.query(User).filter_by(agendaposter = True).all()]
-	return render_template("agendaposters.html", v=v, users=users)
+	if v and v.oldsite: template = ''
+	else: template = 'CHRISTMAS/'
+	return render_template(f"{template}agendaposters.html", v=v, users=users)
 
 
 @app.get("/admin/image_posts")
@@ -265,7 +284,9 @@ def image_posts_listing(v):
 	next_exists = (len(posts) > 25)
 	posts = get_posts(posts[:25], v=v)
 
-	return render_template("admin/image_posts.html", v=v, listing=posts, next_exists=next_exists, page=page, sort="new")
+	if v and v.oldsite: template = ''
+	else: template = 'CHRISTMAS/'
+	return render_template(f"{template}admin/image_posts.html", v=v, listing=posts, next_exists=next_exists, page=page, sort="new")
 
 
 @app.get("/admin/reported/posts")
@@ -277,7 +298,7 @@ def reported_posts(v):
 	posts = g.db.query(Submission).filter_by(
 		is_approved=0,
 		is_banned=False
-	).order_by(Submission.id.desc()).offset(25 * (page - 1)).limit(26)
+	).join(Submission.reports).order_by(Submission.id.desc()).offset(25 * (page - 1)).limit(26)
 
 	listing = [p.id for p in posts]
 	next_exists = (len(listing) > 25)
@@ -285,7 +306,9 @@ def reported_posts(v):
 
 	listing = get_posts(listing, v=v)
 
-	return render_template("admin/reported_posts.html",
+	if v and v.oldsite: template = ''
+	else: template = 'CHRISTMAS/'
+	return render_template(f"{template}admin/reported_posts.html",
 						   next_exists=next_exists, listing=listing, page=page, v=v)
 
 
@@ -299,7 +322,7 @@ def reported_comments(v):
 					   ).filter_by(
 		is_approved=0,
 		is_banned=False
-	).order_by(Comment.id.desc()).offset(25 * (page - 1)).limit(26).all()
+	).join(Comment.reports).order_by(Comment.id.desc()).offset(25 * (page - 1)).limit(26).all()
 
 	listing = [p.id for p in posts]
 	next_exists = (len(listing) > 25)
@@ -307,7 +330,9 @@ def reported_comments(v):
 
 	listing = get_comments(listing, v=v)
 
-	return render_template("admin/reported_comments.html",
+	if v and v.oldsite: template = ''
+	else: template = 'CHRISTMAS/'
+	return render_template(f"{template}admin/reported_comments.html",
 						   next_exists=next_exists,
 						   listing=listing,
 						   page=page,
@@ -319,7 +344,9 @@ def reported_comments(v):
 def admin_home(v):
 	with open('disablesignups', 'r') as f:
 		x = f.read()
-		return render_template("admin/admin_home.html", v=v, x=x)
+		if v and v.oldsite: template = ''
+		else: template = 'CHRISTMAS/'
+		return render_template(f"{template}admin/admin_home.html", v=v, x=x)
 
 @app.post("/admin/disablesignups")
 @admin_level_required(2)
@@ -343,7 +370,9 @@ def badge_grant_get(v):
 			  "no_user": "That user doesn't exist."
 			  }
 
-	return render_template("admin/badge_grant.html",
+	if v and v.oldsite: template = ''
+	else: template = 'CHRISTMAS/'
+	return render_template(f"{template}admin/badge_grant.html",
 						   v=v,
 						   badge_types=BADGES,
 						   error=errors.get(
@@ -409,7 +438,9 @@ def users_list(v):
 	next_exists = (len(users) > 25)
 	users = users[:25]
 
-	return render_template("admin/new_users.html",
+	if v and v.oldsite: template = ''
+	else: template = 'CHRISTMAS/'
+	return render_template(f"{template}admin/new_users.html",
 						   v=v,
 						   users=users,
 						   next_exists=next_exists,
@@ -421,7 +452,9 @@ def users_list(v):
 def alt_votes_get(v):
 
 	if not request.values.get("u1") or not request.values.get("u2"):
-		return render_template("admin/alt_votes.html", v=v)
+		if v and v.oldsite: template = ''
+		else: template = 'CHRISTMAS/'
+		return render_template(f"{template}admin/alt_votes.html", v=v)
 
 	u1 = request.values.get("u1")
 	u2 = request.values.get("u2")
@@ -517,7 +550,9 @@ def alt_votes_get(v):
 		data['u2_only_comment_downs'] // len(
 			u2_comment_downs) if u2_comment_downs else 0
 
-	return render_template("admin/alt_votes.html",
+	if v and v.oldsite: template = ''
+	else: template = 'CHRISTMAS/'
+	return render_template(f"{template}admin/alt_votes.html",
 						   u1=u1,
 						   u2=u2,
 						   v=v,
@@ -546,7 +581,7 @@ def admin_link_accounts(v):
 	return redirect(f"/admin/alt_votes?u1={g.db.query(User).get(u1).username}&u2={g.db.query(User).get(u2).username}")
 
 
-@app.get("/admin/removed")
+@app.get("/admin/removed/posts")
 @admin_level_required(2)
 def admin_removed(v):
 
@@ -562,13 +597,40 @@ def admin_removed(v):
 
 	posts = get_posts(ids, v=v)
 
-	return render_template("admin/removed_posts.html",
+	if v and v.oldsite: template = ''
+	else: template = 'CHRISTMAS/'
+	return render_template(f"{template}admin/removed_posts.html",
 						   v=v,
 						   listing=posts,
 						   page=page,
 						   next_exists=next_exists
 						   )
 
+
+@app.get("/admin/removed/comments")
+@admin_level_required(2)
+def admin_removed_comments(v):
+
+	page = int(request.values.get("page", 1))
+	
+	ids = g.db.query(Comment.id).join(User, User.id == Comment.author_id).filter(or_(Comment.is_banned==True, User.shadowbanned != None)).order_by(Comment.id.desc()).offset(25 * (page - 1)).limit(26).all()
+
+	ids=[x[0] for x in ids]
+
+	next_exists = len(ids) > 25
+
+	ids = ids[:25]
+
+	comments = get_comments(ids, v=v)
+
+	if v and v.oldsite: template = ''
+	else: template = 'CHRISTMAS/'
+	return render_template(f"{template}admin/removed_comments.html",
+						   v=v,
+						   listing=comments,
+						   page=page,
+						   next_exists=next_exists
+						   )
 
 
 @app.post("/agendaposter/<user_id>")
@@ -868,7 +930,6 @@ def ban_post(post_id, v):
 	post.is_approved = 0
 	post.stickied = None
 	post.is_pinned = False
-	post.removed_by = v.id
 	post.ban_reason = v.username
 	g.db.add(post)
 
@@ -960,7 +1021,10 @@ def api_sticky_post(post_id, v):
 		if post.stickied:
 			if post.stickied.startswith("t:"): abort(403)
 			else: post.stickied = None
-		else: post.stickied = v.username
+		else:
+			pins = g.db.query(Submission.id).filter(Submission.stickied != None, Submission.is_banned == False).count()
+			if pins > 2: return {"error": "Can't exceed 3 pinned posts limit!"}, 403
+			post.stickied = v.username
 		g.db.add(post)
 
 		ma=ModAction(
@@ -997,7 +1061,6 @@ def api_ban_comment(c_id, v):
 
 	comment.is_banned = True
 	comment.is_approved = 0
-	comment.removed_by = v.id
 	comment.ban_reason = v.username
 	g.db.add(comment)
 	ma=ModAction(
@@ -1069,7 +1132,9 @@ def admin_dump_cache(v):
 def admin_banned_domains(v):
 
 	banned_domains = g.db.query(BannedDomain).all()
-	return render_template("admin/banned_domains.html", v=v, banned_domains=banned_domains)
+	if v and v.oldsite: template = ''
+	else: template = 'CHRISTMAS/'
+	return render_template(f"{template}admin/banned_domains.html", v=v, banned_domains=banned_domains)
 
 @app.post("/admin/banned_domains")
 @limiter.limit("1/second")

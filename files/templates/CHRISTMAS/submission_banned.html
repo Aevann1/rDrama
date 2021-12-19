@@ -1,4 +1,4 @@
-{% extends "submission.html" %}
+{% extends "CHRISTMAS/submission.html" %}
 
 {% set score=p.score %}
 {% if v %}
@@ -99,7 +99,7 @@
 
 		<div class="comment-section">
 		{% with comments=p.replies %}
-			{% include "comments.html" %}
+			{% include "CHRISTMAS/comments.html" %}
 		{% endwith %}
 	</div>
 

@@ -61,7 +61,9 @@ def activate(v):
 	token = request.values.get("token", "").strip()
 
 	if int(time.time()) - timestamp > 3600:
-		return render_template("message.html", v=v, title="Verification link expired.",
+		if v and v.oldsite: template = ''
+		else: template = 'CHRISTMAS/'
+		return render_template(f"{template}message.html", v=v, title="Verification link expired.",
 							   message="That link has expired. Visit your settings to send yourself another verification email."), 410
 
 	if not validate_hash(f"{email}+{id}+{timestamp}", token):
@@ -72,7 +74,9 @@ def activate(v):
 		abort(404)
 
 	if user.is_activated and user.email == email:
-		return render_template("message_success.html", v=v,
+		if v and v.oldsite: template = ''
+		else: template = 'CHRISTMAS/'
+		return render_template(f"{template}message_success.html", v=v,
 							   title="Email already verified.", message="Email already verified."), 404
 
 	user.email = email
@@ -86,4 +90,6 @@ def activate(v):
 	g.db.add(user)
 	g.db.commit()
 
-	return render_template("message_success.html", v=v, title="Email verified.", message=f"Your email {email} has been verified. Thank you.")
+	if v and v.oldsite: template = ''
+	else: template = 'CHRISTMAS/'
+	return render_template(f"{template}message_success.html", v=v, title="Email verified.", message=f"Your email {email} has been verified. Thank you.")

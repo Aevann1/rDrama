@@ -74,11 +74,6 @@ class CustomRenderer(HTMLRenderer):
 		user = get_user(target, graceful=True)
 
 
-		try:
-			if g.v.admin_level == 0 and g.v.any_block_exists(user):
-				return f"{space}@{target}"
-		except BaseException: pass
-
 		if not user: return f"{space}@{target}"
 
 		return f'''{space}<a href="{user.url}"><img alt="@{user.username}'s profile picture" loading="lazy" src="/uid/{user.id}/pic" class="pp20">@{user.username}</a>'''
@@ -112,13 +107,6 @@ class Renderer(HTMLRenderer):
 		target = token.target[1]
 
 		user = get_user(target, graceful=True)
-
-
-		try:
-			if g.v.admin_level == 0 and g.v.any_block_exists(user):
-				return f"{space}@{target}"
-		except BaseException:
-			pass
 
 		if not user: return f"{space}@{target}"
 

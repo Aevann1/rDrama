@@ -1,4 +1,4 @@
-{% extends "default.html" %}
+{% extends "CHRISTMAS/default.html" %}
 {% block content %}
 <pre>
 
@@ -17,7 +17,7 @@
 	<tr>
 		<td style="font-weight: bold">{{loop.index}}</td>
 		<td style="font-weight: bold">{{emoji}}</td>
-		<td><img loading="lazy" data-bs-toggle="tooltip" alt=":{{emoji}}:" title=":{{emoji}}:" delay="0" src="/assets/CHRISTMAS/images/emojis/{{emoji}}.webp" ></td>
+		<td><img loading="lazy" data-bs-toggle="tooltip" alt=":{{emoji}}:" title=":{{emoji}}:" delay="0" src="/assets/images/emojis/{{emoji}}.webp" ></td>
 	</tr>
 {% endfor %}
 </tbody>
