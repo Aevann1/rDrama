@@ -282,3 +282,8 @@ blockquote {
 #followers-table td {
     color: var(--black3);
 }
+
+.btn-danger {
+    border-color: #E53E3E !important;
+    color: red !important;
+}
