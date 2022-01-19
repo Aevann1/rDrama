@@ -213,16 +213,26 @@
  <body id="{% if request.path != '/comments' %}{% block pagetype %}frontpage{% endblock %}{% endif %}" style="{% if path != '/formatting' %}overflow-x: hidden; {% endif %}{% if v and v.background %} background:url(/static/assets/images/backgrounds/{{v.background}}) no-repeat center center fixed !important; background-size: cover!important; background-color: #000!important;{% endif %} {% if request.host == 'rdrama.net' %}margin-top: 29px!important;{% endif %}">
 
 {% block Banner %}
-	{% if '@' not in request.path %}		
+	{% if '@' not in request.path %}
+		<style>
+			.banner {
+				margin-top: -29px;
+			}
+			@media (min-width: 992px) {
+				.banner {
+					margin-top: -15px !important;
+				}
+			}
+		</style>
 		{% if v %}
 			
 			{% if SITE_NAME == 'Drama' %}
 				<a href="https://secure.transequality.org/site/Donation2?df_id=1480">
-					<img alt="site banner" src="/static/assets/images/{{SITE_NAME}}/banners/{{range(1,num_banners)|random()}}.webp?a=16" width="100%">
+					<img class="banner" alt="site banner" src="/static/assets/images/{{SITE_NAME}}/banners/{{range(1,num_banners)|random()}}.webp?a=16" width="100%">
 				</a>
 			{% else %}
 				<a href="/">
-					<img alt="site banner" src="/static/assets/images/{{SITE_NAME}}/banner.webp?a=10" width="100%">
+					<img class="banner" alt="site banner" src="/static/assets/images/{{SITE_NAME}}/banner.webp?a=10" width="100%">
 				</a>	
 			{% endif %}
 
