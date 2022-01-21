@@ -536,7 +536,6 @@ def api_comment(v):
 	slots_check = slots.check_for_slots_command(body, v, c)
 
 	if (slots_check['pulled'] == True):
-		print(slots_check)
 		c.slots_result = slots_check['result']
 		g.db.add(c)
 		g.db.commit()

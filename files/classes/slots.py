@@ -143,7 +143,3 @@ class Slots:
 
         self.db.add(from_user)
         self.db.commit()
-
-    # Uh-oh, spaghettios.
-    def inform_of_invalidity(self, from_user, from_comment):
-        pass
