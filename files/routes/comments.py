@@ -122,7 +122,6 @@ def post_pid_comment_cid(cid, pid=None, anything=None, v=None):
 		else: template = "submission.html"
 		return render_template(template, v=v, p=post, sort=sort, comment_info=comment_info, render_replies=True)
 
-
 @app.post("/comment")
 @limiter.limit("1/second;6/minute;200/hour;1000/day")
 @auth_required
@@ -533,8 +532,14 @@ def api_comment(v):
 	g.db.commit()
 
 	# Slots
-	slots = Slots()
-	slots.check_for_slots_command(body, v, g)
+	slots = Slots(g)
+	slots_check = slots.check_for_slots_command(body, v, c)
+
+	if (slots_check['pulled'] == True):
+		print(slots_check)
+		c.slots_result = slots_check['result']
+		g.db.add(c)
+		g.db.commit()
 
 	if request.headers.get("Authorization"): return c.json
 	return render_template("comments.html", v=v, comments=[c])

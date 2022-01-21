@@ -86,7 +86,7 @@
 {% if (c.is_banned or c.deleted_utc or c.is_blocking) and not (v and v.admin_level > 1) and not (v and v.id==c.author_id) %}
 
 <div id="comment-{{c.id}}" class="comment">
-
+	<h1>@{{c.slots_result}}</h1>
 
 		<span class="comment-collapse-desktop d-none d-md-block" style="border-left: 2px solid #{{c.author.namecolor}};" onclick="collapse_comment('{{c.id}}')"></span>
 
@@ -230,6 +230,10 @@
 				
 				{% if c.edited_utc %}
 				<span class="time-edited" id="time-edit-{{c.id}}" onmouseover="timestamp('time-edit-{{c.id}}','{{c.edited_utc}}')"><span>&#183;</span> <span class="font-italic">Edited {{c.edited_string}}</span></span>
+				{% endif %}
+
+				{% if c.slots_result %}
+				<span style="position: relative; top: 2px; margin-left: 0.5rem">{{c.slots_result}}</span>
 				{% endif %}
 			</div>
 			{% if c.active_flags %}

@@ -1,9 +1,11 @@
 from json.encoder import INFINITY
 import random
+from .comment import *
+from files.helpers.const import *
 
 class Slots:
     commandWord = "!slots"
-    minimumBet = 10
+    minimumBet = 5
     maximumBet = INFINITY
     symbols = {"♦️", "♠️", "♥️", "♣️", "⚧", "🔞", "⚛️", "☢️", "✡️", "⚔️", "🐱"}
 
@@ -24,10 +26,13 @@ class Slots:
     # Jackpot!
     jackpotIndex = 10
     jackpotRatio = 1
-    jackpotPayout = 777
+    jackpotPayout = 100
+
+    def __init__(self, g):
+        self.db = g.db
 
     # Check for !slots<wager>
-    def check_for_slots_command(self, in_text, from_user, g):
+    def check_for_slots_command(self, in_text, from_user, from_comment):
         if self.commandWord in in_text:
             for word in in_text.split():
                 if self.commandWord in word:
@@ -36,15 +41,16 @@ class Slots:
                         wagerValue = int(wager, base=10)
 
                         if self.wager_is_valid(from_user, wagerValue):
-                            self.pull_the_arm(from_user, wagerValue, g)
-                        else:
-                            self.inform_of_invalidity(from_user)
+                            result = self.pull_the_arm(from_user, wagerValue, from_comment)
+                            return { 'pulled': True, 'result': result }
+
                     except ValueError:
                         break
+        return { 'pulled': False, 'result': '' }
 
     # Ensure user is capable of the wager
     def wager_is_valid(self, from_user, wager):
-        if (wager < 10):
+        if (wager < self.minimumBet):
             return False
         elif (wager > self.maximumBet):
             return False
@@ -98,9 +104,9 @@ class Slots:
         return False
 
     # Actually make the relevant calls
-    def pull_the_arm(self, from_user, amount, g):
+    def pull_the_arm(self, from_user, amount, from_comment):
         # Charge user for the bet
-        self.charge_user(from_user, amount, g)
+        self.charge_user(from_user, amount)
 
         # Determine the outcome
         result1 = self.count_out_symbols()
@@ -109,47 +115,35 @@ class Slots:
         symbol1 = result1['symbols'][0]
         symbol2 = result2['symbols'][0]
         symbol3 = result3['symbols'][0]
-        print([result1['symbols'], result2['symbols'], result3['symbols']])
         payout = result1['payout'][symbol1]
         isMatch = symbol1 == symbol2 and symbol2 == symbol3
-        isConsolation = self.check_for_consolation([symbol1, symbol2, symbol3])
+        resultSymbols = [symbol1, symbol2, symbol3]
+        isConsolation = self.check_for_consolation(resultSymbols)
 
-        # Respond accordingly
-        print("Result was ", symbol1, symbol2, symbol3)
         if isMatch:
             # Pay out
             reward = amount * payout
             self.credit_user(from_user, reward)
-            self.respond_to_user(from_user, amount, reward)
-            print("Match!")
         elif isConsolation:
             # Refund wager
             self.credit_user(from_user, amount)
-            self.respond_to_user(from_user, amount, amount)
-            print("Consolation.")
-        else:
-            # Send "Sorry!"
-            self.respond_to_user(from_user, 0, 0)
-            print("Loss.")
+
+        return "".join(resultSymbols)
 
     # Credit the user's account
-    def credit_user(self, from_user, amount, g):
+    def credit_user(self, from_user, amount):
         from_user.coins += amount
 
-        g.db.add(from_user)
-        g.db.commit()
+        self.db.add(from_user)
+        self.db.commit()
 
     # Charge the user's account
-    def charge_user(self, from_user, amount, g):
+    def charge_user(self, from_user, amount):
         from_user.coins -= amount
 
-        g.db.add(from_user)
-        g.db.commit()
-
-    # Respond to the post with the user
-    def respond_to_user(self, from_user, amount, reward):
-        pass
+        self.db.add(from_user)
+        self.db.commit()
 
     # Uh-oh, spaghettios.
-    def inform_of_invalidity(self, from_user):
+    def inform_of_invalidity(self, from_user, from_comment):
         pass

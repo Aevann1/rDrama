@@ -264,6 +264,7 @@ CREATE TABLE public.comments (
     body character varying(10000),
     body_html character varying(40000),
     ban_reason character varying(25),
+    slots_result character varying(30),
     realupvotes integer,
     top_comment_id integer,
     is_pinned_utc integer
