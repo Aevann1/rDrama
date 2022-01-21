@@ -170,8 +170,8 @@ def logout(v):
 @app.get("/signup")
 @auth_desired
 def sign_up_get(v):
-	# with open('disable_signups', 'r') as f:
-	# 	if f.read() == "yes": return {"error": "New account registration is currently closed. Please come back later."}, 403
+	with open('disable_signups', 'r') as f:
+		if f.read() == "yes": return {"error": "New account registration is currently closed. Please come back later."}, 403
 
 	if v: return redirect("/")
 
@@ -214,8 +214,8 @@ def sign_up_get(v):
 @limiter.limit("1/minute;5/day")
 @auth_desired
 def sign_up_post(v):
-	# with open('disable_signups', 'r') as f:
-	# 	if f.read() == "yes": return {"error": "New account registration is currently closed. Please come back later."}, 403
+	with open('disable_signups', 'r') as f:
+		if f.read() == "yes": return {"error": "New account registration is currently closed. Please come back later."}, 403
 
 	if v: abort(403)
 
@@ -325,7 +325,7 @@ def sign_up_post(v):
 		created_utc=int(time.time()),
 		referred_by=ref_id or None,
 		ban_evade =  int(any((x.is_banned or x.shadowbanned) and not x.unban_utc for x in g.db.query(User).filter(User.id.in_(tuple(session.get("history", [])))).all() if x)),
-		agendaposter = any(x.agendaposter for x in g.db.query(User).filter(User.id.in_(tuple(session.get("history", [])))).all() if x),
+		agendaposter = any(x.agendaposter for x in g.db.query(User).filter(User.id.in_(tuple(session.get("history", [])))).all() if x)
 		)
 
 	g.db.add(new_user)
