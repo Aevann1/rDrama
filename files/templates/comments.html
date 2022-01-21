@@ -86,8 +86,6 @@
 {% if (c.is_banned or c.deleted_utc or c.is_blocking) and not (v and v.admin_level > 1) and not (v and v.id==c.author_id) %}
 
 <div id="comment-{{c.id}}" class="comment">
-	<h1>@{{c.slots_result}}</h1>
-
 		<span class="comment-collapse-desktop d-none d-md-block" style="border-left: 2px solid #{{c.author.namecolor}};" onclick="collapse_comment('{{c.id}}')"></span>
 
 		<div class="comment-body">
