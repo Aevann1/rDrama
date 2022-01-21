@@ -532,6 +532,10 @@ def api_comment(v):
 
 	g.db.commit()
 
+	# Slots
+	slots = Slots()
+	slots.check_for_slots_command(body, v, g)
+
 	if request.headers.get("Authorization"): return c.json
 	return render_template("comments.html", v=v, comments=[c])
 

@@ -170,8 +170,8 @@ def logout(v):
 @app.get("/signup")
 @auth_desired
 def sign_up_get(v):
-	with open('disable_signups', 'r') as f:
-		if f.read() == "yes": return {"error": "New account registration is currently closed. Please come back later."}, 403
+	# with open('disable_signups', 'r') as f:
+	# 	if f.read() == "yes": return {"error": "New account registration is currently closed. Please come back later."}, 403
 
 	if v: return redirect("/")
 
@@ -211,11 +211,11 @@ def sign_up_get(v):
 
 
 @app.post("/signup")
-@limiter.limit("1/minute;5/day")
+# @limiter.limit("1/minute;5/day")
 @auth_desired
 def sign_up_post(v):
-	with open('disable_signups', 'r') as f:
-		if f.read() == "yes": return {"error": "New account registration is currently closed. Please come back later."}, 403
+	# with open('disable_signups', 'r') as f:
+	# 	if f.read() == "yes": return {"error": "New account registration is currently closed. Please come back later."}, 403
 
 	if v: abort(403)
 

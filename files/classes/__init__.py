@@ -9,6 +9,7 @@ from .userblock import *
 from .submission import *
 from .votes import *
 from .domains import *
+from .slots import *
 from .subscriptions import *
 from files.__main__ import app
 from .mod_logs import *
