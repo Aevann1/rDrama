@@ -10,8 +10,6 @@ tooltipTriggerList.map(function(element){
 });
 
 function post_toast(url, reload, data) {
-	document.getElementById('toast-post-error-text').innerText = "Error, please try again later."
-
 	const xhr = new XMLHttpRequest();
 	xhr.open("POST", url, true);
 	xhr.setRequestHeader('xhr', 'xhr');
@@ -24,8 +22,6 @@ function post_toast(url, reload, data) {
 		}
 	}
 
-	xhr.withCredentials=true;
-
 	xhr.onload = function() {
 		let data
 		try {data = JSON.parse(xhr.response)}
@@ -35,6 +31,7 @@ function post_toast(url, reload, data) {
 			new bootstrap.Toast(document.getElementById('toast-post-success')).show();
 			if (reload == 1) {location.reload(true)}
 		} else {
+			document.getElementById('toast-post-error-text').innerText = "Error, please try again later."
 			if (data && data["error"]) document.getElementById('toast-post-error-text').innerText = data["error"];
 			new bootstrap.Toast(document.getElementById('toast-post-error')).show();
 		}

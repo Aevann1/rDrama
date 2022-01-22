@@ -1,0 +1,262 @@
+{
+	"1": {
+		"name": "Alpha User",
+		"description": "Joined during open alpha"
+	},
+	"2": {
+		"name": "Verified Email",
+		"description": "Verified Email"
+	},
+	"3": {
+		"name": "Code Contributor",
+		"description": "Contributed to the site's source code"
+	},
+	"4": {
+		"name": "White Hat",
+		"description": "Responsibly reported a security issue"
+	},
+	"6": {
+		"name": "Beta User",
+		"description": "Joined during open beta"
+	},
+	"7": {
+		"name": "Bug Chaser",
+		"description": "Found a bug"
+	},
+	"10": {
+		"name": "Bronze Recruiter",
+		"description": "Recruited 1 friend to join the site"
+	},
+	"11": {
+		"name": "Silver Recruiter",
+		"description": "Recruited 10 friends to join the site"
+	},
+	"12": {
+		"name": "Gold Recruiter",
+		"description": "Recruited 100 friends to join the site"
+	},
+	"15": {
+		"name": "Idea Maker",
+		"description": "Had a good idea for the site which was implemented by the developers"
+	},
+	"16": {
+		"name": "Marsey Master",
+		"description": "Contributed 10 (or more!!!!) Marsey emojis ✨"
+	},
+	"17": {
+		"name": "Marsey Artisan",
+		"description": "Contributed a Marsey emoji ✨"
+	},
+	"18": {
+		"name": "Artisan",
+		"description": "Contributed to site artwork"
+	},
+	"21": {
+		"name": "Paypig",
+		"description": "Contributed at least $5"
+	},
+	"22": {
+		"name": "Renthog",
+		"description": "Contributed at least $10"
+	},
+	"23": {
+		"name": "Landchad",
+		"description": "Contributed at least $20"
+	},
+	"24": {
+		"name": "Terminally online turboautist",
+		"description": "Contributed at least $50"
+	},
+	"25": {
+		"name": "Rich Bich",
+		"description": "Contributed at least $100"
+	},
+	"26": {
+		"name": "Rightoid",
+		"description": "Forced to use the rightoid theme"
+	},
+	"27": {
+		"name": "Lolcow",
+		"description": "Beautiful and valid milk provider"
+	},
+	"60": {
+		"name": "Unironically Retarded",
+		"description": "Demonstrated a wholesale inability to read the room"
+	},
+	"61": {
+		"name": "Lab Rat",
+		"description": "Helped test features in development"
+	},
+	"62": {
+		"name": "Master Baiter",
+		"description": "For outstanding achievement in the field of catching fish"
+	},
+	"63": {
+		"name": "Balls",
+		"description": "I wrote carp on my balls as a sign of submission"
+	},
+	"64": {
+		"name": "The Other Kind Of Good Journalist",
+		"description": "Contributed positive media attention to the site"
+	},
+	"65": {
+		"name": "2021 Spooooooky Marsey Artist",
+		"description": "Contributed a VERY SCARY Marsey for Halloween 2021!"
+	},
+	"66": {
+		"name": "Sk8r Boi",
+		"description": "Certifies that this user is NOT a poser"
+	},
+	"67": {
+		"name": "Unpausable",
+		"description": "Spent 40,000 coins on an unpausable profile anthem"
+	},
+	"68": {
+		"name": "Pause Button",
+		"description": "Spent 20,000 coins on a profile anthem pause button"
+	},
+	"69": {
+		"name": "Little Big Spender",
+		"description": "Dropped 10,000 coins at the shop"
+	},
+	"70": {
+		"name": "Big Spender",
+		"description": "Dropped 100,000 coins at the shop"
+	},
+	"71": {
+		"name": "Big Big Spender",
+		"description": "Dropped 250,000 coins at the shop"
+	},
+	"72": {
+		"name": "Big Big Big Spender",
+		"description": "Dropped 500,000 coins at the shop"
+	},
+	"73": {
+		"name": "Le Rich Gentlesir",
+		"description": "Spent a fucking million coins at the shop"
+	},
+	"74": {
+		"name": "Grass Toucher",
+		"description": "Awarded for molesting plant life"
+	},
+	"75": {
+		"name": "Halloween 21",
+		"description": "Awarded for surviving Homoween 2021"
+	},
+	"76": {
+		"name": "Low Roller",
+		"description": "Bought 10 lootboxes"
+	},
+	"77": {
+		"name": "Middle Roller",
+		"description": "Bought 50 lootboxes"
+	},
+	"78": {
+		"name": "High Roller",
+		"description": "Bought 150 lootboxes"
+	},
+	"79": {
+		"name": "Merchant",
+		"description": "Contributed a new line of product to Marsey's Coin Emporium"
+	},
+	"80": {
+		"name": "Artist Laureate",
+		"description": ""
+	},
+	"81": {
+		"name": "Patron of the Arts",
+		"description": "Sponsored the creation of an approved Marsey"
+	},
+	"83": {
+		"name": "All-Seeing Eye",
+		"description": "Can view private profiles"
+	},
+	"84": {
+		"name": "Alt-Seeing Eye",
+		"description": "Can see alts"
+	},
+	"85": {
+		"name": "Sigma User",
+		"description": ""
+	},
+	"86": {
+		"name": "Holly Jolly Marsey Artist",
+		"description": "Contributed a VERY JOLLY Marsey for Christmas 2021!"
+	},
+	"87": {
+		"name": "Unblockable",
+		"description": "This user is unblockable"
+	},
+	"88": {
+		"name": "Provider",
+		"description": "This user provided a bountiful feast for Thanksgiving"
+	},
+	"89": {
+		"name": "Dinner",
+		"description": "Yes, it is edible"
+	},
+	"90": {
+		"name": "Fish",
+		"description": "This user cannot be unfollowed"
+	},
+	"91": {
+		"name": "Grinch",
+		"description": "This user is a joyless grinch who pays money to avoid having fun"
+	},
+	"92": {
+		"name": "NFT Artist",
+		"description": "Drew a marsey that was used as an NFT"
+	},
+	"93": {
+		"name": "NFT Owner",
+		"description": "Bought a marsey NFT"
+	},
+	"94": {
+		"name": "Progressive Stack Award",
+		"description": "Upvotes/downvotes on this user's posts and comments have double the ranking effect"
+	},
+	"95": {
+		"name": "Bird Site Award",
+		"description": "This user is limited to 140 characters"
+	},
+	"96": {
+		"name": "Flairlock Award",
+		"description": "This user's flair has been locked by someone else"
+	},
+	"97": {
+		"name": "Pizzashill Award",
+		"description": "This user has to make their posts and comments more than 280 characters"
+	},
+	"98": {
+		"name": "Marsey Award",
+		"description": "This user is limited to posting marseys"
+	},
+	"99": {
+		"name": "Sidebar Artist",
+		"description": "Contributed artwork featured on the sidebar"
+	},
+	"100": {
+		"name": "True Believer",
+		"description": "This user sees through communist lies"
+	},
+	"101": {
+		"name": "Banner Artist",
+		"description": "Contributed a banner image to the site"
+	},
+	"102": {
+		"name": "Christmas 21",
+		"description": "Awarded for surviving Fistmas 2021"
+	},
+	"103": {
+		"name": "Benefactor",
+		"description": "Gave the Benefactor award to someone"
+	},
+	"104": {
+		"name": "BADASS OUTLAW",
+		"description": "Bad boy who does not play by the rules"
+	},
+	"105": {
+		"name": "SCAM",
+		"description": "lmao get fucked retard"
+	}
+}

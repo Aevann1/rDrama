@@ -24,7 +24,6 @@ function morecomments(cid) {
     const xhr = new XMLHttpRequest();
     xhr.open("post", `/morecomments/${cid}`);
     xhr.setRequestHeader('xhr', 'xhr');
-    xhr.withCredentials=true;
     xhr.onload=function(){
         if (xhr.status==200) {
             document.getElementById(`morecomments-${cid}`).innerHTML = xhr.response.replace(/data-src/g, 'src').replace(/data-cfsrc/g, 'src').replace(/style="display:none;visibility:hidden;"/g, '');

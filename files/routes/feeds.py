@@ -51,9 +51,9 @@ def feeds_user(v=None, sort='hot', t='all'):
 				
 				with tag("author"):
 					with tag("name"):
-						text(post.author.username)
+						text(post.author_name)
 					with tag("uri"):
-						text(f'{request.host_url}@{post.author.username}')
+						text(f'{request.host_url}@{post.author_name}')
 
 				doc.stag("link", href=full_link(post.permalink))
 

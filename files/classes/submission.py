@@ -23,6 +23,7 @@ class Submission(Base):
 	thumburl = Column(String)
 	is_banned = Column(Boolean, default=False)
 	bannedfor = Column(Boolean)
+	ghost = Column(Boolean)
 	views = Column(Integer, default=0)
 	deleted_utc = Column(Integer, default=0)
 	distinguish_level = Column(Integer, default=0)
@@ -53,6 +54,7 @@ class Submission(Base):
 	approved_by = relationship("User", uselist=False, primaryjoin="Submission.is_approved==User.id", viewonly=True)
 	awards = relationship("AwardRelationship", viewonly=True)
 	reports = relationship("Flag", viewonly=True)
+	comments = relationship("Comment", primaryjoin="Comment.parent_submission==Submission.id", viewonly=True)
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
@@ -62,8 +64,8 @@ class Submission(Base):
 
 	@property
 	@lazy
-	def comments(self):
-		return g.db.query(Comment.author_id, Comment.created_utc, Comment.id).filter(Submission.parent_submission == self.id, Submission.author_id.notin_((AUTOPOLLER_ID,AUTOBETTER_ID)))
+	def comments2(self):
+		return g.db.query(Comment.author_id, Comment.created_utc, Comment.id).filter(Comment.parent_submission == self.id, Comment.author_id.notin_((AUTOPOLLER_ID,AUTOBETTER_ID))).all()
 
 	@property
 	@lazy
@@ -221,6 +223,12 @@ class Submission(Base):
 
 	@property
 	@lazy
+	def author_name(self):
+		if self.ghost: return '👻'
+		else: return self.author.username
+
+	@property
+	@lazy
 	def is_youtube(self):
 		return self.domain == "youtube.com" and self.embed_url and self.embed_url.startswith('<lite-youtube') 
 
@@ -251,7 +259,7 @@ class Submission(Base):
 		flags = {}
 		for f in self.flags: flags[f.user.username] = f.reason
 
-		data = {'author_name': self.author.username if self.author else '',
+		data = {'author_name': self.author_name if self.author else '',
 				'permalink': self.permalink,
 				'is_banned': bool(self.is_banned),
 				'deleted_utc': self.deleted_utc,
@@ -315,7 +323,7 @@ class Submission(Base):
 		if self.deleted_utc or self.is_banned:
 			return data
 
-		data["author"]=self.author.json_core
+		data["author"]='👻' if self.ghost else self.author.json_core
 		data["comment_count"]=self.comment_count
 
 	

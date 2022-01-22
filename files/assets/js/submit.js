@@ -43,6 +43,6 @@ document.getElementById('file-upload').addEventListener('change', function(){
 function savetext() {
 	let post_title = document.getElementById('post-title').value
 	let post_text = document.getElementById('post-text').value
-	window.localStorage.setItem("post_title", post_title)
-	window.localStorage.setItem("post_text", post_text)
+	localStorage.setItem("post_title", post_title)
+	localStorage.setItem("post_text", post_text)
 }

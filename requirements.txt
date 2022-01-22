@@ -3,12 +3,12 @@ bleach
 Flask
 Flask-Caching
 Flask-Compress
-Flask-Limiter==1.1.0
-Flask-Mail==0.9.1
+Flask-Limiter
+Flask-Mail
 gevent
 greenlet
 gunicorn
-markdown
+mistletoe
 matplotlib
 Pillow
 psutil

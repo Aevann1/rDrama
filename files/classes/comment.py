@@ -22,6 +22,7 @@ class Comment(Base):
 	created_utc = Column(Integer, default=0)
 	edited_utc = Column(Integer, default=0)
 	is_banned = Column(Boolean, default=False)
+	ghost = Column(Boolean)
 	bannedfor = Column(Boolean)
 	distinguish_level = Column(Integer, default=0)
 	deleted_utc = Column(Integer, default=0)
@@ -225,7 +226,7 @@ class Comment(Base):
 	@property
 	@lazy
 	def author_name(self):
-		if self.award_count('ghosts') or self.post and self.post.award_count('ghosts'): return '👻'
+		if self.ghost: return '👻'
 		else: return self.author.username
 
 	@property
@@ -311,7 +312,7 @@ class Comment(Base):
 		if self.deleted_utc or self.is_banned:
 			return data
 
-		data["author"]=self.author.json_core if self.author_name != '👻' else '👻'
+		data["author"]='👻' if self.ghost else self.author.json_core
 		data["post"]=self.post.json_core if self.post else ''
 
 		if self.level >= 2:

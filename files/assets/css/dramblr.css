@@ -119,3 +119,7 @@ blockquote {
 .fa-robot {
     color: var(--secondary) !important
 }
+
+.modal-content {
+	background-color: var(--gray-700)
+}

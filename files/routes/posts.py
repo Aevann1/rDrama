@@ -16,19 +16,12 @@ from .front import frontlist, changeloglist
 from urllib.parse import ParseResult, urlunparse, urlparse, quote, unquote
 from os import path
 import requests
-from shutil import copyfile
-from psutil import cpu_percent
 
 IMGUR_KEY = environ.get("IMGUR_KEY").strip()
 
 CF_KEY = environ.get("CF_KEY", "").strip()
 CF_ZONE = environ.get("CF_ZONE", "").strip()
 CF_HEADERS = {"Authorization": f"Bearer {CF_KEY}", "Content-Type": "application/json"}
-
-if path.exists(f'snappy_{SITE_NAME}.txt'):
-	with open(f'snappy_{SITE_NAME}.txt', "r") as f:
-		if SITE == 'pcmemes.net': snappyquotes = f.read().split("{[para]}")
-		else: snappyquotes = f.read().split("{[para]}") + [f':#{x}:' for x in marseys]
 
 @app.post("/toggle_club/<pid>")
 @auth_required
@@ -52,7 +45,7 @@ def toggle_club(pid, v):
 @auth_required
 def publish(pid, v):
 	post = get_post(pid)
-	if not post.author_id == v.id: abort(403)
+	if post.author_id != v.id: abort(403)
 	post.private = False
 	post.created_utc = int(time.time())
 	g.db.add(post)
@@ -74,7 +67,7 @@ def publish(pid, v):
 	cache.delete_memoized(frontlist)
 	cache.delete_memoized(User.userpagelisting)
 
-	if v.admin_level > 1 and ("[changelog]" in post.title or "(changelog)" in post.title):
+	if v.admin_level > 0 and ("[changelog]" in post.title or "(changelog)" in post.title):
 		send_discord_message(f"{request.host_url}{post.permalink[1:]}")
 		cache.delete_memoized(changeloglist)
 
@@ -413,7 +406,7 @@ def edit_post(pid, v):
 	if title != p.title:
 		if v.agendaposter and not v.marseyawarded: title = torture_ap(title, v.username)
 
-		title_html = filter_emojis_only(title)
+		title_html = filter_emojis_only(title, edit=True)
 		if v.marseyawarded and len(list(re.finditer('>[^<\s+]|[^>\s+]<', title_html))): return {"error":"You can only type marseys!"}, 403
 		p.title = title[:500]
 		p.title_html = title_html
@@ -421,10 +414,7 @@ def edit_post(pid, v):
 	if request.files.get("file") and request.headers.get("cf-ipcountry") != "T1":
 		file=request.files["file"]
 		if file.content_type.startswith('image/'):
-			name = f'/images/{time.time()}'.replace('.','')[:-5] + '.webp'
-			file.save(name)
-			url = process_image(name)
-			body += f"\n\n![]({url})"
+			body += f"\n\n![]({process_image(file)})"
 		elif file.content_type.startswith('video/'):
 			file.save("video.mp4")
 			with open("video.mp4", 'rb') as f:
@@ -447,7 +437,8 @@ def edit_post(pid, v):
 					parent_submission=p.id,
 					level=1,
 					body_html=filter_emojis_only(i.group(1)),
-					upvotes=0
+					upvotes=0,
+					is_bot=True
 					)
 				g.db.add(c)
 
@@ -529,29 +520,6 @@ def archiveorg(url):
 def thumbnail_thread(pid):
 
 	db = db_session()
-
-	# cpu = cpu_percent()
-
-	# time.sleep(0.1)
-
-	# cpu = cpu_percent()
-
-	# if cpu > 70:
-	# 	print(f'Cpu usage at {cpu}%, Enabling under attack mode!', flush=True)
-	# 	with open('under_attack', 'r') as f: content = f.read()
-
-	# 	with open('under_attack', 'w') as f:
-	# 		if content == "no":
-	# 			f.write("yes")
-	# 			ma = ModAction(
-	# 				kind="enable_under_attack",
-	# 				user_id=AUTOJANNY_ID,
-	# 			)
-	# 			db.add(ma)
-	# 			db.commit()
-	# 			data='{"value":"under_attack"}'
-	# 			response = requests.patch(f'https://api.cloudflare.com/client/v4/zones/{CF_ZONE}/settings/security_level', headers=CF_HEADERS, data=data)
-	# 			print(response.text, flush=True)
 
 	def expand_url(post_url, fragment_url):
 
@@ -672,7 +640,7 @@ def thumbnail_thread(pid):
 		for chunk in image_req.iter_content(1024):
 			file.write(chunk)
 
-	post.thumburl = process_image(name, resize=True)
+	post.thumburl = process_image(filename=name, resize=100)
 	db.add(post)
 	db.commit()
 	db.close()
@@ -688,7 +656,6 @@ def submit_post(v):
 	if v and v.patron:
 		if request.content_length > 8 * 1024 * 1024: return {"error": "Max file size is 8 MB."}, 413
 	elif request.content_length > 4 * 1024 * 1024: return {"error": "Max file size is 4 MB."}, 413
-
 
 	title = request.values.get("title", "").strip()[:500].replace('‎','')
 
@@ -879,9 +846,7 @@ def submit_post(v):
 	if request.files.get("file2") and request.headers.get("cf-ipcountry") != "T1":
 		file=request.files["file2"]
 		if file.content_type.startswith('image/'):
-			name = f'/images/{time.time()}'.replace('.','')[:-5] + '.webp'
-			file.save(name)
-			body += f"\n\n![]({process_image(name)})"
+			body += f"\n\n![]({process_image(file)})"
 		elif file.content_type.startswith('video/'):
 			file.save("video.mp4")
 			with open("video.mp4", 'rb') as f:
@@ -942,7 +907,8 @@ def submit_post(v):
 				parent_submission=new_post.id,
 				level=1,
 				body_html=filter_emojis_only(option),
-				upvotes=0
+				upvotes=0,
+				is_bot=True
 				)
 
 			g.db.add(bet_option)
@@ -952,7 +918,8 @@ def submit_post(v):
 			parent_submission=new_post.id,
 			level=1,
 			body_html=filter_emojis_only(option),
-			upvotes=0
+			upvotes=0,
+			is_bot=True
 			)
 
 		g.db.add(c)
@@ -968,13 +935,8 @@ def submit_post(v):
 		file = request.files['file']
 
 		if file.content_type.startswith('image/'):
-			name = f'/images/{time.time()}'.replace('.','')[:-5] + '.webp'
-			file.save(name)
-			new_post.url = process_image(name)
-
-			name2 = name.replace('.webp', 'r.webp')
-			copyfile(name, name2)
-			new_post.thumburl = process_image(name2, resize=True)	
+			new_post.url = process_image(file)
+			new_post.thumburl = process_image(file, resize=100)	
 		elif file.content_type.startswith('video/'):
 			file.save("video.mp4")
 			with open("video.mp4", 'rb') as f:
@@ -1034,15 +996,17 @@ def submit_post(v):
 		n = Notification(comment_id=c_jannied.id, user_id=v.id)
 		g.db.add(n)
 
-	new_post.comment_count = 1
-
 	if v.id == CARP_ID:
 		if random.random() < 0.02: body = "i love you carp"
 		else: body = ":#marseyfuckoffcarp:"
 	elif v.id == LAWLZ_ID:
 		if random.random() < 0.5: body = "wow, this lawlzpost sucks!"
 		else: body = "wow, a good lawlzpost for once!"
-	else: body = random.choice(snappyquotes)
+	elif path.exists(f'snappy_{SITE_NAME}.txt'):
+		with open(f'snappy_{SITE_NAME}.txt', "r") as f:
+			if request.host == 'pcmemes.net': snappyquotes = f.read().split("{[para]}")
+			else: snappyquotes = f.read().split("{[para]}") + [f':#{x}:' for x in marseys]
+		body = random.choice(snappyquotes)
 	body += "\n\n"
 
 	if new_post.url:
@@ -1095,14 +1059,15 @@ def submit_post(v):
 			g.db.flush()
 			n = Notification(comment_id=c.id, user_id=v.id)
 			g.db.add(n)
-
+		
+		new_post.comment_count += 1
 
 	v.post_count = g.db.query(Submission.id).filter_by(author_id=v.id, is_banned=False, deleted_utc=0).count()
 	g.db.add(v)
 
 	cache.delete_memoized(frontlist)
 	cache.delete_memoized(User.userpagelisting)
-	if v.admin_level > 1 and ("[changelog]" in new_post.title or "(changelog)" in new_post.title) and not new_post.private:
+	if v.admin_level > 0 and ("[changelog]" in new_post.title or "(changelog)" in new_post.title) and not new_post.private:
 		send_discord_message(f"{request.host_url}{new_post.permalink[1:]}")
 		cache.delete_memoized(changeloglist)
 
@@ -1126,7 +1091,7 @@ def submit_post(v):
 		new_post.voted = 1
 		if 'megathread' in new_post.title.lower(): sort = 'new'
 		else: sort = v.defaultsortingcomments
-		new_post.replies = [c]
+		if len(body_html) < 40000: new_post.replies = [c]
 		return render_template('submission.html', v=v, p=new_post, sort=sort, render_replies=True, offset=0, success=True)
 
 
@@ -1136,7 +1101,7 @@ def submit_post(v):
 def delete_post_pid(pid, v):
 
 	post = get_post(pid)
-	if not post.author_id == v.id:
+	if post.author_id != v.id:
 		abort(403)
 
 	post.deleted_utc = int(time.time())
@@ -1156,7 +1121,7 @@ def delete_post_pid(pid, v):
 @auth_required
 def undelete_post_pid(pid, v):
 	post = get_post(pid)
-	if not post.author_id == v.id: abort(403)
+	if post.author_id != v.id: abort(403)
 	post.deleted_utc =0
 	g.db.add(post)
 
@@ -1172,7 +1137,7 @@ def undelete_post_pid(pid, v):
 def toggle_comment_nsfw(cid, v):
 
 	comment = g.db.query(Comment).filter_by(id=cid).one_or_none()
-	if not comment.author_id == v.id and not v.admin_level > 1: abort(403)
+	if comment.author_id != v.id and not v.admin_level > 1: abort(403)
 	comment.over_18 = not comment.over_18
 	g.db.add(comment)
 
@@ -1187,7 +1152,7 @@ def toggle_post_nsfw(pid, v):
 
 	post = get_post(pid)
 
-	if not post.author_id == v.id and not v.admin_level > 1:
+	if post.author_id != v.id and not v.admin_level > 1:
 		abort(403)
 
 	post.over_18 = not post.over_18

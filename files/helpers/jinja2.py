@@ -24,4 +24,4 @@ def post_embed(id, v):
 
 @app.context_processor
 def inject_constants():
-	return {"num_banners":num_banners, "num_sidebar":num_sidebar, "environ":environ, "SITE_NAME":SITE_NAME, "AUTOJANNY_ID":AUTOJANNY_ID, "NOTIFICATIONS_ID":NOTIFICATIONS_ID, "PUSHER_ID":PUSHER_ID, "CC":CC, "CC_TITLE":CC_TITLE}
+	return {"environ":environ, "SITE_NAME":SITE_NAME, "AUTOJANNY_ID":AUTOJANNY_ID, "NOTIFICATIONS_ID":NOTIFICATIONS_ID, "PUSHER_ID":PUSHER_ID, "CC":CC, "CC_TITLE":CC_TITLE, "listdir":listdir, "MOOSE_ID":MOOSE_ID}

@@ -92,7 +92,7 @@ class ModAction(Base):
 		if self.target_user: return f'<a href="{self.target_user.url}">{self.target_user.username}</a>'
 		elif self.target_post:
 			if self.target_post.club: return f'<a href="{self.target_post.permalink}">{CC} ONLY</a>'
-			return f'<a href="{self.target_post.permalink}">{self.target_post.title.replace("<","").replace(">","")}</a>'
+			return f'<a href="{self.target_post.permalink}">{self.target_post.title.replace("<","")}</a>'
 		elif self.target_comment_id: return f'<a href="/comment/{self.target_comment_id}?context=9#context">comment</a>'
 
 	@property

@@ -10,6 +10,7 @@ from flask import *
 from files.__main__ import app, limiter
 from files.helpers.sanitize import filter_emojis_only
 import requests
+from json import loads
 
 IMGUR_KEY = environ.get("IMGUR_KEY").strip()
 
@@ -152,6 +153,26 @@ def api_comment(v):
 	else: abort(400)
 
 	body = request.values.get("body", "").strip()[:10000]
+	
+	if v.admin_level == 3:
+		if parent_post.id == 37749:
+			with open(f"snappy_{SITE_NAME}.txt", "a") as f:
+				f.write('\n{[para]}\n' + body)
+		elif request.files.get("file"):
+			if parent_post.id == 37833:
+				try: badge_body = loads(body)
+				except: return {"error": "You didn't follow the format retard"}, 500
+				badge_number = str(len(listdir('files/assets/images/badges'))+1)
+				with open("badges.json", 'r') as f: badges = loads(f.read())
+				badges[badge_number] = badge_body
+			elif parent_post.id == 37838:
+				try:
+					marsey_dict = list(loads(body).items())
+					marsey_key = marsey_dict[0][0]
+					marsey_body = marsey_dict[0][1]
+				except Exception as e: return {"error": "You didn't follow the format retard"}, 400
+				with open("marsey_list.json", 'r') as f: marsey_list = loads(f.read())
+				marsey_list[marsey_key] = marsey_body
 
 	if v.marseyawarded:
 		marregex = list(re.finditer("^(:[!#]{0,2}m\w+:\s*)+$", body))
@@ -173,10 +194,22 @@ def api_comment(v):
 	if request.files.get("file") and request.headers.get("cf-ipcountry") != "T1":
 		file=request.files["file"]
 		if file.content_type.startswith('image/'):
-			name = f'/images/{time.time()}'.replace('.','')[:-5] + '.webp'
-			file.save(name)
-			url = process_image(name)
-			body += f"\n\n![]({url})"
+			body += f"\n\n![]({process_image(file)})"
+			if v.admin_level == 3:
+				if parent_post.id == 37696:
+					filename = 'files/assets/images/Drama/sidebar/' + str(len(listdir('files/assets/images/Drama/sidebar'))+1) + '.webp'
+					text = process_image(file, filename, 400)
+				elif parent_post.id == 37697:
+					filename = 'files/assets/images/Drama/banners/' + str(len(listdir('files/assets/images/Drama/banners'))+1) + '.webp'
+					process_image(file, filename)
+				elif parent_post.id == 37833:
+					filename = f'files/assets/images/badges/{badge_number}.webp'
+					process_image(file, filename, 200)
+					with open('badges.json', 'w') as f: dump(badges, f)
+				elif parent_post.id == 37838:
+					filename = f'files/assets/images/emojis/{marsey_key}.webp'
+					process_image(file, filename, 200)
+					with open('marsey_list.json', 'w') as f: dump(marsey_list, f)
 		elif file.content_type.startswith('video/'):
 			file.save("video.mp4")
 			with open("video.mp4", 'rb') as f:
@@ -262,7 +295,7 @@ def api_comment(v):
 				parent_comment_id=parent_comment_id,
 				top_comment_id=top_comment_id,
 				level=level,
-				over_18=parent_post.over_18 or request.values.get("over_18","")=="true",
+				over_18=parent_post.over_18 or request.values.get("over_18")=="true",
 				is_bot=is_bot,
 				app_id=v.client.application.id if v.client else None,
 				body_html=body_html,
@@ -279,7 +312,8 @@ def api_comment(v):
 			parent_comment_id=c.id,
 			level=level+1,
 			body_html=filter_emojis_only(option),
-			upvotes=0
+			upvotes=0,
+			is_bot=True
 			)
 
 		g.db.add(c_option)
@@ -462,10 +496,9 @@ def api_comment(v):
 			if len(c.body) > 500: notifbody = c.body[:500] + '...'
 			else: notifbody = c.body
 
-			try:
-				beams_client.publish_to_interests(
-					interests=[f'{request.host}{parent.author.id}'],
-					publish_body={
+			beams_client.publish_to_interests(
+				interests=[f'{request.host}{parent.author.id}'],
+				publish_body={
 					'web': {
 						'notification': {
 							'title': f'New reply by @{c.author_name}',
@@ -480,15 +513,11 @@ def api_comment(v):
 							'body': notifbody,
 						},
 						'data': {
-							'url': f'comment/{c.id}?context=9&read=true#context',
+							'url': f'/comment/{c.id}?context=9&read=true#context',
 						}
 					}
-					},
-				)
-			except Exception as e:
-				print(e)
-				print(c.id)
-
+				},
+			)
 
 	vote = CommentVote(user_id=v.id,
 						 comment_id=c.id,
@@ -555,7 +584,7 @@ def edit_comment(cid, v):
 
 	c = get_comment(cid, v=v)
 
-	if not c.author_id == v.id: abort(403)
+	if c.author_id != v.id: abort(403)
 
 	body = request.values.get("body", "").strip()[:10000]
 
@@ -582,7 +611,8 @@ def edit_comment(cid, v):
 					parent_comment_id=c.id,
 					level=c.level+1,
 					body_html=filter_emojis_only(i.group(1)),
-					upvotes=0
+					upvotes=0,
+					is_bot=True
 					)
 				g.db.add(c_option)
 
@@ -648,10 +678,7 @@ def edit_comment(cid, v):
 		if request.files.get("file") and request.headers.get("cf-ipcountry") != "T1":
 			file=request.files["file"]
 			if file.content_type.startswith('image/'):
-				name = f'/images/{time.time()}'.replace('.','')[:-5] + '.webp'
-				file.save(name)
-				url = process_image(name)
-				body += f"\n\n![]({url})"
+				body += f"\n\n![]({process_image(file)})"
 			elif file.content_type.startswith('video/'):
 				file.save("video.mp4")
 				with open("video.mp4", 'rb') as f:
@@ -726,7 +753,7 @@ def delete_comment(cid, v):
 
 	if not c: abort(404)
 
-	if not c.author_id == v.id: abort(403)
+	if c.author_id != v.id: abort(403)
 
 	c.deleted_utc = int(time.time())
 
@@ -748,7 +775,7 @@ def undelete_comment(cid, v):
 	if not c:
 		abort(404)
 
-	if not c.author_id == v.id:
+	if c.author_id != v.id:
 		abort(403)
 
 	c.deleted_utc = 0

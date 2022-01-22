@@ -10,7 +10,6 @@ function banModal(link, id, name) {
         const xhr = new XMLHttpRequest();
         xhr.open("POST", `/ban_user/${id}?form`, true);
         xhr.setRequestHeader('xhr', 'xhr');
-        xhr.withCredentials = true;
 
         xhr.onload = function(){
             var myToast = new bootstrap.Toast(document.getElementById('toast-post-success'));

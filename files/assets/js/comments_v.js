@@ -4,13 +4,10 @@ function post(url) {
 	xhr.setRequestHeader('xhr', 'xhr');
 	var form = new FormData()
 	form.append("formkey", formkey());
-	xhr.withCredentials=true;
 	xhr.send(form);
 };
 
 function post_toast3(url, button1, button2) {
-	document.getElementById('toast-post-error-text').innerText = "Error, please try again later."
-
 	const xhr = new XMLHttpRequest();
 	xhr.open("POST", url, true);
 	xhr.setRequestHeader('xhr', 'xhr');
@@ -25,7 +22,6 @@ function post_toast3(url, button1, button2) {
 
 
 	form.append("formkey", formkey());
-	xhr.withCredentials=true;
 
 	xhr.onload = function() {
 		let data
@@ -39,6 +35,7 @@ function post_toast3(url, button1, button2) {
 			document.getElementById(button2).classList.toggle("d-md-inline-block");
 		
 		} else {
+			document.getElementById('toast-post-error-text').innerText = "Error, please try again later."
 			if (data && data["error"]) document.getElementById('toast-post-error-text').innerText = data["error"];
 			new bootstrap.Toast(document.getElementById('toast-post-error')).show();
 		}
@@ -61,8 +58,6 @@ function report_commentModal(id, author) {
 	var form = new FormData()
 	form.append("formkey", formkey());
 	form.append("reason", document.getElementById("reason-comment").value);
-
-	xhr.withCredentials=true;
 
 	xhr.onload=function() {
 		document.getElementById("reportCommentFormBefore").classList.add('d-none');
@@ -107,7 +102,6 @@ function delete_commentModal(id) {
 		xhr.setRequestHeader('xhr', 'xhr');
 		var form = new FormData()
 		form.append("formkey", formkey());
-		xhr.withCredentials=true;
 		xhr.onload = function() {location.reload(true);};
 		xhr.send(form);
 }
@@ -115,8 +109,6 @@ function delete_commentModal(id) {
 };
 
 function post_reply(id){
-	document.getElementById('toast-post-error-text').innerText = "Error, please try again later."
-
 	var form = new FormData();
 	form.append('formkey', formkey());
 	form.append('parent_id', id);
@@ -124,13 +116,13 @@ function post_reply(id){
 	const xhr = new XMLHttpRequest();
 	xhr.open("post", "/reply");
 	xhr.setRequestHeader('xhr', 'xhr');
-	xhr.withCredentials=true;
 	xhr.onload=function(){
 		if (xhr.status==200) {
 			commentForm=document.getElementById('comment-form-space-'+id);
 			commentForm.innerHTML = xhr.response.replace(/data-src/g, 'src').replace(/data-cfsrc/g, 'src').replace(/style="display:none;visibility:hidden;"/g, '').replace('comment-collapse-desktop d-none d-md-block','d-none').replace('border-left: 2px solid','padding-left:0;border-left: 0px solid')
 		}
 		else {
+			document.getElementById('toast-post-error-text').innerText = "Error, please try again later."
 			try{
 				let data = JSON.parse(xhr.response)
 				document.getElementById('toast-post-error-text').innerText = data["error"];
@@ -143,8 +135,6 @@ function post_reply(id){
 }
 
 function comment_edit(id){
-	document.getElementById('toast-post-error-text').innerText = "Error, please try again later."
-
 	var form = new FormData();
 
 	form.append('formkey', formkey());
@@ -154,7 +144,6 @@ function comment_edit(id){
 	const xhr = new XMLHttpRequest();
 	xhr.open("post", "/edit_comment/"+id);
 	xhr.setRequestHeader('xhr', 'xhr');
-	xhr.withCredentials=true;
 	xhr.onload=function(){
 		if (xhr.status==200) {
 			commentForm=document.getElementById('comment-text-'+id);
@@ -162,6 +151,7 @@ function comment_edit(id){
 			document.getElementById('cancel-edit-'+id).click()
 		}
 		else {
+			document.getElementById('toast-post-error-text').innerText = "Error, please try again later."
 			try{
 				let data = JSON.parse(xhr.response)
 				document.getElementById('toast-post-error-text').innerText = data["error"];
@@ -174,8 +164,6 @@ function comment_edit(id){
 }
 
 function post_comment(fullname){
-	document.getElementById('toast-post-error-text').innerText = "Error, please try again later."
-
 	const btn = document.getElementById('save-reply-to-'+fullname)
 	btn.classList.add('disabled');
 
@@ -190,13 +178,13 @@ function post_comment(fullname){
 	const xhr = new XMLHttpRequest();
 	xhr.open("post", "/comment");
 	xhr.setRequestHeader('xhr', 'xhr');
-	xhr.withCredentials=true;
 	xhr.onload=function(){
 		if (xhr.status==200) {
 			commentForm=document.getElementById('comment-form-space-'+fullname);
 			commentForm.innerHTML = xhr.response.replace(/data-src/g, 'src').replace(/data-cfsrc/g, 'src').replace(/style="display:none;visibility:hidden;"/g, '')
 		}
 		else {
+			document.getElementById('toast-post-error-text').innerText = "Error, please try again later."
 			try{
 				let data = JSON.parse(xhr.response)
 				document.getElementById('toast-post-error-text').innerText = data["error"];

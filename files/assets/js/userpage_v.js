@@ -12,8 +12,6 @@ function post_toast_callback(url, data, callback) {
 	}
 
 	form.append("formkey", formkey());
-	xhr.withCredentials=true;
-
 	xhr.onload = function() {
 		let result = callback(xhr);
 		if (xhr.status >= 200 && xhr.status < 300) {
@@ -125,8 +123,6 @@ function transferBux(mobile=false) {
 }
 
 function submitFormAjax(e) {
-	document.getElementById('toast-post-error-text').innerText = "Error, please try again later."
-
 	document.getElementById('message').classList.add('d-none');
 	document.getElementById('message-mobile').classList.add('d-none');
 	document.getElementById('message-preview').classList.add('d-none');
@@ -144,8 +140,6 @@ function submitFormAjax(e) {
 			form.append(k, data[k]);
 		}
 	}
-	xhr.withCredentials = true;
-
 	actionPath = form.getAttribute("action");
 
 	xhr.open("POST", actionPath, true);
@@ -163,8 +157,9 @@ function submitFormAjax(e) {
 			myToast.show();
 			return true
 		} else if (xhr.status >= 300 && xhr.status < 400) {
-			window.location.href = JSON.parse(xhr.response)["redirect"]
+			location.href = JSON.parse(xhr.response)["redirect"]
 		} else {
+			document.getElementById('toast-post-error-text').innerText = "Error, please try again later."
 			try {
 				let data=JSON.parse(xhr.response);
 				var myToast = new bootstrap.Toast(document.getElementById('toast-post-error'));

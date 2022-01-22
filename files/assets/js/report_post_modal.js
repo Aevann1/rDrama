@@ -14,8 +14,6 @@ function report_postModal(id) {
 		form.append("formkey", formkey());
 		form.append("reason", document.getElementById("reason").value);
 
-		xhr.withCredentials=true;
-
 		xhr.onload=function() {
 			document.getElementById("reportPostFormBefore").classList.add('d-none');
 			document.getElementById("reportPostFormAfter").classList.remove('d-none');

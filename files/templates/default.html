@@ -4,11 +4,11 @@
 	<meta name="description" content="{{'DESCRIPTION' | app_config}}">
 	<meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' ajax.cloudflare.com; connect-src 'self' tls-use1.fpapi.io api.fpjs.io{% if PUSHER_ID %} {{PUSHER_ID}}.pushnotifications.pusher.com{% endif %}; object-src 'none';">
 
-	<script src="/static/assets/js/bootstrap.js?a=202"></script>
+	<script src="/static/assets/js/bootstrap.js?a=220"></script>
 	{% if v %}
 		<style>:root{--primary:#{{v.themecolor}}}</style>
-		<link rel="stylesheet" href="/static/assets/css/main.css?a=92">
-		<link rel="stylesheet" href="/static/assets/css/{{v.theme}}.css?a=13">
+		<link rel="stylesheet" href="/static/assets/css/main.css?a=93">
+		<link rel="stylesheet" href="/static/assets/css/{{v.theme}}.css?a=14">
 		{% if v.agendaposter %}
 			<style>
 				html {
@@ -32,7 +32,7 @@
 		{% endif %}
 	{% else %}
 		<style>:root{--primary:#{{'DEFAULT_COLOR' | app_config}}</style>
-		<link rel="stylesheet" href="/static/assets/css/main.css?a=92"><link rel="stylesheet" href="/static/assets/css/{{'DEFAULT_THEME' | app_config}}.css?a=13">
+		<link rel="stylesheet" href="/static/assets/css/main.css?a=93"><link rel="stylesheet" href="/static/assets/css/{{'DEFAULT_THEME' | app_config}}.css?a=14">
 	{% endif %}
 
 	<meta charset="utf-8">
@@ -217,8 +217,11 @@
 		{% if v %}
 			
 			{% if SITE_NAME == 'Drama' %}
+				{% set path = "assets/images/" + SITE_NAME + "/banners" %}
+				{% set image = "/static/" + path + "/" + listdir('files/' + path)|random() + '?a=20' %}
+
 				<a href="https://secure.transequality.org/site/Donation2?df_id=1480">
-					<img alt="site banner" src="/static/assets/images/{{SITE_NAME}}/banners/{{range(1,num_banners)|random()}}.webp?a=18" width="100%">
+					<img alt="site banner" src="{{image}}" width="100%">
 				</a>
 			{% else %}
 				<a href="/">
@@ -311,15 +314,15 @@
 	</div>
 </div>
 
-<script src="/static/assets/js/lozad.js?a=202"></script>
+<script src="/static/assets/js/lozad.js?a=220"></script>
 
 {% if v %}
-	<script src="/static/assets/js/post_toast2.js?a=202"></script>
-	<script src="/static/assets/js/formatting.js?a=202"></script>
-	<script src="/static/assets/js/default.js?a=202"></script>
+	<script src="/static/assets/js/post_toast2.js?a=220"></script>
+	<script src="/static/assets/js/formatting.js?a=220"></script>
+	<script src="/static/assets/js/default.js?a=220"></script>
 {% endif %}
 
-<script src="/static/assets/js/lite-youtube.js?a=202"></script>
+<script src="/static/assets/js/lite-youtube.js?a=220"></script>
 
 </body>
 

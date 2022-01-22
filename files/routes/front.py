@@ -14,6 +14,24 @@ def clear(v):
 	g.db.commit()
 	return {"message": "Notifications cleared!"}
 
+@app.get("/unread")
+@auth_required
+def unread(v):
+	listing = g.db.query(Comment).join(Notification.comment).filter(
+		Notification.read == False,
+		Notification.user_id == v.id,
+		Comment.is_banned == False,
+		Comment.deleted_utc == 0,
+		Comment.author_id != AUTOJANNY_ID,
+	).order_by(Notification.id.desc()).all()
+
+	for n in v.notifications.filter_by(read=False).all():
+		n.read = True
+		g.db.add(n)
+	g.db.commit()
+
+	return {"data":[x.json for x in listing]}
+
 @app.get("/notifications")
 @auth_required
 def notifications(v):

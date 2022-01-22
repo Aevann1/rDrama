@@ -267,7 +267,8 @@ CREATE TABLE public.comments (
     slots_result character varying(30),
     realupvotes integer,
     top_comment_id integer,
-    is_pinned_utc integer
+    is_pinned_utc integer,
+    ghost boolean
 );
 
 
@@ -580,7 +581,8 @@ CREATE TABLE public.submissions (
     title_html character varying(1500),
     realupvotes integer,
     flair character varying(350),
-    stickied_utc integer
+    stickied_utc integer,
+    ghost boolean
 );
 
 
@@ -1707,6 +1709,7 @@ ALTER TABLE ONLY public.flags
 
 ALTER TABLE ONLY public.notifications
     ADD CONSTRAINT notifications_comment_id_fkey FOREIGN KEY (comment_id) REFERENCES public.comments(id);
+
 
 --
 -- PostgreSQL database dump complete

@@ -9,7 +9,7 @@
 {% endif %}
 
 {% if not v or v.highlightcomments %}
-	<script src="/static/assets/js/new_comments_count.js?a=202"></script>
+	<script src="/static/assets/js/new_comments_count.js?a=220"></script>
 {% endif %}
 
 <script>
@@ -187,9 +187,13 @@
 				{% if p.is_blocked %}<i class="fas fa-user-minus text-danger" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="This user is blocking you."></i>{% endif %}
 				{% if p.private %}<span class="badge border-warning border-1 text-small-extra">Draft</span>{% endif %}
 				{% if p.active_flags %}<a class="btn btn-primary" role="button" style="padding:1px 5px; font-size:10px;" onclick="document.getElementById('flaggers-{{p.id}}').classList.toggle('d-none')">{{p.active_flags}} Reports</a>{% endif %}
-				{% if p.author.verified %}<i class="fas fa-badge-check align-middle ml-1" style="color:{% if p.author.verifiedcolor %}#{{p.author.verifiedcolor}}{% else %}#1DA1F2{% endif %}" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{p.author.verified}}"></i>
+				{% if p.ghost %}
+					👻
+				{% else %}
+					{% if p.author.verified %}<i class="fas fa-badge-check align-middle ml-1" style="color:{% if p.author.verifiedcolor %}#{{p.author.verifiedcolor}}{% else %}#1DA1F2{% endif %}" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{p.author.verified}}"></i>
+					{% endif %}
+					<a class="user-name text-decoration-none" onclick='popclick({{p.author.json_popover(v) | tojson}})' data-bs-placement="bottom" data-bs-toggle="popover" data-bs-trigger="focus" data-content-id="popover" role="button" tabindex="0" style="color: #{{p.author.namecolor}};  font-weight: bold;"><img alt="@{{p.author.profile_url}}'s profile picture" loading="lazy" src="{{p.author.profile_url}}" class="profile-pic-25 mr-2"><span {% if p.author.patron and not p.distinguish_level %}class="patron" style="background-color:#{{p.author.namecolor}};"{% elif p.distinguish_level and request.host == 'rdrama.net' %}class="mod"{% endif %}>{{p.author_name}}</span></a>{% if p.author.customtitle %}<bdi  style="color: #{{p.author.titlecolor}}">&nbsp;&nbsp;{% if p.author.quadrant %}<img alt="{{p.author.quadrant}} quadrant" loading="lazy" height="20" src="/static/assets/images/quadrants/{{p.author.quadrant}}.webp?a=1007">{% endif %}{{p.author.customtitle | safe}}</bdi>{% endif %}
 				{% endif %}
-				<a class="user-name text-decoration-none" onclick='popclick({{p.author.json_popover(v) | tojson}})' data-bs-placement="bottom" data-bs-toggle="popover" data-bs-trigger="focus" data-content-id="popover" role="button" tabindex="0" style="color: #{{p.author.namecolor}};  font-weight: bold;"><img alt="@{{p.author.profile_url}}'s profile picture" loading="lazy" src="{{p.author.profile_url}}" class="profile-pic-25 mr-2"><span {% if p.author.patron and not p.distinguish_level %}class="patron" style="background-color:#{{p.author.namecolor}};"{% elif p.distinguish_level and request.host == 'rdrama.net' %}class="mod"{% endif %}>{{p.author.username}}</span></a>{% if p.author.customtitle %}<bdi  style="color: #{{p.author.titlecolor}}">&nbsp;&nbsp;{% if p.author.quadrant %}<img alt="{{p.author.quadrant}} quadrant" loading="lazy" height="20" src="/static/assets/images/quadrants/{{p.author.quadrant}}.webp?a=1007">{% endif %}{{p.author.customtitle | safe}}</bdi>{% endif %}
 				<span data-bs-toggle="tooltip" data-bs-placement="bottom" onmouseover="timestamp('timestamp-{{p.id}}','{{p.created_utc}}')" id="timestamp-{{p.id}}">&nbsp;{{p.age_string}}</span>
 				&nbsp;
 				({% if p.is_image %}image post{% elif p.is_video %}video post{% elif p.realurl(v) %}<a href="/search/posts/?q=domain%3A{{p.domain}}&sort=new&t=all" {% if v and v.newtab and not g.webview %}target="_blank"{% endif %}>{{p.domain}}</a>{% else %}text post{% endif %})
@@ -216,7 +220,7 @@
 								<span class="text-info d-none new-comments"></span>
 							</a>
 						</li>
-						<a class="list-inline-item" href="/votes?link={{p.fullname}}"><i class="fas fa-arrows-v"></i>Votes</a>
+						{% if not p.ghost %}<a class="list-inline-item" href="/votes?link={{p.fullname}}"><i class="fas fa-arrows-v"></i>Votes</a>{% endif %}
 
 						{% if v %}
 							<a class="list-inline-item text-muted d-none d-md-inline-block" role="button" data-bs-toggle="modal" data-bs-target="#awardModal" onclick="awardModal('/post/{{p.id}}/awards')"><i class="fas fa-gift fa-fw"></i>Give Award</a>
@@ -283,10 +287,10 @@
 
 
 
-								{% if not v.id==p.author_id %}
-									<a id="unblock-{{p.id}}" class="text-success list-inline-item {% if not p.is_blocking %} d-none{% endif %}" role="button" onclick="post_toast2('/settings/unblock?username={{p.author.username}}','block-{{p.id}}','unblock-{{p.id}}')"><i class="fas fa-eye text-success"></i>Unblock user</a>
+								{% if v.id != p.author_id and not p.ghost %}
+									<a id="unblock-{{p.id}}" class="text-success list-inline-item {% if not p.is_blocking %} d-none{% endif %}" role="button" onclick="post_toast2('/settings/unblock?username={{p.author_name}}','block-{{p.id}}','unblock-{{p.id}}')"><i class="fas fa-eye text-success"></i>Unblock user</a>
 
-									<a id="prompt-{{p.id}}" class="dropdown-item text-danger blockuser list-inline-item d-none" role="button" onclick="post_toast2('/settings/block?username={{p.author.username}}','prompt-{{p.id}}','unblock-{{p.id}}')"><i class="fas fa-eye-slash text-danger"></i>Are you sure?</a>
+									<a id="prompt-{{p.id}}" class="dropdown-item text-danger blockuser list-inline-item d-none" role="button" onclick="post_toast2('/settings/block?username={{p.author_name}}','prompt-{{p.id}}','unblock-{{p.id}}')"><i class="fas fa-eye-slash text-danger"></i>Are you sure?</a>
 
 									<a id="block-{{p.id}}" class="dropdown-item text-danger blockuser list-inline-item {% if p.is_blocking %} d-none{% endif %}" role="button" onclick="document.getElementById('block-{{p.id}}').classList.toggle('d-none');document.getElementById('prompt-{{p.id}}').classList.toggle('d-none');"><i class="fas fa-eye-slash text-danger"></i>Block user</a>
 								{% endif %}
@@ -297,7 +301,7 @@
 								{% endif %}
 
 								{% if v.admin_level > 1 and v.id != p.author_id %}
-									<a id="ban-{{p.id}}" class="dropdown-item {% if p.author.is_suspended %}d-none{% endif %} list-inline-item text-danger" id="exile-comment-{{p.id}}" role="button" data-bs-toggle="modal" data-bs-target="#banModal" onclick="banModal('/post/{{p.id}}', '{{p.author.id}}', '{{p.author.username}}')"><i class="fas fa-user-slash text-danger fa-fw"></i>Ban user</a>
+									<a id="ban-{{p.id}}" class="dropdown-item {% if p.author.is_suspended %}d-none{% endif %} list-inline-item text-danger" id="exile-comment-{{p.id}}" role="button" data-bs-toggle="modal" data-bs-target="#banModal" onclick="banModal('/post/{{p.id}}', '{{p.author.id}}', '{{p.author_name}}')"><i class="fas fa-user-slash text-danger fa-fw"></i>Ban user</a>
 									<a id="unban-{{p.id}}" class="dropdown-item {% if not p.author.is_suspended %}d-none{% endif %} list-inline-item text-danger" id="unexile2-user-{{p.id}}" role="button" onclick="post_toast2('/unban_user/{{p.author_id}}','ban-{{p.id}}','unban-{{p.id}}')"><i class="fas fa-user-slash"></i>Unban user</a>
 								{% endif %}
 							</ul>
@@ -396,7 +400,7 @@
 				</div>
 				<div class="modal-body">
 					<ul class="list-group post-actions">
-						<a class="btn-block" href="/votes?link={{p.fullname}}"><button class="nobackground btn btn-link btn-block btn-lg text-left text-muted"><i class="fas fa-arrows-v text-center text-muted mr-3"></i>Votes</button></a>
+						{% if not p.ghost %}<a class="btn-block" href="/votes?link={{p.fullname}}"><button class="nobackground btn btn-link btn-block btn-lg text-left text-muted"><i class="fas fa-arrows-v text-center text-muted mr-3"></i>Votes</button></a>{% endif %}
 
 						<button class="nobackground btn btn-link btn-block btn-lg text-left text-muted" data-bs-toggle="modal" data-bs-dismiss="modal" data-bs-target="#reportPostModal" onclick="report_postModal('{{p.id}}')"><i class="far fa-flag text-center text-muted mr-3"></i>Report</button>
 
@@ -440,9 +444,9 @@
 
 							<button id="mark3-{{p.id}}" class="{% if p.over_18 %}d-none{% endif %} nobackground btn btn-link btn-block btn-lg text-left text-danger" onclick="post_toast2('/toggle_post_nsfw/{{p.id}}','mark3-{{p.id}}','unmark3-{{p.id}}')" data-bs-dismiss="modal"><i class="far fa-eye-evil text-center mr-3"></i>Mark +18</button>
 							<button id="unmark3-{{p.id}}" class="{% if not p.over_18 %}d-none{% endif %} nobackground btn btn-link btn-block btn-lg text-left text-success" onclick="post_toast2('/toggle_post_nsfw/{{p.id}}','mark3-{{p.id}}','unmark3-{{p.id}}')" data-bs-dismiss="modal"><i class="far fa-eye-evil text-center mr-3"></i>Unmark +18</button>
-						{% else %}
-							<button id="unblock2-{{p.id}}" class="nobackground btn btn-link btn-block btn-lg text-success text-left{% if not p.is_blocking %} d-none{% endif %}" data-bs-dismiss="modal" onclick="post_toast2('/settings/unblock?username={{p.author.username}}','block2-{{p.id}}','unblock2-{{p.id}}')"><i class="fas fa-eye mr-3"></i>Unblock user</button>
-							<button id="prompt2-{{p.id}}" class="blockuser nobackground btn btn-link btn-block btn-lg text-danger text-left d-none" data-bs-dismiss="modal" onclick="post_toast2('/settings/block?username={{p.author.username}}','prompt2-{{p.id}}','unblock2-{{p.id}}')"><i class="fas fa-eye-slash mr-3"></i>Are you sure?</button>
+						{% elif not p.ghost %}
+							<button id="unblock2-{{p.id}}" class="nobackground btn btn-link btn-block btn-lg text-success text-left{% if not p.is_blocking %} d-none{% endif %}" data-bs-dismiss="modal" onclick="post_toast2('/settings/unblock?username={{p.author_name}}','block2-{{p.id}}','unblock2-{{p.id}}')"><i class="fas fa-eye mr-3"></i>Unblock user</button>
+							<button id="prompt2-{{p.id}}" class="blockuser nobackground btn btn-link btn-block btn-lg text-danger text-left d-none" data-bs-dismiss="modal" onclick="post_toast2('/settings/block?username={{p.author_name}}','prompt2-{{p.id}}','unblock2-{{p.id}}')"><i class="fas fa-eye-slash mr-3"></i>Are you sure?</button>
 							<button id="block2-{{p.id}}" class="blockuser nobackground btn btn-link btn-block btn-lg text-danger text-left{% if p.is_blocking %} d-none{% endif %}" onclick="document.getElementById('block2-{{p.id}}').classList.toggle('d-none');document.getElementById('prompt2-{{p.id}}').classList.toggle('d-none');"><i class="fas fa-eye-slash mr-3"></i>Block user</button>
 						{% endif %}
 					</ul>
@@ -489,7 +493,7 @@
 						<button id="unmark2-{{p.id}}" class="{% if not p.over_18 %}d-none{% endif %} nobackground btn btn-link btn-block btn-lg text-left text-danger" onclick="post_toast2('/toggle_post_nsfw/{{p.id}}','mark2-{{p.id}}','unmark2-{{p.id}}')" data-bs-dismiss="modal"><i class="far fa-eye-evil text-center text-danger mr-3"></i>Unmark +18</button>
 
 						{% if v.id != p.author_id %}
-							<button id="ban2-{{p.id}}" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#banModal" onclick="banModal('/post/{{p.id}}', '{{p.author.id}}', '{{p.author.username}}')" class="{% if p.author.is_suspended %}d-none{% endif %} nobackground btn btn-link btn-block btn-lg text-danger text-left" role="button"><i class="fas fa-user-minus mr-3"></i>Ban user</button>
+							<button id="ban2-{{p.id}}" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#banModal" onclick="banModal('/post/{{p.id}}', '{{p.author.id}}', '{{p.author_name}}')" class="{% if p.author.is_suspended %}d-none{% endif %} nobackground btn btn-link btn-block btn-lg text-danger text-left" role="button"><i class="fas fa-user-minus mr-3"></i>Ban user</button>
 							<button id="unban2-{{p.id}}" class="{% if not p.author.is_suspended %}d-none{% endif %} nobackground btn btn-link btn-block btn-lg text-success text-left" role="button" onclick="post_toast2('/unban_user/{{p.author_id}}','ban2-{{p.id}}','unban2-{{p.id}}')" data-bs-dismiss="modal"><i class="fas fa-user-minus mr-3"></i>Unban user</button>
 						{% endif %}
 
@@ -512,7 +516,7 @@
 		<div class="d-none card rounded border pb-0 pt-3 my-2 {% if p.author.agendaposter %}agendaposter{% endif %}" id="post-text-{{p.id}}">
 			{{p.realbody(v) | safe}}
 
-			{% if p.author.sig_html and (p.author_id == MOOSE_ID or not (v and v.sigs_disabled)) %}
+			{% if p.author.sig_html and not p.ghost and (p.author_id == MOOSE_ID or not (v and v.sigs_disabled)) %}
 				<hr>
 				{{p.author.sig_html | safe}}
 			{% endif %}
@@ -696,6 +700,6 @@
 	}
 </style>
 
-<script src="/static/assets/js/clipboard.js?a=202"></script>
-<script src="/static/assets/js/comments+submission_listing.js?a=202"></script>
-<script src="/static/assets/js/submission_listing.js?a=202"></script>
+<script src="/static/assets/js/clipboard.js?a=220"></script>
+<script src="/static/assets/js/comments+submission_listing.js?a=220"></script>
+<script src="/static/assets/js/submission_listing.js?a=220"></script>

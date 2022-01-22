@@ -396,6 +396,8 @@ def get_reset():
 
 	user = g.db.query(User).filter_by(id=user_id).one_or_none()
 	
+	if not user: abort(400)
+
 	if not validate_hash(f"{user_id}+{timestamp}+forgot+{user.login_nonce}", token):
 		abort(400)
 
@@ -439,7 +441,7 @@ def post_reset(v):
 	if not user:
 		abort(404)
 
-	if not password == confirm_password:
+	if password != confirm_password:
 		return render_template("reset_password.html",
 							   v=user,
 							   token=token,

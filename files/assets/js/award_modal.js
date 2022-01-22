@@ -71,7 +71,6 @@ function vote(type, id, dir) {
 	xhr.setRequestHeader('xhr', 'xhr');
 	var form = new FormData()
 	form.append("formkey", formkey());
-	xhr.withCredentials=true;
 	xhr.send(form);
 }
 
@@ -103,7 +102,6 @@ function pick(kind) {
 }
 
 function buy(mb) {
-	document.getElementById('toast-post-error-text').innerText = "Error, please try again later."
 	const kind = document.getElementById('kind').value;
 	const xhr = new XMLHttpRequest();
 	url = `/buy/${kind}`
@@ -121,8 +119,6 @@ function buy(mb) {
 
 
 	form.append("formkey", formkey());
-	xhr.withCredentials=true;
-
 	xhr.onload = function() {
 		let data
 		try {data = JSON.parse(xhr.response)}
@@ -135,6 +131,7 @@ function buy(mb) {
 			let ownednum = Number(owned.textContent);
 			owned.textContent = ownednum + 1
 		} else {
+			document.getElementById('toast-post-error-text').innerText = "Error, please try again later."
 			if (data && data["error"]) document.getElementById('toast-post-error-text2').innerText = data["error"];
 			new bootstrap.Toast(document.getElementById('toast-post-error2')).show();
 		}

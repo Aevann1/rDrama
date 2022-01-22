@@ -110,7 +110,7 @@ def sanitize(sanitized, noimages=False, alert=False, comment=False, edit=False):
 			if u:
 				sanitized = sanitized.replace(i.group(0), f'''<p><a href="/id/{u.id}"><img alt="@{u.username}'s profile picture" loading="lazy" src="/uid/{u.id}/pic" class="pp20">@{u.username}</a>''', 1)
 	else:
-		sanitized = re.sub('(^|\s|\n|<p>)\/?((r|u)\/\w{3,25})', r'\1<a href="https://old.reddit.com/\2" rel="nofollow noopener noreferrer">\2</a>', sanitized)
+		sanitized = re.sub('(^|\s|\n|<p>)\/?((r|u)\/(\w|-){3,25})', r'\1<a href="https://old.reddit.com/\2" rel="nofollow noopener noreferrer">\2</a>', sanitized)
 
 		for i in re.finditer('(^|\s|\n|<p>)@((\w|-){1,25})', sanitized):
 			u = get_user(i.group(2), graceful=True)
@@ -122,7 +122,7 @@ def sanitize(sanitized, noimages=False, alert=False, comment=False, edit=False):
 					sanitized = sanitized.replace(i.group(0), f'''{i.group(1)}<a href="/id/{u.id}"><img alt="@{u.username}'s profile picture" loading="lazy" src="/uid/{u.id}/pic" class="pp20">@{u.username}</a>''', 1)
 
 
-	for i in re.finditer('https://i\.imgur\.com/(([^_]*?)\.(jpg|png|jpeg))', sanitized):
+	for i in re.finditer('https://i\.imgur\.com/(([^_]*?)\.(jpg|png|jpeg))(?!</code>)', sanitized):
 		sanitized = sanitized.replace(i.group(1), i.group(2) + "_d.webp?maxwidth=9999&fidelity=high")
 
 	if noimages:
@@ -181,7 +181,9 @@ def sanitize(sanitized, noimages=False, alert=False, comment=False, edit=False):
 		with open("marsey_count.json", 'r') as f: marsey_count = loads(f.read())
 		marseys_used = set()
 
-	for i in re.finditer("[^a]>\s*(:[!#]{0,2}\w+:\s*)+<\/", sanitized):
+	emojis = list(re.finditer("[^a]>\s*(:[!#]{0,2}\w+:\s*)+<\/", sanitized))
+	if len(emojis) > 20: edit = True
+	for i in emojis:
 		old = i.group(0)
 		if 'marseylong1' in old or 'marseylong2' in old or 'marseyllama1' in old or 'marseyllama2' in old: new = old.lower().replace(">", " class='mb-0'>")
 		else: new = old.lower()
@@ -200,7 +202,7 @@ def sanitize(sanitized, noimages=False, alert=False, comment=False, edit=False):
 				classes = 'emoji-md'
 				remoji = emoji
 
-			if not edit and random() < 0.01 and 'marsey' in emoji: classes += ' golden'
+			if not edit and random() < 0.005 and 'marsey' in emoji: classes += ' golden'
 
 			if path.isfile(f'files/assets/images/emojis/{remoji}.webp'):
 				new = re.sub(f'(?<!"):{emoji}:', f'<img loading="lazy" data-bs-toggle="tooltip" alt=":{emoji}:" title=":{emoji}:" delay="0" class="{classes}" src="/static/assets/images/emojis/{remoji}.webp" >', new, flags=re.I)
@@ -208,20 +210,21 @@ def sanitize(sanitized, noimages=False, alert=False, comment=False, edit=False):
 					
 		sanitized = sanitized.replace(old, new)
 
-
-	for i in re.finditer('(?<!"):([!A-Za-z0-9]{1,30}?):', sanitized):
+	emojis = list(re.finditer('(?<!"):([!A-Za-z0-9]{1,30}?):', sanitized))
+	if len(emojis) > 20: edit = True
+	for i in emojis:
 		emoji = i.group(1).lower()
 		if emoji.startswith("!"):
 			emoji = emoji[1:]
 			classes = 'emoji mirrored'
-			if not edit and random() < 0.01 and 'marsey' in emoji: classes += ' golden'
+			if not edit and random() < 0.005 and 'marsey' in emoji: classes += ' golden'
 			if path.isfile(f'files/assets/images/emojis/{emoji}.webp'):
 				sanitized = re.sub(f'(?<!"):!{emoji}:', f'<img loading="lazy" data-bs-toggle="tooltip" alt=":!{emoji}:" title=":!{emoji}:" delay="0" class="{classes}" src="/static/assets/images/emojis/{emoji}.webp">', sanitized, flags=re.I)
 				if comment: marseys_used.add(emoji)
 
 		elif path.isfile(f'files/assets/images/emojis/{emoji}.webp'):
 			classes = 'emoji'
-			if not edit and random() < 0.01 and 'marsey' in emoji: classes += ' golden'
+			if not edit and random() < 0.005 and 'marsey' in emoji: classes += ' golden'
 			sanitized = re.sub(f'(?<!"):{emoji}:', f'<img loading="lazy" data-bs-toggle="tooltip" alt=":{emoji}:" title=":{emoji}:" delay="0" class="{classes}" src="/static/assets/images/emojis/{emoji}.webp">', sanitized, flags=re.I)
 			if comment: marseys_used.add(emoji)
 
@@ -229,7 +232,7 @@ def sanitize(sanitized, noimages=False, alert=False, comment=False, edit=False):
 
 	if "https://youtube.com/watch?v=" in sanitized: sanitized = sanitized.replace("?t=", "&t=")
 
-	for i in re.finditer('" target="_blank">(https://youtube\.com/watch\?v\=(.*?))</a>', sanitized):
+	for i in re.finditer('" target="_blank">(https://youtube\.com/watch\?v\=(.*?))</a>(?!</code>)', sanitized):
 		url = i.group(1)
 		yt_id = i.group(2).split('&')[0].split('%')[0]
 		replacing = f'<a href="{url}" rel="nofollow noopener noreferrer" target="_blank">{url}</a>'
@@ -266,25 +269,27 @@ def sanitize(sanitized, noimages=False, alert=False, comment=False, edit=False):
 
 
 
-def filter_emojis_only(title):
+def filter_emojis_only(title, edit=False):
 
-	title = title.replace('<','').replace('>','').replace("\n", "").replace("\r", "").replace("\t", "").strip()
+	title = title.replace('<','').replace("\n", "").replace("\r", "").replace("\t", "").strip()
 
 	title = bleach.clean(title, tags=[])
 
-	for i in re.finditer('(?<!"):([!A-Za-z0-9]{1,30}?):', title):
+	emojis = list(re.finditer('(?<!"):([!A-Za-z0-9]{1,30}?):', title))
+	if len(emojis) > 20: edit = True
+	for i in emojis:
 		emoji = i.group(1).lower()
 
 		if emoji.startswith("!"):
 			emoji = emoji[1:]
 			classes = 'emoji mirrored'
-			if random() < 0.01 and 'marsey' in emoji: classes += ' golden'
+			if not edit and random() < 0.005 and 'marsey' in emoji: classes += ' golden'
 			if path.isfile(f'files/assets/images/emojis/{emoji}.webp'):
 				title = re.sub(f'(?<!"):!{emoji}:', f'<img loading="lazy" data-bs-toggle="tooltip" alt=":!{emoji}:" title=":!{emoji}:" delay="0" src="/static/assets/images/emojis/{emoji}.webp" class="{classes}">', title, flags=re.I)
 
 		elif path.isfile(f'files/assets/images/emojis/{emoji}.webp'):
 			classes = 'emoji'
-			if random() < 0.01 and 'marsey' in emoji: classes += ' golden'
+			if not edit and random() < 0.005 and 'marsey' in emoji: classes += ' golden'
 			title = re.sub(f'(?<!"):{emoji}:', f'<img loading="lazy" data-bs-toggle="tooltip" alt=":{emoji}:" title=":{emoji}:" delay="0" class="{classes}" src="/static/assets/images/emojis/{emoji}.webp">', title, flags=re.I)
 
 	if len(title) > 1500: abort(400)

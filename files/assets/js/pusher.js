@@ -1337,7 +1337,7 @@ var PusherPushNotifications = (function (exports) {
   
         if (serviceWorkerRegistration) {
           var serviceWorkerScope = serviceWorkerRegistration.scope;
-          var currentURL = window.location.href;
+          var currentURL = location.href;
           var scopeMatchesCurrentPage = currentURL.startsWith(serviceWorkerScope);
   
           if (!scopeMatchesCurrentPage) {

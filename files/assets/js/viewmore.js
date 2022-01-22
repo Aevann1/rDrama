@@ -7,7 +7,6 @@ function viewmore(pid,sort,offset) {
     const xhr = new XMLHttpRequest();
     xhr.open("post", `/viewmore/${pid}/${sort}/${offset}`);
     xhr.setRequestHeader('xhr', 'xhr');
-    xhr.withCredentials=true;
     xhr.onload=function(){
         if (xhr.status==200) {
             document.getElementById(`viewmore-${offset}`).innerHTML = xhr.response.replace(/data-src/g, 'src').replace(/data-cfsrc/g, 'src').replace(/style="display:none;visibility:hidden;"/g, '');

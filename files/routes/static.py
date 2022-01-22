@@ -17,8 +17,8 @@ def privacy(v):
 @app.get("/marseys")
 @auth_required
 def emojis(v):
-	with open("marsey_count.json", 'r') as file:
-		marsey_count = loads(file.read())
+	with open("marsey_count.json", 'r') as f:
+		marsey_count = loads(f.read())
 	marsey_counted = []
 	for k, val in marseys.items():
 		marsey_counted.append((k, val, marsey_count[k]))
@@ -271,10 +271,7 @@ def submit_contact(v):
 	if request.files.get("file") and request.headers.get("cf-ipcountry") != "T1":
 		file=request.files["file"]
 		if file.content_type.startswith('image/'):
-			name = f'/images/{time.time()}'.replace('.','')[:-5] + '.webp'
-			file.save(name)
-			url = process_image(name)
-			body_html += f'<img data-bs-target="#expandImageModal" data-bs-toggle="modal" onclick="expandDesktopImage(this.src)" class="in-comment-image" src="{url}" loading="lazy">'
+			body_html += f'<img data-bs-target="#expandImageModal" data-bs-toggle="modal" onclick="expandDesktopImage(this.src)" class="in-comment-image" src="{process_image(file)}" loading="lazy">'
 		elif file.content_type.startswith('video/'):
 			file.save("video.mp4")
 			with open("video.mp4", 'rb') as f:
@@ -368,7 +365,14 @@ def settings_profile(v):
 @app.get("/badges")
 @auth_required
 def badges(v):
+	with open("badges.json", 'r') as f: BADGES = loads(f.read())
+
 	return render_template("badges.html", v=v, badges=BADGES)
+
+@app.get("/marsey_list")
+@auth_required
+def marsey_list(v):
+	with open("marsey_list.json", 'r') as f: return loads(f.read())
 
 @app.get("/blocks")
 @auth_required

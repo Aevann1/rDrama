@@ -4484,14 +4484,12 @@ blockquote p {
 }
 }
 .in-comment-image {
-    height: min(1px,1%);
-    width: min(300px,100%);
+    max-height: 150px !important;
+    max-width: 100% !important;
     border-radius: 0.2rem !important;
     margin-top: 0.5rem !important;
     margin-bottom: 0.5rem !important;
     cursor: pointer;
-    -o-object-fit: contain;
-    object-fit: contain;
 }
 .embedvid {
     max-height: 20rem !important;
@@ -4600,11 +4598,10 @@ input[type=radio] ~ .custom-control-label::before {
     height: 60px !important;
     width: 60px !important;
 }
-.emoji-lg {
-    height: min(1px,1%) !important;
-    width: min(150px,100%) !important;
-}
 .emj, .emoji, .bigemoji, .emoji-md, .emoji-lg {
+    max-width: min(150px,50%) !important;
+    max-height: min(150px,50%) !important;
+    display: inline-block;
     -o-object-fit: contain;
     object-fit: contain;
 }

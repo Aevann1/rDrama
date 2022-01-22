@@ -18,7 +18,7 @@ function expandDesktopImage(image) {
 };
 
 window.addEventListener("hashchange",  function (e) {
-    if(window.location.hash != "#modal") {
+    if(location.hash != "#modal") {
         const expandImageModal = document.querySelector('#expandImageModal');
         const modal = bootstrap.Modal.getInstance(expandImageModal);    
         modal.hide();
@@ -26,7 +26,7 @@ window.addEventListener("hashchange",  function (e) {
 });
 
 document.getElementById('expandImageModal').addEventListener('hidden.bs.modal', function (e) {
-    if(window.location.hash == "#modal") {
+    if(location.hash == "#modal") {
         history.back();
     }
 });

@@ -30,9 +30,9 @@ if (typeof showNewCommentCounts === 'undefined') {
 					delete comments[key]
 				}
 			}
-			window.localStorage.setItem("comment-counts", JSON.stringify(comments))
+			localStorage.setItem("comment-counts", JSON.stringify(comments))
 		}
-		window.localStorage.setItem(LAST_CACHE_CLEAN_ID, JSON.stringify(now))
+		localStorage.setItem(LAST_CACHE_CLEAN_ID, JSON.stringify(now))
 	}
 
 	setTimeout(cleanCache, 500)

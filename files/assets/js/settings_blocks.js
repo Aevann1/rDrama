@@ -11,7 +11,6 @@ function block_user() {
         const xhr = new XMLHttpRequest();
         xhr.open("post", "/settings/block");
         xhr.setRequestHeader('xhr', 'xhr');
-        xhr.withCredentials=true;
         f=new FormData();
         f.append("username", username);
         f.append("formkey", formkey());

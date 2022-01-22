@@ -6,20 +6,18 @@ from flask import *
 from flask_caching import Cache
 from flask_limiter import Limiter
 from flask_compress import Compress
-from flask_limiter.util import get_ipaddr
 from flask_mail import Mail
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy import *
 import gevent
-from werkzeug.middleware.proxy_fix import ProxyFix
 import redis
 import time
 from sys import stdout
 import faulthandler
+from json import loads
 
 app = Flask(__name__, template_folder='templates')
-app.wsgi_app = ProxyFix(app.wsgi_app, x_for=3)
 app.url_map.strict_slashes = False
 app.jinja_env.cache = {}
 app.jinja_env.auto_reload = True
@@ -63,9 +61,13 @@ app.config['DESCRIPTION'] = environ.get("DESCRIPTION", "rdrama.net caters to dra
 
 r=redis.Redis(host=environ.get("REDIS_URL", "redis://localhost"), decode_responses=True, ssl_cert_reqs=None)
 
+def get_CF() -> str:
+	with app.app_context():
+		return request.headers.get('CF-Connecting-IP')
+
 limiter = Limiter(
 	app,
-	key_func=get_ipaddr,
+	key_func=get_CF,
 	default_limits=["3/second;30/minute;200/hour;1000/day"],
 	application_limits=["10/second;200/minute;5000/hour;10000/day"],
 	storage_uri=environ.get("REDIS_URL", "redis://localhost")
@@ -83,7 +85,6 @@ mail = Mail(app)
 
 @app.before_request
 def before_request():
-
 	if request.method.lower() != "get" and app.config["READ_ONLY"]:
 		return {"error":f"{app.config['SITE_NAME']} is currently in read-only mode."}, 500
 
@@ -104,7 +105,6 @@ def teardown_request(error):
 
 @app.after_request
 def after_request(response):
-
 	response.headers.add("Strict-Transport-Security", "max-age=31536000")
 	response.headers.add("X-Frame-Options", "deny")
 	return response
