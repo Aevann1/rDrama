@@ -338,35 +338,36 @@ def reported_comments(v):
 @admin_level_required(2)
 def admin_home(v):
 
-	with open('disable_signups', 'r') as f: x = f.read()
-	with open('under_attack', 'r') as f: x2 = f.read()
+	# with open('disable_signups', 'r') as f: x = f.read()
+	# with open('under_attack', 'r') as f: x2 = f.read()
 
 	return render_template("admin/admin_home.html", v=v, x=x, x2=x2)
 
 @app.post("/admin/disable_signups")
 @admin_level_required(3)
 def disable_signups(v):
-	with open('disable_signups', 'r') as f: content = f.read()
+	pass
+	# with open('disable_signups', 'r') as f: content = f.read()
 
-	with open('disable_signups', 'w') as f:
-		if content == "yes":
-			f.write("no")
-			ma = ModAction(
-				kind="enable_signups",
-				user_id=v.id,
-			)
-			g.db.add(ma)
-			g.db.commit()
-			return {"message": "Signups enabled!"}
-		else:
-			f.write("yes")
-			ma = ModAction(
-				kind="disable_signups",
-				user_id=v.id,
-			)
-			g.db.add(ma)
-			g.db.commit()
-			return {"message": "Signups disabled!"}
+	# with open('disable_signups', 'w') as f:
+	# 	if content == "yes":
+	# 		f.write("no")
+	# 		ma = ModAction(
+	# 			kind="enable_signups",
+	# 			user_id=v.id,
+	# 		)
+	# 		g.db.add(ma)
+	# 		g.db.commit()
+	# 		return {"message": "Signups enabled!"}
+	# 	else:
+	# 		f.write("yes")
+	# 		ma = ModAction(
+	# 			kind="disable_signups",
+	# 			user_id=v.id,
+	# 		)
+	# 		g.db.add(ma)
+	# 		g.db.commit()
+	# 		return {"message": "Signups disabled!"}
 
 
 @app.post("/admin/purge_cache")

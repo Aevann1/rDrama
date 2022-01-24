@@ -1,140 +1,109 @@
 from json.encoder import INFINITY
 import random
-from .comment import *
-from files.helpers.const import *
+
+def shuffle(stuff):
+    random.shuffle(stuff)
+    return stuff
 
 class Slots:
-    commandWord = "!slots"
-    minimumBet = 5
-    maximumBet = INFINITY
-    symbols = {"♦️", "♠️", "♥️", "♣️", "⚧", "🔞", "⚛️", "☢️", "✡️", "⚔️", "🐱"}
-
-    # Common...
-    commonRatio = 4
-    commonPayout = 2
-
-    # Uncommon.
-    uncommonIndex = 4
-    uncommonRatio = 3
-    uncommonPayout = 3
-
-    # Rare~
-    rareIndex = 8
-    rareRatio = 2
-    rarePayout = 5
-
-    # Jackpot!
-    jackpotIndex = 10
-    jackpotRatio = 1
-    jackpotPayout = 100
+    command_word = "!slots"
+    minimum_bet = 5
+    maximum_bet = INFINITY
+    payout_to_symbols = {
+        2: ["👣", "🍀", "🌈", "⭐️"],
+        3: ["🍎", "🔞", "⚛️", "☢️"],
+        5: ["✡️", "⚔️", "🍆", "🍒"],
+        12: ["🐱"]
+    }
 
     def __init__(self, g):
         self.db = g.db
-
-    # Check for !slots<wager>
+            
     def check_for_slots_command(self, in_text, from_user, from_comment):
-        if self.commandWord in in_text:
+        if self.command_word in in_text:
             for word in in_text.split():
-                if self.commandWord in word:
+                if self.command_word in word:
                     try:
-                        wager = word[len(self.commandWord):]
-                        wagerValue = int(wager, base=10)
+                        wager = word[len(self.command_word):]
+                        wager_value = int(wager, base=10)
 
-                        if self.wager_is_valid(from_user, wagerValue):
-                            result = self.pull_the_arm(from_user, wagerValue, from_comment)
-                            return { 'pulled': True, 'result': result }
+                        if self.wager_is_valid(from_user, wager_value):
+                            from_user.coins -= wager_value
 
+                            payout = self.determine_payout()
+                            symbols = self.build_symbols(payout)
+                            text = self.build_text(wager_value, payout)
+                            reward = wager_value * payout
+
+                            from_user.coins += reward
+                            self.db.add(from_user)
+
+                            from_comment.slots_result = symbols
+                            from_comment.slots_text = text
+                            self.db.add(from_comment)
+                            
+                            self.db.commit()
                     except: break
-        return { 'pulled': False, 'result': '' }
 
-    # Ensure user is capable of the wager
     def wager_is_valid(self, from_user, wager):
-        if (wager < self.minimumBet):
-            return False
-        elif (wager > self.maximumBet):
-            return False
-        elif (wager > from_user.coins):
-            return False
-        else:
-            return True
-
-    # Generate full set of symbols.
-    def count_out_symbols(self):
-        countedSymbols = []
-        payoutLookup = {}
-        index = 0
-
-        for item in self.symbols:
-            count = 0
-
-            if index == self.jackpotIndex:
-                count = self.jackpotRatio
-                payoutLookup[item] = self.jackpotPayout
-            elif index >= self.rareIndex:
-                count = self.rareRatio
-                payoutLookup[item] = self.rarePayout
-            elif index >= self.uncommonIndex:
-                count = self.uncommonRatio
-                payoutLookup[item] = self.uncommonPayout
+            if (wager < self.minimum_bet):
+                return False
+            elif (wager > self.maximum_bet):
+                return False
+            elif (wager > from_user.coins):
+                return False
             else:
-                count = self.commonRatio
-                payoutLookup[item] = self.commonPayout
-
-            while count > 0:
-                countedSymbols.append(item)
-                count -= 1
-            
-            index += 1
-            
-        random.shuffle(countedSymbols)
-            
-        return { 'symbols': countedSymbols, 'payout': payoutLookup }
-
-    # Consolation prizes return the user's wager.
-    def check_for_consolation(self, symbols):
-        # 1. Any 2 matching.
-        if symbols[0] == symbols[1] or symbols[0] == symbols[2] or symbols[1] == symbols[2]:
-            return True
-        # 2. Any instance of jackpot.
-        for symbol in symbols:
-            if symbol == "🐱":
                 return True
+
+    def determine_payout(self):
+        value = random.randint(0, 100)
         
-        return False
+        if value == 100:
+            return 12
+        elif value >= 96:
+            return 5
+        elif value >= 88:
+            return 3
+        elif value >= 72:
+            return 2
+        elif value >= 61:
+            return 1
+        else:
+            return 0
 
-    # Actually make the relevant calls
-    def pull_the_arm(self, from_user, amount, from_comment):
-        # Charge user for the bet
-        self.charge_user(from_user, amount)
-
-        # Determine the outcome
-        result1 = self.count_out_symbols()
-        result2 = self.count_out_symbols()
-        result3 = self.count_out_symbols()
-        symbol1 = result1['symbols'][0]
-        symbol2 = result2['symbols'][0]
-        symbol3 = result3['symbols'][0]
-        payout = result1['payout'][symbol1]
-        isMatch = symbol1 == symbol2 and symbol2 == symbol3
-        resultSymbols = [symbol1, symbol2, symbol3]
-        isConsolation = self.check_for_consolation(resultSymbols)
-
-        if isMatch:
-            # Pay out
-            reward = amount * payout
-            self.credit_user(from_user, reward)
-        elif isConsolation:
-            # Refund wager
-            self.credit_user(from_user, amount)
-
-        return "".join(resultSymbols)
-
-    # Credit the user's account
-    def credit_user(self, from_user, amount):
-        from_user.coins += amount
-        self.db.add(from_user)
-
-    # Charge the user's account
-    def charge_user(self, from_user, amount):
-        from_user.coins -= amount
-        self.db.add(from_user)
+    def build_symbols(self, for_payout):
+        all_symbols = []
+        
+        for payout in self.payout_to_symbols:
+            for symbol in self.payout_to_symbols[payout]:
+                all_symbols.append(symbol)
+                
+        shuffle(all_symbols)
+                
+        if for_payout == 0:
+            return "".join([all_symbols[0], all_symbols[1], all_symbols[2]])
+        elif for_payout == 1:
+            indices = shuffle([0, 1, 2])
+            symbol_set = ["", "", ""]
+            [match_a, match_b, nonmatch] = indices
+            [matching_symbol, other_symbol] = all_symbols
+            symbol_set[match_a] = matching_symbol
+            symbol_set[match_b] = matching_symbol
+            symbol_set[nonmatch] = other_symbol
+            
+            return "".join(symbol_set)
+        else:
+            relevantSymbols = shuffle(self.payout_to_symbols[for_payout])
+            symbol = relevantSymbols[0]
+            return "".join([symbol, symbol, symbol])
+    
+    def build_text(self, wager_value, result):
+        if result == 0:
+            return f'Lost {wager_value} Coins'
+        elif result == 1:
+            return 'Broke Even'
+        elif result == 12:
+            return f'Jackpot! Won {wager_value} Coins'
+        else:
+            return f'Won {wager_value} Coins'
+        
