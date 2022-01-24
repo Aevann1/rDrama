@@ -44,6 +44,7 @@ class Comment(Base):
 	body_html = Column(String)
 	ban_reason = Column(String)
 	slots_result = Column(String)
+	slots_text = Column(String)
 
 	post = relationship("Submission", viewonly=True)
 	author = relationship("User", primaryjoin="User.id==Comment.author_id")
