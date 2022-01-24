@@ -103,7 +103,7 @@ class Slots:
         elif result == 1:
             return 'Broke Even'
         elif result == 12:
-            return f'Jackpot! Won {wager_value} Coins'
+            return f'Jackpot! Won {wager_value * result} Coins'
         else:
             return f'Won {wager_value * result} Coins'
         
