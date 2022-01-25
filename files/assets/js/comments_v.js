@@ -117,6 +117,9 @@ function delete_commentModal(id) {
 };
 
 function post_reply(id){
+	const btn = document.getElementById(`save-reply-to-${id}`)
+	btn.classList.add('disabled');
+
 	var form = new FormData();
 	form.append('formkey', formkey());
 	form.append('parent_id', id);
@@ -137,12 +140,16 @@ function post_reply(id){
 			}
 			catch(e) {console.log(e)}
 			new bootstrap.Toast(document.getElementById('toast-post-error')).show();
+			btn.classList.remove('disabled');
 		}
 	}
 	xhr.send(form)
 }
 
 function comment_edit(id){
+	const btn = document.getElementById(`edit-btn-${id}`)
+	btn.classList.add('disabled');
+
 	var form = new FormData();
 
 	form.append('formkey', formkey());
@@ -166,6 +173,7 @@ function comment_edit(id){
 			}
 			catch(e) {console.log(e)}
 			new bootstrap.Toast(document.getElementById('toast-post-error')).show();
+			btn.classList.remove('disabled');
 		}
 	}
 	xhr.send(form)

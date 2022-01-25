@@ -21,7 +21,7 @@
 <meta property="og:site_name" content="{{request.host}}" >
 
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:site" content="{{request.host_url}}">
+<meta name="twitter:site" content="{{SITE_FULL}}/">
 <meta name="twitter:title" content="{{u.username}}'s profile - {{SITE_NAME}}" >
 <meta name="twitter:creator" content="@{{u.username}}">
 <meta name="twitter:description" content="{{u.coins}} coins - Joined {{u.created_date}} - {% if u.stored_subscriber_count >=1 and not u.is_private and not u.is_nofollow %}{{u.stored_subscriber_count}} Followers -{% endif %} {% if not u.is_private %} {{0 if u.shadowbanned else u.post_count}} Posts - {{0 if u.shadowbanned else u.comment_count}} Comments - {% endif %}{{u.bio}}">
@@ -95,7 +95,7 @@
 					</div> 
 				</div>
 
-				{% if u.customtitle %}<p class="font-weight-bolder" style="color: #{{u.titlecolor}}">{% if u.quadrant %}<img alt="{{u.quadrant}} quadrant" loading="lazy" height="20" src="/static/assets/images/quadrants/{{u.quadrant}}.webp?a=1007">{% endif %}{{u.customtitle | safe}}</p>
+				{% if u.customtitle %}<p class="font-weight-bolder" style="color: #{{u.titlecolor}}">{% if u.quadrant %}<img alt="{{u.quadrant}} quadrant" loading="lazy" height="20" src="/static/assets/images/quadrants/{{u.quadrant}}.webp?a=1008">{% endif %}{{u.customtitle | safe}}</p>
 				{% else %}<pre></pre>
 				{% endif %}
 
@@ -103,10 +103,10 @@
 
 				<div class="font-weight-bolder">
 					<span id="profile-coins-amount">{{u.coins}}</span>
-					<img alt="coins" class="ml-1 mb-1" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="coins" height="20" src="/static/assets/images/marseycoin.webp?a=4">&nbsp;&nbsp;
+					<img alt="coins" class="ml-1 mb-1" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="coins" height="20" src="/static/assets/images/marseycoin.webp?a=1008">&nbsp;&nbsp;
 
 					<span id="profile-bux-amount">{{u.procoins}}</span>
-					<img alt="marseybux" class="ml-1 mb-1" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Marseybux" height="20" src="/static/assets/images/marseybux.webp?a=4">&nbsp;&nbsp;
+					<img alt="marseybux" class="ml-1 mb-1" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Marseybux" height="20" src="/static/assets/images/marseybux.webp?a=1008">&nbsp;&nbsp;
 
 					<a href="/@{{u.username}}/followers">{{u.stored_subscriber_count}} follower{{'s' if u.stored_subscriber_count != 1 else ''}}</a>&nbsp;&nbsp;
 
@@ -150,11 +150,11 @@
 					{% if v and v.id != u.id %}
 						{% if not u.fish %}<a id="button-unsub" class="btn btn-secondary {% if not is_following %}d-none{% endif %}" role="button" onclick="post_toast2('/unfollow/{{u.username}}','button-unsub','button-sub')">Unfollow</a>{% endif %}
 						<a id="button-sub" class="btn btn-primary {% if is_following or u.is_nofollow or u.is_blocked %}d-none{% endif %}" role="button" onclick="post_toast2('/follow/{{u.username}}','button-unsub','button-sub')">Follow</a>						
-						<a class="btn btn-primary" role="button" onclick="toggleElement('profile-toggleable', 'message')">Message</a>
+						<a class="btn btn-primary" role="button" onclick="toggleElement('profile-toggleable', 'message', 'input-message')">Message</a>
 
 						<a class="btn btn-primary" role="button" onclick="post_toast('/@{{u.username}}/suicide')">Get them help</a>
-						<a class="btn btn-primary" role="button" onclick="toggleElement('profile-toggleable', 'coin-transfer')">Gift coins</a>
-						<a class="btn btn-primary" role="button" onclick="toggleElement('profile-toggleable', 'bux-transfer')">Gift Marseybux</a>
+						<a class="btn btn-primary" role="button" onclick="toggleElement('profile-toggleable', 'coin-transfer', 'coin-transfer-amount')">Gift coins</a>
+						<a class="btn btn-primary" role="button" onclick="toggleElement('profile-toggleable', 'bux-transfer', 'bux-transfer-amount')">Gift Marseybux</a>
 
 						{% if v.admin_level > 2 %}
 							<a id="admin" class="{% if u.admin_level > 1 %}d-none{% endif %} btn btn-primary" href="javascript:void(0)" onclick="post_toast2('/@{{u.username}}/make_admin','admin','unadmin')">Make admin</a>
@@ -188,7 +188,7 @@
 						<div id="message-preview" class="preview-edit mt-2"></div>
 
 						<div class="d-none mt-3 profile-toggleable" id="coin-transfer">
-							<input autocomplete="off" id="coins-transfer-amount" class="form-control" name="amount" type="number" oninput="updateTax()">
+							<input autocomplete="off" id="coin-transfer-amount" class="form-control" name="amount" type="number" oninput="updateTax()">
 							<div>{{u.username}} will receive <span id="coins-transfer-taxed">0</span> coins</div>
 							<button class="btn btn-primary mt-3" onclick="transferCoins()">Gift</button>
 						</div>
@@ -291,6 +291,7 @@
 					<p>User ID: {{u.id}}</p>
 					<p>Coins spent: {{u.coins_spent}}</p>
 					<p>True score: {{u.truecoins}}</p>
+					<p>Slot winnings: {{u.winnings}}</p>
 					{% if u.is_private %}
 						<p>User has private mode enabled.</p>
 					{% endif %}
@@ -311,9 +312,9 @@
 					<div>
 						{% for b in u.badges %}
 							{% if b.url %}
-								<a rel="nofollow noopener noreferrer" href="{{b.url}}"><img alt="{{b.name}}" width=55 height=60 loading="lazy" src="{{b.path}}" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{b.name}}{{b.text}}"></a>
+								<a rel="nofollow noopener noreferrer" href="{{b.url}}"><img alt="{{b.name}}" width=55 height=60 loading="lazy" src="{{b.path}}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{b.text}}" data-bs-original-title="{{b.text}}"></a>
 							{% else %}
-								<img alt="{{b.name}}" width=55 height=60 loading="lazy" src="{{b.path}}" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{b.name}}{{b.text}}">
+								<img alt="{{b.name}}" width=55 height=60 loading="lazy" src="{{b.path}}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{b.text}}" data-bs-original-title="{{b.text}}">
 							{% endif %}
 						{% endfor %}
 					</div>
@@ -366,7 +367,7 @@
 				{% if v and v.has_follower(u) and not v.is_nofollow %}
 					<span class="followsyou badge badge-secondary text-small align-middle mx-1">Follows you</span>
 				{% endif %}
-				{% if u.customtitle %}<p style="color: #{{u.titlecolor}}">{% if u.quadrant %}<img alt="@{{u.quadrant}} quadrant" loading="lazy" height="20" src="/static/assets/images/quadrants/{{u.quadrant}}.webp?a=1007">{% endif %}{{u.customtitle | safe}}</p>
+				{% if u.customtitle %}<p style="color: #{{u.titlecolor}}">{% if u.quadrant %}<img alt="@{{u.quadrant}} quadrant" loading="lazy" height="20" src="/static/assets/images/quadrants/{{u.quadrant}}.webp?a=1008">{% endif %}{{u.customtitle | safe}}</p>
 				{% else %}
 					<pre></pre>
 				{% endif %}
@@ -375,10 +376,10 @@
 				
 				<div class="font-weight-normal">
 					<span id="profile-coins-amount-mobile" class="font-weight-bold">{{u.coins}}</span>
-					<img alt="coins" class="ml-1 mb-1" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="coins" height="15" src="/static/assets/images/marseycoin.webp?a=4">&nbsp;&nbsp;
+					<img alt="coins" class="ml-1 mb-1" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="coins" height="15" src="/static/assets/images/marseycoin.webp?a=1008">&nbsp;&nbsp;
 
 					<span id="profile-bux-amount-mobile" class="font-weight-bold">{{u.procoins}}</span>
-					<img alt="marseybux" class="ml-1 mb-1" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Marseybux" height="15" src="/static/assets/images/marseybux.webp?a=4">&nbsp;&nbsp;
+					<img alt="marseybux" class="ml-1 mb-1" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Marseybux" height="15" src="/static/assets/images/marseybux.webp?a=1008">&nbsp;&nbsp;
 
 					<a href="/@{{u.username}}/followers" class="font-weight-bold">{{u.stored_subscriber_count}} follower{{'s' if u.stored_subscriber_count != 1 else ''}}</a>&nbsp;&nbsp;
 
@@ -419,9 +420,9 @@
 				<div class="mb-3">
 					{% for b in u.badges %}
 						{% if b.url %}
-							<a rel="nofollow noopener noreferrer" href="{{b.url}}"><img alt="{{b.name}}" width=29.33 height=32 loading="lazy" src="{{b.path}}" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{b.name}}{{b.text}}"></a>
+							<a rel="nofollow noopener noreferrer" href="{{b.url}}"><img alt="{{b.name}}" width=29.33 height=32 loading="lazy" src="{{b.path}}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{b.text}}" data-bs-original-title="{{b.text}}"></a>
 						{% else %}
-							<img alt="{{b.name}}" width=29.33 height=32 loading="lazy" src="{{b.path}}" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{b.name}}{{b.text}}">
+							<img alt="{{b.name}}" width=29.33 height=32 loading="lazy" src="{{b.path}}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{b.text}}" data-bs-original-title="{{b.text}}">
 						{% endif %}
 					{% endfor %}
 				</div>
@@ -437,10 +438,10 @@
 				{% if v and v.id != u.id %}
 					{% if not u.fish %}<a id="button-unsub2" class="btn btn-secondary {% if not is_following %}d-none{% endif %}" role="button" onclick="post_toast2('/unfollow/{{u.username}}','button-unsub2','button-sub2')">Unfollow</a>{% endif %}
 					<a id="button-sub2" class="btn btn-primary {% if is_following or u.is_nofollow or u.is_blocked %}d-none{% endif %}" role="button" onclick="post_toast2('/follow/{{u.username}}','button-unsub2','button-sub2')">Follow</a>						
-					<a class="btn btn-primary" role="button" onclick="toggleElement('profile-toggleable-mobile', 'message-mobile')">Message</a>
+					<a class="btn btn-primary" role="button" onclick="toggleElement('profile-toggleable-mobile', 'message-mobile', 'input-message-mobile')">Message</a>
 					<a class="btn btn-primary" role="button" onclick="post_toast('/@{{u.username}}/suicide')">Get them help</a>
-					<a class="btn btn-primary" role="button" onclick="toggleElement('profile-toggleable-mobile', 'coin-transfer-mobile')">Gift coins</a>
-					<a class="btn btn-primary" role="button" onclick="toggleElement('profile-toggleable', 'bux-transfer-mobile')">Gift Marseybux</a>
+					<a class="btn btn-primary" role="button" onclick="toggleElement('profile-toggleable-mobile', 'coin-transfer-mobile', 'coin-transfer-amount-mobile')">Gift coins</a>
+					<a class="btn btn-primary" role="button" onclick="toggleElement('profile-toggleable', 'bux-transfer-mobile', 'bux-transfer-amount-mobile')">Gift Marseybux</a>
 
 					{% if v.admin_level > 2 %} 
 						<a id="admin2" class="{% if u.admin_level > 1 %}d-none{% endif %} btn btn-primary" href="javascript:void(0)" onclick="post_toast2('/@{{u.username}}/make_admin','admin2','unadmin2')">Make admin</a>
@@ -474,7 +475,7 @@
 					<div id="message-preview-mobile" class="preview-edit my-3"></div>
 
 					<div class="d-none mt-3 profile-toggleable-mobile" id="coin-transfer-mobile">
-						<input autocomplete="off" id="coins-transfer-amount-mobile" class="form-control" name="amount" type="number" oninput="updateTax(true)">
+						<input autocomplete="off" id="coin-transfer-amount-mobile" class="form-control" name="amount" type="number" oninput="updateTax(true)">
 						<div>{{u.username}} will receive <span id="coins-transfer-taxed-mobile">0</span> coins</div>
 						<button class="btn btn-primary mt-3" onclick="transferCoins(true)">Gift</button>
 					</div>
@@ -573,6 +574,7 @@
 				<p>User ID: {{u.id}}</p>
 				<p>Coins spent: {{u.coins_spent}}</p>
 				<p>True score: {{u.truecoins}}</p>
+				<p>Slot winnings: {{u.winnings}}</p>
 				{% if u.is_private %}
 					<p>User has private mode enabled.</p>
 				{% endif %}
@@ -690,7 +692,7 @@
 
 {% if v %}
 <div id='tax' class="d-none">{% if v.patron or u.patron or v.alts_patron or u.alts_patron %}0{% else %}0.03{% endif %}</div>
-<script src="/static/assets/js/userpage_v.js?a=220"></script>
+<script src="/static/assets/js/userpage_v.js?a=222"></script>
 <div id="username" class="d-none">{{u.username}}</div>
 {% endif %}
 

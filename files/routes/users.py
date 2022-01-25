@@ -240,7 +240,8 @@ def transfer_coins(v, username):
 		if v.coins < amount: return {"error": f"You don't have enough coins."}, 400
 		if amount < 100: return {"error": f"You have to gift at least 100 coins."}, 400
 
-		tax = math.ceil(amount*0.03)
+		if not v.patron and not receiver.patron and not v.alts_patron and not receiver.alts_patron: tax = math.ceil(amount*0.03)
+		else: tax = 0
 
 		log_message = f"@{v.username} has transferred {amount} coins to @{receiver.username}"
 		send_repeatable_notification(TAX_NOTIF_ID, log_message)
@@ -358,7 +359,15 @@ def leaderboard(v):
 		pos13 = (pos13+1, users13[pos13][1])
 	except: pos13 = (len(users13)+1, 0)
 
-	return render_template("leaderboard.html", v=v, users1=users1, pos1=pos1, users2=users2, pos2=pos2, users3=users3, pos3=pos3, users4=users4, pos4=pos4, users5=users5, pos5=pos5, users6=users6, pos6=pos6, users7=users7, pos7=pos7, users9=users9_25, pos9=pos9, users10=users10, pos10=pos10, users11=users11, pos11=pos11, users12=users12, pos12=pos12, users13=users13_25, pos13=pos13)
+	users14 = users.order_by(User.winnings.desc()).limit(25).all()
+	sq = g.db.query(User.id, func.rank().over(order_by=User.winnings.desc()).label("rank")).subquery()
+	pos14 = g.db.query(sq.c.id, sq.c.rank).filter(sq.c.id == v.id).limit(1).one()[1]
+
+	users15 = users.order_by(User.winnings).limit(25).all()
+	sq = g.db.query(User.id, func.rank().over(order_by=User.winnings).label("rank")).subquery()
+	pos15 = g.db.query(sq.c.id, sq.c.rank).filter(sq.c.id == v.id).limit(1).one()[1]
+
+	return render_template("leaderboard.html", v=v, users1=users1, pos1=pos1, users2=users2, pos2=pos2, users3=users3, pos3=pos3, users4=users4, pos4=pos4, users5=users5, pos5=pos5, users6=users6, pos6=pos6, users7=users7, pos7=pos7, users9=users9_25, pos9=pos9, users10=users10, pos10=pos10, users11=users11, pos11=pos11, users12=users12, pos12=pos12, users13=users13_25, pos13=pos13, users14=users14, pos14=pos14, users15=users15, pos15=pos15)
 
 @app.get("/@<username>/css")
 def get_css(username):
@@ -382,13 +391,12 @@ def get_profilecss(v, username):
 @app.get("/@<username>/song")
 def usersong(username):
 	user = get_user(username)
-	if user.song: return redirect(f"/static/song/{user.song}.mp3")
+	if user.song: return redirect(f"{SITE_FULL}/static/song/{user.song}.mp3")
 	else: abort(404)
 
 @app.get("/song/<song>")
 @app.get("/static/song/<song>")
 def song(song):
-	if request.path.startswith('/song/'): return redirect(request.full_path.replace('/song/', '/static/song/'))
 	resp = make_response(send_from_directory('/songs', song))
 	resp.headers.remove("Cache-Control")
 	resp.headers.add("Cache-Control", "public, max-age=2628000")
@@ -416,7 +424,7 @@ def unsubscribe(v, post_id):
 @app.get("/report_bugs")
 @auth_required
 def reportbugs(v):
-	return redirect(f'/post/{BUG_THREAD}')
+	return redirect(f'{SITE_FULL}/post/{BUG_THREAD}')
 
 @app.post("/@<username>/message")
 @limiter.limit("1/second;2/minute;10/hour;50/day")
@@ -473,8 +481,8 @@ def message2(v, username):
 					'notification': {
 						'title': f'New message from @{v.username}',
 						'body': notifbody,
-						'deep_link': f'{request.host_url}notifications?messages=true',
-						'icon': f'{request.host_url}assets/images/{SITE_NAME}/icon.webp',
+						'deep_link': f'{SITE_FULL}/notifications?messages=true',
+						'icon': f'{SITE_FULL}/assets/images/{SITE_NAME}/icon.webp',
 					}
 				},
 				'fcm': {
@@ -540,8 +548,8 @@ def messagereply(v):
 					'notification': {
 						'title': f'New message from @{v.username}',
 						'body': notifbody,
-						'deep_link': f'{request.host_url}notifications?messages=true',
-						'icon': f'{request.host_url}assets/images/{SITE_NAME}/icon.webp',
+						'deep_link': f'{SITE_FULL}/notifications?messages=true',
+						'icon': f'{SITE_FULL}/assets/images/{SITE_NAME}/icon.webp',
 					}
 				},
 				'fcm': {
@@ -617,7 +625,7 @@ def user_id(id, v):
 @app.get("/u/<username>")
 @auth_required
 def redditor_moment_redirect(username, v):
-	return redirect(f"/@{username}")
+	return redirect(f"{SITE_FULL}/@{username}")
 
 @app.get("/@<username>/followers")
 @auth_required
@@ -647,7 +655,7 @@ def visitors(v):
 def u_username(username, v=None):
 
 
-	if not v and not request.path.startswith('/logged_out'): return redirect(f"/logged_out{request.full_path}")
+	if not v and not request.path.startswith('/logged_out'): return redirect(f"{SITE_FULL}/logged_out{request.full_path}")
 
 	if v and request.path.startswith('/logged_out'): v = None
 
@@ -754,13 +762,13 @@ def u_username(username, v=None):
 def u_username_comments(username, v=None):
 
 
-	if not v and not request.path.startswith('/logged_out'): return redirect(f"/logged_out{request.full_path}")
+	if not v and not request.path.startswith('/logged_out'): return redirect(f"{SITE_FULL}/logged_out{request.full_path}")
 
 	if v and request.path.startswith('/logged_out'): v = None
 
 	user = get_user(username, v=v)
 
-	if username != user.username: return redirect(f'/@{user.username}/comments')
+	if username != user.username: return redirect(f'{SITE_FULL}/@{user.username}/comments')
 
 	u = user
 
@@ -929,7 +937,7 @@ def remove_follow(username, v):
 @limiter.exempt
 @auth_desired
 def user_profile_uid(v, id):
-	if not v and not request.path.startswith('/logged_out'): return redirect(f"/logged_out{request.full_path}")
+	if not v and not request.path.startswith('/logged_out'): return redirect(f"{SITE_FULL}/logged_out{request.full_path}")
 	if v and request.path.startswith('/logged_out'): v = None
 
 	try: id = int(id)

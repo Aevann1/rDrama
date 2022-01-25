@@ -85,6 +85,10 @@ mail = Mail(app)
 
 @app.before_request
 def before_request():
+	if not session.get("session_id") and not request.path.startswith("/assets") and not request.path.startswith("/images") and not request.path.startswith("/hostedimages") and not request.path.startswith("/static") and not request.path.startswith("/song"):
+		session.permanent = True
+		session["session_id"] = secrets.token_hex(49)
+
 	if request.method.lower() != "get" and app.config["READ_ONLY"]:
 		return {"error":f"{app.config['SITE_NAME']} is currently in read-only mode."}, 500
 
@@ -101,7 +105,7 @@ def before_request():
 
 	if 'iphone' in ua or 'ipad' in ua or 'ipod' in ua or 'mac os' in ua or ' firefox/' in ua: g.seal = True
 	else: g.seal = False
-	 
+
 
 @app.teardown_appcontext
 def teardown_request(error):

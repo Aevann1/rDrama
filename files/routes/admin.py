@@ -371,6 +371,7 @@ def disable_signups(v):
 @app.post("/admin/purge_cache")
 @admin_level_required(3)
 def purge_cache(v):
+	cache.clear()
 	response = str(requests.post(f'https://api.cloudflare.com/client/v4/zones/{CF_ZONE}/purge_cache', headers=CF_HEADERS, data='{"purge_everything":true}'))
 	if response == "<Response [200]>": return {"message": "Cache purged!"}
 	return {"error": "Failed to purge cache."}
@@ -441,6 +442,7 @@ def badge_grant_post(v):
 	g.db.add(new_badge)
 	
 	if v.id != user.id:
+		g.db.flush()
 		text = f"@{v.username} has given you the following profile badge:\n\n![]({new_badge.path})\n\n{new_badge.name}"
 		send_notification(user.id, text)
 	
@@ -623,7 +625,7 @@ def admin_link_accounts(v):
 	g.db.add(new_alt)
 
 	g.db.commit()
-	return redirect(f"/admin/alt_votes?u1={g.db.query(User).get(u1).username}&u2={g.db.query(User).get(u2).username}")
+	return redirect(f"{SITE_FULL}/admin/alt_votes?u1={g.db.query(User).get(u1).username}&u2={g.db.query(User).get(u2).username}")
 
 
 @app.get("/admin/removed/posts")
@@ -717,6 +719,7 @@ def agendaposter(user_id, v):
 		if not user.has_badge(26):
 			badge = Badge(user_id=user.id, badge_id=26)
 			g.db.add(badge)
+			g.db.flush()
 			send_notification(user.id, f"@AutoJanny has given you the following profile badge:\n\n![]({badge.path})\n\n{badge.name}")
 
 	else:
@@ -1246,7 +1249,7 @@ def admin_toggle_ban_domain(v):
 
 	g.db.commit()
 
-	return redirect("/admin/banned_domains/")
+	return redirect(f"{SITE_FULL}/admin/banned_domains/")
 
 
 @app.post("/admin/nuke_user")

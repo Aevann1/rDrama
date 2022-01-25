@@ -11,6 +11,7 @@ from .front import frontlist
 import os
 from files.helpers.sanitize import filter_emojis_only
 from files.helpers.discord import add_role
+from shutil import copyfile
 import requests
 
 valid_username_regex = re.compile("^[a-zA-Z0-9_\-]{3,25}$")
@@ -255,7 +256,10 @@ def settings_profile_post(v):
 		if request.files.get('file'):
 			file = request.files['file']
 			if file.content_type.startswith('image/'):
-				bio += f"\n\n![]({process_image(file)})"
+				name = f'/images/{time.time()}'.replace('.','')[:-5] + '.webp'
+				file.save(name)
+				url = process_image(name)
+				bio += f"\n\n![]({url})"
 			elif file.content_type.startswith('video/'):
 				file.save("video.mp4")
 				with open("video.mp4", 'rb') as f:
@@ -413,7 +417,7 @@ def namecolor(v):
 	v.namecolor = color
 	g.db.add(v)
 	g.db.commit()
-	return redirect("/settings/profile")
+	return redirect(f"{SITE_FULL}/settings/profile")
 	
 @app.post("/settings/themecolor")
 @limiter.limit("1/second;30/minute;200/hour;1000/day")
@@ -426,7 +430,7 @@ def themecolor(v):
 	v.themecolor = themecolor
 	g.db.add(v)
 	g.db.commit()
-	return redirect("/settings/profile")
+	return redirect(f"{SITE_FULL}/settings/profile")
 
 @app.post("/settings/gumroad")
 @limiter.limit("1/second;30/minute;200/hour;1000/day")
@@ -474,6 +478,7 @@ def gumroad(v):
 	if not v.has_badge(20+tier):
 		new_badge = Badge(badge_id=20+tier, user_id=v.id)
 		g.db.add(new_badge)
+		g.db.flush()
 		send_notification(v.id, f"@AutoJanny has given you the following profile badge:\n\n![]({new_badge.path})\n\n{new_badge.name}")
 	
 	g.db.commit()
@@ -491,7 +496,7 @@ def titlecolor(v):
 	v.titlecolor = titlecolor
 	g.db.add(v)
 	g.db.commit()
-	return redirect("/settings/profile")
+	return redirect(f"{SITE_FULL}/settings/profile")
 
 @app.post("/settings/verifiedcolor")
 @limiter.limit("1/second;30/minute;200/hour;1000/day")
@@ -503,7 +508,7 @@ def verifiedcolor(v):
 	v.verifiedcolor = verifiedcolor
 	g.db.add(v)
 	g.db.commit()
-	return redirect("/settings/profile")
+	return redirect(f"{SITE_FULL}/settings/profile")
 
 @app.post("/settings/security")
 @limiter.limit("1/second;30/minute;200/hour;1000/day")
@@ -621,11 +626,15 @@ def settings_images_profile(v):
 
 	file = request.files["profile"]
 
-	highres = process_image(file)
+	name = f'/images/{time.time()}'.replace('.','')[:-5] + '.webp'
+	file.save(name)
+	highres = process_image(name)
 
 	if not highres: abort(400)
 
-	imageurl = process_image(file, resize=100)
+	name2 = name.replace('.webp', 'r.webp')
+	copyfile(name, name2)
+	imageurl = process_image(name2, resize=100)
 
 	if not imageurl: abort(400)
 
@@ -652,7 +661,9 @@ def settings_images_banner(v):
 
 	file = request.files["banner"]
 
-	bannerurl = process_image(file)
+	name = f'/images/{time.time()}'.replace('.','')[:-5] + '.webp'
+	file.save(name)
+	bannerurl = process_image(name)
 
 	if bannerurl:
 		if v.bannerurl and '/images/' in v.bannerurl : os.remove('/images/' + v.bannerurl.split('/images/')[1])
@@ -808,7 +819,7 @@ def settings_remove_discord(v):
 
 	g.db.commit()
 
-	return redirect("/settings/profile")
+	return redirect(f"{SITE_FULL}/settings/profile")
 
 @app.get("/settings/content")
 @auth_required
@@ -858,7 +869,7 @@ def settings_name_change(v):
 
 	g.db.commit()
 
-	return redirect("/settings/profile")
+	return redirect(f"{SITE_FULL}/settings/profile")
 
 @app.post("/settings/song_change")
 @limiter.limit("1/second;5/day")
@@ -872,7 +883,7 @@ def settings_song_change(v):
 		v.song = None
 		g.db.add(v)
 		g.db.commit()
-		return redirect("/settings/profile")
+		return redirect(f"{SITE_FULL}/settings/profile")
 
 	song = song.replace("https://music.youtube.com", "https://youtube.com")
 	if song.startswith(("https://www.youtube.com/watch?v=", "https://youtube.com/watch?v=", "https://m.youtube.com/watch?v=")):
@@ -889,7 +900,7 @@ def settings_song_change(v):
 		v.song = id
 		g.db.add(v)
 		g.db.commit()
-		return redirect("/settings/profile")
+		return redirect(f"{SITE_FULL}/settings/profile")
 		
 	
 	req = requests.get(f"https://www.googleapis.com/youtube/v3/videos?id={id}&key={YOUTUBE_KEY}&part=contentDetails", timeout=5).json()
@@ -937,7 +948,7 @@ def settings_song_change(v):
 
 	g.db.commit()
 
-	return redirect("/settings/profile")
+	return redirect(f"{SITE_FULL}/settings/profile")
 
 @app.post("/settings/title_change")
 @limiter.limit("1/second;30/minute;200/hour;1000/day")
@@ -958,4 +969,4 @@ def settings_title_change(v):
 		g.db.add(v)
 		g.db.commit()
 
-	return redirect("/settings/profile")
+	return redirect(f"{SITE_FULL}/settings/profile")

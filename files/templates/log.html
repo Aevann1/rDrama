@@ -6,7 +6,7 @@
 {% block content %}
 {% if v %}
 	<style>:root{--primary:#{{v.themecolor}}}</style>
-	<link rel="stylesheet" href="/static/assets/css/main.css?a=95"><link rel="stylesheet" href="/static/assets/css/{{v.theme}}.css?a=14">
+	<link rel="stylesheet" href="/static/assets/css/main.css?a=98"><link rel="stylesheet" href="/static/assets/css/{{v.theme}}.css?a=14">
 	{% if v.agendaposter %}
 		<style>
 			html {
@@ -30,7 +30,7 @@
 	{% endif %}
 {% else %}
 	<style>:root{--primary:#{{'DEFAULT_COLOR' | app_config}}</style>
-	<link rel="stylesheet" href="/static/assets/css/main.css?a=95"><link rel="stylesheet" href="/static/assets/css/{{'DEFAULT_THEME' | app_config}}.css?a=14">
+	<link rel="stylesheet" href="/static/assets/css/main.css?a=98"><link rel="stylesheet" href="/static/assets/css/{{'DEFAULT_THEME' | app_config}}.css?a=14">
 {% endif %}
 
 <div class="row justify-content-around">
@@ -56,10 +56,10 @@
 						<div class="dropdown dropdown-actions">
 
 							<button class="btn btn-secondary dropdown-toggle" role="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-								{% if admin %}<img src="/@{{admin}}/pic" alt="avatar" width=20 height=20 class="rounded-circle mr-2">{{admin}}{% else %}<img src="/static/assets/images/emojis/marseyjanny.webp?a=1007" alt="avatar" width=20 height=20 class="rounded-circle mr-2">All{% endif %}
+								{% if admin %}<img src="/@{{admin}}/pic" alt="avatar" width=20 height=20 class="rounded-circle mr-2">{{admin}}{% else %}<img src="/static/assets/images/emojis/marseyjanny.webp?a=1008" alt="avatar" width=20 height=20 class="rounded-circle mr-2">All{% endif %}
 							</button>
 							<div class="dropdown-menu" aria-labelledby="dropdownMenuButton" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 31px, 0px);">
-								<a class="dropdown-item" href="/log{% if type %}?kind={{type}}{% endif %}"><img src="/static/assets/images/emojis/marseyjanny.webp?a=1007" alt="avatar" width=20 height=20 class="rounded-circle mr-2">All</a>
+								<a class="dropdown-item" href="/log{% if type %}?kind={{type}}{% endif %}"><img src="/static/assets/images/emojis/marseyjanny.webp?a=1008" alt="avatar" width=20 height=20 class="rounded-circle mr-2">All</a>
 								{% for a in admins %}
 									<a class="dropdown-item" href="?admin={{a}}{% if type %}&kind={{type}}{% endif %}"><img loading="lazy" src="/@{{a}}/pic" alt="avatar" width=20 height=20 class="rounded-circle mr-2">{{a}}</a>
 								{% endfor %}

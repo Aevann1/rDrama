@@ -217,7 +217,7 @@
 					👻
 				{% else %}
 					<a class="user-name text-decoration-none" onclick='popclick({{c.author.json_popover(v) | tojson}})' data-bs-placement="bottom" data-bs-toggle="popover" data-bs-trigger="focus" data-content-id="popover" role="button" tabindex="0" style="color:#{{c.author.namecolor}}; font-size:12px; font-weight:bold;"><img alt="@{{c.author_name}}'s profile picture" loading="lazy" src="{{c.author.profile_url}}" class="profile-pic-25 mr-2"><span {% if c.author.patron and not c.distinguish_level %}class="patron" style="background-color:#{{c.author.namecolor}};"{% elif c.distinguish_level and request.host == 'rdrama.net' %}class="mod"{% endif %}>{{c.author_name}}</span></a>
-					{% if c.author.customtitle %}&nbsp;<bdi style="color: #{{c.author.titlecolor}}">&nbsp;{% if c.author.quadrant %}<img alt="{{c.author.quadrant}} quadrant" loading="lazy" height="20" src="/static/assets/images/quadrants/{{c.author.quadrant}}.webp?a=1007">{% endif %}{{c.author.customtitle | safe}}</bdi>{% endif %}
+					{% if c.author.customtitle %}&nbsp;<bdi style="color: #{{c.author.titlecolor}}">&nbsp;{% if c.author.quadrant %}<img alt="{{c.author.quadrant}} quadrant" loading="lazy" height="20" src="/static/assets/images/quadrants/{{c.author.quadrant}}.webp?a=1008">{% endif %}{{c.author.customtitle | safe}}</bdi>{% endif %}
 				{% endif %}
 
 				{% if c.parent_comment_id and not standalone and level != 1 %}<a href="#comment-{{c.parent_comment_id}}-only" class="text-muted ml-2"><i class="fas fa-reply fa-sm fa-fw fa-flip-horizontal mr-1"></i>{{c.parent_comment.author_name}}</a>{% endif %}
@@ -231,11 +231,19 @@
 				{% endif %}
 
 				{% if c.slots_result %}
-					<span style="position: relative; top: 2px; margin-left: 0.5rem">{{c.slots_result}} <em>{{c.slots_text}}</em></span>
+					<div
+						title="{{c.slots_result}}"
+						style="display: inline-block; margin-left: 0.3rem; cursor: pointer;">
+						[🎰]
+					</div>
 				{% endif %}
 
 				{% if c.poker_result %}
-					<span style="margin-left: 0.5rem">{{c.poker_result}}</span>
+					<div
+						title="{{c.poker_result}}"
+						style="display: inline-block; margin-left: 0.3rem; cursor: pointer;">
+						[🃏]
+					</div>
 				{% endif %}
 			</div>
 			{% if c.active_flags %}
@@ -285,7 +293,7 @@
 								<input autocomplete="off" id="file-edit-reply-{{c.id}}" type="file" name="file" accept="image/*, video/*" {% if request.headers.get('cf-ipcountry')=="T1" %}disabled{% endif %} onchange="document.getElementById('filename-edit-reply-{{c.id}}').innerHTML='image/video';" hidden>
 							</label>
 						</div>
-						<a role="button" form="comment-edit-form-{{c.id}}" class="btn btn-primary ml-2 fl-r commentmob" onclick="comment_edit('{{c.id}}')">Save Edit</a> 
+						<a id="edit-btn-{{c.id}}" role="button" form="comment-edit-form-{{c.id}}" class="btn btn-primary ml-2 fl-r commentmob" onclick="comment_edit('{{c.id}}')">Save Edit</a> 
 						<a id="cancel-edit-{{c.id}}" role="button" onclick="toggleEdit('{{c.id}}')" class="btn btn-link text-muted ml-auto cancel-form fl-r commentmob">Cancel</a> 
 					</form>
 					<div id="preview-edit-{{c.id}}" class="preview-edit mb-3 mt-5"></div>
@@ -868,7 +876,7 @@
 
 {% if v %}
 	<script src="/static/assets/js/marked.js?a=220"></script>
-	<script src="/static/assets/js/comments_v.js?a=232"></script>
+	<script src="/static/assets/js/comments_v.js?a=233"></script>
 {% endif %}
 
 <script src="/static/assets/js/clipboard.js?a=220"></script>
@@ -891,7 +899,9 @@
 		{
 			{% for c in p.comments2 %}
 				{% if not (v and v.id==c[0]) %}
-					if ({{c[1]*1000}} > lastCount.t) document.getElementById("reddot-{{c[2]}}").innerHTML = redhtml
+					if ({{c[1]*1000}} > lastCount.t) 
+					try {document.getElementById("reddot-{{c[2]}}").innerHTML = redhtml}
+					catch(e) {}
 				{% endif %}
 			{% endfor %}
 		}

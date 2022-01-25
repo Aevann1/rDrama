@@ -10,7 +10,7 @@ from json import loads
 class BadgeDef(Base):
 	__tablename__ = "badge_defs"
 
-	id = Column(Integer, ForeignKey("badges.id"), primary_key=True, autoincrement=True)
+	id = Column(Integer, primary_key=True, autoincrement=True)
 	name = Column(String)
 	description = Column(String)
 
@@ -29,7 +29,7 @@ class Badge(Base):
 	description = Column(String)
 	url = Column(String)
 	user = relationship("User", viewonly=True)
-	badge = relationship("BadgeDef", viewonly=True)
+	badge = relationship("BadgeDef", primaryjoin="foreign(Badge.badge_id) == remote(BadgeDef.id)", viewonly=True)
 
 	def __repr__(self):
 		return f"<Badge(user_id={self.user_id}, badge_id={self.badge_id})>"
@@ -51,17 +51,17 @@ class Badge(Base):
 		elif self.description: text = self.description
 		elif self.badge.description: text = self.badge.description
 		else: return ''
-		return f' - {text}'
+		return f'{self.name} - {text}'
 
 	@property
 	@lazy
 	def name(self):
-		return ""
+		return self.badge.name
 
 	@property
 	@lazy
 	def path(self):
-		return f"/static/assets/images/badges/{self.badge_id}.webp?a=6"
+		return f"/static/assets/images/badges/{self.badge_id}.webp?a=1008"
 
 	@property
 	@lazy

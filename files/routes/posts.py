@@ -16,6 +16,7 @@ from .front import frontlist, changeloglist
 from urllib.parse import ParseResult, urlunparse, urlparse, quote, unquote
 from os import path
 import requests
+from shutil import copyfile
 
 db = db_session()
 marseys = tuple(f':#{x[0]}:' for x in db.query(Marsey.name).all())
@@ -77,8 +78,8 @@ def publish(pid, v):
 	cache.delete_memoized(frontlist)
 	cache.delete_memoized(User.userpagelisting)
 
-	if v.admin_level > 0 and ("[changelog]" in post.title or "(changelog)" in post.title):
-		send_discord_message(f"{request.host_url}{post.permalink[1:]}")
+	if v.admin_level > 0 and ("[changelog]" in post.title.lower() or "(changelog)" in post.title.lower()):
+		send_discord_message(f"{SITE_FULL}{post.permalink}")
 		cache.delete_memoized(changeloglist)
 
 	g.db.commit()
@@ -98,7 +99,7 @@ def submit_get(v):
 @auth_desired
 def post_id(pid, anything=None, v=None):
 	if not v and not request.path.startswith('/logged_out') and not request.headers.get("Authorization"):
-		return redirect(f"/logged_out{request.full_path}")
+		return redirect(f"{SITE_FULL}/logged_out{request.full_path}")
 
 	if v and request.path.startswith('/logged_out'): v = None
 
@@ -426,7 +427,10 @@ def edit_post(pid, v):
 	if request.files.get("file") and request.headers.get("cf-ipcountry") != "T1":
 		file=request.files["file"]
 		if file.content_type.startswith('image/'):
-			body += f"\n\n![]({process_image(file)})"
+			name = f'/images/{time.time()}'.replace('.','')[:-5] + '.webp'
+			file.save(name)
+			url = process_image(name)
+			body += f"\n\n![]({url})"
 		elif file.content_type.startswith('video/'):
 			file.save("video.mp4")
 			with open("video.mp4", 'rb') as f:
@@ -557,7 +561,7 @@ def thumbnail_thread(pid):
 	
 	fetch_url = post.url
 
-	if fetch_url.startswith('/'): fetch_url = f"{request.host_url}{fetch_url[1:]}"
+	if fetch_url.startswith('/'): fetch_url = f"{SITE_FULL}{fetch_url}"
 
 	headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.72 Safari/537.36"}
 
@@ -652,7 +656,7 @@ def thumbnail_thread(pid):
 		for chunk in image_req.iter_content(1024):
 			file.write(chunk)
 
-	post.thumburl = process_image(filename=name, resize=100)
+	post.thumburl = process_image(name, resize=100)
 	db.add(post)
 	db.commit()
 	db.close()
@@ -827,7 +831,7 @@ def submit_post(v):
 					_note="spam"
 					)
 			g.db.add(ma)
-		return redirect("/notifications")
+		return redirect(f"{SITE_FULL}/notifications")
 
 	if len(str(body)) > 20000:
 
@@ -858,7 +862,9 @@ def submit_post(v):
 	if request.files.get("file2") and request.headers.get("cf-ipcountry") != "T1":
 		file=request.files["file2"]
 		if file.content_type.startswith('image/'):
-			body += f"\n\n![]({process_image(file)})"
+			name = f'/images/{time.time()}'.replace('.','')[:-5] + '.webp'
+			file.save(name)
+			body += f"\n\n![]({process_image(name)})"
 		elif file.content_type.startswith('video/'):
 			file.save("video.mp4")
 			with open("video.mp4", 'rb') as f:
@@ -947,8 +953,13 @@ def submit_post(v):
 		file = request.files['file']
 
 		if file.content_type.startswith('image/'):
-			new_post.url = process_image(file)
-			new_post.thumburl = process_image(file, resize=100)	
+			name = f'/images/{time.time()}'.replace('.','')[:-5] + '.webp'
+			file.save(name)
+			new_post.url = process_image(name)
+
+			name2 = name.replace('.webp', 'r.webp')
+			copyfile(name, name2)
+			new_post.thumburl = process_image(name2, resize=100)	
 		elif file.content_type.startswith('video/'):
 			file.save("video.mp4")
 			with open("video.mp4", 'rb') as f:
@@ -1023,7 +1034,7 @@ def submit_post(v):
 			rev = f"* [unddit.com](https://unddit.com/{rev})\n"
 		else: rev = ''
 		newposturl = new_post.url
-		if newposturl.startswith('/'): newposturl = f"{request.host_url}{newposturl[1:]}"
+		if newposturl.startswith('/'): newposturl = f"{SITE_FULL}{newposturl}"
 		body += f"Snapshots:\n\n{rev}* [archive.org](https://web.archive.org/{newposturl})\n* [archive.ph](https://archive.ph/?url={quote(newposturl)}&run=1) (click to archive)\n\n"			
 		gevent.spawn(archiveorg, newposturl)
 
@@ -1068,6 +1079,10 @@ def submit_post(v):
 			n = Notification(comment_id=c.id, user_id=v.id)
 			g.db.add(n)
 		
+		if request.host == 'rdrama.net':
+			slots = Slots(g)
+			slots.check_for_slots_command(body, snappy, c)
+
 		new_post.comment_count += 1
 
 	v.post_count = g.db.query(Submission.id).filter_by(author_id=v.id, is_banned=False, deleted_utc=0).count()
@@ -1075,8 +1090,8 @@ def submit_post(v):
 
 	cache.delete_memoized(frontlist)
 	cache.delete_memoized(User.userpagelisting)
-	if v.admin_level > 0 and ("[changelog]" in new_post.title or "(changelog)" in new_post.title) and not new_post.private:
-		send_discord_message(f"{request.host_url}{new_post.permalink[1:]}")
+	if v.admin_level > 0 and ("[changelog]" in new_post.title.lower() or "(changelog)" in new_post.title.lower()) and not new_post.private:
+		send_discord_message(f"{SITE_FULL}{new_post.permalink}")
 		cache.delete_memoized(changeloglist)
 
 	if v.id in (PIZZASHILL_ID, HIL_ID):

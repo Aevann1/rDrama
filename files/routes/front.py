@@ -136,7 +136,7 @@ def notifications(v):
 def front_all(v):
 
 	if not v and request.path == "/" and not request.headers.get("Authorization"):
-		return redirect(f"/logged_out{request.full_path}")
+		return redirect(f"{SITE_FULL}/logged_out{request.full_path}")
 
 	if v and request.path.startswith('/logged_out'): v = None
 
@@ -402,7 +402,7 @@ def random_post(v):
 	n = random.randint(1, total - 2)
 
 	post = x.offset(n).limit(1).one_or_none()
-	return redirect(f"/post/{post.id}")
+	return redirect(f"{SITE_FULL}/post/{post.id}")
 
 @cache.memoize(timeout=86400)
 def comment_idlist(page=1, v=None, nsfw=False, sort="new", t="all"):

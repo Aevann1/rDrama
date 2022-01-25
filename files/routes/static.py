@@ -24,16 +24,14 @@ def marseys(v):
 @app.get("/marsey_list")
 @cache.memoize(timeout=600)
 def marsey_list():
-	marseys = {}
-	for marsey, user in g.db.query(Marsey, User.username).join(User, User.id==Marsey.author_id).order_by(Marsey.count.desc()):
-		marseys[marsey.name] = f"{user} {marsey.tags}"
-	return marseys
+	marseys = [f"{x.name} : {y} {x.tags}" for x, y in g.db.query(Marsey, User.username).join(User, User.id==Marsey.author_id).order_by(Marsey.count.desc())]
+	return str(marseys).replace("'",'"')
 
 @app.get("/terms")
 @app.get("/logged_out/terms")
 @auth_desired
 def terms(v):
-	if not v and not request.path.startswith('/logged_out'): return redirect(f"/logged_out{request.full_path}")
+	if not v and not request.path.startswith('/logged_out'): return redirect(f"{SITE_FULL}/logged_out{request.full_path}")
 	if v and request.path.startswith('/logged_out'): v = None
 
 	return render_template("terms.html", v=v)
@@ -42,7 +40,7 @@ def terms(v):
 @app.get('/logged_out/sidebar')
 @auth_desired
 def sidebar(v):
-	if not v and not request.path.startswith('/logged_out'): return redirect(f"/logged_out{request.full_path}")
+	if not v and not request.path.startswith('/logged_out'): return redirect(f"{SITE_FULL}/logged_out{request.full_path}")
 	if v and request.path.startswith('/logged_out'): v = None
 
 	return render_template('sidebar.html', v=v)
@@ -52,11 +50,14 @@ def sidebar(v):
 @auth_required
 def participation_stats(v):
 
-	now = int(time.time())
+	return render_template("admin/content_stats.html", v=v, title="Content Statistics", data=stats())
 
-	day = now - 86400
 
-	data = {"marseys": g.db.query(Marsey.name).count(),
+@cache.memoize(timeout=86400)
+def stats():
+	day = int(time.time()) - 86400
+
+	return {"marseys": g.db.query(Marsey.name).count(),
 			"users": g.db.query(User.id).count(),
 			"private_users": g.db.query(User.id).filter_by(is_private=True).count(),
 			"banned_users": g.db.query(User.id).filter(User.is_banned > 0).count(),
@@ -85,14 +86,16 @@ def participation_stats(v):
 			"awards_given": g.db.query(AwardRelationship.id).filter(or_(AwardRelationship.submission_id != None, AwardRelationship.comment_id != None)).count()
 			}
 
-
-	return render_template("admin/content_stats.html", v=v, title="Content Statistics", data=data)
-
-
 @app.get("/chart")
-@cache.memoize(timeout=86400)
-def chart():
+@auth_required
+def chart(v):
 	days = int(request.values.get("days", 0))
+	file = cached_chart(days)
+	return send_file(file)
+
+
+@cache.memoize(timeout=86400)
+def cached_chart(days):
 	now = time.gmtime()
 	midnight_this_morning = time.struct_time((now.tm_year,
 											  now.tm_mon,
@@ -164,7 +167,7 @@ def chart():
 
 	plt.savefig(file)
 	plt.clf()
-	return send_file(file)
+	return file
 
 
 @app.get("/patrons")
@@ -243,7 +246,6 @@ def log_item(id, v):
 	return render_template("log.html", v=v, actions=[action], next_exists=False, page=1, action=action, admins=admins, types=types)
 
 @app.get("/static/assets/favicon.ico")
-@cache.memoize(timeout=86400)
 def favicon():
 	return send_file(f"./assets/images/{SITE_NAME}/icon.webp")
 
@@ -273,7 +275,10 @@ def submit_contact(v):
 	if request.files.get("file") and request.headers.get("cf-ipcountry") != "T1":
 		file=request.files["file"]
 		if file.content_type.startswith('image/'):
-			body_html += f'<img data-bs-target="#expandImageModal" data-bs-toggle="modal" onclick="expandDesktopImage(this.src)" class="in-comment-image" src="{process_image(file)}" loading="lazy">'
+			name = f'/images/{time.time()}'.replace('.','')[:-5] + '.webp'
+			file.save(name)
+			url = process_image(name)
+			body_html += f'<img data-bs-target="#expandImageModal" data-bs-toggle="modal" onclick="expandDesktopImage(this.src)" class="in-comment-image" src="{url}" loading="lazy">'
 		elif file.content_type.startswith('video/'):
 			file.save("video.mp4")
 			with open("video.mp4", 'rb') as f:
@@ -301,13 +306,11 @@ def submit_contact(v):
 	return render_template("contact.html", v=v, msg="Your message has been sent.")
 
 @app.get('/archives')
-@auth_required
-def archivesindex(v):
-	return redirect("/archives/index.html")
+def archivesindex():
+	return redirect(f"{SITE_FULL}/archives/index.html")
 
 @app.get('/archives/<path:path>')
-@auth_required
-def archives(v, path):
+def archives(path):
 	resp = make_response(send_from_directory('/archives', path))
 	if request.path.endswith('.css'): resp.headers.add("Content-Type", "text/css")
 	return resp
@@ -316,8 +319,6 @@ def archives(v, path):
 @app.get('/static/assets/<path:path>')
 @limiter.exempt
 def static_service(path):
-	if request.path.startswith('/assets/'): return redirect(request.full_path.replace('/assets/', '/static/assets/'))
-
 	resp = make_response(send_from_directory('assets', path))
 	if request.path.endswith('.webp') or request.path.endswith('.gif') or request.path.endswith('.ttf') or request.path.endswith('.woff') or request.path.endswith('.woff2'):
 		resp.headers.remove("Cache-Control")
@@ -334,8 +335,6 @@ def static_service(path):
 @app.get("/static/images/<path>")
 @limiter.exempt
 def images(path):
-	if request.path.startswith('/images/') or request.path.lower().startswith('/hostedimages/'):
-		return redirect(request.full_path.replace('/images/', '/static/images/').replace('/hostedimages/', '/static/images/'))
 	resp = make_response(send_from_directory('/images', path.replace('.WEBP','.webp')))
 	resp.headers.remove("Cache-Control")
 	resp.headers.add("Cache-Control", "public, max-age=2628000")
@@ -345,25 +344,20 @@ def images(path):
 	return resp
 
 @app.get("/robots.txt")
-@cache.memoize(timeout=86400)
 def robots_txt():
 	return send_file("assets/robots.txt")
 
 @app.get("/settings")
 @auth_required
 def settings(v):
-
-
-	return redirect("/settings/profile")
+	return redirect(f"{SITE_FULL}/settings/profile")
 
 
 @app.get("/settings/profile")
 @auth_required
 def settings_profile(v):
+	return render_template("settings_profile.html", v=v)
 
-
-	return render_template("settings_profile.html",
-						   v=v)
 
 @app.get("/badges")
 @auth_required
@@ -400,8 +394,7 @@ def formatting(v):
 	return render_template("formatting.html", v=v)
 
 @app.get("/service-worker.js")
-@auth_required
-def serviceworker(v):
+def serviceworker():
 	with open("files/assets/js/service-worker.js", "r") as f: return Response(f.read(), mimetype='application/javascript')
 
 @app.get("/settings/security")

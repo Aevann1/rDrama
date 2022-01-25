@@ -10,6 +10,7 @@ from flask import *
 from files.__main__ import app, limiter
 from files.helpers.sanitize import filter_emojis_only
 import requests
+from shutil import copyfile
 from json import loads
 
 IMGUR_KEY = environ.get("IMGUR_KEY").strip()
@@ -27,7 +28,7 @@ CF_HEADERS = {"Authorization": f"Bearer {CF_KEY}", "Content-Type": "application/
 @auth_desired
 def post_pid_comment_cid(cid, pid=None, anything=None, v=None):
 	
-	if not v and not request.path.startswith('/logged_out'): return redirect(f"/logged_out{request.full_path}")
+	if not v and not request.path.startswith('/logged_out'): return redirect(f"{SITE_FULL}/logged_out{request.full_path}")
 
 	if v and request.path.startswith('/logged_out'): v = None
 	
@@ -156,8 +157,9 @@ def api_comment(v):
 		else: top_comment_id = parent.top_comment_id
 	else: abort(400)
 
-	body = request.values.get("body", "").strip()[:10000]
-	
+	_body = request.values.get("body", "").strip()[:10000]
+	body = " ".join(filter(lambda x: not "!slots" in x,  _body.split(' ')))
+
 	if v.admin_level == 3 and parent_post.id == 37749:
 		with open(f"snappy_{SITE_NAME}.txt", "a") as f:
 			f.write('\n{[para]}\n' + body)
@@ -182,36 +184,49 @@ def api_comment(v):
 	if request.files.get("file") and request.headers.get("cf-ipcountry") != "T1":
 		file=request.files["file"]
 		if file.content_type.startswith('image/'):
-			image = process_image(file)
+			oldname = f'/images/{time.time()}'.replace('.','')[:-5] + '.webp'
+			file.save(oldname)
+			image = process_image(oldname)
 			if image == "": return {"error":"Image upload failed"}
 			if v.admin_level == 3:
 				if parent_post.id == 37696:
 					filename = 'files/assets/images/Drama/sidebar/' + str(len(listdir('files/assets/images/Drama/sidebar'))+1) + '.webp'
-					text = process_image(file, filename, 400)
+					copyfile(oldname, filename)
+					process_image(filename, 400)
 				elif parent_post.id == 37697:
 					filename = 'files/assets/images/Drama/banners/' + str(len(listdir('files/assets/images/Drama/banners'))+1) + '.webp'
-					process_image(file, filename)
+					copyfile(oldname, filename)
+					process_image(filename)
 				elif parent_post.id == 37833:
-					try: badge_def = loads(body.lower())
-					except: return {"error": "You didn't follow the format retard"}, 500
-					name = badge_def["name"]
-					badge = g.db.query(BadgeDef).filter_by(name=name).first()
-					if not badge:
-						badge = BadgeDef(name=name, description=badge_def["description"])
-						g.db.add(badge)
-						g.db.flush()
-					filename = f'files/assets/images/badges/{badge.id}.webp'
-					process_image(file, filename, 200)
-					requests.post(f'https://api.cloudflare.com/client/v4/zones/{CF_ZONE}/purge_cache', headers=CF_HEADERS, data={'files': [f"https://{request.host}/static/assets/images/badges/{badge.id}.webp"]})
+					try:
+						badge_def = loads(body.lower())
+						name = badge_def["name"]
+						badge = g.db.query(BadgeDef).filter_by(name=name).first()
+						if not badge:
+							badge = BadgeDef(name=name, description=badge_def["description"])
+							g.db.add(badge)
+							g.db.flush()
+						filename = f'files/assets/images/badges/{badge.id}.webp'
+						copyfile(oldname, filename)
+						process_image(filename, 200)
+						requests.post(f'https://api.cloudflare.com/client/v4/zones/{CF_ZONE}/purge_cache', headers=CF_HEADERS, data={'files': [f"https://{request.host}/static/assets/images/badges/{badge.id}.webp"]})
+					except Exception as e:
+						print(e)
+						return {"error": "You didn't follow the format retard"}, 400
 				elif v.id in (CARP_ID,AEVANN_ID) and parent_post.id == 37838:
-					marsey = loads(body.lower())
-					name = marsey["name"]
-					if not g.db.query(Marsey.name).filter_by(name=name).first():
-						marsey = Marsey(name=marsey["name"], author_id=marsey["author_id"], tags=marsey["tags"], count=0)
-						g.db.add(marsey)
-					filename = f'files/assets/images/emojis/{name}.webp'
-					process_image(file, filename, 200)
-					requests.post(f'https://api.cloudflare.com/client/v4/zones/{CF_ZONE}/purge_cache', headers=CF_HEADERS, data={'files': [f"https://{request.host}/static/assets/images/emojis/{name}.webp"]})
+					try:
+						marsey = loads(body.lower())
+						name = marsey["name"]
+						if not g.db.query(Marsey.name).filter_by(name=name).first():
+							marsey = Marsey(name=marsey["name"], author_id=marsey["author_id"], tags=marsey["tags"], count=0)
+							g.db.add(marsey)
+						filename = f'files/assets/images/emojis/{name}.webp'
+						copyfile(oldname, filename)
+						process_image(filename, 200)
+						requests.post(f'https://api.cloudflare.com/client/v4/zones/{CF_ZONE}/purge_cache', headers=CF_HEADERS, data={'files': [f"https://{request.host}/static/assets/images/emojis/{name}.webp"]})
+					except Exception as e:
+						print(e)
+						return {"error": "You didn't follow the format retard"}, 400
 			body += f"\n\n![]({image})"
 		elif file.content_type.startswith('video/'):
 			file.save("video.mp4")
@@ -507,8 +522,8 @@ def api_comment(v):
 						'notification': {
 							'title': f'New reply by @{c.author_name}',
 							'body': notifbody,
-							'deep_link': f'{request.host_url}comment/{c.id}?context=9&read=true#context',
-							'icon': f'{request.host_url}assets/images/{SITE_NAME}/icon.webp',
+							'deep_link': f'{SITE_FULL}/comment/{c.id}?context=9&read=true#context',
+							'icon': f'{SITE_FULL}/assets/images/{SITE_NAME}/icon.webp',
 						}
 					},
 					'fcm': {
@@ -563,7 +578,7 @@ def api_comment(v):
 		g.db.add(c)
 
 	slots = Slots(g)
-	slots.check_for_slots_command(body, v, c)
+	slots.check_for_slots_command(_body, v, c)
 
 	poker = Poker(g)
 	poker.check_for_poker_command(body, v, c)
@@ -679,7 +694,10 @@ def edit_comment(cid, v):
 		if request.files.get("file") and request.headers.get("cf-ipcountry") != "T1":
 			file=request.files["file"]
 			if file.content_type.startswith('image/'):
-				body += f"\n\n![]({process_image(file)})"
+				name = f'/images/{time.time()}'.replace('.','')[:-5] + '.webp'
+				file.save(name)
+				url = process_image(name)
+				body += f"\n\n![]({url})"
 			elif file.content_type.startswith('video/'):
 				file.save("video.mp4")
 				with open("video.mp4", 'rb') as f:

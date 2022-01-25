@@ -258,7 +258,7 @@
 
 						<div class="input-group">
 
-							<input autocomplete="off" type="text" readonly="" class="form-control copy-link" id="referral_code" value="{{request.host_url}}signup?ref={{v.username}}" data-clipboard-text="{{request.host_url}}signup?ref={{v.username}}">
+							<input autocomplete="off" type="text" readonly="" class="form-control copy-link" id="referral_code" value="{{SITE_FULL}}/signup?ref={{v.username}}" data-clipboard-text="{{SITE_FULL}}/signup?ref={{v.username}}">
 
 							<span class="input-group-append" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="You have referred {{v.referral_count}} user{{'s' if v.referral_count != 1 else ''}} so far. {% if v.referral_count==0 %}¯\_(ツ)_/¯{% elif v.referral_count>10%}Wow!{% endif %}">
 								<span class="input-group-text text-primary border-0">

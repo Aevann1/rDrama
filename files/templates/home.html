@@ -7,7 +7,7 @@
 		<script>
 			function fp(fp) {
 				const xhr = new XMLHttpRequest();
-				xhr.open("POST", '{{request.host_url}}fp/'+fp, true);
+				xhr.open("POST", '{{SITE_FULL}}/fp/'+fp, true);
 				xhr.setRequestHeader('xhr', 'xhr');
 				var form = new FormData()
 				form.append("formkey", formkey());

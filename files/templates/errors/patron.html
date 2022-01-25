@@ -7,14 +7,16 @@
 {% block pagetype %}error-401{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-	<div class="col-10 col-md-5">
-	<div class="text-center px-3 my-8">
-			<img alt=":#marseymerchant:" loading="lazy" class="mb-2" src="/static/assets/images/emojis/marseymerchant.webp?a=1007">
-			<h1 class="h5">401 Not Authorized</h1>
-			<p class="text-muted">This page is only available to {% if request.host == "rdrama.net" %}paypigs{% else %}patrons{% endif %}:</p>
-			<a rel="nofollow noopener noreferrer" href="{{'GUMROAD_LINK' | app_config}}">{{'GUMROAD_LINK' | app_config}}</a>
+	{% if not (g.webview and v.truecoins < 1) %}
+		<div class="row justify-content-center">
+			<div class="col-10 col-md-5">
+			<div class="text-center px-3 my-8">
+					<img alt=":#marseymerchant:" loading="lazy" class="mb-2" src="/static/assets/images/emojis/marseymerchant.webp?a=1008">
+					<h1 class="h5">401 Not Authorized</h1>
+					<p class="text-muted">This page is only available to {% if request.host == "rdrama.net" %}paypigs{% else %}patrons{% endif %}:</p>
+					<a rel="nofollow noopener noreferrer" href="{{'GUMROAD_LINK' | app_config}}">{{'GUMROAD_LINK' | app_config}}</a>
+				</div>
+			</div>
 		</div>
-	</div>
-</div>
+	{% endif %}
 {% endblock %}

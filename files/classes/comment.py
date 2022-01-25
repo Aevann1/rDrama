@@ -44,7 +44,6 @@ class Comment(Base):
 	body_html = Column(String)
 	ban_reason = Column(String)
 	slots_result = Column(String)
-	slots_text = Column(String)
 	poker_result = Column(String)
 
 	post = relationship("Submission", viewonly=True)

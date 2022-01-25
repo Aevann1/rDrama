@@ -18,7 +18,7 @@ def error_401(e):
 		path = request.path
 		qs = urlencode(dict(request.values))
 		argval = quote(f"{path}?{qs}", safe='')
-		return redirect(f"/login?redirect={argval}")
+		return redirect(f"{SITE_FULL}/login?redirect={argval}")
 
 
 @app.errorhandler(403)
@@ -61,5 +61,5 @@ def error_500(e):
 def allow_nsfw():
 	session["over_18"] = int(time.time()) + 3600
 	redir = request.values.get("redir")
-	if redir and redir.startswith(request.host_url) or redir.startswith('/'): return redirect(redir)
-	return redirect('/')
+	if redir and redir.startswith(SITE_FULL) or redir.startswith('/'): return redirect(redir)
+	return redirect(f'{SITE_FULL}/')

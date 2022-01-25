@@ -1,5 +1,5 @@
 <nav class="shadow shadow-md fixed-top">
-	{% if SITE_NAME == "Drama" %}
+	{% if SITE_NAME == 'Drama' %}
 		<div id="srd" style="width: 100%; background-color: var(--primary); padding: 2px; text-align: center; font-weight: bold;white-space:nowrap">
 			<a style="color: white" class="text-small-mobile" href="https://reddit.com/r/SubredditDrama">💖🌈 welcome to rdrama.net: the official site for r/subredditdrama</a>
 		</div>
@@ -8,9 +8,9 @@
 		<div class="container-fluid" style="padding:0;">
 			<div class="flex-grow-1">
 				<a href="/" class="navbar-brand mr-auto">
-					<img alt="header icon" width=32.32 height=25 src="/static/assets/images/{{SITE_NAME}}/headericon.webp?a=8" style="object-fit: contain;">
+					<img alt="header icon" width=32.32 height=25 src="/static/assets/images/{{SITE_NAME}}/headericon.webp?a=1008" style="object-fit: contain;">
 					{% if request.host != 'pcmemes.net' %}
-						<img alt="logo" src="/static/assets/images/{{SITE_NAME}}/logo.webp?a=1007" height=20 width=77>
+						<img alt="logo" src="/static/assets/images/{{SITE_NAME}}/logo.webp?a=1008" height=20 width=77>
 					{% endif %}
 				</a>
 			</div>
@@ -95,8 +95,8 @@
 							<div><img alt="your profile picture" loading="lazy" src="{{v.profile_url}}" class="profile-pic-35"></div>
 							<div class="text-left pl-2">
 								<div style="color: #{{v.namecolor}}" class="text-small font-weight-bold {% if v.patron %}patron{% endif %}"><span {% if v.patron %}class="patron" style="background-color:#{{v.namecolor}}"{% endif %}>{{v.username}}</span></div>
-								<div class="text-small-extra"><img alt="coins" class="mr-1 ml-1" data-bs-toggle="tooltip" data-bs-placement="bottom" height="13" src="/static/assets/images/marseycoin.webp?a=4" data-bs-original-title="coins" aria-label="coins"><span id="user-coins-amount">{{v.coins}}</span> Coins</div>
-								<div class="text-small-extra"><img alt="marseybux" class="mr-1 ml-1" data-bs-toggle="tooltip" data-bs-placement="bottom" height="13" src="/static/assets/images/marseybux.webp?a=4" data-bs-original-title="Marseybux" aria-label="Marseybux"><span id="user-bux-amount">{{v.procoins}}</span> Marseybux</div>
+								<div class="text-small-extra"><img alt="coins" class="mr-1 ml-1" data-bs-toggle="tooltip" data-bs-placement="bottom" height="13" src="/static/assets/images/marseycoin.webp?a=1008" data-bs-original-title="coins" aria-label="coins"><span id="user-coins-amount">{{v.coins}}</span> Coins</div>
+								<div class="text-small-extra"><img alt="marseybux" class="mr-1 ml-1" data-bs-toggle="tooltip" data-bs-placement="bottom" height="13" src="/static/assets/images/marseybux.webp?a=1008" data-bs-original-title="Marseybux" aria-label="Marseybux"><span id="user-bux-amount">{{v.procoins}}</span> Marseybux</div>
 							</div>
 						</div>
 					</a>
@@ -110,7 +110,7 @@
 								<button class="dropdown-item copy-link" data-clipboard-text="/signup?ref={{v.username}}"><i class="fad fa-user-friends fa-fw text-left mr-3"></i>Invite friends</button>
 							</div>
 							<div class="px-2">
-								<a class="dropdown-item" href="/assets/{{'SITE_NAME' | app_config}}_v1.3.apk"><i class="fab fa-android fa-fw text-left mr-3"></i>Android app</a>
+								<a class="dropdown-item" href="/assets/{{'SITE_NAME' | app_config}}_v1.4.apk"><i class="fab fa-android fa-fw text-left mr-3"></i>Android app</a>
 
 								<a class="dropdown-item" href="/changelog"><i class="fas fa-clipboard fa-fw text-left mr-3"></i>Changelog</a>
 
@@ -123,7 +123,9 @@
 								{% if request.host != 'pcmemes.net' %}
 									<a class="dropdown-item" href="/discord"><i class="fab fa-discord fa-fw text-left mr-3"></i>Discord</a>
 								{% endif %}
-								<a class="dropdown-item" rel="nofollow noopener noreferrer" href="{{'GUMROAD_LINK' | app_config}}"><i class="fas fa-dollar-sign fa-fw text-left mr-3"></i>Donate</a>
+								{% if not (g.webview and v.truecoins < 1) %}
+									<a class="dropdown-item" rel="nofollow noopener noreferrer" href="{{'GUMROAD_LINK' | app_config}}"><i class="fas fa-dollar-sign fa-fw text-left mr-3"></i>Donate</a>
+								{% endif %}
 								{% if request.host == 'rdrama.net' %}<a class="dropdown-item" href="/archives"><i class="fas fa-book fa-fw text-left mr-3"></i>Archives</a>{% endif %}
 								<a class="dropdown-item" href="/contact"><i class="fas fa-file-signature fa-fw text-left mr-3"></i>Contact us</a>
 							</div>
@@ -162,7 +164,7 @@
 					<a class="nav-link" href="{{v.url}}"><i class="fas fa-user-circle fa-fw mr-3"></i>@{{v.username}}</a>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link" href="/notifications{% if v.notifications_count and not v.not_post_notifications_count %}?posts=true{% endif %}">
+					<a class="nav-link position-relative" href="/notifications{% if v.notifications_count and not v.not_post_notifications_count %}?posts=true{% endif %}">
 						<i class="fas fa-envelope fa-fw mr-3"></i>Inbox
 						{% if v.notifications_count %}
 						<i class="fas fa-circle text-danger position-absolute" style="left: 19px; top: 5px; font-size: 10px;{% if not v.not_post_notifications_count %}color:blue!important{% endif %}"></i>
@@ -172,14 +174,16 @@
 				<li class="nav-item">
 					<a class="nav-link" href="/settings"><i class="fas fa-cog fa-fw mr-3"></i>Settings</a>
 				</li>
-				<a class="nav-item nav-link" href="/assets/{{'SITE_NAME' | app_config}}_v1.3.apk"><i class="fab fa-android fa-fw mr-3"></i>Android app</a>
+				<a class="nav-item nav-link" href="/assets/{{'SITE_NAME' | app_config}}_v1.4.apk"><i class="fab fa-android fa-fw mr-3"></i>Android app</a>
 
 				<a class="nav-item nav-link" rel="nofollow noopener noreferrer" href="https://github.com/Aevann1/Drama"><i class="fab fa-github fa-fw mr-3"></i>Source code</a>
 
 				{% if request.host != 'pcmemes.net' %}
 					<a class="nav-item nav-link" href="/discord"><i class="fab fa-discord fa-fw mr-3"></i>Discord</a>
 				{% endif %}
-				<a class="nav-item nav-link" rel="nofollow noopener noreferrer" href="{{'GUMROAD_LINK' | app_config}}"><i class="fas fa-dollar-sign fa-fw mr-3"></i>Donate</a>
+				{% if not (g.webview and v.truecoins < 1) %}
+					<a class="nav-item nav-link" rel="nofollow noopener noreferrer" href="{{'GUMROAD_LINK' | app_config}}"><i class="fas fa-dollar-sign fa-fw mr-3"></i>Donate</a>
+				{% endif %}
 				{% if request.host == 'rdrama.net' %}<a class="nav-item nav-link" href="/archives"><i class="fas fa-book fa-fw mr-3"></i>Archives</a>{% endif %}
 				<a class="nav-item nav-link" href="/contact"><i class="fas fa-file-signature fa-fw mr-3"></i>Contact us</a>
 

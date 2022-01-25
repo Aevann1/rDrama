@@ -4639,7 +4639,11 @@ lite-youtube {
     background-size: cover;
     cursor: pointer;
     max-width: 720px;
-    margin-bottom: 1.3rem !important
+    margin-bottom: 1.3rem !important;
+}
+
+.youtube_embed > lite-youtube {
+    margin: auto
 }
 
 lite-youtube::before {
@@ -4680,7 +4684,7 @@ lite-youtube > .lty-playbtn {
     left: 50%;
     z-index: 1;
     background-color: transparent;
-    background-image: url('/static/assets/images/youtube.webp?a=1');
+    background-image: url('/static/assets/images/youtube.webp?a=1008');
     transition: filter .1s cubic-bezier(0, 0, 0.2, 1);
     border: none;
 }

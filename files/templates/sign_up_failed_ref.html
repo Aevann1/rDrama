@@ -15,24 +15,24 @@
 		<meta property="og:type" content="article" >
 		<meta property="og:title" content="{{SITE_NAME}}" >
 		<meta property="og:site_name" content="{{request.host}}" >
-		<meta property="og:image" content="{{SITE_NAME}}/static/assets/images/{{SITE_NAME}}/site_preview.webp?a=1" >
+		<meta property="og:image" content="{{SITE_NAME}}/static/assets/images/{{SITE_NAME}}/site_preview.webp?a=1008" >
 		<meta property="og:url" content="{{request.host}}">
 		<meta property="og:description" name="description" content="{{SITE_NAME}} - {{'SLOGAN' | app_config}}">
-		<meta property="og:author" name="author" content="{{request.host_url}}" >
+		<meta property="og:author" name="author" content="{{SITE_FULL}}/" >
 		<meta property="og:site_name" content="{{request.host}}" >
 
 		<meta name="twitter:card" content="summary_large_image">
-		<meta name="twitter:site" content="{{request.host_url}}">
+		<meta name="twitter:site" content="{{SITE_FULL}}/">
 		<meta name="twitter:title" content="{{SITE_NAME}}" >
-		<meta name="twitter:creator" content="{{request.host_url}}">
+		<meta name="twitter:creator" content="{{SITE_FULL}}/">
 		<meta name="twitter:description" content="{{SITE_NAME}} - {{'SLOGAN' | app_config}}" >
-		<meta name="twitter:image" content="{{SITE_NAME}}/static/assets/images/{{SITE_NAME}}/site_preview.webp?a=1" >
+		<meta name="twitter:image" content="{{SITE_NAME}}/static/assets/images/{{SITE_NAME}}/site_preview.webp?a=1008" >
 		<meta name="twitter:url" content="{{request.host}}" >
 
 		<title>{% if ref_user %}{{ref_user.username}} invites you to {{SITE_NAME}}{% else %}{{SITE_NAME}}{% endif %}</title>
 
 		<style>:root{--primary:#{{'DEFAULT_COLOR' | app_config}}</style>
-		<link rel="stylesheet" href="/static/assets/css/main.css?a=95"><link rel="stylesheet" href="/static/assets/css/{{'DEFAULT_THEME' | app_config}}.css?a=14">
+		<link rel="stylesheet" href="/static/assets/css/main.css?a=98"><link rel="stylesheet" href="/static/assets/css/{{'DEFAULT_THEME' | app_config}}.css?a=14">
 
 </head>
 
@@ -65,7 +65,7 @@
 												<h1 class="h4 font-weight-normal text-center">Whoops! You can't refer yourself!</h1>
 												<p class="text-center text-muted mb-md-5">Send this link to a friend instead :)</p>
 												<label>Referral code</label>
-												<input autocomplete="off" type="text" class="form-control copy-link" readonly value="{{request.host_url}}signup?ref={{request.values.get('ref')}}" data-clipboard-text="{{request.host_url}}signup?ref={{request.values.get('ref')}}">
+												<input autocomplete="off" type="text" class="form-control copy-link" readonly value="{{SITE_FULL}}/signup?ref={{request.values.get('ref')}}" data-clipboard-text="{{SITE_FULL}}/signup?ref={{request.values.get('ref')}}">
 
 												<div class="text-center mt-5 mb-3">
 														Already have an account? <a href="/login" class="font-weight-bold text-small toggle-login">Log in.</a>
@@ -84,7 +84,7 @@
 
 										<div class="splash-overlay"></div>
 
-										<img alt="cover" loading="lazy" class="splash-img" src="/static/assets/images/{{SITE_NAME}}/cover.webp?a=1007"></img>
+										<img alt="cover" loading="lazy" class="splash-img" src="/static/assets/images/{{SITE_NAME}}/cover.webp?a=1008"></img>
 								</div>
 
 						</div>

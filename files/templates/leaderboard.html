@@ -419,6 +419,68 @@
 	</table>
 {% endif %}
 
+<h5 style="font-weight:bold;text-align: center">Top 25 by slot winnings</h5>
+<pre></pre>
+<div class="overflow-x-auto"><table class="table table-striped mb-5">
+<thead class="bg-primary text-white">
+	<tr>
+		<th style="font-weight:bold">#</th>
+		<th style="font-weight:bold">Name</th>
+		<th style="font-weight:bold">Slot winnings</th>
+	</tr>
+</thead>
+{% for user in users14 %}
+	<tr {% if v.id == user.id %}class="self"{% endif %}>
+		<td style="font-weight:bold">{{loop.index}}</td>
+		<td><a style="color:#{{user.namecolor}};font-weight:bold" href="/@{{user.username}}"><img alt="@{{user.username}}'s profile picture" loading="lazy" src="{{user.profile_url}}" class="pp20"><span {% if user.patron %}class="patron" style="background-color:#{{user.namecolor}}"{% endif %}>{{user.username}}</span></a></td>
+		<td style="font-weight:bold">{{user.winnings}}</td>
+	</tr>
+{% endfor %}
+{% if pos14 > 25 %}
+	<tr style="border-top:2px solid var(--primary)">
+		<td style="font-weight:bold">{{pos14}}</td>
+		<td><a style="color:#{{v.namecolor}};font-weight:bold" href="/@{{v.username}}"><img alt="@{{v.username}}'s profile picture" loading="lazy" src="{{v.profile_url}}" class="pp20"><span {% if v.patron %}class="patron" style="background-color:#{{v.namecolor}}"{% endif %}>{{v.username}}</span></a></td>
+		<td style="font-weight:bold">{{v.winnings}}</td>
+	</tr>
+{% endif %}
+</table>
+
+
+<pre>
+
+
+</pre>
+<h5 style="font-weight:bold;text-align: center">Bottom 25 by slot winnings</h5>
+<pre></pre>
+<div class="overflow-x-auto"><table class="table table-striped mb-5">
+<thead class="bg-primary text-white">
+	<tr>
+		<th style="font-weight:bold">#</th>
+		<th style="font-weight:bold">Name</th>
+		<th style="font-weight:bold">Winnings</th>
+	</tr>
+</thead>
+{% for user in users15 %}
+	<tr {% if v.id == user.id %}class="self"{% endif %}>
+		<td style="font-weight:bold">{{loop.index}}</td>
+		<td><a style="color:#{{user.namecolor}};font-weight:bold" href="/@{{user.username}}"><img alt="@{{user.username}}'s profile picture" loading="lazy" src="{{user.profile_url}}" class="pp20"><span {% if user.patron %}class="patron" style="background-color:#{{user.namecolor}}"{% endif %}>{{user.username}}</span></a></td>
+		<td style="font-weight:bold">{{user.winnings}}</td>
+	</tr>
+{% endfor %}
+{% if pos15 > 25 %}
+	<tr style="border-top:2px solid var(--primary)">
+		<td style="font-weight:bold">{{pos15}}</td>
+		<td><a style="color:#{{v.namecolor}};font-weight:bold" href="/@{{v.username}}"><img alt="@{{v.username}}'s profile picture" loading="lazy" src="{{v.profile_url}}" class="pp20"><span {% if v.patron %}class="patron" style="background-color:#{{v.namecolor}}"{% endif %}>{{v.username}}</span></a></td>
+		<td style="font-weight:bold">{{v.winnings}}</td>
+	</tr>
+{% endif %}
+</table>
+
+
+<pre>
+
+
+</pre>
 <style>
 	.self {
 		border-top:2px solid var(--primary);
