@@ -337,8 +337,8 @@ def reported_comments(v):
 @admin_level_required(2)
 def admin_home(v):
 
-	# with open('disable_signups', 'r') as f: x = f.read()
-	# with open('under_attack', 'r') as f: x2 = f.read()
+	with open('disable_signups', 'r') as f: x = f.read()
+	with open('under_attack', 'r') as f: x2 = f.read()
 
 	return render_template("admin/admin_home.html", v=v, x=x, x2=x2)
 
