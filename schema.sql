@@ -299,7 +299,7 @@ CREATE TABLE public.comments (
     top_comment_id integer,
     is_pinned_utc integer,
     ghost boolean,
-    slots_result character varying(30),
+    slots_result character varying(30)
 );
 
 
@@ -807,7 +807,8 @@ CREATE TABLE public.users (
     bird integer,
     fish boolean,
     lootboxes_bought integer,
-    progressivestack integer
+    progressivestack integer,
+    winnings integer
 );
 
 
