@@ -345,28 +345,27 @@ def admin_home(v):
 @app.post("/admin/disable_signups")
 @admin_level_required(3)
 def disable_signups(v):
-	pass
-	# with open('disable_signups', 'r') as f: content = f.read()
+	with open('disable_signups', 'r') as f: content = f.read()
 
-	# with open('disable_signups', 'w') as f:
-	# 	if content == "yes":
-	# 		f.write("no")
-	# 		ma = ModAction(
-	# 			kind="enable_signups",
-	# 			user_id=v.id,
-	# 		)
-	# 		g.db.add(ma)
-	# 		g.db.commit()
-	# 		return {"message": "Signups enabled!"}
-	# 	else:
-	# 		f.write("yes")
-	# 		ma = ModAction(
-	# 			kind="disable_signups",
-	# 			user_id=v.id,
-	# 		)
-	# 		g.db.add(ma)
-	# 		g.db.commit()
-	# 		return {"message": "Signups disabled!"}
+	with open('disable_signups', 'w') as f:
+		if content == "yes":
+			f.write("no")
+			ma = ModAction(
+				kind="enable_signups",
+				user_id=v.id,
+			)
+			g.db.add(ma)
+			g.db.commit()
+			return {"message": "Signups enabled!"}
+		else:
+			f.write("yes")
+			ma = ModAction(
+				kind="disable_signups",
+				user_id=v.id,
+			)
+			g.db.add(ma)
+			g.db.commit()
+			return {"message": "Signups disabled!"}
 
 
 @app.post("/admin/purge_cache")
