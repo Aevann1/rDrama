@@ -1025,7 +1025,6 @@ def submit_post(v):
 	elif v.id == LAWLZ_ID:
 		if random.random() < 0.5: body = "wow, this lawlzpost sucks!"
 		else: body = "wow, a good lawlzpost for once!"
-	elif request.host == 'rdrama.net': body = '!slots10000'
 	else: body = random.choice(snappyquotes)
 	body += "\n\n"
 
