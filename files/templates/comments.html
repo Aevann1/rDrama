@@ -233,6 +233,10 @@
 				{% if c.slots_result %}
 					<span style="position: relative; top: 2px; margin-left: 0.5rem">{{c.slots_result}} <em>{{c.slots_text}}</em></span>
 				{% endif %}
+
+				{% if c.poker_result %}
+					<span style="margin-left: 0.5rem">{{c.poker_result}}</span>
+				{% endif %}
 			</div>
 			{% if c.active_flags %}
 			<div id="flaggers-{{c.id}}" class="flaggers d-none">
