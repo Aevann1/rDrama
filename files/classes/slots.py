@@ -106,16 +106,20 @@ class Slots:
 		elif for_payout == 1:
 			indices = shuffle([0, 1, 2])
 			symbol_set = ["", "", ""]
-			[match_a, match_b, nonmatch] = indices
-			[matching_symbol, other_symbol] = all_symbols
+			match_a = indices[0]
+			match_b = indices[1]
+			nonmatch = indices[2]
+			matching_symbol = all_symbols[0]
+			other_symbol = all_symbols[1]
 			symbol_set[match_a] = matching_symbol
 			symbol_set[match_b] = matching_symbol
 			symbol_set[nonmatch] = other_symbol
-			
+
 			return "".join(symbol_set)
 		else:
 			relevantSymbols = shuffle(self.payout_to_symbols[for_payout])
 			symbol = relevantSymbols[0]
+			
 			return "".join([symbol, symbol, symbol])
 	
 	def build_text(self, wager_value, result, user, currency):
