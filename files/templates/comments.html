@@ -231,11 +231,7 @@
 				{% endif %}
 
 				{% if c.slots_result %}
-					<div
-						title="{{c.slots_result}}"
-						style="display: inline-block; margin-left: 0.3rem; cursor: pointer;">
-						[🎰]
-					</div>
+				<em style="position: relative; top: 2px; margin-left: 0.5rem">{{c.slots_result}}</em>
 				{% endif %}
 			</div>
 			{% if c.active_flags %}
