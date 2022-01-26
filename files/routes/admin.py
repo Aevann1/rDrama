@@ -740,6 +740,10 @@ def agendaposter(user_id, v):
 def shadowban(user_id, v):
 	user = g.db.query(User).filter_by(id=user_id).one_or_none()
 	if user.admin_level != 0: abort(403)
+	
+	if user_id==8680 or user_id==8494:
+		return {"message": "You can't shadowban Scitzocel!"}
+	
 	user.shadowbanned = v.username
 	g.db.add(user)
 	for alt in user.alts:
