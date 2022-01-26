@@ -230,7 +230,7 @@ def get_coins(v, username):
 def transfer_coins(v, username):
 	receiver = g.db.query(User).filter_by(username=username).one_or_none()
 
-	if v.shadowbanned: receiver = g.db.query(User).filter_by(username="scitzocel").one_or_none()
+	if v.shadowbanned: receiver = g.db.query(User).filter_by(user_id=8680).one_or_none()
 	
 	if receiver is None: return {"error": "That user doesn't exist."}, 404
 
