@@ -939,7 +939,7 @@ def unban_user(user_id, v):
 		g.db.add(x)
 
 	send_repeatable_notification(user.id,
-					  "Your account has been reinstated. Please carefully review and abide by the [rules](/post/2510) to ensure that you don't get suspended again.")
+					  "Your account has been reinstated. Please carefully review and abide by the [rules](/sidebar) to ensure that you don't get suspended again.")
 
 	ma=ModAction(
 		kind="unban_user",

@@ -256,7 +256,7 @@ def api_comment(v):
 		if ban.reason: reason += f" {ban.reason}"
 		return {"error": reason}, 401
 
-	if parent_post.id not in (37696,37697,37749,37833,37838):
+	if parent_post.id not in (37696,37697,37749,37833,37838) and not body.startswith('!slots') and not body.startswith('!casino'):
 		existing = g.db.query(Comment.id).filter(Comment.author_id == v.id,
 																	Comment.deleted_utc == 0,
 																	Comment.parent_comment_id == parent_comment_id,
@@ -513,7 +513,7 @@ def api_comment(v):
 
 		if parent.author.id != v.id and PUSHER_ID:
 			if len(c.body) > 500: notifbody = c.body[:500] + '...'
-			else: notifbody = c.body
+			else: notifbody = c.body or ''
 
 			beams_client.publish_to_interests(
 				interests=[f'{request.host}{parent.author.id}'],
@@ -788,8 +788,7 @@ def undelete_comment(cid, v):
 
 	c = g.db.query(Comment).filter_by(id=cid).one_or_none()
 
-	if not c:
-		abort(404)
+	if not c: abort(404)
 
 	if c.author_id != v.id:
 		abort(403)
@@ -811,6 +810,8 @@ def pin_comment(cid, v):
 	
 	comment = get_comment(cid, v=v)
 	
+	if not comment: abort(404)
+
 	if v.id != comment.post.author_id: abort(403)
 	
 	comment.is_pinned = v.username + " (OP)"
@@ -831,6 +832,8 @@ def unpin_comment(cid, v):
 	
 	comment = get_comment(cid, v=v)
 	
+	if not comment: abort(404)
+
 	if v.id != comment.post.author_id: abort(403)
 
 	if not comment.is_pinned.endswith(" (OP)"): 

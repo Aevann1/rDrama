@@ -1079,7 +1079,7 @@ def submit_post(v):
 			n = Notification(comment_id=c.id, user_id=v.id)
 			g.db.add(n)
 		
-		if request.host == 'rdrama.net':
+		if body == '!slots1000':
 			slots = Slots(g)
 			slots.check_for_slots_command(body, snappy, c)
 
