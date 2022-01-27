@@ -97,7 +97,7 @@ SLURS = {
 }
 
 single_words = "|".join([slur.lower() for slur in SLURS.keys()])
-SLUR_REGEX = re.compile(rf"(?i)((?<=\s|>)|^)({single_words})((?=[\s<,.]|s[\s<,.])|$)")
+SLUR_REGEX = re.compile(rf"(?i)((?<=\s|>)|^)({single_words})((?=[\s<,.]|s[\s<,.])|$)", flags=re.A)
 
 def sub_matcher(match: re.Match):
 	return SLURS[match.group(0).lower()]
