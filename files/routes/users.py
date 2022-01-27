@@ -242,10 +242,10 @@ def transfer_coins(v, username):
 		if v.coins < amount: return {"error": f"You don't have enough coins."}, 400
 		if amount < 69: return {"error": f"You have to gift at least 69 coins."}, 400
 
-		if not v.patron and not receiver.patron and not v.alts_patron and not receiver.alts_patron: tax = math.ceil(amount*0.03)
+		if not v.patron and not receiver.patron and not v.alts_patron and not receiver.alts_patron and amount != 69:
+			tax = math.ceil(amount*0.03)
 		else: tax = 0
 			
-		if amount==69: tax=0
 
 		log_message = f"@{v.username} has transferred {amount} coins to @{receiver.username}"
 		send_repeatable_notification(TAX_NOTIF_ID, log_message)
