@@ -129,7 +129,7 @@ def post_pid_comment_cid(cid, pid=None, anything=None, v=None):
 		return render_template(template, v=v, p=post, sort=sort, comment_info=comment_info, render_replies=True)
 
 @app.post("/comment")
-@limiter.limit("1/second;6/minute;200/hour;1000/day")
+@limiter.limit("1/second;20/minute;200/hour;1000/day")
 @auth_required
 def api_comment(v):
 	if v.is_suspended: return {"error": "You can't perform this action while banned."}, 403
@@ -165,7 +165,7 @@ def api_comment(v):
 			f.write('\n{[para]}\n' + body)
 
 	if v.marseyawarded:
-		marregex = list(re.finditer("^(:[!#]{0,2}m\w+:\s*)+$", body))
+		marregex = list(re.finditer("^(:[!#]{0,2}m\w+:\s*)+$", body, flags=re.A))
 		if len(marregex) == 0: return {"error":"You can only type marseys!"}, 403
 
 	if v.longpost and len(body) < 280 or ' [](' in body or body.startswith('[]('): return {"error":"You have to type more than 280 characters!"}, 403
@@ -177,7 +177,7 @@ def api_comment(v):
 		if "wikipedia" not in i.group(1): body = body.replace(i.group(1), f'![]({i.group(1)})')
 
 	options = []
-	for i in re.finditer('\s*\$\$([^\$\n]+)\$\$\s*', body):
+	for i in re.finditer('\s*\$\$([^\$\n]+)\$\$\s*', body, flags=re.A):
 		options.append(i.group(1))
 		body = body.replace(i.group(0), "")
 
@@ -213,7 +213,7 @@ def api_comment(v):
 					except Exception as e:
 						print(e)
 						return {"error": "You didn't follow the format retard"}, 400
-				elif v.id in (CARP_ID,AEVANN_ID) and parent_post.id == 37838:
+				elif v.admin_level > 2 and parent_post.id == 37838:
 					try:
 						marsey = loads(body.lower())
 						name = marsey["name"]
@@ -241,7 +241,7 @@ def api_comment(v):
 
 	body_html = sanitize(body, comment=True)
 
-	if v.marseyawarded and len(list(re.finditer('>[^<\s+]|[^>\s+]<', body_html))): return {"error":"You can only type marseys!"}, 403
+	if v.marseyawarded and len(list(re.finditer('>[^<\s+]|[^>\s+]<', body_html, flags=re.A))): return {"error":"You can only type marseys!"}, 403
 
 	if v.longpost:
 		if len(body) < 280 or ' [](' in body or body.startswith('[]('): return {"error":"You have to type more than 280 characters!"}, 403
@@ -318,7 +318,8 @@ def api_comment(v):
 				is_bot=is_bot,
 				app_id=v.client.application.id if v.client else None,
 				body_html=body_html,
-				body=body[:10000]
+				body=body[:10000],
+				ghost=parent_post.ghost
 				)
 
 	c.upvotes = 1
@@ -341,7 +342,7 @@ def api_comment(v):
 	if request.host == 'pcmemes.net' and c.body.lower().startswith("based"):
 		pill = re.match("based and (.{1,20}?)(-| )pilled", body, re.IGNORECASE)
 
-		if level == 1: basedguy = get_account(c.post.author_id)
+		if level == 1: basedguy = get_account(parent_post.author_id)
 		else: basedguy = get_account(c.parent_comment.author_id)
 		basedguy.basedcount += 1
 		if pill:
@@ -361,7 +362,8 @@ def api_comment(v):
 			level=level+1,
 			is_bot=True,
 			body_html=body_based_html,
-			top_comment_id=c.top_comment_id
+			top_comment_id=c.top_comment_id,
+			ghost=parent_post.ghost
 			)
 
 		g.db.add(c_based)
@@ -391,7 +393,8 @@ def api_comment(v):
 			level=level+1,
 			is_bot=True,
 			body_html=body_jannied_html,
-			top_comment_id=c.top_comment_id
+			top_comment_id=c.top_comment_id,
+			ghost=parent_post.ghost
 			)
 
 		g.db.add(c_jannied)
@@ -412,7 +415,8 @@ def api_comment(v):
 			level=level+1,
 			is_bot=True,
 			body_html=body_html2,
-			top_comment_id=c.top_comment_id
+			top_comment_id=c.top_comment_id,
+			ghost=parent_post.ghost
 			)
 
 		g.db.add(c2)
@@ -447,7 +451,8 @@ def api_comment(v):
 			level=level+1,
 			is_bot=True,
 			body_html=body_html2,
-			top_comment_id=c.top_comment_id
+			top_comment_id=c.top_comment_id,
+			ghost=parent_post.ghost
 			)
 
 		g.db.add(c2)
@@ -470,7 +475,8 @@ def api_comment(v):
 			level=level+2,
 			is_bot=True,
 			body_html=body_html2,
-			top_comment_id=c.top_comment_id
+			top_comment_id=c.top_comment_id,
+			ghost=parent_post.ghost
 			)
 
 		g.db.add(c3)
@@ -486,7 +492,8 @@ def api_comment(v):
 			level=level+3,
 			is_bot=True,
 			body_html=body_html2,
-			top_comment_id=c.top_comment_id
+			top_comment_id=c.top_comment_id,
+			ghost=parent_post.ghost
 			)
 
 		g.db.add(c4)
@@ -513,7 +520,7 @@ def api_comment(v):
 
 		if parent.author.id != v.id and PUSHER_ID:
 			if len(c.body) > 500: notifbody = c.body[:500] + '...'
-			else: notifbody = c.body or ''
+			else: notifbody = c.body or 'no body'
 
 			beams_client.publish_to_interests(
 				interests=[f'{request.host}{parent.author.id}'],
@@ -601,11 +608,12 @@ def edit_comment(cid, v):
 
 	body = request.values.get("body", "").strip()[:10000]
 
-	if len(body) < 1: return {"error":"You have to actually type something!"}, 400
+	if len(body) < 1 and not (request.files.get("file") and request.headers.get("cf-ipcountry") != "T1"):
+		return {"error":"You have to actually type something!"}, 400
 
 	if body != c.body or request.files.get("file") and request.headers.get("cf-ipcountry") != "T1":
 		if v.marseyawarded:
-			marregex = list(re.finditer("^(:[!#]{0,2}m\w+:\s*)+$", body))
+			marregex = list(re.finditer("^(:[!#]{0,2}m\w+:\s*)+$", body, flags=re.A))
 			if len(marregex) == 0: return {"error":"You can only type marseys!"}, 403
 
 		if v.longpost and len(body) < 280 or ' [](' in body or body.startswith('[]('): return {"error":"You have to type more than 280 characters!"}, 403
@@ -617,7 +625,7 @@ def edit_comment(cid, v):
 		if v.agendaposter and not v.marseyawarded: body = torture_ap(body, v.username)
 
 		if not c.options:
-			for i in re.finditer('\s*\$\$([^\$\n]+)\$\$\s*', body):
+			for i in re.finditer('\s*\$\$([^\$\n]+)\$\$\s*', body, flags=re.A):
 				body = body.replace(i.group(0), "")
 				c_option = Comment(author_id=AUTOPOLLER_ID,
 					parent_submission=c.parent_submission,
@@ -631,7 +639,7 @@ def edit_comment(cid, v):
 
 		body_html = sanitize(body, edit=True)
 
-		if v.marseyawarded and len(list(re.finditer('>[^<\s+]|[^>\s+]<', body_html))): return {"error":"You can only type marseys!"}, 403
+		if v.marseyawarded and len(list(re.finditer('>[^<\s+]|[^>\s+]<', body_html, flags=re.A))): return {"error":"You can only type marseys!"}, 403
 
 		if v.longpost:
 			if len(body) < 280 or ' [](' in body or body.startswith('[]('): return {"error":"You have to type more than 280 characters!"}, 403
@@ -732,7 +740,8 @@ def edit_comment(cid, v):
 				level=c.level+1,
 				is_bot=True,
 				body_html=body_jannied_html,
-				top_comment_id=c.top_comment_id
+				top_comment_id=c.top_comment_id,
+				ghost=c.ghost
 				)
 
 			g.db.add(c_jannied)

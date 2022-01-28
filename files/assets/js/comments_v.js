@@ -140,8 +140,8 @@ function post_reply(id){
 			}
 			catch(e) {console.log(e)}
 			new bootstrap.Toast(document.getElementById('toast-post-error')).show();
-			btn.classList.remove('disabled');
 		}
+		btn.classList.remove('disabled');
 	}
 	xhr.send(form)
 }
@@ -173,8 +173,8 @@ function comment_edit(id){
 			}
 			catch(e) {console.log(e)}
 			new bootstrap.Toast(document.getElementById('toast-post-error')).show();
-			btn.classList.remove('disabled');
 		}
+		btn.classList.remove('disabled');
 	}
 	xhr.send(form)
 }
@@ -207,8 +207,8 @@ function post_comment(fullname){
 			}
 			catch(e) {console.log(e)}
 			new bootstrap.Toast(document.getElementById('toast-post-error')).show();
-			btn.classList.remove('disabled');
 		}
+		btn.classList.remove('disabled');
 	}
 	xhr.send(form)
 }

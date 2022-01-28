@@ -191,7 +191,7 @@
 
 				{% if c.awards %}
 					{% for a in c.awards %}
-						<i class="{{a.class_list}} px-1" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{a.title}} Award given by @{{a.user.username}}"></i>
+						<i class="{{a.class_list}} px-1" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{a.title}} Award{% if a.kind != 'ghosts' %} given by @{{a.user.username}}{% endif %}"></i>
 					{% endfor %}
 				{% endif %}
 
@@ -864,7 +864,7 @@
 
 {% if v %}
 	<script src="/static/assets/js/marked.js?a=220"></script>
-	<script src="/static/assets/js/comments_v.js?a=233"></script>
+	<script src="/static/assets/js/comments_v.js?a=234"></script>
 {% endif %}
 
 <script src="/static/assets/js/clipboard.js?a=220"></script>
@@ -876,7 +876,7 @@
 {% include "expanded_image_modal.html" %}
 
 <script src="/static/assets/js/comments+submission_listing.js?a=220"></script>
-<script src="/static/assets/js/comments.js?a=220"></script>
+<script src="/static/assets/js/comments.js?a=221"></script>
 
 <script>
 	{% if p and (not v or v.highlightcomments) %}

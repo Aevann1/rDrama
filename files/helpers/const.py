@@ -97,7 +97,7 @@ SLURS = {
 }
 
 single_words = "|".join([slur.lower() for slur in SLURS.keys()])
-SLUR_REGEX = re.compile(rf"(?i)((?<=\s|>)|^)({single_words})((?=[\s<,.]|s[\s<,.])|$)")
+SLUR_REGEX = re.compile(rf"(?i)((?<=\s|>)|^)({single_words})((?=[\s<,.]|s[\s<,.])|$)", flags=re.A)
 
 def sub_matcher(match: re.Match):
 	return SLURS[match.group(0).lower()]
@@ -109,8 +109,8 @@ def censor_slurs(body: str, logged_user):
 def torture_ap(body, username):
 	body = SLUR_REGEX.sub(sub_matcher, body)
 	for k, l in AJ_REPLACEMENTS.items(): body = body.replace(k, l)
-	body = re.sub('(^|\s|\n)(i|me) ', rf'\1@{username} ', body, flags=re.I)
-	body = re.sub("(^|\s|\n)i'm ", rf'\1@{username} is ', body, flags=re.I)
+	body = re.sub('(^|\s|\n)(i|me) ', rf'\1@{username} ', body, flags=re.I|re.A)
+	body = re.sub("(^|\s|\n)i'm ", rf'\1@{username} is ', body, flags=re.I|re.A)
 	return body
 
 

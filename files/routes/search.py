@@ -5,7 +5,7 @@ from flask import *
 from files.__main__ import app
 
 
-query_regex=re.compile("(\w+):(\S+)")
+query_regex=re.compile("(\w+):(\S+)", flags=re.A)
 valid_params=[
 	'author',
 	'domain',

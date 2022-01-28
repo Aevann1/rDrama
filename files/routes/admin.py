@@ -209,19 +209,25 @@ def monthly(v):
 
 	emails = [x['email'] for x in requests.get(f'https://api.gumroad.com/v2/products/{GUMROAD_ID}/subscribers', data=data, timeout=5).json()["subscribers"]]
 
-	for u in g.db.query(User).filter(User.patron > 0, User.patron != 5, User.admin_level == 0).all():
-		if u.email and u.email.lower() in emails or u.id == 1379:
+	for u in g.db.query(User).filter(User.patron > 0).all():
+		if u.email and u.email.lower() in emails:
 			if u.patron == 1: procoins = 2500
 			elif u.patron == 2: procoins = 5000
 			elif u.patron == 3: procoins = 10000
 			elif u.patron == 4: procoins = 25000
 			elif u.patron == 5: procoins = 50000
-			else:
-				print(u.username)
-				continue
 			u.procoins += procoins
 			g.db.add(u)
 			send_repeatable_notification(u.id, f"You were given {procoins} Marseybux for the month of {month}! You can use them to buy awards in the [shop](/shop).")
+		else:
+			print(u.username)
+			continue
+
+	if request.host == 'pcmemes.net':
+		u = g.db.query(User).filter_by(id=KIPPY_ID).one()
+		u.procoins += 50000
+		g.db.add(u)
+
 	g.db.commit()
 	
 	return {"message": "Monthly coins granted"}

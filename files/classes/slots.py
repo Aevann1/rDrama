@@ -8,7 +8,7 @@ def shuffle(stuff):
 class Slots:
 	command_word = "!slots"
 	casino_word = "!casino"
-	minimum_bet = 5
+	minimum_bet = 100
 	maximum_bet = INFINITY
 	payout_to_symbols = {
 		2: ["👣", "🍀", "🌈", "⭐️"],

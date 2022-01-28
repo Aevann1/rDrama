@@ -92,7 +92,7 @@
 							<p>Change the theme for the website.</p>
 							<div class="input-group mb2">
 								<select autocomplete="off" id='theme' class="form-control" form="profile-settings" name="theme" onchange="post_toast('/settings/profile?theme='+document.getElementById('theme').value, '1')">
-								{% for entry in  ["dramblr","classic","transparent", "win98", "dark", "light", "coffee", "tron", "4chan", "midnight"] %}
+								{% for entry in  ["dramblr","classic","classic_dark","transparent", "win98", "dark", "light", "coffee", "tron", "4chan", "midnight"] %}
 									<option value="{{entry}}" {% if v.theme==entry %} selected {% endif %}>
 										{{entry}}
 									</option>

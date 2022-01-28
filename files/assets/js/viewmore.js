@@ -15,6 +15,7 @@ function viewmore(pid,sort,offset) {
                 return new bootstrap.Tooltip(element);
             });
             popovertrigger()
+            btn.disabled = false;
         }
     }
     xhr.send(form)

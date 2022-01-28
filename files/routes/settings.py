@@ -329,7 +329,7 @@ def settings_profile_post(v):
 
 	theme = request.values.get("theme")
 	if theme:
-		if theme in ["dramblr","classic","transparent", "win98", "dark", "light", "coffee", "tron", "4chan", "midnight"]:
+		if theme in ["dramblr","classic","classic_dark","transparent", "win98", "dark", "light", "coffee", "tron", "4chan", "midnight"]:
 			if theme == "transparent" and not v.background: 
 				return {"error": "You need to set a background to use the transparent theme!"}
 			v.theme = theme

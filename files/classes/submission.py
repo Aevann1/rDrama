@@ -201,9 +201,9 @@ class Submission(Base):
 
 		output = self.title.lower()
 
-		output = re.sub('&\w{2,3};', '', output)
+		output = re.sub('&\w{2,3};', '', output, flags=re.A)
 
-		output = [re.sub('\W', '', word) for word in output.split()]
+		output = [re.sub('\W', '', word, flags=re.A) for word in output.split()]
 		output = [x for x in output if x][:6]
 
 		output = '-'.join(output)
