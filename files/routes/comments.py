@@ -890,3 +890,19 @@ def unsave_comment(cid, v):
 		g.db.commit()
 
 	return {"message": "Comment unsaved!"}
+
+@app.post("/blackjack/<cid>")
+@limiter.limit("1/second;30/minute;200/hour;1000/day")
+@auth_required
+def handle_blackjack_action(cid, v):
+	comment = get_comment(cid)
+	action = request.values.get("action", "")
+	blackjack = Blackjack(g)
+
+	if action == 'hit':
+		blackjack.player_hit(comment)
+	elif action == 'stay':
+		blackjack.player_stayed(comment)
+	
+
+	return { "message" : "..." }

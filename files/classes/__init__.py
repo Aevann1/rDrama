@@ -10,6 +10,7 @@ from .submission import *
 from .votes import *
 from .domains import *
 from .slots import *
+from .blackjack import *
 from .subscriptions import *
 from files.__main__ import app
 from .mod_logs import *
