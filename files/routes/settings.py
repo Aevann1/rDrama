@@ -970,3 +970,17 @@ def settings_title_change(v):
 		g.db.commit()
 
 	return redirect(f"{SITE_FULL}/settings/profile")
+
+
+@app.get("/settings")
+@auth_required
+def settings(v):
+	return redirect(f"{SITE_FULL}/settings/profile")
+
+
+@app.get("/settings/profile")
+@auth_required
+def settings_profile(v):
+	if v.flairchanged: ti = datetime.utcfromtimestamp(v.flairchanged).strftime('%Y-%m-%d %H:%M:%S')
+	else: ti = ''
+	return render_template("settings_profile.html", v=v, ti=ti)

@@ -193,7 +193,7 @@ def searchposts(v):
 						   )
 
 @app.get("/search/comments")
-@auth_required
+@auth_desired
 def searchcomments(v):
 
 

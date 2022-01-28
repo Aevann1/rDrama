@@ -18,13 +18,20 @@ def privacy(v):
 @app.get("/marseys")
 @auth_required
 def marseys(v):
-	marseys = g.db.query(Marsey, User).join(User, User.id==Marsey.author_id).order_by(Marsey.count.desc())
+	if request.host == 'rdrama.net':
+		marseys = g.db.query(Marsey, User).join(User, User.id==Marsey.author_id).order_by(Marsey.count.desc())
+	else:
+		marseys = g.db.query(Marsey).order_by(Marsey.count.desc())
 	return render_template("marseys.html", v=v, marseys=marseys)
 
 @app.get("/marsey_list")
 @cache.memoize(timeout=600)
 def marsey_list():
-	marseys = [f"{x.name} : {y} {x.tags}" for x, y in g.db.query(Marsey, User.username).join(User, User.id==Marsey.author_id).order_by(Marsey.count.desc())]
+	if request.host == 'rdrama.net':
+		marseys = [f"{x.name} : {y} {x.tags}" for x, y in g.db.query(Marsey, User.username).join(User, User.id==Marsey.author_id).order_by(Marsey.count.desc())]
+	else:
+		marseys = [f"{x.name} : {x.tags}" for x in g.db.query(Marsey).order_by(Marsey.count.desc())]
+
 	return str(marseys).replace("'",'"')
 
 @app.get("/terms")
@@ -346,17 +353,6 @@ def images(path):
 @app.get("/robots.txt")
 def robots_txt():
 	return send_file("assets/robots.txt")
-
-@app.get("/settings")
-@auth_required
-def settings(v):
-	return redirect(f"{SITE_FULL}/settings/profile")
-
-
-@app.get("/settings/profile")
-@auth_required
-def settings_profile(v):
-	return render_template("settings_profile.html", v=v)
 
 
 @app.get("/badges")

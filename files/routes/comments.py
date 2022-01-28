@@ -238,6 +238,10 @@ def api_comment(v):
 
 	if v.agendaposter and not v.marseyawarded: body = torture_ap(body, v.username)
 
+	if '#fortune' in body:
+		body = body.replace('#fortune', '')
+		body += '\n\n<p>' + random.choice(FORTUNE_REPLIES) + '</p>'
+
 	body_html = sanitize(body, comment=True)
 
 	if v.marseyawarded and len(list(re.finditer('>[^<\s+]|[^>\s+]<', body_html, flags=re.A))): return {"error":"You can only type marseys!"}, 403
@@ -429,11 +433,6 @@ def api_comment(v):
 
 		n = Notification(comment_id=c2.id, user_id=v.id)
 		g.db.add(n)
-
-
-
-
-
 
 
 	if request.host == "rdrama.net" and random.random() < 0.001:
