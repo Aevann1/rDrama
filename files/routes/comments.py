@@ -157,8 +157,7 @@ def api_comment(v):
 		else: top_comment_id = parent.top_comment_id
 	else: abort(400)
 
-	_body = request.values.get("body", "").strip()[:10000]
-	body = " ".join(filter(lambda x: not "!slots" in x,  _body.split(' ')))
+	body = request.values.get("body", "").strip()[:10000]
 
 	if v.admin_level == 3 and parent_post.id == 37749:
 		with open(f"snappy_{SITE_NAME}.txt", "a") as f:
@@ -585,7 +584,10 @@ def api_comment(v):
 		g.db.add(c)
 
 	slots = Slots(g)
-	slots.check_for_slots_command(_body, v, c)
+	slots.check_for_slots_command(body, v, c)
+
+	blackjack = Blackjack(g)
+	blackjack.check_for_blackjack_command(body, v, c)
 
 	g.db.commit()
 

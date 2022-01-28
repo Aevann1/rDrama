@@ -176,6 +176,12 @@
 	{% set isreply = False %}
 {% endif %}
 
+{% if c.blackjack_result %}
+	{% set split_result = c.blackjack_result.split('_') %}
+	{% set player_hand = split_result[0] %}
+	{% set dealer_hand = split_result[1] %}
+{% endif %}
+
 <div id="comment-{{c.id}}" class="anchor {% if c.unread %}unread{% endif %} comment {% if standalone and level==1 %} mt-0{% endif %}{% if c.collapse_for_user(v) and request.path != '/admin/removed/comments' or (standalone and c.over_18 and not (v and v.over_18)) %} collapsed{% endif %}" style="{% if isreply %}padding-left:0!important;{% elif not c.unread %}border-left: 2px solid {% if c.ghost %}var(--primary){% else %}#{{c.author.namecolor}};{% endif %}{% endif %} {% if c.unread %}padding: 10px 10px 10px !important;{% endif %}">
 	{% if not isreply %}
 		<span class="comment-collapse-desktop d-none d-md-block" {% if not c.unread %}style="border-left: 2px solid {% if c.ghost %}var(--primary){% else %}#{{c.author.namecolor}}{% endif %}"{% endif %} onclick="collapse_comment('{{c.id}}')"></span>
@@ -232,6 +238,10 @@
 
 				{% if c.slots_result %}
 				<em style="position: relative; top: 2px; margin-left: 0.5rem">{{c.slots_result}}</em>
+				{% endif %}
+
+				{% if c.blackjack_result %}
+				<em>{player_hand} vs. {dealer_hand}</em>
 				{% endif %}
 			</div>
 			{% if c.active_flags %}
