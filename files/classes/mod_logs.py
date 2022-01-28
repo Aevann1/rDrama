@@ -212,12 +212,12 @@ ACTIONTYPES={
 		"color": "bg-success",
 	},
 	"agendaposter": {
-		"str": "set agendaposter theme on {self.target_link}",
+		"str": "set chud theme on {self.target_link}",
 		"icon": "fa-user-slash",
 		"color": "bg-danger",
 	},
 	"unagendaposter": {
-		"str": "removed agendaposter theme from {self.target_link}",
+		"str": "removed chud theme from {self.target_link}",
 		"icon": "fa-user-slash",
 		"color": "bg-success",
 	},

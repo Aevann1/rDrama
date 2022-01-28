@@ -27,17 +27,6 @@ CF_HEADERS = {"Authorization": f"Bearer {CF_KEY}", "Content-Type": "application/
 month = datetime.now().strftime('%B')
 
 
-# @app.get("/dead")
-# @admin_level_required(2)
-# def dead(v):
-# 	g.db.query(User)
-# 	user = get_user(username)
-# 	if not user: abort(404)
-# 	user.admin_level = 2
-# 	g.db.add(user)
-# 	g.db.commit()
-# 	return {"message": "User has been made admin!"}
-
 @app.post("/@<username>/make_admin")
 @limiter.limit("1/second;5/day")
 @admin_level_required(3)
@@ -738,7 +727,7 @@ def agendaposter(user_id, v):
 
 	g.db.commit()
 	if user.agendaposter: return redirect(user.url)
-	return {"message": "Agendaposter theme disabled!"}
+	return {"message": "Chud theme disabled!"}
 
 
 @app.post("/shadowban/<user_id>")

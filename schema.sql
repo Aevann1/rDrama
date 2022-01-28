@@ -299,7 +299,7 @@ CREATE TABLE public.comments (
     top_comment_id integer,
     is_pinned_utc integer,
     ghost boolean,
-    slots_result character varying(30),
+    slots_result character varying(50),
     blackjack_result character varying(3000)
 );
 
@@ -1814,9 +1814,4 @@ ALTER TABLE ONLY public.flags
 
 ALTER TABLE ONLY public.notifications
     ADD CONSTRAINT notifications_comment_id_fkey FOREIGN KEY (comment_id) REFERENCES public.comments(id);
-
-
---
--- PostgreSQL database dump complete
---
 

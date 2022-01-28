@@ -82,10 +82,10 @@
 			{% else %}
 				{% set path = request.full_path %}
 			{% endif %}
-			{% if request.full_path == "/notifications" %}
-				<small><a class="page-link" href="{{path}}?page={{page-1}}">Previous</a></small>
-			{% else %}
+			{% if '=true' in request.full_path %}
 				<small><a class="page-link" href="{{path}}&page={{page-1}}">Previous</a></small>
+			{% else %}
+				<small><a class="page-link" href="{{request.path}}?page={{page-1}}">Previous</a></small>
 			{% endif %}
 		</li>
 		{% else %}
@@ -101,10 +101,10 @@
 			{% else %}
 				{% set path = request.full_path %}
 			{% endif %}
-			{% if request.full_path == "/notifications" %}
-				<small><a class="page-link" href="{{path}}?page={{page+1}}">Next</a></small>
-			{% else %}
+			{% if '=true' in request.full_path %}
 				<small><a class="page-link" href="{{path}}&page={{page+1}}">Next</a></small>
+			{% else %}
+				<small><a class="page-link" href="{{request.path}}?page={{page+1}}">Next</a></small>
 			{% endif %}
 		</li>
 		{% else %}

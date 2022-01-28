@@ -1,3 +1,0 @@
-source /env.sh
-killall gunicorn
-gunicorn files.__main__:app -k gevent -w 2 --reload -b localhost:80 --max-requests 1000 --max-requests-jitter 500
