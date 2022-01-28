@@ -1,5 +1,6 @@
 from json.encoder import INFINITY
 import random
+from files.helpers.const import *
 
 def shuffle(stuff):
 	random.shuffle(stuff)
@@ -8,7 +9,8 @@ def shuffle(stuff):
 class Slots:
 	command_word = "!slots"
 	casino_word = "!casino"
-	minimum_bet = 100
+	if SITE == 'rdrama.net': minimum_bet = 100
+	else: minimum_bet = 10
 	maximum_bet = INFINITY
 	payout_to_symbols = {
 		2: ["👣", "🍀", "🌈", "⭐️"],

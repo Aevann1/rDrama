@@ -288,11 +288,9 @@
 
 
 								{% if v.id != p.author_id and not p.ghost %}
-									<a id="unblock-{{p.id}}" class="text-success list-inline-item {% if not p.is_blocking %} d-none{% endif %}" role="button" onclick="post_toast2('/settings/unblock?username={{p.author_name}}','block-{{p.id}}','unblock-{{p.id}}')"><i class="fas fa-eye text-success"></i>Unblock user</a>
+									<a id="unblock-{{p.id}}" class="dropdown-item text-success list-inline-item {% if not p.is_blocking %}d-none{% endif %}" role="button" onclick="post_toast2('/settings/unblock?username={{p.author_name}}','block-{{p.id}}','unblock-{{p.id}}')"><i class="fas fa-eye text-success"></i>Unblock user</a>
 
-									<a id="prompt-{{p.id}}" class="dropdown-item text-danger blockuser list-inline-item d-none" role="button" onclick="post_toast2('/settings/block?username={{p.author_name}}','prompt-{{p.id}}','unblock-{{p.id}}')"><i class="fas fa-eye-slash text-danger"></i>Are you sure?</a>
-
-									<a id="block-{{p.id}}" class="dropdown-item text-danger blockuser list-inline-item {% if p.is_blocking %} d-none{% endif %}" role="button" onclick="document.getElementById('block-{{p.id}}').classList.toggle('d-none');document.getElementById('prompt-{{p.id}}').classList.toggle('d-none');"><i class="fas fa-eye-slash text-danger"></i>Block user</a>
+									<a id="block-{{p.id}}" class="dropdown-item list-inline-item text-danger {% if p.is_blocking %}d-none{% endif %}" role="button" onclick="post_toast2('/settings/block?username={{p.author_name}}','block-{{p.id}}','unblock-{{p.id}}')"><i class="fas fa-eye-slash text-danger"></i>Block user</a>
 								{% endif %}
 
 								{% if v.id==p.author_id or v.admin_level > 1 %}

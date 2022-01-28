@@ -59,14 +59,14 @@
 
 {% if v.admin_level > 2 %}
 	<div class="custom-control custom-switch">
-		<input autocomplete="off" type="checkbox" class="custom-control-input" id="disable_signups" name="disable_signups" {% if x == "yes" %}checked{% endif %} onchange="post_toast('/admin/disable_signups');">
+		<input autocomplete="off" type="checkbox" class="custom-control-input" id="disable_signups" name="disable_signups" {% if environ.get('disable_signups') %}checked{% endif %} onchange="post_toast('/admin/disable_signups');">
 		<label class="custom-control-label" for="disable_signups">Disable signups</label>
 	</div>
 {% endif %}
 
 {% if v.admin_level == 3 %}
 	<div class="custom-control custom-switch mt-3">
-		<input autocomplete="off" type="checkbox" class="custom-control-input" id="under_attack" name="under_attack" {% if x2 == "yes" %}checked{% endif %} onchange="post_toast('/admin/under_attack');">
+		<input autocomplete="off" type="checkbox" class="custom-control-input" id="under_attack" name="under_attack" {% if environ.get('under_attack') %}checked{% endif %} onchange="post_toast('/admin/under_attack');">
 		<label class="custom-control-label" for="under_attack">Under attack mode</label>
 	</div>
 

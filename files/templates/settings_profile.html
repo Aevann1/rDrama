@@ -409,7 +409,6 @@
 								</div>
 							</div>							
 
-							{% if not v.flairchanged %}
 							<div class="body d-lg-flex border-bottom">
 
 								<label class="text-black w-lg-25">Flair</label>
@@ -418,18 +417,17 @@
 
 									<form id="profile-settings" action="/settings/title_change" method="post">
 										<input autocomplete="off" type="hidden" name="formkey" value="{{v.formkey}}">
-										<input autocomplete="off" id="customtitlebody" type="text" name="title" class="form-control" placeholder='Enter a flair here' value="{% if v.customtitleplain %}{{v.customtitleplain}}{% endif %}">
+										<input {% if v.flairchanged %}disabled{% endif %} autocomplete="off" id="customtitlebody" type="text" name="title" class="form-control" placeholder='Enter a flair here' value="{% if v.flairchanged %}Your flair has been locked until {{ti}}{% elif v.customtitleplain %}{{v.customtitleplain}}{% endif %}">
 										<div class="d-flex mt-2">
 											<a class="format" role="button"><i class="btn btn-secondary format d-inline-block m-0 fas fa-smile-beam" onclick="loadEmojis('customtitlebody')" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#emojiModal" data-bs-toggle="tooltip" data-bs-placement="bottom"  data-bs-original-title="Add Emoji"></i></a>
 											&nbsp;&nbsp;&nbsp;
 											<small>Limit of 100 characters</small>
-											<input autocomplete="off" class="btn btn-primary ml-auto" id="titleSave" type="submit" value="Change Flair">
+											<input {% if v.flairchanged %}disabled{% endif %} autocomplete="off" class="btn btn-primary ml-auto" id="titleSave" type="submit" value="Change Flair">
 										</div>
 									</form>
 								</div>
 
 							</div>
-							{% endif %}
 
 							<div class="body d-lg-flex border-bottom">
 

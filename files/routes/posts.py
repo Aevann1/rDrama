@@ -876,6 +876,10 @@ def submit_post(v):
 			if request.headers.get("Authorization") or request.headers.get("xhr"): return {"error": "Image/Video files only"}, 400
 			return render_template("submit.html", v=v, error=f"Image/Video files only."), 400
 
+	if '#fortune' in body:
+		body = body.replace('#fortune', '')
+		body += '\n\n<p>' + random.choice(FORTUNE_REPLIES) + '</p>'
+
 	body_html = sanitize(body)
 
 	if v.marseyawarded and len(list(re.finditer('>[^<\s+]|[^>\s+]<', body_html, flags=re.A))): return {"error":"You can only type marseys!"}, 400
