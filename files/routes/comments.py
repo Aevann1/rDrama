@@ -596,7 +596,7 @@ def api_comment(v):
 	blackjack.check_for_blackjack_command(body, v, c)
 
 	treasure = Treasure(g)
-	treasure.check_for_treasure(c)
+	treasure.check_for_treasure(body, c)
 
 	g.db.commit()
 

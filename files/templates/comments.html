@@ -240,7 +240,12 @@
 				{% endif %}
 
 				{% if c.treasure_amount and c.treasure_amount != '0' %}
-				<img alt="treasure" src="/static/assets/images/chest.png" width="20" /> <em>Found {{c.treasure_amount}} Coins!</em>
+				<img alt="treasure" src="/static/assets/images/chest.png" width="20" />
+					{% if '-' in c.treasure_amount %}
+					<em>A Mimic Ate {{c.treasure_amount.replace('-', '')}} Coins!</em>
+					{% else %}
+					<em>Found {{c.treasure_amount}} Coins!</em>
+					{% endif %}
 				{% endif %}
 
 				{% if c.slots_result %}
