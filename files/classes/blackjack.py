@@ -161,6 +161,7 @@ class Blackjack:
         if (reward > 0):
             user = from_comment.author
             user.coins += reward
+            user.winnings += reward - int(wager)
 
             self.db.add(user)
             self.db.commit()
