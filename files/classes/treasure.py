@@ -24,8 +24,8 @@ class Treasure:
             elif is_standard:
                 amount = random.randint(self.standard_min, self.standard_max)
 
-                # Mimic: 10% chance
-                if random.randint(1, 10) == 10:
+                # Mimic: 25% chance
+                if random.randint(1, 100) > 75:
                     amount = -amount
 
             if amount != 0:
