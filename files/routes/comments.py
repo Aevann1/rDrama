@@ -165,12 +165,13 @@ def api_comment(v):
 		with open(f"snappy_{SITE_NAME}.txt", "a") as f:
 			f.write('\n{[para]}\n' + body)
 
-	if v.marseyawarded:
+	if v.marseyawarded and parent_post.id not in (37696,37697,37749,37833,37838):
 		marregex = list(re.finditer("^(:[!#]{0,2}m\w+:\s*)+$", body, flags=re.A))
 		if len(marregex) == 0: return {"error":"You can only type marseys!"}, 403
 
 	if v.longpost and len(body) < 280 or ' [](' in body or body.startswith('[]('): return {"error":"You have to type more than 280 characters!"}, 403
-	elif v.bird and len(body) > 140: return {"error":"You have to type less than 140 characters!"}, 403
+	elif v.bird and len(body) > 140 and parent_post.id not in (37696,37697,37749,37833,37838):
+		return {"error":"You have to type less than 140 characters!"}, 403
 
 	if not body and not request.files.get('file'): return {"error":"You need to actually write something!"}, 400
 	
@@ -238,7 +239,8 @@ def api_comment(v):
 			body += f"\n\n{url}"
 		else: return {"error": "Image/Video files only"}, 400
 
-	if v.agendaposter and not v.marseyawarded: body = torture_ap(body, v.username)
+	if v.agendaposter and not v.marseyawarded and parent_post.id not in (37696,37697,37749,37833,37838):
+		body = torture_ap(body, v.username)
 
 	if '#fortune' in body:
 		body = body.replace('#fortune', '')
@@ -248,10 +250,12 @@ def api_comment(v):
 
 	if v.marseyawarded and len(list(re.finditer('>[^<\s+]|[^>\s+]<', body_html, flags=re.A))): return {"error":"You can only type marseys!"}, 403
 
-	if v.longpost:
-		if len(body) < 280 or ' [](' in body or body.startswith('[]('): return {"error":"You have to type more than 280 characters!"}, 403
-	elif v.bird:
-		if len(body) > 140 : return {"error":"You have to type less than 140 characters!"}, 403
+	if parent_post.id not in (37696,37697,37749,37833,37838):
+		if v.longpost:
+			if len(body) < 280 or ' [](' in body or body.startswith('[]('):
+				return {"error":"You have to type more than 280 characters!"}, 403
+		elif v.bird:
+			if len(body) > 140 : return {"error":"You have to type less than 140 characters!"}, 403
 
 	bans = filter_comment_html(body_html)
 
@@ -270,7 +274,8 @@ def api_comment(v):
 																	).one_or_none()
 		if existing: return {"error": f"You already made that comment: /comment/{existing.id}"}, 409
 
-	if parent.author.any_block_exists(v) and v.admin_level < 2: return {"error": "You can't reply to users who have blocked you, or users you have blocked."}, 403
+	if parent.author.any_block_exists(v) and v.admin_level < 2:
+		return {"error": "You can't reply to users who have blocked you, or users you have blocked."}, 403
 
 	is_bot = bool(request.headers.get("Authorization"))
 
@@ -625,7 +630,8 @@ def edit_comment(cid, v):
 		for i in re.finditer('^(https:\/\/.*\.(png|jpg|jpeg|gif|webp|PNG|JPG|JPEG|GIF|WEBP|9999))', body, re.MULTILINE):
 			if "wikipedia" not in i.group(1): body = body.replace(i.group(1), f'![]({i.group(1)})')
 
-		if v.agendaposter and not v.marseyawarded: body = torture_ap(body, v.username)
+		if v.agendaposter and not v.marseyawarded:
+			body = torture_ap(body, v.username)
 
 		if not c.options:
 			for i in re.finditer('\s*\$\$([^\$\n]+)\$\$\s*', body, flags=re.A):

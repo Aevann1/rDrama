@@ -110,7 +110,7 @@
 								<button class="dropdown-item copy-link" data-clipboard-text="/signup?ref={{v.username}}"><i class="fad fa-user-friends fa-fw text-left mr-3"></i>Invite friends</button>
 							</div>
 							<div class="px-2">
-								<a class="dropdown-item" href="/assets/{{'SITE_NAME' | app_config}}_v1.4.apk"><i class="fab fa-android fa-fw text-left mr-3"></i>Android app</a>
+								<a class="dropdown-item" href="/assets/{{config('SITE_NAME')}}_v1.5.apk"><i class="fab fa-android fa-fw text-left mr-3"></i>Android app</a>
 
 								<a class="dropdown-item" href="/changelog"><i class="fas fa-clipboard fa-fw text-left mr-3"></i>Changelog</a>
 
@@ -124,7 +124,7 @@
 									<a class="dropdown-item" href="/discord"><i class="fab fa-discord fa-fw text-left mr-3"></i>Discord</a>
 								{% endif %}
 								{% if not (g.webview and v.truecoins < 1) %}
-									<a class="dropdown-item" rel="nofollow noopener noreferrer" href="{{'GUMROAD_LINK' | app_config}}"><i class="fas fa-dollar-sign fa-fw text-left mr-3"></i>Donate</a>
+									<a class="dropdown-item" rel="nofollow noopener noreferrer" href="{{config('GUMROAD_LINK')}}"><i class="fas fa-dollar-sign fa-fw text-left mr-3"></i>Donate</a>
 								{% endif %}
 								{% if request.host == 'rdrama.net' %}<a class="dropdown-item" href="/archives"><i class="fas fa-book fa-fw text-left mr-3"></i>Archives</a>{% endif %}
 								<a class="dropdown-item" href="/contact"><i class="fas fa-file-signature fa-fw text-left mr-3"></i>Contact us</a>
@@ -174,7 +174,7 @@
 				<li class="nav-item">
 					<a class="nav-link" href="/settings"><i class="fas fa-cog fa-fw mr-3"></i>Settings</a>
 				</li>
-				<a class="nav-item nav-link" href="/assets/{{'SITE_NAME' | app_config}}_v1.4.apk"><i class="fab fa-android fa-fw mr-3"></i>Android app</a>
+				<a class="nav-item nav-link" href="/assets/{{config('SITE_NAME')}}_v1.5.apk"><i class="fab fa-android fa-fw mr-3"></i>Android app</a>
 
 				<a class="nav-item nav-link" rel="nofollow noopener noreferrer" href="https://github.com/Aevann1/Drama"><i class="fab fa-github fa-fw mr-3"></i>Source code</a>
 
@@ -182,7 +182,7 @@
 					<a class="nav-item nav-link" href="/discord"><i class="fab fa-discord fa-fw mr-3"></i>Discord</a>
 				{% endif %}
 				{% if not (g.webview and v.truecoins < 1) %}
-					<a class="nav-item nav-link" rel="nofollow noopener noreferrer" href="{{'GUMROAD_LINK' | app_config}}"><i class="fas fa-dollar-sign fa-fw mr-3"></i>Donate</a>
+					<a class="nav-item nav-link" rel="nofollow noopener noreferrer" href="{{config('GUMROAD_LINK')}}"><i class="fas fa-dollar-sign fa-fw mr-3"></i>Donate</a>
 				{% endif %}
 				{% if request.host == 'rdrama.net' %}<a class="nav-item nav-link" href="/archives"><i class="fas fa-book fa-fw mr-3"></i>Archives</a>{% endif %}
 				<a class="nav-item nav-link" href="/contact"><i class="fas fa-file-signature fa-fw mr-3"></i>Contact us</a>

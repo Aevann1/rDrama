@@ -30,7 +30,7 @@
 		Messages
 		</a>
 	</li>
-	{% if v.admin_level > 1 %}
+	{% if v.admin_level > 2 %}
 		<li class="nav-item">
 			<a class="nav-link py-3{% if '/notifications?modmail=true' in request.full_path %} active{% endif %}" href="/notifications?modmail=true">
 			Modmail

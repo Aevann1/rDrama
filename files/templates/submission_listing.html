@@ -226,7 +226,7 @@
 							<a class="list-inline-item text-muted d-none d-md-inline-block" role="button" data-bs-toggle="modal" data-bs-target="#awardModal" onclick="awardModal('/post/{{p.id}}/awards')"><i class="fas fa-gift fa-fw"></i>Give Award</a>
 						{% endif %}
 
-						<a class="list-inline-item copy-link" role="button" data-clipboard-text="{% if request.host == 'rdrama.net' %}https://rdrama.com{{p.permalink}}{% else %}{{p.permalink | full_link}}{% endif %}"><i class="fas fa-copy"></i>Copy link</a>
+						<a class="list-inline-item copy-link" role="button" data-clipboard-text="{% if request.host == 'rdrama.net' %}https://rdrama.com{{p.shortlink}}{% else %}{{p.permalink}}{% endif %}"><i class="fas fa-copy"></i>Copy link</a>
 
 						{% if v %}
 							<a id="subscribe-{{p.id}}" class="{% if p.id in v.subscribed_idlist() %}d-none{% endif %} list-inline-item" role="button" onclick="post_toast2('/subscribe/{{p.id}}','subscribe-{{p.id}}','unsubscribe-{{p.id}}')"><i class="fas fa-eye"></i>Subscribe</a>
@@ -326,7 +326,7 @@
 
 			</li>
 			
-			<a class="copy-link" role="button" data-clipboard-text="{% if request.host == 'rdrama.net' %}https://rdrama.com{{p.permalink}}{% else %}{{p.permalink | full_link}}{% endif %}" style="margin-right: 15px;margin-top:5px;"><i class="fas fa-link"></i></a>
+			<a class="copy-link" role="button" data-clipboard-text="{% if request.host == 'rdrama.net' %}https://rdrama.com{{p.shortlink}}{% else %}{{p.permalink}}{% endif %}" style="margin-right: 15px;margin-top:5px;"><i class="fas fa-link"></i></a>
 
 			{% if p.realbody(v) and request.path != "/changelog"%}
 				<a class="list-inline-item" role="button" onclick="expandText('{{p.id}}')"><i class="fas fa-expand-alt mr-0 text-expand-icon-{{p.id}}"></i></a>
@@ -518,8 +518,8 @@
 
 	{% if p.is_image and not p.over_18 and ((v and v.cardview) or (not v and environ.get('CARD_VIEW') == '1')) %}
 		<div style="text-align: center" class="mt-3 mb-4">
-			<a {% if v and v.newtab and not g.webview %}target="_blank"{% endif %} rel="nofollow noopener noreferrer" href="{{p.url}}">
-				<img loading="lazy" data-src="{{p.url}}" src="/static/assets/images/loading.webp" class="img-fluid" style="max-height:20rem;" alt="Unable to load image">
+			<a {% if v and v.newtab and not g.webview %}target="_blank"{% endif %} rel="nofollow noopener noreferrer" href="{{p.realurl(v)}}">
+				<img loading="lazy" data-src="{{p.realurl(v)}}" src="/static/assets/images/loading.webp" class="img-fluid" style="max-height:20rem;" alt="Unable to load image">
 			</a>
 		</div>
 	{% elif p.is_video %}
@@ -694,5 +694,5 @@
 </style>
 
 <script src="/static/assets/js/clipboard.js?a=220"></script>
-<script src="/static/assets/js/comments+submission_listing.js?a=220"></script>
+<script src="/static/assets/js/comments+submission_listing.js?a=221"></script>
 <script src="/static/assets/js/submission_listing.js?a=220"></script>

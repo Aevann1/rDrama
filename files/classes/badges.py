@@ -61,7 +61,7 @@ class Badge(Base):
 	@property
 	@lazy
 	def path(self):
-		return f"/static/assets/images/badges/{self.badge_id}.webp?a=1008"
+		return f"{SITE_FULL}/static/assets/images/badges/{self.badge_id}.webp?a=1008"
 
 	@property
 	@lazy
@@ -69,5 +69,5 @@ class Badge(Base):
 		return {'text': self.text,
 				'name': self.name,
 				'url': self.url,
-				'icon_url':f"{SITE_FULL}{self.path}"
+				'icon_url':self.path
 				}

@@ -1,10 +1,10 @@
 import html
 from .front import frontlist
 from datetime import datetime
-from files.helpers.jinja2 import full_link
 from files.helpers.get import *
 from yattag import Doc
 from files.helpers.wrappers import *
+from files.helpers.jinja2 import *
 
 from files.__main__ import app
 
@@ -31,11 +31,11 @@ def feeds_user(v=None, sort='hot', t='all'):
 		with tag("title", type="text"):
 			text(f"{sort} posts from {domain}")
 
-		doc.stag("link", href=request.url)
-		doc.stag("link", href=request.url_root)
+		doc.stag("link", href=SITE_FULL + request.full_path)
+		doc.stag("link", href=SITE_FULL)
 
 		for post in posts:
-			with tag("entry", ("xml:base", request.url)):
+			with tag("entry", ("xml:base", SITE_FULL + request.full_path)):
 				with tag("title", type="text"):
 					text(post.realtitle(None))
 
@@ -55,7 +55,7 @@ def feeds_user(v=None, sort='hot', t='all'):
 					with tag("uri"):
 						text(f'{SITE_FULL}/@{post.author_name}')
 
-				doc.stag("link", href=full_link(post.permalink))
+				doc.stag("link", href=post.permalink)
 
 				image_url = post.thumb_url or post.embed_url or post.url
 

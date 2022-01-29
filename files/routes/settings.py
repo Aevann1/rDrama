@@ -542,7 +542,7 @@ def settings_security_post(v):
 		if new_email == v.email:
 			return render_template("settings_security.html", v=v, error="That email is already yours!")
 
-		url = f"{request.host_url}activate"
+		url = f"{SITE_FULL}/activate"
 
 		now = int(time.time())
 

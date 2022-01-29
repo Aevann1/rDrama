@@ -121,9 +121,11 @@ def get_post(i, v=None, graceful=False):
 		)
 
 		items=items.one_or_none()
+		
+		if not items:
+			if graceful: return None
+			else: abort(404)
 
-		if not items and not graceful:
-			abort(404)
 		x = items[0]
 		x.voted = items[1] or 0
 		x.is_blocking = items[2] or 0
@@ -131,8 +133,9 @@ def get_post(i, v=None, graceful=False):
 		items = g.db.query(
 			Submission
 		).filter(Submission.id == i).one_or_none()
-		if not items and not graceful:
-			abort(404)
+		if not items:
+			if graceful: return None
+			else: abort(404)
 		x=items
 
 	return x

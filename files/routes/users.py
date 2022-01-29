@@ -666,7 +666,7 @@ def u_username(username, v=None):
 
 
 	if username != u.username:
-		return redirect(request.full_path.replace(username, u.username))
+		return redirect(SITE_FULL + request.full_path.replace(username, u.username))
 
 	if u.reserved:
 		if request.headers.get("Authorization") or request.headers.get("xhr"): return {"error": f"That username is reserved for: {u.reserved}"}
@@ -1010,19 +1010,22 @@ def saved_comments(v, username):
 @app.post("/fp/<fp>")
 @auth_required
 def fp(v, fp):
-	if v.username != fp:
-		v.fp = fp
-		users = g.db.query(User).filter(User.fp == fp, User.id != v.id).all()
-		if v.email and v.is_activated:
-			users += g.db.query(User).filter(User.email == v.email, User.is_activated, User.id != v.id).all()
-		for u in users:
-			li = [v.id, u.id]
-			existing = g.db.query(Alt).filter(Alt.user1.in_(li), Alt.user2.in_(li)).first()
-			if existing: continue
-			new_alt = Alt(user1=v.id, user2=u.id)
-			g.db.add(new_alt)
-			g.db.flush()
-			print('\n\n' + v.username + ' + ' + u.username + '\n\n')
-		g.db.add(v)
-		g.db.commit()
+	v.fp = fp
+	users = g.db.query(User).filter(User.fp == fp, User.id != v.id).all()
+	if users: print(f'{v.username}: fp {v.fp}')
+	if v.email and v.is_activated:
+		alts = g.db.query(User).filter(User.email == v.email, User.is_activated, User.id != v.id).all()
+		if alts:
+			print(f'{v.username}: email {v.email}')
+			users += alts
+	for u in users:
+		li = [v.id, u.id]
+		existing = g.db.query(Alt).filter(Alt.user1.in_(li), Alt.user2.in_(li)).first()
+		if existing: continue
+		new_alt = Alt(user1=v.id, user2=u.id)
+		g.db.add(new_alt)
+		g.db.flush()
+		print(v.username + ' + ' + u.username)
+	g.db.add(v)
+	g.db.commit()
 	return '', 204

@@ -118,12 +118,14 @@ def revert_actions(v, username):
 		user.is_banned = 0
 		user.unban_utc = 0
 		user.ban_evade = 0
+		send_repeatable_notification(user.id, "Your account has been unbanned!")
 		g.db.add(user)
 		for u in user.alts:
 			u.shadowbanned = None
 			u.is_banned = 0
 			u.unban_utc = 0
 			u.ban_evade = 0
+			send_repeatable_notification(u.id, "Your account has been unbanned!")
 			g.db.add(u)
 
 	g.db.commit()
@@ -209,13 +211,23 @@ def monthly(v):
 
 	emails = [x['email'] for x in requests.get(f'https://api.gumroad.com/v2/products/{GUMROAD_ID}/subscribers', data=data, timeout=5).json()["subscribers"]]
 
-	for u in g.db.query(User).filter(User.patron > 0).all():
+	for u in g.db.query(User).filter(User.patron > 0, User.patron_utc == 0).all():
 		if u.email and u.email.lower() in emails:
 			if u.patron == 1: procoins = 2500
 			elif u.patron == 2: procoins = 5000
 			elif u.patron == 3: procoins = 10000
 			elif u.patron == 4: procoins = 25000
 			elif u.patron == 5: procoins = 50000
+			u.procoins += procoins
+			g.db.add(u)
+			send_repeatable_notification(u.id, f"You were given {procoins} Marseybux for the month of {month}! You can use them to buy awards in the [shop](/shop).")
+		elif u.patron == 5:
+			procoins = 50000
+			u.procoins += procoins
+			g.db.add(u)
+			send_repeatable_notification(u.id, f"You were given {procoins} Marseybux for the month of {month}! You can use them to buy awards in the [shop](/shop).")
+		elif u.patron == 1 and u.admin_level > 0:
+			procoins = 2500
 			u.procoins += procoins
 			g.db.add(u)
 			send_repeatable_notification(u.id, f"You were given {procoins} Marseybux for the month of {month}! You can use them to buy awards in the [shop](/shop).")
@@ -925,6 +937,7 @@ def unban_user(user_id, v):
 	user.unban_utc = 0
 	user.ban_evade = 0
 	user.ban_reason = None
+	send_repeatable_notification(user.id, "Your account has been unbanned!")
 	g.db.add(user)
 
 	for x in user.alts:
@@ -932,10 +945,8 @@ def unban_user(user_id, v):
 		x.unban_utc = 0
 		x.ban_evade = 0
 		x.ban_reason = None
+		send_repeatable_notification(x.id, "Your account has been unbanned!")
 		g.db.add(x)
-
-	send_repeatable_notification(user.id,
-					  "Your account has been reinstated. Please carefully review and abide by the [rules](/sidebar) to ensure that you don't get suspended again.")
 
 	ma=ModAction(
 		kind="unban_user",

@@ -17,7 +17,9 @@ def login_get(v):
 		redir = redir.replace("/logged_out", "").strip()
 		if not redir.startswith(SITE_FULL) and not redir.startswith('/'): redir = None
 
-	if v and redir: return redirect(redir)
+	if v and redir:
+		if redir.startswith(SITE_FULL): return redirect(redir)
+		elif redir.startswith('/'): return redirect(f'{SITE_FULL}{redir}')
 
 	return render_template("login.html", failed=False, redirect=redir)
 
@@ -32,45 +34,47 @@ def check_for_alts(current_id):
 		if past_id == MOM_ID or current_id == MOM_ID: break
 		if past_id == current_id: continue
 
-		check1 = g.db.query(Alt).filter_by(
-			user1=current_id, user2=past_id).one_or_none()
-		check2 = g.db.query(Alt).filter_by(
-			user1=past_id, user2=current_id).one_or_none()
+		li = [past_id, current_id]
+		existing = g.db.query(Alt).filter(Alt.user1.in_(li), Alt.user2.in_(li)).one_or_none()
 
-		if not check1 and not check2:
-
-			try:
-				new_alt = Alt(user1=past_id, user2=current_id)
-				g.db.add(new_alt)
-				g.db.flush()
-			except: pass
+		if not existing:
+			new_alt = Alt(user1=past_id, user2=current_id)
+			g.db.add(new_alt)
+			g.db.flush()
 			
-		alts = g.db.query(Alt)
-		otheralts = alts.filter(or_(Alt.user1 == past_id, Alt.user2 == past_id, Alt.user1 == current_id, Alt.user2 == current_id)).all()
+		otheralts = g.db.query(Alt).filter(Alt.user1.in_(li), Alt.user2.in_(li)).all()
 		for a in otheralts:
-			existing = alts.filter_by(user1=a.user1, user2=past_id).one_or_none()
-			if not existing:
-				new_alt = Alt(user1=a.user1, user2=past_id)
-				g.db.add(new_alt)
-				g.db.flush()
+			if a.user1 != past_id:
+				li = [a.user1, past_id]
+				existing = g.db.query(Alt).filter(Alt.user1.in_(li), Alt.user2.in_(li)).one_or_none()
+				if not existing:
+					new_alt = Alt(user1=a.user1, user2=past_id)
+					g.db.add(new_alt)
+					g.db.flush()
 
-			existing = alts.filter_by(user1=a.user1, user2=current_id).one_or_none()
-			if not existing:
-				new_alt = Alt(user1=a.user1, user2=current_id)
-				g.db.add(new_alt)
-				g.db.flush()
+			if a.user1 != current_id:
+				li = [a.user1, current_id]
+				existing = g.db.query(Alt).filter(Alt.user1.in_(li), Alt.user2.in_(li)).one_or_none()
+				if not existing:
+					new_alt = Alt(user1=a.user1, user2=current_id)
+					g.db.add(new_alt)
+					g.db.flush()
 
-			existing = alts.filter_by(user1=a.user2, user2=past_id).one_or_none()
-			if not existing:
-				new_alt = Alt(user1=a.user2, user2=past_id)
-				g.db.add(new_alt)
-				g.db.flush()
+			if a.user2 != past_id:
+				li = [a.user2, past_id]
+				existing = g.db.query(Alt).filter(Alt.user1.in_(li), Alt.user2.in_(li)).one_or_none()
+				if not existing:
+					new_alt = Alt(user1=a.user2, user2=past_id)
+					g.db.add(new_alt)
+					g.db.flush()
 
-			existing = alts.filter_by(user1=a.user2, user2=current_id).one_or_none()
-			if not existing:
-				new_alt = Alt(user1=a.user2, user2=current_id)
-				g.db.add(new_alt)
-				g.db.flush()
+			if a.user2 != current_id:
+				li = [a.user2, current_id]
+				existing = g.db.query(Alt).filter(Alt.user1.in_(li), Alt.user2.in_(li)).one_or_none()
+				if not existing:
+					new_alt = Alt(user1=a.user2, user2=current_id)
+					g.db.add(new_alt)
+					g.db.flush()
 
 
 @app.post("/login")
@@ -145,8 +149,9 @@ def login_post():
 		redir = redir.replace("/logged_out", "").strip()
 		if not redir.startswith(SITE_FULL) and not redir.startswith('/'): redir = '/'
 
-	return redirect(redir)
-
+	if redir.startswith(SITE_FULL): return redirect(redir)
+	if redir.startswith('/'): return redirect(f'{SITE_FULL}{redir}')
+	return redirect(f'{SITE_FULL}/')
 
 @app.get("/me")
 @app.get("/@me")

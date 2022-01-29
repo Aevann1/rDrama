@@ -168,6 +168,21 @@ def front_all(v):
 	posts = get_posts(ids, v=v)
 
 	if v:
+		if v.patron_utc and v.patron_utc < time.time():
+			v.patron = 0
+			v.patron_utc = 0
+			send_repeatable_notification(v.id, "Your paypig status has expired!")
+			g.db.add(v)
+			g.db.commit()
+
+		if v.unban_utc and v.unban_utc < time.time():
+			v.is_banned = 0
+			v.unban_utc = 0
+			v.ban_evade = 0
+			send_repeatable_notification(v.id, "You have been unbanned!")
+			g.db.add(v)
+			g.db.commit()
+
 		if v.hidevotedon: posts = [x for x in posts if not hasattr(x, 'voted') or not x.voted]
 
 		if v.agendaposter_expires_utc and v.agendaposter_expires_utc < time.time():

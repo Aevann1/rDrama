@@ -29,8 +29,8 @@
 		<link rel="stylesheet" href="/@{{v.username}}/css">
 	{% endif %}
 {% else %}
-	<style>:root{--primary:#{{'DEFAULT_COLOR' | app_config}}</style>
-	<link rel="stylesheet" href="/static/assets/css/main.css?a=98"><link rel="stylesheet" href="/static/assets/css/{{'DEFAULT_THEME' | app_config}}.css?a=14">
+	<style>:root{--primary:#{{config('DEFAULT_COLOR')}}</style>
+	<link rel="stylesheet" href="/static/assets/css/main.css?a=98"><link rel="stylesheet" href="/static/assets/css/{{config('DEFAULT_THEME')}}.css?a=14">
 {% endif %}
 
 <div class="row justify-content-around">
@@ -105,7 +105,7 @@
 						</div>
 
 						<div class="text-gray-500">{{ma.age_string}} <a href="{{ma.permalink}}"><i class="far fa-link ml-1 text-muted"></i></a>
-							<a role="button" class="copy-link" role="button"data-clipboard-text="{{ma.permalink | full_link}}"><i class="far fa-copy ml-1 text-muted"></i></a>
+							<a role="button" class="copy-link" role="button"data-clipboard-text="{{ma.permalink}}"><i class="far fa-copy ml-1 text-muted"></i></a>
 						</div>
 
 					</div>

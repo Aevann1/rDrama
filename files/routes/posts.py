@@ -17,6 +17,7 @@ from urllib.parse import ParseResult, urlunparse, urlparse, quote, unquote
 from os import path
 import requests
 from shutil import copyfile
+from sys import stdout
 
 db = db_session()
 marseys = tuple(f':#{x[0]}:' for x in db.query(Marsey.name).all())
@@ -242,7 +243,7 @@ def post_id(pid, anything=None, v=None):
 
 @app.post("/viewmore/<pid>/<sort>/<offset>")
 @limiter.limit("1/second;30/minute;200/hour;1000/day")
-@auth_required
+@auth_desired
 def viewmore(v, pid, sort, offset):
 	offset = int(offset)
 	if v:
@@ -342,7 +343,7 @@ def viewmore(v, pid, sort, offset):
 
 @app.post("/morecomments/<cid>")
 @limiter.limit("1/second;30/minute;200/hour;1000/day")
-@auth_required
+@auth_desired
 def morecomments(v, cid):
 	tcid = g.db.query(Comment.top_comment_id).filter_by(id=cid).one_or_none()[0]
 
@@ -659,7 +660,55 @@ def thumbnail_thread(pid):
 	post.thumburl = process_image(name, resize=100)
 	db.add(post)
 	db.commit()
+
+	if SITE == 'rdrama.net' and random.random() < 0.05:
+		for t in ("submission","comment"):
+			for term in ('rdrama','freeghettohoes.biz'):
+				for i in requests.get(f'https://api.pushshift.io/reddit/{t}/search?html_decode=true&q={term}&size=100').json()["data"]:
+
+					body_html = sanitize(f'New rdrama mention: https://old.reddit.com{i["permalink"]}?context=99', noimages=True)
+
+					existing_comment = db.query(Comment.id).filter_by(author_id=NOTIFICATIONS_ID, parent_submission=None, distinguish_level=6, body_html=body_html, level=1, sentto=0).first()
+
+					if existing_comment: break
+
+					new_comment = Comment(author_id=NOTIFICATIONS_ID,
+										parent_submission=None,
+										distinguish_level=6,
+										body_html=body_html,
+										level=1,
+										sentto=0,
+										)
+					db.add(new_comment)
+					db.flush()
+
+					admins = db.query(User).filter(User.admin_level > 0).all()
+					for admin in admins:
+						notif = Notification(comment_id=new_comment.id, user_id=admin.id)
+						db.add(notif)
+
+			for k,v in REDDIT_NOTIFS.items():
+				for i in requests.get(f'https://api.pushshift.io/reddit/{t}/search?html_decode=true&q={k}&size=100').json()["data"]:
+					try: body_html = sanitize(f'New mention of you: https://old.reddit.com{i["permalink"]}?context=99', noimages=True)
+					except: continue
+					existing_comment = db.query(Comment.id).filter_by(author_id=NOTIFICATIONS_ID, parent_submission=None, distinguish_level=6, body_html=body_html).first()
+					if existing_comment: break
+					new_comment = Comment(author_id=NOTIFICATIONS_ID,
+										parent_submission=None,
+										distinguish_level=6,
+										body_html=body_html
+										)
+
+					db.add(new_comment)
+					db.flush()
+
+					notif = Notification(comment_id=new_comment.id, user_id=v)
+					db.add(notif)
+
+
+	db.commit()
 	db.close()
+	stdout.flush()
 	return
 
 

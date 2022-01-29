@@ -142,7 +142,7 @@ function getEmoji(searchTerm) {
 
 	commentBox.setAttribute('data-curr-pos', newPos.toString());
 
-	if (typeof checkForRequired === "function") checkForRequired();
+	commentBox.dispatchEvent(new Event('input'));
 
 	const favorite_emojis = JSON.parse(localStorage.getItem("favorite_emojis")) || {}
 	if (favorite_emojis[searchTerm]) favorite_emojis[searchTerm] += 1

@@ -46,6 +46,7 @@ class User(Base):
 	profileurl = Column(String)
 	bannerurl = Column(String)
 	patron = Column(Integer, default=0)
+	patron_utc = Column(Integer, default=0)
 	verified = Column(String)
 	verifiedcolor = Column(String)
 	marseyawarded = Column(Integer)
@@ -313,7 +314,7 @@ class User(Base):
 	@property
 	@lazy
 	def url(self):
-		return f"/@{self.username}"
+		return f"{SITE_FULL}/@{self.username}"
 
 	def __repr__(self):
 		return f"<User(id={self.id})>"
@@ -457,12 +458,6 @@ class User(Base):
 
 	@property
 	@lazy
-	def full_profileurl(self):
-		if self.profile_url.startswith('/'): return SITE_FULL + self.profile_url
-		return self.profile_url
-
-	@property
-	@lazy
 	def json_raw(self):
 		data = {'username': self.username,
 				'url': self.url,
@@ -470,7 +465,7 @@ class User(Base):
 				'created_utc': self.created_utc,
 				'id': self.id,
 				'is_private': self.is_private,
-				'profile_url': self.full_profileurl,
+				'profile_url': self.profile_url,
 				'bannerurl': self.banner_url,
 				'bio': self.bio,
 				'bio_html': self.bio_html_eager,
@@ -535,13 +530,6 @@ class User(Base):
 
 	@property
 	def is_suspended(self):
-		if self.unban_utc and self.unban_utc < time.time():
-			self.is_banned = 0
-			self.unban_utc = 0
-			self.ban_evade = 0
-			g.db.add(self)
-			g.db.commit()
-			return False
 		return (self.is_banned and (self.unban_utc == 0 or self.unban_utc > time.time()))
 
 
@@ -559,6 +547,16 @@ class User(Base):
 	def subscribed_idlist(self, page=1):
 		posts = g.db.query(Subscription.submission_id).filter_by(user_id=self.id).all()
 		return [x[0] for x in posts]
+
+	@property
+	@lazy
+	def saved_count(self):
+		return g.db.query(SaveRelationship.submission_id).filter(SaveRelationship.user_id == self.id).count()
+
+	@property
+	@lazy
+	def saved_comment_count(self):
+		return g.db.query(SaveRelationship.comment_id).filter(SaveRelationship.user_id == self.id).count()
 
 	@lazy
 	def saved_idlist(self, page=1):

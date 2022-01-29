@@ -197,7 +197,7 @@ class Submission(Base):
 	@property
 	@lazy
 	def permalink(self):
-		if self.club: return f"/post/{self.id}"
+		if self.club: return f"{SITE_FULL}/post/{self.id}"
 
 		output = self.title.lower()
 
@@ -210,7 +210,7 @@ class Submission(Base):
 
 		if not output: output = '-'
 
-		return f"/post/{self.id}/{output}"
+		return f"{SITE_FULL}/post/{self.id}/{output}"
 
 	@property
 	@lazy
@@ -237,21 +237,11 @@ class Submission(Base):
 	def thumb_url(self):
 		if self.over_18: return f"{SITE_FULL}/static/assets/images/nsfw.webp"
 		elif not self.url: return f"{SITE_FULL}/static/assets/images/{SITE_NAME}/default_text.webp"
-		elif self.thumburl: return self.thumburl
+		elif self.thumburl: 
+			if self.thumburl.startswith('/'): return SITE_FULL + self.thumburl
+			return self.thumburl
 		elif self.is_youtube or self.is_video: return f"{SITE_FULL}/static/assets/images/default_thumb_yt.webp"
 		else: return f"{SITE_FULL}/static/assets/images/default_thumb_link.webp"
-
-	@property
-	@lazy
-	def full_thumb(self):
-		if self.thumb_url.startswith('/'): return SITE_FULL + self.thumb_url
-		return self.thumb_url
-
-	@property
-	@lazy
-	def full_url(self):
-		if self.url and self.url.startswith('/'): return SITE_FULL + self.url
-		return self.url
 
 	@property
 	@lazy
@@ -268,9 +258,9 @@ class Submission(Base):
 				'title': self.title,
 				'is_nsfw': self.over_18,
 				'is_bot': self.is_bot,
-				'thumb_url': self.full_thumb,
+				'thumb_url': self.thumb_url,
 				'domain': self.domain,
-				'url': self.full_url,
+				'url': self.realurl(None),
 				'body': self.body,
 				'body_html': self.body_html,
 				'created_utc': self.created_utc,
@@ -351,6 +341,7 @@ class Submission(Base):
 			return url
 		elif self.url:
 			if v and v.nitter: return self.url.replace("www.twitter.com", "nitter.net").replace("twitter.com", "nitter.net")
+			if self.url.startswith('/'): return SITE_FULL + self.url
 			return self.url
 		else: return ""
  

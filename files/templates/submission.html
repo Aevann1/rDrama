@@ -15,7 +15,7 @@
 
 {% if success %}
 	<script>
-		history.pushState(null, null, '{{p.permalink | full_link}}');
+		history.pushState(null, null, '{{p.permalink}}');
 		localStorage.setItem("post_title", "")
 		localStorage.setItem("post_text", "")
 	</script>
@@ -225,7 +225,7 @@
 {% if p.is_video %}
 	<meta property="og:video" content="{{p.realurl(v)}}" >
 {% endif %}
-<meta property="og:url" content="{{comment_info.permalink | full_link}}" >
+<meta property="og:url" content="{{comment_info.permalink}}" >
 <meta property="og:site_name" content="{{request.host}}" >
 
 <meta name="twitter:card" content="summary" >
@@ -234,7 +234,7 @@
 <meta name="twitter:creator" content="{{'@'+comment_info.author_name}}">
 <meta name="twitter:description" content="{{comment_info.plainbody(v)}}" >
 <meta name="twitter:image" content="{% if p.is_image %}{{p.realurl(v)}}{% elif p.has_thumb%}{{p.thumb_url}}{% else %}{{SITE_NAME}}/static/assets/images/{{SITE_NAME}}/site_preview.webp{% endif %}" >
-<meta name="twitter:url" content="{{p.permalink | full_link}}" >
+<meta name="twitter:url" content="{{p.permalink}}" >
 
 {% else %}
 <title>{{p.plaintitle(v)}} - {{SITE_NAME}}</title>
@@ -250,7 +250,7 @@
 {% if p.url and p.is_video %}
 <meta property="og:video" content="{{p.realurl(v)}}" >
 {% endif %}
-<meta property="og:url" content="{{p.permalink | full_link}}" >
+<meta property="og:url" content="{{p.permalink}}" >
 <meta property="og:site_name" content="{{request.host}}" >
 
 <meta name="twitter:card" content="summary_large_image">
@@ -259,7 +259,7 @@
 {% if p.author %}<meta name="twitter:creator" content="{{'@'+p.author_name}}">{% endif %}
 <meta name="twitter:description" content="{{p.plainbody(v)}}" >
 <meta name="twitter:image" content="{% if p.is_image %}{{p.realurl(v)}}{% elif p.has_thumb %}{{p.thumb_url}}{% else %}{{SITE_NAME}}/static/assets/images/{{SITE_NAME}}/site_preview.webp{% endif %}" >
-<meta name="twitter:url" content="{{p.permalink | full_link}}" >
+<meta name="twitter:url" content="{{p.permalink}}" >
 
 {% endif %}
 {% endblock %}
@@ -603,7 +603,7 @@
 							<a class="list-inline-item text-muted d-none d-md-inline-block" role="button" data-bs-toggle="modal" data-bs-target="#awardModal" onclick="awardModal('/post/{{p.id}}/awards')"><i class="fas fa-gift fa-fw"></i>Give Award</a>
 						{% endif %}
 
-						<a class="list-inline-item copy-link" role="button" role="button" data-clipboard-text="{% if request.host == 'rdrama.net' %}https://rdrama.com{{p.permalink}}{% else %}{{p.permalink | full_link}}{% endif %}"><i class="fas fa-copy"></i>Copy link</a>
+						<a class="list-inline-item copy-link" role="button" role="button" data-clipboard-text="{% if request.host == 'rdrama.net' %}https://rdrama.com{{p.shortlink}}{% else %}{{p.permalink}}{% endif %}"><i class="fas fa-copy"></i>Copy link</a>
 
 						{% if v %}
 							<a id="subscribe-{{p.id}}" class="{% if p.id in v.subscribed_idlist() %}d-none{% endif %} list-inline-item" role="button" onclick="post_toast2('/subscribe/{{p.id}}','subscribe-{{p.id}}','unsubscribe-{{p.id}}')"><i class="fas fa-eye"></i>Subscribe</a>
@@ -740,7 +740,7 @@
 					{% endif %}
 				</li>
 
-				<a class="list-inline-item copy-link" role="button" role="button" data-clipboard-text="{% if request.host == 'rdrama.net' %}https://rdrama.com{{p.permalink}}{% else %}{{p.permalink | full_link}}{% endif %}"><i class="fas fa-link"></i>Copy link</a>
+				<a class="list-inline-item copy-link" role="button" role="button" data-clipboard-text="{% if request.host == 'rdrama.net' %}https://rdrama.com{{p.shortlink}}{% else %}{{p.permalink}}{% endif %}"><i class="fas fa-link"></i>Copy link</a>
 				{% if v %}
 				<li class="list-inline-item">
 					<a role="button" data-bs-toggle="modal" data-bs-target="#actionsModal">
