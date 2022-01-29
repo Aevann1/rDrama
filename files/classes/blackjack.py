@@ -156,7 +156,7 @@ class Blackjack:
         elif result == 'won':
             reward = int(wager) * 2
         elif result == 'blackjack':
-            reward = floor(int(wager) * (3/2))
+            reward = int(wager) + floor(int(wager) * (3/2))
 
         if (reward > 0):
             user = from_comment.author
