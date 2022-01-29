@@ -301,7 +301,8 @@ CREATE TABLE public.comments (
     is_pinned_utc integer,
     ghost boolean,
     slots_result character varying(50),
-    blackjack_result character varying(3000)
+    blackjack_result character varying(3000),
+    treasure_amount character varying(10)
 );
 
 

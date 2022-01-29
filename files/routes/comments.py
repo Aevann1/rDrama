@@ -595,6 +595,9 @@ def api_comment(v):
 	blackjack = Blackjack(g)
 	blackjack.check_for_blackjack_command(body, v, c)
 
+	treasure = Treasure(g)
+	treasure.check_for_treasure(c)
+
 	g.db.commit()
 
 	if request.headers.get("Authorization"): return c.json

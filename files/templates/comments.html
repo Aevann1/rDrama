@@ -181,6 +181,7 @@
 	{% set blackjack_status = split_result[3] %}
 	{% set player_hand = split_result[0].replace('X', '10') %}
 	{% set dealer_hand = split_result[1].split('/')[0] if blackjack_status == 'active' else split_result[1] %}
+	{% set dealer_hand = dealer_hand.replace('X', '10') %}
 	{% set wager = split_result[4] %}
 {% endif %}
 
@@ -236,6 +237,10 @@
 				
 				{% if c.edited_utc %}
 				<span class="time-edited" id="time-edit-{{c.id}}" onmouseover="timestamp('time-edit-{{c.id}}','{{c.edited_utc}}')"><span>&#183;</span> <span class="font-italic">Edited {{c.edited_string}}</span></span>
+				{% endif %}
+
+				{% if c.treasure_amount and c.treasure_amount != '0' %}
+				<img alt="treasure" src="/static/assets/images/chest.png" width="20" /> <em>Found {{c.treasure_amount}} Coins!</em>
 				{% endif %}
 
 				{% if c.slots_result %}
