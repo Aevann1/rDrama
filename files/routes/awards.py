@@ -248,16 +248,23 @@ def award_post(pid, v):
 			author.unban_utc += 86400
 			send_repeatable_notification(author.id, f"Your account has been suspended for yet another day for {link}. Seriously man?")
 	elif kind == "unban":
-		if not author.is_suspended or not author.unban_utc or time.time() > author.unban_utc: abort(403)
-
-		if author.unban_utc - time.time() > 86400:
-			author.unban_utc -= 86400
-			send_repeatable_notification(author.id, "Your ban duration has been reduced by 1 day!")
-		else:
+		if author.shadowbanned:
+			author.shadowbanned = None
 			author.unban_utc = 0
 			author.is_banned = 0
 			author.ban_evade = 0
-			send_repeatable_notification(author.id, "You have been unbanned!")
+			send_repeatable_notification(author.id, "You have been freed from shadowban!")
+		else:
+			if not author.is_suspended or not author.unban_utc or time.time() > author.unban_utc: abort(403)
+
+			if author.unban_utc - time.time() > 86400:
+				author.unban_utc -= 86400
+				send_repeatable_notification(author.id, "Your ban duration has been reduced by 1 day!")
+			else:
+				author.unban_utc = 0
+				author.is_banned = 0
+				author.ban_evade = 0
+				send_repeatable_notification(author.id, "You have been unbanned!")
 	elif kind == "grass":
 		author.is_banned = AUTOJANNY_ID
 		author.ban_reason = f"grass award used by @{v.username} on /post/{post.id}"
