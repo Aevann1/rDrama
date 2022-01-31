@@ -149,12 +149,12 @@ class Blackjack:
 		if result == 'push':
 			reward = 0
 		elif result == 'won':
-			reward = wager
+			reward = wager_value
 		elif result == 'blackjack':
 			reward = floor(wager_value * 3/2)
 
 		if (reward > -1):
-			user.coins += wager + reward # Include refund
+			user.coins += wager_value + reward # Include refund
 			user.winnings += reward
 			
 			self.db.add(user)
