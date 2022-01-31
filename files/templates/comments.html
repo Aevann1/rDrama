@@ -193,7 +193,7 @@
 	{% endif %}
 	<div class="comment-body">
 
-		<div id="{% if comment_info and comment_info.id == c.id %}context{%else%}comment-{{c.id}}-only{% endif %}" class="comment-anchor {% if comment_info and comment_info.id == c.id %}context{%endif%}{% if c.is_banned %} banned{% endif %}{% if c.deleted_utc %} deleted{% endif %}">
+		<div id="{% if comment_info and comment_info.id == c.id %}context{%else%}comment-{{c.id}}-only{% endif %}" class="comment-anchor {% if comment_info and comment_info.id == c.id %}context{%endif%}{% if c.is_banned %} banned{% endif %}{% if c.is_locked %} locked{% endif %}{% if c.deleted_utc %} deleted{% endif %}">
 
 			<div class="user-info">
 				<span class="comment-collapse-icon" onclick="collapse_comment('{{c.id}}')"></span>
@@ -286,6 +286,10 @@
 
 			{% if c.is_banned and c.ban_reason %}
 				<div id="comment-banned-warning" class="comment-text text-removed mb-0">removed by @{{c.ban_reason}}</div>
+			{% endif %}
+
+			{% if c.is_locked %}
+				<div id="comment-banned-warning" class="comment-text text-removed mb-0">locked by @{{c.ban_reason}}</div>
 			{% endif %}
 
 			<div id="comment-text-{{c.id}}" class="comment-text mb-0 {% if c.author.agendaposter %}agendaposter{% endif %}" >
@@ -500,6 +504,11 @@
 								<button id="approve-{{c.id}}" class="btn caction py-0 nobackground px-1 text-success d-none {% if c.is_banned %}d-md-inline-block{% endif %} text-success" onclick="approveComment('{{c.id}}','approve-{{c.id}}','remove-{{c.id}}')"><i class="fas fa-check text-success fa-fw"></i>Approve</button>
 								<button id="remove-{{c.id}}" class="btn caction py-0 nobackground px-1 text-danger d-none {% if not c.is_banned %}d-md-inline-block{% endif %} text-danger" onclick="removeComment('{{c.id}}','approve-{{c.id}}','remove-{{c.id}}')"><i class="fas fa-ban text-danger fa-fw"></i>Remove</button>
 							{% endif %}
+						{% endif %}
+
+						{% if v and v.admin_level > 1 %}
+								<button id="unlock-{{c.id}}" class="btn caction py-0 nobackground px-1 text-success d-none {% if c.is_locked %}d-md-inline-block{% endif %} text-success" onclick="unlockComment('{{c.id}}','unlock-{{c.id}}','lock-{{c.id}}')"><i class="fas fa-check text-success fa-fw"></i>Unlock</button>
+								<button id="lock-{{c.id}}" class="btn caction py-0 nobackground px-1 text-danger d-none {% if not c.is_locked %}d-md-inline-block{% endif %} text-danger" onclick="lockComment('{{c.id}}','unlock-{{c.id}}','lock-{{c.id}}')"><i class="fas fa-ban text-danger fa-fw"></i>Lock</button>
 						{% endif %}
 						
 						{% if v and c.parent_submission and (c.author_id==v.id or v.admin_level > 1) %}
@@ -910,7 +919,7 @@
 	<script src="/static/assets/js/clipboard.js?a=220"></script>
 
 	{% if v and v.admin_level > 1 %}
-		<script src="/static/assets/js/comments_admin.js?a=220"></script>
+		<script src="/static/assets/js/comments_admin.js"></script>
 	{% endif %}
 
 	{% include "expanded_image_modal.html" %}

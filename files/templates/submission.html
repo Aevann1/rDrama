@@ -409,7 +409,7 @@
 
 	<div id="post-root" class="col-12">
 
-		<div id="post-{{p.id}}" class="card border-0 mt-3{% if p.is_banned %} banned{% endif %}{% if p.stickied %} stickied{% endif %}{% if voted==1 %} upvoted{% elif voted==-1 %} downvoted{% endif %}">
+		<div id="post-{{p.id}}" class="card border-0 mt-3{% if p.is_banned %} banned{% endif %}{% if p.is_locked %} locked{% endif %}{% if p.stickied %} stickied{% endif %}{% if voted==1 %} upvoted{% elif voted==-1 %} downvoted{% endif %}">
 			<div class="{% if p.deleted_utc %}deleted {% endif %}d-flex flex-row-reverse flex-nowrap justify-content-end">
 
 				{% if not p.is_image and p.thumb_url and not p.embed_url %}
@@ -533,6 +533,10 @@
 
 							{% if p.is_banned and p.ban_reason %}
 								<div class="text-removed mb-0">removed by @{{p.ban_reason}}</div>
+							{% endif %}
+
+							{% if p.is_locked and p.ban_reason %}
+								<div class="text-removed mb-0">locked by @{{p.ban_reason}}</div>
 							{% endif %}
 
 						</div>
@@ -663,6 +667,11 @@
 									{% if v.id != p.author.id %}<a id="remove-{{p.id}}" class="{% if p.is_banned %}d-none{% endif %} list-inline-item text-danger" role="button" onclick="post_toast2('/ban_post/{{p.id}}','remove-{{p.id}}','approve-{{p.id}}')"><i class="fas fa-ban"></i>Remove</a>{% endif %}
 									<a id="approve-{{p.id}}" class="{% if not p.is_banned %}d-none{% endif %} list-inline-item text-success" role="button" onclick="post_toast2('/unban_post/{{p.id}}','remove-{{p.id}}','approve-{{p.id}}')"><i class="fas fa-check"></i>Approve</a>
 								{% endif %}
+							{% endif %}
+
+							{% if v.admin_level > 1 %}
+								<a id="lock-{{p.id}}" class="{% if p.is_locked %}d-none{% endif %} list-inline-item text-danger" role="button" onclick="post_toast2('/lock_post/{{p.id}}','lock-{{p.id}}','unlock-{{p.id}}')"><i class="fas fa-ban"></i>Lock</a>
+								<a id="unlock-{{p.id}}" class="{% if not p.is_locked %}d-none{% endif %} list-inline-item text-success" role="button" onclick="post_toast2('/unlock_post/{{p.id}}','lovk-{{p.id}}','unlock-{{p.id}}')"><i class="fas fa-check"></i>Unlock</a>
 							{% endif %}
 
 							{% if v.id == p.author_id or v.admin_level > 1 %}

@@ -280,6 +280,12 @@ def api_comment(v):
 	if parent.author.any_block_exists(v) and v.admin_level < 2:
 		return {"error": "You can't reply to users who have blocked you, or users you have blocked."}, 403
 
+	if parent.is_locked and v.admin_level < 2:
+		return {"error": "You can't reply to locked comments."}, 403
+
+	if parent_post.is_locked and v.admin_level < 2:
+		return {"error": "You can't comment under locked posts."}, 403
+
 	is_bot = bool(request.headers.get("Authorization"))
 
 	if not is_bot and not v.marseyawarded and AGENDAPOSTER_PHRASE not in body.lower() and len(body) > 10:

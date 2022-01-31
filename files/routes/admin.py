@@ -1028,6 +1028,62 @@ def unban_post(post_id, v):
 
 	return {"message": "Post approved!"}
 
+@app.post("/lock_post/<post_id>")
+@limiter.limit("1/second;30/minute;200/hour;1000/day")
+@admin_level_required(2)
+def lock_post(post_id, v):
+
+	post = g.db.query(Submission).filter_by(id=post_id).one_or_none()
+
+	if not post:
+		abort(400)
+
+	post.is_locked = True
+	post.ban_reason = v.username
+	g.db.add(post)
+
+	ma=ModAction(
+		kind="lock_post",
+		user_id=v.id,
+		target_submission_id=post.id,
+		)
+	g.db.add(ma)
+
+	g.db.add(v)
+
+	g.db.commit()
+
+	return {"message": "Post locked!"}
+
+
+@app.post("/unlock_post/<post_id>")
+@limiter.limit("1/second;30/minute;200/hour;1000/day")
+@admin_level_required(2)
+def unlock_post(post_id, v):
+
+	post = g.db.query(Submission).filter_by(id=post_id).one_or_none()
+
+	if not post:
+		abort(400)
+
+	if post.is_locked:
+		ma=ModAction(
+			kind="unlock_post",
+			user_id=v.id,
+			target_submission_id=post.id,
+		)
+		g.db.add(ma)
+
+	post.is_locked = False
+
+	g.db.add(post)
+
+	g.db.add(v)
+
+	g.db.commit()
+
+	return {"message": "Post unlocked!"}
+
 
 @app.post("/distinguish/<post_id>")
 @admin_level_required(1)
@@ -1190,6 +1246,53 @@ def api_unban_comment(c_id, v):
 	g.db.commit()
 
 	return {"message": "Comment approved!"}
+
+@app.post("/lock_comment/<c_id>")
+@limiter.limit("1/second;30/minute;200/hour;1000/day")
+@admin_level_required(2)
+def api_lock_comment(c_id, v):
+
+	comment = g.db.query(Comment).filter_by(id=c_id).one_or_none()
+	if not comment:
+		abort(404)
+
+	comment.is_locked = True
+	comment.ban_reason = v.username
+	g.db.add(comment)
+	ma=ModAction(
+		kind="lock_comment",
+		user_id=v.id,
+		target_comment_id=comment.id,
+		)
+	g.db.add(ma)
+	g.db.commit()
+	return {"message": "Comment locked!"}
+
+
+@app.post("/unlock_comment/<c_id>")
+@limiter.limit("1/second;30/minute;200/hour;1000/day")
+@admin_level_required(2)
+def api_unlock_comment(c_id, v):
+
+	comment = g.db.query(Comment).filter_by(id=c_id).one_or_none()
+	if not comment: abort(404)
+
+	if comment.is_locked:
+		ma=ModAction(
+			kind="unlock_comment",
+			user_id=v.id,
+			target_comment_id=comment.id,
+			)
+		g.db.add(ma)
+
+	comment.is_locked = False
+	comment.is_approved = v.id
+
+	g.db.add(comment)
+
+	g.db.commit()
+
+	return {"message": "Comment unlocked!"}
 
 
 @app.post("/distinguish_comment/<c_id>")

@@ -22,6 +22,7 @@ class Submission(Base):
 	created_utc = Column(BigInteger, default=0)
 	thumburl = Column(String)
 	is_banned = Column(Boolean, default=False)
+	is_locked = Column(Boolean, default=False)
 	bannedfor = Column(Boolean)
 	ghost = Column(Boolean)
 	views = Column(Integer, default=0)
@@ -252,6 +253,7 @@ class Submission(Base):
 		data = {'author_name': self.author_name if self.author else '',
 				'permalink': self.permalink,
 				'is_banned': bool(self.is_banned),
+				'is_locked': bool(self.is_locked),
 				'deleted_utc': self.deleted_utc,
 				'created_utc': self.created_utc,
 				'id': self.id,

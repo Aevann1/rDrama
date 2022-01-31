@@ -4288,6 +4288,10 @@ div.banned {
     background-color: #960000 !important;
     border-left: 3px solid #ff0000 !important;
 }
+div.locked {
+    background-color: #98a300 !important;
+    border-left: 3px solid #f2f7b3 !important;
+}
 div.deleted {
     background-color: #4a4a15 !important;
 }

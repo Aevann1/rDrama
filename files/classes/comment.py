@@ -22,6 +22,7 @@ class Comment(Base):
 	created_utc = Column(Integer, default=0)
 	edited_utc = Column(Integer, default=0)
 	is_banned = Column(Boolean, default=False)
+	is_locked = Column(Boolean, default=False)
 	ghost = Column(Boolean)
 	bannedfor = Column(Boolean)
 	distinguish_level = Column(Integer, default=0)
@@ -260,6 +261,7 @@ class Comment(Base):
 			'created_utc': self.created_utc,
 			'edited_utc': self.edited_utc or 0,
 			'is_banned': bool(self.is_banned),
+			'is_locked': bool(self.is_locked),
 			'deleted_utc': self.deleted_utc,
 			'is_nsfw': self.over_18,
 			'permalink': self.permalink,

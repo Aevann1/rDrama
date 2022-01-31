@@ -277,6 +277,7 @@ CREATE TABLE public.comments (
     created_utc integer NOT NULL,
     parent_submission integer,
     is_banned boolean,
+    is_locked boolean,
     distinguish_level integer,
     edited_utc integer,
     deleted_utc integer NOT NULL,
@@ -599,6 +600,7 @@ CREATE TABLE public.submissions (
     author_id integer,
     created_utc integer NOT NULL,
     is_banned boolean,
+    is_locked boolean,
     over_18 boolean,
     distinguish_level integer,
     deleted_utc integer NOT NULL,
@@ -1652,6 +1654,12 @@ CREATE INDEX submission_domainref_index ON public.submissions USING btree (domai
 --
 
 CREATE INDEX submission_isbanned_idx ON public.submissions USING btree (is_banned);
+
+--
+-- Name: submission_islocked_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX submission_islocked_idx ON public.submissions USING btree (is_locked);
 
 
 --
