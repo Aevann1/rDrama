@@ -301,7 +301,8 @@ CREATE TABLE public.comments (
     is_pinned_utc integer,
     ghost boolean,
     slots_result character varying(50),
-    blackjack_result character varying(3000)
+    blackjack_result character varying(3000),
+    treasure_amount character varying(10)
 );
 
 
@@ -565,7 +566,6 @@ CREATE TABLE public.save_relationship (
     id integer NOT NULL,
     submission_id integer,
     user_id integer,
-    type integer,
     comment_id integer
 );
 
@@ -811,7 +811,8 @@ CREATE TABLE public.users (
     lootboxes_bought integer,
     progressivestack integer,
     winnings integer,
-    patron_utc integer
+    patron_utc integer,
+    rehab integer
 );
 
 

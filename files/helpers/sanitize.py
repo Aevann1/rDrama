@@ -164,7 +164,7 @@ def sanitize(sanitized, noimages=False, alert=False, comment=False, edit=False):
 
 	for tag in soup.find_all("a"):
 		if tag.get("href"):
-			if not tag["href"].startswith(SITE_FULL) and not tag["href"].startswith('/'):
+			if not tag["href"].startswith(SITE_FULL) and not tag["href"].startswith('/') and not tag["href"].startswith(SITE_FULL2):
 				tag["target"] = "_blank"
 				tag["rel"] = "nofollow noopener noreferrer"
 
@@ -226,7 +226,7 @@ def sanitize(sanitized, noimages=False, alert=False, comment=False, edit=False):
 			sanitized = re.sub(f'(?<!"):{emoji}:', f'<img loading="lazy" data-bs-toggle="tooltip" alt=":{emoji}:" title=":{emoji}:" delay="0" class="{classes}" src="/static/assets/images/emojis/{emoji}.webp">', sanitized, flags=re.I)
 			if comment: marseys_used.add(emoji)
 
-	sanitized = sanitized.replace("https://youtu.be/", "https://youtube.com/watch?v=").replace("https://music.youtube.com/watch?v=", "https://youtube.com/watch?v=").replace("https://open.spotify.com/", "https://open.spotify.com/embed/").replace("https://streamable.com/", "https://streamable.com/e/").replace("https://youtube.com/shorts/", "https://youtube.com/watch?v=").replace("https://mobile.twitter", "https://twitter").replace("https://m.facebook", "https://facebook").replace("m.wikipedia.org", "wikipedia.org").replace("https://m.youtube", "https://youtube")
+	sanitized = sanitized.replace("https://youtu.be/", "https://youtube.com/watch?v=").replace("https://music.youtube.com/watch?v=", "https://youtube.com/watch?v=").replace("https://open.spotify.com/", "https://open.spotify.com/embed/").replace("https://streamable.com/", "https://streamable.com/e/").replace("https://youtube.com/shorts/", "https://youtube.com/watch?v=").replace("https://mobile.twitter", "https://twitter").replace("https://m.facebook", "https://facebook").replace("m.wikipedia.org", "wikipedia.org").replace("https://m.youtube", "https://youtube").replace("https://www.youtube", "https://youtube")
 
 	if "https://youtube.com/watch?v=" in sanitized: sanitized = sanitized.replace("?t=", "&t=")
 
@@ -269,7 +269,7 @@ def sanitize(sanitized, noimages=False, alert=False, comment=False, edit=False):
 
 def filter_emojis_only(title, edit=False):
 
-	title = title.replace('<','').replace("\n", "").replace("\r", "").replace("\t", "").strip()
+	title = title.replace('<','&lt;').replace('>','&gt;').replace("\n", "").replace("\r", "").replace("\t", "").strip()
 
 	title = bleach.clean(title, tags=[])
 

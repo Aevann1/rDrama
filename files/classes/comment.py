@@ -45,6 +45,7 @@ class Comment(Base):
 	ban_reason = Column(String)
 	slots_result = Column(String)
 	blackjack_result = Column(String)
+	treasure_amount = Column(String)
 
 	post = relationship("Submission", viewonly=True)
 	author = relationship("User", primaryjoin="User.id==Comment.author_id")
@@ -227,7 +228,7 @@ class Comment(Base):
 	@property
 	@lazy
 	def shortlink_context(self):
-		return f"/comment/{self.id}?context=9#context"
+		return f"/comment/{self.id}?context=8#context"
 
 	@property
 	@lazy
@@ -238,10 +239,10 @@ class Comment(Base):
 	@property
 	@lazy
 	def permalink(self):
-		if self.post and self.post.club: return f"{SITE_FULL}/comment/{self.id}?context=9#context"
+		if self.post and self.post.club: return f"{SITE_FULL}/comment/{self.id}?context=8#context"
 
-		if self.post: return f"{self.post.permalink}/{self.id}?context=9#context"
-		else: return f"{SITE_FULL}/comment/{self.id}?context=9#context"
+		if self.post: return f"{self.post.permalink}/{self.id}?context=8#context"
+		else: return f"{SITE_FULL}/comment/{self.id}?context=8#context"
 
 	@property
 	@lazy
@@ -407,7 +408,10 @@ class Comment(Base):
 		return body
 
 	@lazy
-	def collapse_for_user(self, v):
+	def collapse_for_user(self, v, path):
+		if v and self.author_id == v.id: return False
+
+		if path == '/admin/removed/comments': return False
 
 		if self.over_18 and not (v and v.over_18) and not (self.post and self.post.over_18): return True
 
@@ -416,6 +420,8 @@ class Comment(Base):
 		if v.filter_words and self.body and any(x in self.body for x in v.filter_words): return True
 		
 		if self.is_banned: return True
+		
+		if path.startswith('/post') and (self.slots_result or self.blackjack_result) and len(self.body) <= 20 and self.level > 1: return True
 		
 		return False
 

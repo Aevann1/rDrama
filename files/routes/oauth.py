@@ -40,7 +40,7 @@ def authorize(v):
 def request_api_keys(v):
 
 	new_app = OauthApp(
-		app_name=request.values.get('name').replace('<',''),
+		app_name=request.values.get('name').replace('<','').replace('>',''),
 		redirect_uri=request.values.get('redirect_uri'),
 		author_id=v.id,
 		description=request.values.get("description")[:256]

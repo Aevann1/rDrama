@@ -336,7 +336,7 @@ class Submission(Base):
 			elif not v.oldreddit: url = self.url.replace("old.reddit.com", "reddit.com")
 			if '/comments/' in url and "sort=" not in url:
 				if "?" in url: url += "&context=9" 
-				else: url += "?context=9"
+				else: url += "?context=8"
 				if v.controversial: url += "&sort=controversial"
 			return url
 		elif self.url:
@@ -463,4 +463,3 @@ class SaveRelationship(Base):
 	user_id=Column(Integer)
 	submission_id=Column(Integer)
 	comment_id=Column(Integer)
-	type=Column(Integer)

@@ -231,9 +231,7 @@ def monthly(v):
 			u.procoins += procoins
 			g.db.add(u)
 			send_repeatable_notification(u.id, f"You were given {procoins} Marseybux for the month of {month}! You can use them to buy awards in the [shop](/shop).")
-		else:
-			print(u.username)
-			continue
+		else: print(u.username)
 
 	if request.host == 'pcmemes.net':
 		u = g.db.query(User).filter_by(id=KIPPY_ID).one()
@@ -845,6 +843,7 @@ def admin_title_change(user_id, v):
 	user=g.db.query(User).filter_by(id=user.id).one_or_none()
 	user.customtitle=new_name
 	if request.values.get("locked"): user.flairchanged = int(time.time()) + 2629746
+	else: user.flairchanged = None
 	g.db.add(user)
 
 	if user.flairchanged: kind = "set_flair_locked"

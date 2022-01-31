@@ -5,6 +5,7 @@ from files.helpers.images import *
 from files.helpers.const import *
 from files.classes import *
 from files.routes.front import comment_idlist
+from files.routes.static import marsey_list
 from pusher_push_notifications import PushNotifications
 from flask import *
 from files.__main__ import app, limiter
@@ -67,7 +68,7 @@ def post_pid_comment_cid(cid, pid=None, anything=None, v=None):
 		if request.headers.get("Authorization"): return {'error': 'This content is not suitable for some users and situations.'}
 		else: render_template("errors/nsfw.html", v=v)
 
-	try: context = int(request.values.get("context", 0))
+	try: context = min(int(request.values.get("context", 0)), 8)
 	except: context = 0
 	comment_info = comment
 	c = comment
@@ -201,7 +202,7 @@ def api_comment(v):
 					process_image(filename)
 				elif parent_post.id == 37833:
 					try:
-						badge_def = loads(body.lower())
+						badge_def = loads(body)
 						name = badge_def["name"]
 						badge = g.db.query(BadgeDef).filter_by(name=name).first()
 						if not badge:
@@ -213,22 +214,24 @@ def api_comment(v):
 						process_image(filename, 200)
 						requests.post(f'https://api.cloudflare.com/client/v4/zones/{CF_ZONE}/purge_cache', headers=CF_HEADERS, data={'files': [f"https://{request.host}/static/assets/images/badges/{badge.id}.webp"]})
 					except Exception as e:
-						print(e)
-						return {"error": "You didn't follow the format retard"}, 400
+						return {"error": e}, 400
 				elif v.admin_level > 2 and parent_post.id == 37838:
 					try:
 						marsey = loads(body.lower())
 						name = marsey["name"]
+						if "author" in marsey: author_id = get_user(marsey["author"]).id
+						elif "author_id" in marsey: author_id = marsey["author_id"]
+						else: abort(400)
 						if not g.db.query(Marsey.name).filter_by(name=name).first():
-							marsey = Marsey(name=marsey["name"], author_id=marsey["author_id"], tags=marsey["tags"], count=0)
+							marsey = Marsey(name=marsey["name"], author_id=author_id, tags=marsey["tags"], count=0)
 							g.db.add(marsey)
 						filename = f'files/assets/images/emojis/{name}.webp'
 						copyfile(oldname, filename)
 						process_image(filename, 200)
 						requests.post(f'https://api.cloudflare.com/client/v4/zones/{CF_ZONE}/purge_cache', headers=CF_HEADERS, data={'files': [f"https://{request.host}/static/assets/images/emojis/{name}.webp"]})
+						cache.delete_memoized(marsey_list)
 					except Exception as e:
-						print(e)
-						return {"error": "You didn't follow the format retard"}, 400
+						return {"error": e}, 400
 			body += f"\n\n![]({image})"
 		elif file.content_type.startswith('video/'):
 			file.save("video.mp4")
@@ -534,7 +537,7 @@ def api_comment(v):
 						'notification': {
 							'title': f'New reply by @{c.author_name}',
 							'body': notifbody,
-							'deep_link': f'{SITE_FULL}/comment/{c.id}?context=9&read=true#context',
+							'deep_link': f'{SITE_FULL}/comment/{c.id}?context=8&read=true#context',
 							'icon': f'{SITE_FULL}/assets/images/{SITE_NAME}/icon.webp',
 						}
 					},
@@ -544,7 +547,7 @@ def api_comment(v):
 							'body': notifbody,
 						},
 						'data': {
-							'url': f'/comment/{c.id}?context=9&read=true#context',
+							'url': f'/comment/{c.id}?context=8&read=true#context',
 						}
 					}
 				},
@@ -562,9 +565,6 @@ def api_comment(v):
 
 	v.comment_count = g.db.query(Comment.id).filter(Comment.author_id == v.id, Comment.parent_submission != None).filter_by(is_banned=False, deleted_utc=0).count()
 	g.db.add(v)
-
-	parent_post.comment_count += 1
-	g.db.add(parent_post)
 
 	c.voted = 1
 	
@@ -589,16 +589,24 @@ def api_comment(v):
 		c.upvotes += 1
 		g.db.add(c)
 
-	slots = Slots(g)
-	slots.check_for_slots_command(body, v, c)
+	if not v.rehab:
+		slots = Slots(g)
+		slots.check_for_slots_command(body, v, c)
 
-	blackjack = Blackjack(g)
-	blackjack.check_for_blackjack_command(body, v, c)
+		blackjack = Blackjack(g)
+		blackjack.check_for_blackjack_command(body, v, c)
+
+	treasure = Treasure(g)
+	treasure.check_for_treasure(body, c)
+
+	if not c.slots_result and not c.blackjack_result:
+		parent_post.comment_count += 1
+		g.db.add(parent_post)
 
 	g.db.commit()
 
 	if request.headers.get("Authorization"): return c.json
-	return render_template("comments.html", v=v, comments=[c])
+	return render_template("comments.html", v=v, comments=[c], ajax=True)
 
 
 
@@ -873,10 +881,10 @@ def save_comment(cid, v):
 
 	comment=get_comment(cid)
 
-	save=g.db.query(SaveRelationship).filter_by(user_id=v.id, comment_id=comment.id, type=2).one_or_none()
+	save=g.db.query(SaveRelationship).filter_by(user_id=v.id, comment_id=comment.id).one_or_none()
 
 	if not save:
-		new_save=SaveRelationship(user_id=v.id, comment_id=comment.id, type=2)
+		new_save=SaveRelationship(user_id=v.id, comment_id=comment.id)
 		g.db.add(new_save)
 
 		try: g.db.commit()
@@ -891,7 +899,7 @@ def unsave_comment(cid, v):
 
 	comment=get_comment(cid)
 
-	save=g.db.query(SaveRelationship).filter_by(user_id=v.id, comment_id=comment.id, type=2).one_or_none()
+	save=g.db.query(SaveRelationship).filter_by(user_id=v.id, comment_id=comment.id).one_or_none()
 
 	if save:
 		g.db.delete(save)
@@ -912,5 +920,7 @@ def handle_blackjack_action(cid, v):
 	elif action == 'stay':
 		blackjack.player_stayed(comment)
 	
-
+	g.db.add(comment)
+	g.db.add(v)
+	g.db.commit()
 	return { "message" : "..." }
