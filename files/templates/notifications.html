@@ -30,7 +30,7 @@
 		Messages
 		</a>
 	</li>
-	{% if v.admin_level > 1 %}
+	{% if v.admin_level > 2 %}
 		<li class="nav-item">
 			<a class="nav-link py-3{% if '/notifications?modmail=true' in request.full_path %} active{% endif %}" href="/notifications?modmail=true">
 			Modmail
@@ -82,10 +82,10 @@
 			{% else %}
 				{% set path = request.full_path %}
 			{% endif %}
-			{% if request.full_path == "/notifications" %}
-				<small><a class="page-link" href="{{path}}?page={{page-1}}">Previous</a></small>
-			{% else %}
+			{% if '=true' in request.full_path %}
 				<small><a class="page-link" href="{{path}}&page={{page-1}}">Previous</a></small>
+			{% else %}
+				<small><a class="page-link" href="{{request.path}}?page={{page-1}}">Previous</a></small>
 			{% endif %}
 		</li>
 		{% else %}
@@ -101,10 +101,10 @@
 			{% else %}
 				{% set path = request.full_path %}
 			{% endif %}
-			{% if request.full_path == "/notifications" %}
-				<small><a class="page-link" href="{{path}}?page={{page+1}}">Next</a></small>
-			{% else %}
+			{% if '=true' in request.full_path %}
 				<small><a class="page-link" href="{{path}}&page={{page+1}}">Next</a></small>
+			{% else %}
+				<small><a class="page-link" href="{{request.path}}?page={{page+1}}">Next</a></small>
 			{% endif %}
 		</li>
 		{% else %}

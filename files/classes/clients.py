@@ -5,6 +5,7 @@ from .submission import Submission
 from .comment import Comment
 from files.__main__ import Base
 from files.helpers.lazy import lazy
+from files.helpers.const import *
 import time
 
 class OauthApp(Base):
@@ -34,7 +35,7 @@ class OauthApp(Base):
 
 	@property
 	@lazy
-	def permalink(self): return f"/admin/app/{self.id}"
+	def permalink(self): return f"{SITE_FULL}/admin/app/{self.id}"
 
 	@lazy
 	def idlist(self, page=1):

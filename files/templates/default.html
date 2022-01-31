@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta name="description" content="{{'DESCRIPTION' | app_config}}">
+	<meta name="description" content="{{config('DESCRIPTION')}}">
 	<meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' ajax.cloudflare.com; connect-src 'self' tls-use1.fpapi.io api.fpjs.io{% if PUSHER_ID %} {{PUSHER_ID}}.pushnotifications.pusher.com{% endif %}; object-src 'none';">
 
 	<script src="/static/assets/js/bootstrap.js?a=220"></script>
 	{% if v %}
 		<style>:root{--primary:#{{v.themecolor}}}</style>
-		<link rel="stylesheet" href="/static/assets/css/main.css?a=98">
+		<link rel="stylesheet" href="/static/assets/css/main.css?a=102">
 		<link rel="stylesheet" href="/static/assets/css/{{v.theme}}.css?a=14">
 		{% if v.agendaposter %}
 			<style>
@@ -31,8 +31,8 @@
 			<link rel="stylesheet" href="/@{{v.username}}/css">
 		{% endif %}
 	{% else %}
-		<style>:root{--primary:#{{'DEFAULT_COLOR' | app_config}}</style>
-		<link rel="stylesheet" href="/static/assets/css/main.css?a=98"><link rel="stylesheet" href="/static/assets/css/{{'DEFAULT_THEME' | app_config}}.css?a=14">
+		<style>:root{--primary:#{{config('DEFAULT_COLOR')}}</style>
+		<link rel="stylesheet" href="/static/assets/css/main.css?a=102"><link rel="stylesheet" href="/static/assets/css/{{config('DEFAULT_THEME')}}.css?a=14">
 	{% endif %}
 
 	<meta charset="utf-8">
@@ -48,8 +48,8 @@
 	<meta property="og:title" content="{{SITE_NAME}}" >
 	<meta property="og:site_name" content="{{request.host}}" >
 	<meta property="og:image" content="{{SITE_NAME}}/static/assets/images/{{SITE_NAME}}/site_preview.webp?a=1008" >
-	<meta property="og:url" content="{{request.path | full_link}}">
-	<meta property="og:description" name="description" content="{{SITE_NAME}} - {{'SLOGAN' | app_config}}">
+	<meta property="og:url" content="{{SITE_FULL}}{{request.full_path}}">
+	<meta property="og:description" name="description" content="{{SITE_NAME}} - {{config('SLOGAN')}}">
 	<meta property="og:author" name="author" content="@{{SITE_FULL}}/" >
 	<meta property="og:site_name" content="{{request.host}}" >
 
@@ -57,9 +57,9 @@
 	<meta name="twitter:site" content="@{{SITE_FULL}}/">
 	<meta name="twitter:title" content="{{SITE_NAME}}" >
 	<meta name="twitter:creator" content="@{{SITE_FULL}}/">
-	<meta name="twitter:description" content="{{SITE_NAME}} - {{'SLOGAN' | app_config}}" >
+	<meta name="twitter:description" content="{{SITE_NAME}} - {{config('SLOGAN')}}" >
 	<meta name="twitter:image" content="/static/assets/images/{{SITE_NAME}}/site_preview.webp?a=1008" >
-	<meta name="twitter:url" content="{{request.path | full_link}}" >
+	<meta name="twitter:url" content="{{SITE_FULL}}{{request.full_path}}" >
 	{% endblock %}
 
 		<meta name="apple-mobile-web-app-capable" content="yes">
@@ -69,13 +69,13 @@
 
 	<link rel="apple-touch-icon" sizes="180x180" href="/static/assets/images/{{SITE_NAME}}/icon.webp?a=1008">
 		<link rel="manifest" href="/static/assets/manifest.json?a=1">
-		<link rel="mask-icon" href="/static/assets/images/{{SITE_NAME}}/icon.webp?a=1008'DEFAULT_COLOR' | app_config}}">
+		<link rel="mask-icon" href="/static/assets/images/{{SITE_NAME}}/icon.webp?a=1008'DEFAULT_COLOR')}}">
 		<link rel="shortcut icon" href="/static/assets/images/{{SITE_NAME}}/icon.webp?a=1008">
 		<meta name="apple-mobile-web-app-title" content="{{SITE_NAME}}">
 		<meta name="application-name" content="{{SITE_NAME}}">
-		<meta name="msapplication-TileColor" content="#{{'DEFAULT_COLOR' | app_config}}">
+		<meta name="msapplication-TileColor" content="#{{config('DEFAULT_COLOR')}}">
 		<meta name="msapplication-config" content="/static/assets/browserconfig.xml?a=1">
-		<meta name="theme-color" content="#{{'DEFAULT_COLOR' | app_config}}">
+		<meta name="theme-color" content="#{{config('DEFAULT_COLOR')}}">
 
 
 
@@ -225,7 +225,7 @@
 				</a>
 			{% else %}
 				<a href="/">
-					<img alt="site banner" src="/static/assets/images/{{SITE_NAME}}/banner.webp?a=1009" width="100%">
+					<img alt="site banner" src="/static/assets/images/{{SITE_NAME}}/banner.webp?a=1010" width="100%">
 				</a>	
 			{% endif %}
 

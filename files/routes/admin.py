@@ -118,12 +118,14 @@ def revert_actions(v, username):
 		user.is_banned = 0
 		user.unban_utc = 0
 		user.ban_evade = 0
+		send_repeatable_notification(user.id, "Your account has been unbanned!")
 		g.db.add(user)
 		for u in user.alts:
 			u.shadowbanned = None
 			u.is_banned = 0
 			u.unban_utc = 0
 			u.ban_evade = 0
+			send_repeatable_notification(u.id, "Your account has been unbanned!")
 			g.db.add(u)
 
 	g.db.commit()
@@ -209,19 +211,33 @@ def monthly(v):
 
 	emails = [x['email'] for x in requests.get(f'https://api.gumroad.com/v2/products/{GUMROAD_ID}/subscribers', data=data, timeout=5).json()["subscribers"]]
 
-	for u in g.db.query(User).filter(User.patron > 0, User.patron != 5, User.admin_level == 0).all():
-		if u.email and u.email.lower() in emails or u.id == 1379:
+	for u in g.db.query(User).filter(User.patron > 0, User.patron_utc == 0).all():
+		if u.email and u.email.lower() in emails:
 			if u.patron == 1: procoins = 2500
 			elif u.patron == 2: procoins = 5000
 			elif u.patron == 3: procoins = 10000
 			elif u.patron == 4: procoins = 25000
 			elif u.patron == 5: procoins = 50000
-			else:
-				print(u.username)
-				continue
 			u.procoins += procoins
 			g.db.add(u)
 			send_repeatable_notification(u.id, f"You were given {procoins} Marseybux for the month of {month}! You can use them to buy awards in the [shop](/shop).")
+		elif u.patron == 5:
+			procoins = 50000
+			u.procoins += procoins
+			g.db.add(u)
+			send_repeatable_notification(u.id, f"You were given {procoins} Marseybux for the month of {month}! You can use them to buy awards in the [shop](/shop).")
+		elif u.patron == 1 and u.admin_level > 0:
+			procoins = 2500
+			u.procoins += procoins
+			g.db.add(u)
+			send_repeatable_notification(u.id, f"You were given {procoins} Marseybux for the month of {month}! You can use them to buy awards in the [shop](/shop).")
+		else: print(u.username)
+
+	if request.host == 'pcmemes.net':
+		u = g.db.query(User).filter_by(id=KIPPY_ID).one()
+		u.procoins += 50000
+		g.db.add(u)
+
 	g.db.commit()
 	
 	return {"message": "Monthly coins granted"}
@@ -336,36 +352,29 @@ def reported_comments(v):
 @app.get("/admin")
 @admin_level_required(2)
 def admin_home(v):
-
-	with open('disable_signups', 'r') as f: x = f.read()
-	with open('under_attack', 'r') as f: x2 = f.read()
-
-	return render_template("admin/admin_home.html", v=v, x=x, x2=x2)
+	return render_template("admin/admin_home.html", v=v)
 
 @app.post("/admin/disable_signups")
 @admin_level_required(3)
 def disable_signups(v):
-	with open('disable_signups', 'r') as f: content = f.read()
-
-	with open('disable_signups', 'w') as f:
-		if content == "yes":
-			f.write("no")
-			ma = ModAction(
-				kind="enable_signups",
-				user_id=v.id,
-			)
-			g.db.add(ma)
-			g.db.commit()
-			return {"message": "Signups enabled!"}
-		else:
-			f.write("yes")
-			ma = ModAction(
-				kind="disable_signups",
-				user_id=v.id,
-			)
-			g.db.add(ma)
-			g.db.commit()
-			return {"message": "Signups disabled!"}
+	if environ.get('disable_signups'):
+		environ["disable_signups"] = ""
+		ma = ModAction(
+			kind="enable_signups",
+			user_id=v.id,
+		)
+		g.db.add(ma)
+		g.db.commit()
+		return {"message": "Signups enabled!"}
+	else:
+		environ["disable_signups"] = "1"
+		ma = ModAction(
+			kind="disable_signups",
+			user_id=v.id,
+		)
+		g.db.add(ma)
+		g.db.commit()
+		return {"message": "Signups disabled!"}
 
 
 @app.post("/admin/purge_cache")
@@ -380,33 +389,30 @@ def purge_cache(v):
 @app.post("/admin/under_attack")
 @admin_level_required(2)
 def under_attack(v):
-	with open('under_attack', 'r') as f: content = f.read()
+	if environ.get('under_attack'):
+		environ["under_attack"] = ""
+		ma = ModAction(
+			kind="disable_under_attack",
+			user_id=v.id,
+		)
+		g.db.add(ma)
+		g.db.commit()
 
-	with open('under_attack', 'w') as f:
-		if content == "yes":
-			f.write("no")
-			ma = ModAction(
-				kind="disable_under_attack",
-				user_id=v.id,
-			)
-			g.db.add(ma)
-			g.db.commit()
+		response = str(requests.patch(f'https://api.cloudflare.com/client/v4/zones/{CF_ZONE}/settings/security_level', headers=CF_HEADERS, data='{"value":"medium"}'))
+		if response == "<Response [200]>": return {"message": "Under attack mode disabled!"}
+		return {"error": "Failed to disable under attack mode."}
+	else:
+		environ["under_attack"] = "1"
+		ma = ModAction(
+			kind="enable_under_attack",
+			user_id=v.id,
+		)
+		g.db.add(ma)
+		g.db.commit()
 
-			response = str(requests.patch(f'https://api.cloudflare.com/client/v4/zones/{CF_ZONE}/settings/security_level', headers=CF_HEADERS, data='{"value":"medium"}'))
-			if response == "<Response [200]>": return {"message": "Under attack mode disabled!"}
-			return {"error": "Failed to disable under attack mode."}
-		else:
-			f.write("yes")
-			ma = ModAction(
-				kind="enable_under_attack",
-				user_id=v.id,
-			)
-			g.db.add(ma)
-			g.db.commit()
-
-			response = str(requests.patch(f'https://api.cloudflare.com/client/v4/zones/{CF_ZONE}/settings/security_level', headers=CF_HEADERS, data='{"value":"under_attack"}'))
-			if response == "<Response [200]>": return {"message": "Under attack mode enabled!"}
-			return {"error": "Failed to enable under attack mode."}
+		response = str(requests.patch(f'https://api.cloudflare.com/client/v4/zones/{CF_ZONE}/settings/security_level', headers=CF_HEADERS, data='{"value":"under_attack"}'))
+		if response == "<Response [200]>": return {"message": "Under attack mode enabled!"}
+		return {"error": "Failed to enable under attack mode."}
 
 @app.get("/admin/badge_grant")
 @admin_level_required(2)
@@ -731,7 +737,7 @@ def agendaposter(user_id, v):
 
 	g.db.commit()
 	if user.agendaposter: return redirect(user.url)
-	return {"message": "Agendaposter theme disabled!"}
+	return {"message": "Chud theme disabled!"}
 
 
 @app.post("/shadowban/<user_id>")
@@ -837,6 +843,7 @@ def admin_title_change(user_id, v):
 	user=g.db.query(User).filter_by(id=user.id).one_or_none()
 	user.customtitle=new_name
 	if request.values.get("locked"): user.flairchanged = int(time.time()) + 2629746
+	else: user.flairchanged = None
 	g.db.add(user)
 
 	if user.flairchanged: kind = "set_flair_locked"
@@ -929,6 +936,7 @@ def unban_user(user_id, v):
 	user.unban_utc = 0
 	user.ban_evade = 0
 	user.ban_reason = None
+	send_repeatable_notification(user.id, "Your account has been unbanned!")
 	g.db.add(user)
 
 	for x in user.alts:
@@ -936,10 +944,8 @@ def unban_user(user_id, v):
 		x.unban_utc = 0
 		x.ban_evade = 0
 		x.ban_reason = None
+		send_repeatable_notification(x.id, "Your account has been unbanned!")
 		g.db.add(x)
-
-	send_repeatable_notification(user.id,
-					  "Your account has been reinstated. Please carefully review and abide by the [rules](/sidebar) to ensure that you don't get suspended again.")
 
 	ma=ModAction(
 		kind="unban_user",

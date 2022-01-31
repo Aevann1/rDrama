@@ -140,8 +140,8 @@ function post_reply(id){
 			}
 			catch(e) {console.log(e)}
 			new bootstrap.Toast(document.getElementById('toast-post-error')).show();
-			btn.classList.remove('disabled');
 		}
+		btn.classList.remove('disabled');
 	}
 	xhr.send(form)
 }
@@ -173,8 +173,8 @@ function comment_edit(id){
 			}
 			catch(e) {console.log(e)}
 			new bootstrap.Toast(document.getElementById('toast-post-error')).show();
-			btn.classList.remove('disabled');
 		}
+		btn.classList.remove('disabled');
 	}
 	xhr.send(form)
 }
@@ -207,8 +207,8 @@ function post_comment(fullname){
 			}
 			catch(e) {console.log(e)}
 			new bootstrap.Toast(document.getElementById('toast-post-error')).show();
-			btn.classList.remove('disabled');
 		}
+		btn.classList.remove('disabled');
 	}
 	xhr.send(form)
 }
@@ -266,4 +266,25 @@ function poll_vote(cid, parentid) {
 	if (type == true) scoretext.textContent = score + 1;
 	else scoretext.textContent = score - 1;
 	post('/vote/poll/' + cid + '?vote=' + type);
+}
+
+function handle_blackjack_action(cid, action) {
+	const form = new FormData();
+	form.append('formkey', formkey());
+	form.append('comment_id', cid);
+	form.append('action', action);
+	
+	const xhr = new XMLHttpRequest();
+	xhr.open("post", `/blackjack/${cid}`);
+	xhr.setRequestHeader('xhr', 'xhr');
+
+	xhr.onload = function() {
+		if (xhr.status == 200) {
+			window.location.reload();
+		} else {
+			// Handle error.
+		}
+	}
+
+	xhr.send(form);
 }

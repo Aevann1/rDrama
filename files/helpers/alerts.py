@@ -82,7 +82,7 @@ def NOTIFY_USERS2(text, v):
 		if id == 0: continue
 		if word in text.lower() and id not in notify_users and v.id != id: notify_users.add(id)
 
-	for i in re.finditer("(^|\s|\n)@((\w|-){1,25})", text):
+	for i in re.finditer("(^|\s|\n)@((\w|-){1,25})", text, flags=re.A):
 		user = get_user(i.group(2), graceful=True)
 		if user and not v.any_block_exists(user): notify_users.add(user.id)
 

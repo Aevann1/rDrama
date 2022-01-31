@@ -105,14 +105,14 @@ def sanitize(sanitized, noimages=False, alert=False, comment=False, edit=False):
 	sanitized = sanitized.replace("\ufeff", "").replace("𒐪","").replace("<script","").replace('‎','')
 
 	if alert:
-		for i in re.finditer("<p>@((\w|-){1,25})", sanitized):
+		for i in re.finditer("<p>@((\w|-){1,25})", sanitized, flags=re.A):
 			u = get_user(i.group(1), graceful=True)
 			if u:
 				sanitized = sanitized.replace(i.group(0), f'''<p><a href="/id/{u.id}"><img alt="@{u.username}'s profile picture" loading="lazy" src="/uid/{u.id}/pic" class="pp20">@{u.username}</a>''', 1)
 	else:
-		sanitized = re.sub('(^|\s|\n|<p>)\/?((r|u)\/(\w|-){3,25})', r'\1<a href="https://old.reddit.com/\2" rel="nofollow noopener noreferrer">\2</a>', sanitized)
+		sanitized = re.sub('(^|\s|\n|<p>)\/?((r|u)\/(\w|-){3,25})', r'\1<a href="https://old.reddit.com/\2" rel="nofollow noopener noreferrer">\2</a>', sanitized, flags=re.A)
 
-		for i in re.finditer('(^|\s|\n|<p>)@((\w|-){1,25})', sanitized):
+		for i in re.finditer('(^|\s|\n|<p>)@((\w|-){1,25})', sanitized, flags=re.A):
 			u = get_user(i.group(2), graceful=True)
 
 			if u and (not g.v.any_block_exists(u) or g.v.admin_level > 1):
@@ -164,11 +164,11 @@ def sanitize(sanitized, noimages=False, alert=False, comment=False, edit=False):
 
 	for tag in soup.find_all("a"):
 		if tag.get("href"):
-			if not tag["href"].startswith(SITE_FULL) and not tag["href"].startswith('/'):
+			if not tag["href"].startswith(SITE_FULL) and not tag["href"].startswith('/') and not tag["href"].startswith(SITE_FULL2):
 				tag["target"] = "_blank"
 				tag["rel"] = "nofollow noopener noreferrer"
 
-			if re.match("https?://\S+", str(tag.string)):
+			if re.match("https?://\S+", str(tag.string), flags=re.A):
 				try: tag.string = tag["href"]
 				except: tag.string = ""
 
@@ -179,7 +179,7 @@ def sanitize(sanitized, noimages=False, alert=False, comment=False, edit=False):
 	
 	if comment: marseys_used = set()
 
-	emojis = list(re.finditer("[^a]>\s*(:[!#]{0,2}\w+:\s*)+<\/", sanitized))
+	emojis = list(re.finditer("[^a]>\s*(:[!#]{0,2}\w+:\s*)+<\/", sanitized, flags=re.A))
 	if len(emojis) > 20: edit = True
 	for i in emojis:
 		old = i.group(0)
@@ -226,7 +226,7 @@ def sanitize(sanitized, noimages=False, alert=False, comment=False, edit=False):
 			sanitized = re.sub(f'(?<!"):{emoji}:', f'<img loading="lazy" data-bs-toggle="tooltip" alt=":{emoji}:" title=":{emoji}:" delay="0" class="{classes}" src="/static/assets/images/emojis/{emoji}.webp">', sanitized, flags=re.I)
 			if comment: marseys_used.add(emoji)
 
-	sanitized = sanitized.replace("https://www.", "https://").replace("https://youtu.be/", "https://youtube.com/watch?v=").replace("https://music.youtube.com/watch?v=", "https://youtube.com/watch?v=").replace("https://open.spotify.com/", "https://open.spotify.com/embed/").replace("https://streamable.com/", "https://streamable.com/e/").replace("https://youtube.com/shorts/", "https://youtube.com/watch?v=").replace("https://mobile.twitter", "https://twitter").replace("https://m.facebook", "https://facebook").replace("m.wikipedia.org", "wikipedia.org").replace("https://m.youtube", "https://youtube")
+	sanitized = sanitized.replace("https://youtu.be/", "https://youtube.com/watch?v=").replace("https://music.youtube.com/watch?v=", "https://youtube.com/watch?v=").replace("https://open.spotify.com/", "https://open.spotify.com/embed/").replace("https://streamable.com/", "https://streamable.com/e/").replace("https://youtube.com/shorts/", "https://youtube.com/watch?v=").replace("https://mobile.twitter", "https://twitter").replace("https://m.facebook", "https://facebook").replace("m.wikipedia.org", "wikipedia.org").replace("https://m.youtube", "https://youtube").replace("https://www.youtube", "https://youtube")
 
 	if "https://youtube.com/watch?v=" in sanitized: sanitized = sanitized.replace("?t=", "&t=")
 
@@ -269,7 +269,7 @@ def sanitize(sanitized, noimages=False, alert=False, comment=False, edit=False):
 
 def filter_emojis_only(title, edit=False):
 
-	title = title.replace('<','').replace("\n", "").replace("\r", "").replace("\t", "").strip()
+	title = title.replace('<','&lt;').replace('>','&gt;').replace("\n", "").replace("\r", "").replace("\t", "").strip()
 
 	title = bleach.clean(title, tags=[])
 

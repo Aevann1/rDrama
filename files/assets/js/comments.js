@@ -33,6 +33,7 @@ function morecomments(cid) {
             });
             popovertrigger()
         }
+        btn.disabled = false;
     }
     xhr.send(form)
 }

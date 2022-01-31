@@ -5,6 +5,7 @@ from files.helpers.images import *
 from files.helpers.const import *
 from files.classes import *
 from files.routes.front import comment_idlist
+from files.routes.static import marsey_list
 from pusher_push_notifications import PushNotifications
 from flask import *
 from files.__main__ import app, limiter
@@ -48,6 +49,8 @@ def post_pid_comment_cid(cid, pid=None, anything=None, v=None):
 
 	if comment.post and comment.post.club and not (v and (v.paid_dues or v.id in [comment.author_id, comment.post.author_id])): abort(403)
 
+	if comment.post and comment.post.private and not (v and (v.admin_level > 1 or v.id == comment.post.author.id)): abort(403)
+
 	if not comment.parent_submission and not (v and (comment.author.id == v.id or comment.sentto == v.id)) and not (v and v.admin_level > 1) : abort(403)
 	
 	if not pid:
@@ -65,7 +68,7 @@ def post_pid_comment_cid(cid, pid=None, anything=None, v=None):
 		if request.headers.get("Authorization"): return {'error': 'This content is not suitable for some users and situations.'}
 		else: render_template("errors/nsfw.html", v=v)
 
-	try: context = int(request.values.get("context", 0))
+	try: context = min(int(request.values.get("context", 0)), 8)
 	except: context = 0
 	comment_info = comment
 	c = comment
@@ -129,7 +132,7 @@ def post_pid_comment_cid(cid, pid=None, anything=None, v=None):
 		return render_template(template, v=v, p=post, sort=sort, comment_info=comment_info, render_replies=True)
 
 @app.post("/comment")
-@limiter.limit("1/second;6/minute;200/hour;1000/day")
+@limiter.limit("1/second;20/minute;200/hour;1000/day")
 @auth_required
 def api_comment(v):
 	if v.is_suspended: return {"error": "You can't perform this action while banned."}, 403
@@ -158,17 +161,18 @@ def api_comment(v):
 	else: abort(400)
 
 	body = request.values.get("body", "").strip()[:10000]
-	
+
 	if v.admin_level == 3 and parent_post.id == 37749:
 		with open(f"snappy_{SITE_NAME}.txt", "a") as f:
 			f.write('\n{[para]}\n' + body)
 
-	if v.marseyawarded:
-		marregex = list(re.finditer("^(:[!#]{0,2}m\w+:\s*)+$", body))
+	if v.marseyawarded and parent_post.id not in (37696,37697,37749,37833,37838):
+		marregex = list(re.finditer("^(:[!#]{0,2}m\w+:\s*)+$", body, flags=re.A))
 		if len(marregex) == 0: return {"error":"You can only type marseys!"}, 403
 
 	if v.longpost and len(body) < 280 or ' [](' in body or body.startswith('[]('): return {"error":"You have to type more than 280 characters!"}, 403
-	elif v.bird and len(body) > 140: return {"error":"You have to type less than 140 characters!"}, 403
+	elif v.bird and len(body) > 140 and parent_post.id not in (37696,37697,37749,37833,37838):
+		return {"error":"You have to type less than 140 characters!"}, 403
 
 	if not body and not request.files.get('file'): return {"error":"You need to actually write something!"}, 400
 	
@@ -176,7 +180,7 @@ def api_comment(v):
 		if "wikipedia" not in i.group(1): body = body.replace(i.group(1), f'![]({i.group(1)})')
 
 	options = []
-	for i in re.finditer('\s*\$\$([^\$\n]+)\$\$\s*', body):
+	for i in re.finditer('\s*\$\$([^\$\n]+)\$\$\s*', body, flags=re.A):
 		options.append(i.group(1))
 		body = body.replace(i.group(0), "")
 
@@ -198,7 +202,7 @@ def api_comment(v):
 					process_image(filename)
 				elif parent_post.id == 37833:
 					try:
-						badge_def = loads(body.lower())
+						badge_def = loads(body)
 						name = badge_def["name"]
 						badge = g.db.query(BadgeDef).filter_by(name=name).first()
 						if not badge:
@@ -210,22 +214,24 @@ def api_comment(v):
 						process_image(filename, 200)
 						requests.post(f'https://api.cloudflare.com/client/v4/zones/{CF_ZONE}/purge_cache', headers=CF_HEADERS, data={'files': [f"https://{request.host}/static/assets/images/badges/{badge.id}.webp"]})
 					except Exception as e:
-						print(e)
-						return {"error": "You didn't follow the format retard"}, 400
-				elif v.id in (CARP_ID,AEVANN_ID) and parent_post.id == 37838:
+						return {"error": e}, 400
+				elif v.admin_level > 2 and parent_post.id == 37838:
 					try:
 						marsey = loads(body.lower())
 						name = marsey["name"]
+						if "author" in marsey: author_id = get_user(marsey["author"]).id
+						elif "author_id" in marsey: author_id = marsey["author_id"]
+						else: abort(400)
 						if not g.db.query(Marsey.name).filter_by(name=name).first():
-							marsey = Marsey(name=marsey["name"], author_id=marsey["author_id"], tags=marsey["tags"], count=0)
+							marsey = Marsey(name=marsey["name"], author_id=author_id, tags=marsey["tags"], count=0)
 							g.db.add(marsey)
 						filename = f'files/assets/images/emojis/{name}.webp'
 						copyfile(oldname, filename)
 						process_image(filename, 200)
 						requests.post(f'https://api.cloudflare.com/client/v4/zones/{CF_ZONE}/purge_cache', headers=CF_HEADERS, data={'files': [f"https://{request.host}/static/assets/images/emojis/{name}.webp"]})
+						cache.delete_memoized(marsey_list)
 					except Exception as e:
-						print(e)
-						return {"error": "You didn't follow the format retard"}, 400
+						return {"error": e}, 400
 			body += f"\n\n![]({image})"
 		elif file.content_type.startswith('video/'):
 			file.save("video.mp4")
@@ -236,16 +242,23 @@ def api_comment(v):
 			body += f"\n\n{url}"
 		else: return {"error": "Image/Video files only"}, 400
 
-	if v.agendaposter and not v.marseyawarded: body = torture_ap(body, v.username)
+	if v.agendaposter and not v.marseyawarded and parent_post.id not in (37696,37697,37749,37833,37838):
+		body = torture_ap(body, v.username)
+
+	if '#fortune' in body:
+		body = body.replace('#fortune', '')
+		body += '\n\n<p>' + random.choice(FORTUNE_REPLIES) + '</p>'
 
 	body_html = sanitize(body, comment=True)
 
-	if v.marseyawarded and len(list(re.finditer('>[^<\s+]|[^>\s+]<', body_html))): return {"error":"You can only type marseys!"}, 403
+	if v.marseyawarded and len(list(re.finditer('>[^<\s+]|[^>\s+]<', body_html, flags=re.A))): return {"error":"You can only type marseys!"}, 403
 
-	if v.longpost:
-		if len(body) < 280 or ' [](' in body or body.startswith('[]('): return {"error":"You have to type more than 280 characters!"}, 403
-	elif v.bird:
-		if len(body) > 140 : return {"error":"You have to type less than 140 characters!"}, 403
+	if parent_post.id not in (37696,37697,37749,37833,37838):
+		if v.longpost:
+			if len(body) < 280 or ' [](' in body or body.startswith('[]('):
+				return {"error":"You have to type more than 280 characters!"}, 403
+		elif v.bird:
+			if len(body) > 140 : return {"error":"You have to type less than 140 characters!"}, 403
 
 	bans = filter_comment_html(body_html)
 
@@ -264,7 +277,8 @@ def api_comment(v):
 																	).one_or_none()
 		if existing: return {"error": f"You already made that comment: /comment/{existing.id}"}, 409
 
-	if parent.author.any_block_exists(v) and v.admin_level < 2: return {"error": "You can't reply to users who have blocked you, or users you have blocked."}, 403
+	if parent.author.any_block_exists(v) and v.admin_level < 2:
+		return {"error": "You can't reply to users who have blocked you, or users you have blocked."}, 403
 
 	is_bot = bool(request.headers.get("Authorization"))
 
@@ -317,7 +331,8 @@ def api_comment(v):
 				is_bot=is_bot,
 				app_id=v.client.application.id if v.client else None,
 				body_html=body_html,
-				body=body[:10000]
+				body=body[:10000],
+				ghost=parent_post.ghost
 				)
 
 	c.upvotes = 1
@@ -340,7 +355,7 @@ def api_comment(v):
 	if request.host == 'pcmemes.net' and c.body.lower().startswith("based"):
 		pill = re.match("based and (.{1,20}?)(-| )pilled", body, re.IGNORECASE)
 
-		if level == 1: basedguy = get_account(c.post.author_id)
+		if level == 1: basedguy = get_account(parent_post.author_id)
 		else: basedguy = get_account(c.parent_comment.author_id)
 		basedguy.basedcount += 1
 		if pill:
@@ -360,7 +375,8 @@ def api_comment(v):
 			level=level+1,
 			is_bot=True,
 			body_html=body_based_html,
-			top_comment_id=c.top_comment_id
+			top_comment_id=c.top_comment_id,
+			ghost=parent_post.ghost
 			)
 
 		g.db.add(c_based)
@@ -390,7 +406,8 @@ def api_comment(v):
 			level=level+1,
 			is_bot=True,
 			body_html=body_jannied_html,
-			top_comment_id=c.top_comment_id
+			top_comment_id=c.top_comment_id,
+			ghost=parent_post.ghost
 			)
 
 		g.db.add(c_jannied)
@@ -411,7 +428,8 @@ def api_comment(v):
 			level=level+1,
 			is_bot=True,
 			body_html=body_html2,
-			top_comment_id=c.top_comment_id
+			top_comment_id=c.top_comment_id,
+			ghost=parent_post.ghost
 			)
 
 		g.db.add(c2)
@@ -425,11 +443,6 @@ def api_comment(v):
 
 		n = Notification(comment_id=c2.id, user_id=v.id)
 		g.db.add(n)
-
-
-
-
-
 
 
 	if request.host == "rdrama.net" and random.random() < 0.001:
@@ -446,7 +459,8 @@ def api_comment(v):
 			level=level+1,
 			is_bot=True,
 			body_html=body_html2,
-			top_comment_id=c.top_comment_id
+			top_comment_id=c.top_comment_id,
+			ghost=parent_post.ghost
 			)
 
 		g.db.add(c2)
@@ -469,7 +483,8 @@ def api_comment(v):
 			level=level+2,
 			is_bot=True,
 			body_html=body_html2,
-			top_comment_id=c.top_comment_id
+			top_comment_id=c.top_comment_id,
+			ghost=parent_post.ghost
 			)
 
 		g.db.add(c3)
@@ -485,7 +500,8 @@ def api_comment(v):
 			level=level+3,
 			is_bot=True,
 			body_html=body_html2,
-			top_comment_id=c.top_comment_id
+			top_comment_id=c.top_comment_id,
+			ghost=parent_post.ghost
 			)
 
 		g.db.add(c4)
@@ -512,7 +528,7 @@ def api_comment(v):
 
 		if parent.author.id != v.id and PUSHER_ID:
 			if len(c.body) > 500: notifbody = c.body[:500] + '...'
-			else: notifbody = c.body or ''
+			else: notifbody = c.body or 'no body'
 
 			beams_client.publish_to_interests(
 				interests=[f'{request.host}{parent.author.id}'],
@@ -521,7 +537,7 @@ def api_comment(v):
 						'notification': {
 							'title': f'New reply by @{c.author_name}',
 							'body': notifbody,
-							'deep_link': f'{SITE_FULL}/comment/{c.id}?context=9&read=true#context',
+							'deep_link': f'{SITE_FULL}/comment/{c.id}?context=8&read=true#context',
 							'icon': f'{SITE_FULL}/assets/images/{SITE_NAME}/icon.webp',
 						}
 					},
@@ -531,7 +547,7 @@ def api_comment(v):
 							'body': notifbody,
 						},
 						'data': {
-							'url': f'/comment/{c.id}?context=9&read=true#context',
+							'url': f'/comment/{c.id}?context=8&read=true#context',
 						}
 					}
 				},
@@ -549,9 +565,6 @@ def api_comment(v):
 
 	v.comment_count = g.db.query(Comment.id).filter(Comment.author_id == v.id, Comment.parent_submission != None).filter_by(is_banned=False, deleted_utc=0).count()
 	g.db.add(v)
-
-	parent_post.comment_count += 1
-	g.db.add(parent_post)
 
 	c.voted = 1
 	
@@ -576,13 +589,24 @@ def api_comment(v):
 		c.upvotes += 1
 		g.db.add(c)
 
-	slots = Slots(g)
-	slots.check_for_slots_command(body, v, c)
+	if not v.rehab:
+		slots = Slots(g)
+		slots.check_for_slots_command(body, v, c)
+
+		blackjack = Blackjack(g)
+		blackjack.check_for_blackjack_command(body, v, c)
+
+	treasure = Treasure(g)
+	treasure.check_for_treasure(body, c)
+
+	if not c.slots_result and not c.blackjack_result:
+		parent_post.comment_count += 1
+		g.db.add(parent_post)
 
 	g.db.commit()
 
 	if request.headers.get("Authorization"): return c.json
-	return render_template("comments.html", v=v, comments=[c])
+	return render_template("comments.html", v=v, comments=[c], ajax=True)
 
 
 
@@ -600,11 +624,12 @@ def edit_comment(cid, v):
 
 	body = request.values.get("body", "").strip()[:10000]
 
-	if len(body) < 1: return {"error":"You have to actually type something!"}, 400
+	if len(body) < 1 and not (request.files.get("file") and request.headers.get("cf-ipcountry") != "T1"):
+		return {"error":"You have to actually type something!"}, 400
 
 	if body != c.body or request.files.get("file") and request.headers.get("cf-ipcountry") != "T1":
 		if v.marseyawarded:
-			marregex = list(re.finditer("^(:[!#]{0,2}m\w+:\s*)+$", body))
+			marregex = list(re.finditer("^(:[!#]{0,2}m\w+:\s*)+$", body, flags=re.A))
 			if len(marregex) == 0: return {"error":"You can only type marseys!"}, 403
 
 		if v.longpost and len(body) < 280 or ' [](' in body or body.startswith('[]('): return {"error":"You have to type more than 280 characters!"}, 403
@@ -613,10 +638,11 @@ def edit_comment(cid, v):
 		for i in re.finditer('^(https:\/\/.*\.(png|jpg|jpeg|gif|webp|PNG|JPG|JPEG|GIF|WEBP|9999))', body, re.MULTILINE):
 			if "wikipedia" not in i.group(1): body = body.replace(i.group(1), f'![]({i.group(1)})')
 
-		if v.agendaposter and not v.marseyawarded: body = torture_ap(body, v.username)
+		if v.agendaposter and not v.marseyawarded:
+			body = torture_ap(body, v.username)
 
 		if not c.options:
-			for i in re.finditer('\s*\$\$([^\$\n]+)\$\$\s*', body):
+			for i in re.finditer('\s*\$\$([^\$\n]+)\$\$\s*', body, flags=re.A):
 				body = body.replace(i.group(0), "")
 				c_option = Comment(author_id=AUTOPOLLER_ID,
 					parent_submission=c.parent_submission,
@@ -630,7 +656,7 @@ def edit_comment(cid, v):
 
 		body_html = sanitize(body, edit=True)
 
-		if v.marseyawarded and len(list(re.finditer('>[^<\s+]|[^>\s+]<', body_html))): return {"error":"You can only type marseys!"}, 403
+		if v.marseyawarded and len(list(re.finditer('>[^<\s+]|[^>\s+]<', body_html, flags=re.A))): return {"error":"You can only type marseys!"}, 403
 
 		if v.longpost:
 			if len(body) < 280 or ' [](' in body or body.startswith('[]('): return {"error":"You have to type more than 280 characters!"}, 403
@@ -731,7 +757,8 @@ def edit_comment(cid, v):
 				level=c.level+1,
 				is_bot=True,
 				body_html=body_jannied_html,
-				top_comment_id=c.top_comment_id
+				top_comment_id=c.top_comment_id,
+				ghost=c.ghost
 				)
 
 			g.db.add(c_jannied)
@@ -854,10 +881,10 @@ def save_comment(cid, v):
 
 	comment=get_comment(cid)
 
-	save=g.db.query(SaveRelationship).filter_by(user_id=v.id, comment_id=comment.id, type=2).one_or_none()
+	save=g.db.query(SaveRelationship).filter_by(user_id=v.id, comment_id=comment.id).one_or_none()
 
 	if not save:
-		new_save=SaveRelationship(user_id=v.id, comment_id=comment.id, type=2)
+		new_save=SaveRelationship(user_id=v.id, comment_id=comment.id)
 		g.db.add(new_save)
 
 		try: g.db.commit()
@@ -872,10 +899,28 @@ def unsave_comment(cid, v):
 
 	comment=get_comment(cid)
 
-	save=g.db.query(SaveRelationship).filter_by(user_id=v.id, comment_id=comment.id, type=2).one_or_none()
+	save=g.db.query(SaveRelationship).filter_by(user_id=v.id, comment_id=comment.id).one_or_none()
 
 	if save:
 		g.db.delete(save)
 		g.db.commit()
 
 	return {"message": "Comment unsaved!"}
+
+@app.post("/blackjack/<cid>")
+@limiter.limit("1/second;30/minute;200/hour;1000/day")
+@auth_required
+def handle_blackjack_action(cid, v):
+	comment = get_comment(cid)
+	action = request.values.get("action", "")
+	blackjack = Blackjack(g)
+
+	if action == 'hit':
+		blackjack.player_hit(comment)
+	elif action == 'stay':
+		blackjack.player_stayed(comment)
+	
+	g.db.add(comment)
+	g.db.add(v)
+	g.db.commit()
+	return { "message" : "..." }

@@ -390,6 +390,7 @@ def award_post(pid, v):
 			send_notification(author.id, f"@AutoJanny has given you the following profile badge:\n\n![]({badge.path})\n\n{badge.name}")
 	elif kind == "benefactor":
 		author.patron = 1
+		author.patron_utc += int(time.time()) + 2629746
 		author.procoins += 2500
 		if not v.has_badge(103):
 			badge = Badge(user_id=v.id, badge_id=103)
@@ -402,6 +403,14 @@ def award_post(pid, v):
 		for c in post.comments:
 			c.ghost = True
 			g.db.add(c)
+	elif kind == "rehab":
+		if author.rehab: author.rehab += 86400
+		else: author.rehab = int(time.time()) + 86400
+		if not v.has_badge(109):
+			badge = Badge(user_id=v.id, badge_id=109)
+			g.db.add(badge)
+			g.db.flush()
+			send_notification(v.id, f"@AutoJanny has given you the following profile badge:\n\n![]({badge.path})\n\n{badge.name}")
 
 	if post.author.received_award_count: post.author.received_award_count += 1
 	else: post.author.received_award_count = 1
@@ -611,6 +620,7 @@ def award_comment(cid, v):
 			send_notification(author.id, f"@AutoJanny has given you the following profile badge:\n\n![]({badge.path})\n\n{badge.name}")
 	elif kind == "benefactor":
 		author.patron = 1
+		author.patron_utc += int(time.time()) + 2629746
 		author.procoins += 2500
 		if not v.has_badge(103):
 			badge = Badge(user_id=v.id, badge_id=103)
@@ -620,6 +630,14 @@ def award_comment(cid, v):
 	elif kind == "ghosts":
 		c.ghost = True
 		g.db.add(c)
+	elif kind == "rehab":
+		if author.rehab: author.rehab += 86400
+		else: author.rehab = int(time.time()) + 86400
+		if not v.has_badge(109):
+			badge = Badge(user_id=v.id, badge_id=109)
+			g.db.add(badge)
+			g.db.flush()
+			send_notification(v.id, f"@AutoJanny has given you the following profile badge:\n\n![]({badge.path})\n\n{badge.name}")
 
 	if c.author.received_award_count: c.author.received_award_count += 1
 	else: c.author.received_award_count = 1
@@ -633,7 +651,7 @@ def award_comment(cid, v):
 @app.get("/admin/awards")
 @admin_level_required(2)
 def admin_userawards_get(v):
-	if request.host == 'pcmemes.net': abort(403)
+	if request.host == 'pcmemes.net' and v.admin_level < 3: abort(403)
 
 	if v.admin_level != 3:
 		return render_template("admin/awards.html", awards=list(AWARDS3.values()), v=v)
@@ -644,7 +662,7 @@ def admin_userawards_get(v):
 @limiter.limit("1/second;30/minute;200/hour;1000/day")
 @admin_level_required(2)
 def admin_userawards_post(v):
-	if request.host == 'pcmemes.net': abort(403)
+	if request.host == 'pcmemes.net' and v.admin_level < 3: abort(403)
 
 	try: u = request.values.get("username").strip()
 	except: abort(404)

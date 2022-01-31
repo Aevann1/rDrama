@@ -29,7 +29,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['DATABASE_URL'] = environ.get("DATABASE_URL")
 app.config['SECRET_KEY'] = environ.get('MASTER_KEY')
 app.config["SERVER_NAME"] = environ.get("DOMAIN").strip()
-app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 86400
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 2628000
 app.config["SESSION_COOKIE_NAME"] = "session_" + environ.get("SITE_NAME").strip().lower()
 app.config["VERSION"] = "1.0.0"
 app.config['MAX_CONTENT_LENGTH'] = 8 * 1024 * 1024
@@ -85,10 +85,6 @@ mail = Mail(app)
 
 @app.before_request
 def before_request():
-	if not session.get("session_id") and not request.path.startswith("/assets") and not request.path.startswith("/images") and not request.path.startswith("/hostedimages") and not request.path.startswith("/static") and not request.path.startswith("/song"):
-		session.permanent = True
-		session["session_id"] = secrets.token_hex(49)
-
 	if request.method.lower() != "get" and app.config["READ_ONLY"]:
 		return {"error":f"{app.config['SITE_NAME']} is currently in read-only mode."}, 500
 

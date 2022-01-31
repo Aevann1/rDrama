@@ -17,6 +17,7 @@ function report_postModal(id) {
 		xhr.onload=function() {
 			document.getElementById("reportPostFormBefore").classList.add('d-none');
 			document.getElementById("reportPostFormAfter").classList.remove('d-none');
+			this.disabled = false;
 		};
 
 		xhr.onerror=function(){alert(errortext)};

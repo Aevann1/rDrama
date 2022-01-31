@@ -1,75 +1,77 @@
-{% if comment_info and not request.full_path.endswith('#context') %}
-	<script>
-		history.pushState(null, null, '#context');
-	</script>
-{% endif %}
+{% if not ajax %}
+	{% if comment_info and not request.full_path.endswith('#context') %}
+		<script>
+			history.pushState(null, null, '#context');
+		</script>
+	{% endif %}
 
-{% if v %}
-	{% include "award_modal.html" %}
-{% endif %}
+	{% if v %}
+		{% include "award_modal.html" %}
+	{% endif %}
 
-<style>
-	html {
-		scroll-padding-top: 75px;
-	}
-	.comment {
-		overflow: hidden;
-	}
-	.comment .comment-body {
-		padding: 3px 0 0 0;
-	}
-	.comment-anchor {
-		margin-top: -75px;
-		padding: 1px;
-	}
-	.comment-anchor::before {
-		content: '';
-		display: block;
-		padding-top: 75px;
-	}
-	.comment-anchor:target {
-		background: rgba(255,255,255,0.2);
-		padding: 12px;
-	}
-</style>
+	<style>
+		html {
+			scroll-padding-top: 75px;
+		}
+		.comment {
+			overflow: hidden;
+		}
+		.comment .comment-body {
+			padding: 3px 0 0 0;
+		}
+		.comment-anchor {
+			margin-top: -75px;
+			padding: 1px;
+		}
+		.comment-anchor::before {
+			content: '';
+			display: block;
+			padding-top: 75px;
+		}
+		.comment-anchor:target {
+			background: rgba(255,255,255,0.2);
+			padding: 12px;
+		}
+	</style>
 
-<div style="display:none" id="popover">
-	<div class="popover-user-profile" role="tooltip">
-		<img loading="lazy" class="pop-banner w-100 h-64 object-cover">
-		<div class="d-flex align-items-end px-3 mt-n6 mb-3">
-			<img  loading="lazy" class="pop-picture avatar-72 rounded img-thumbnail shadow-sm">
-			<div class="px-3 text-truncate">
-			<h5 class="pop-username text-truncate text-black"></h5>
+	<div style="display:none" id="popover">
+		<div class="popover-user-profile" role="tooltip">
+			<img loading="lazy" class="pop-banner w-100 h-64 object-cover">
+			<div class="d-flex align-items-end px-3 mt-n6 mb-3">
+				<img  loading="lazy" class="pop-picture avatar-72 rounded img-thumbnail shadow-sm">
+				<div class="px-3 text-truncate">
+				<h5 class="pop-username text-truncate text-black"></h5>
+				</div>
 			</div>
-		</div>
-		<div class="px-3">
-			<span class="pop-bio popover-bio text-black"></span>
-		</div>
+			<div class="px-3">
+				<span class="pop-bio popover-bio text-black"></span>
+			</div>
 
-		<div class="pop-badges ml-3 mr-3 my-2">
-		</div>
+			<div class="pop-badges ml-3 mr-3 my-2">
+			</div>
 
-	 <div class="border-top d-flex align-items-center p-3 gap-3 smol">
-		<span>
-		 <strong class="pop-postcount text-black"></strong>
-		 <span class="text-black">posts</span>
-		</span>
-		<span class="ml-3">
-		 <strong class="pop-commentcount text-black"></strong>
-		 <span class="text-black">comments</span>
-		</span>
-		<span class="ml-3">
-			<strong class="pop-coins text-black"></strong>
-			<span class="text-black">coins</span>
-		</span> 
-		&nbsp;&nbsp;&nbsp;&nbsp;
-		<a href="/" {% if v and v.newtab and not g.webview %}target="_blank"{% endif %} class="pop-viewmore ml-auto text-decoration-none">
-		 View
-		 <i class="fas fa-arrow-right fa-sm px-1"></i>
-		</a>
-	 </div>
+		<div class="border-top d-flex align-items-center p-3 gap-3 smol">
+			<span>
+			<strong class="pop-postcount text-black"></strong>
+			<span class="text-black">posts</span>
+			</span>
+			<span class="ml-3">
+			<strong class="pop-commentcount text-black"></strong>
+			<span class="text-black">comments</span>
+			</span>
+			<span class="ml-3">
+				<strong class="pop-coins text-black"></strong>
+				<span class="text-black">coins</span>
+			</span> 
+			&nbsp;&nbsp;&nbsp;&nbsp;
+			<a href="/" {% if v and v.newtab and not g.webview %}target="_blank"{% endif %} class="pop-viewmore ml-auto text-decoration-none">
+			View
+			<i class="fas fa-arrow-right fa-sm px-1"></i>
+			</a>
+		</div>
+		</div>
 	</div>
-</div>
+{% endif %}
 
 {% macro single_comment(c, level=1) %}
 
@@ -101,7 +103,7 @@
 				</div>
 				
 	{% if render_replies %} 
-		{% if level<10 %}
+		{% if level<9 %}
 			<div id="replies-of-{{c.id}}" class="">
 				{% set standalone=False %}
 				{% for reply in replies %}
@@ -176,7 +178,16 @@
 	{% set isreply = False %}
 {% endif %}
 
-<div id="comment-{{c.id}}" class="anchor {% if c.unread %}unread{% endif %} comment {% if standalone and level==1 %} mt-0{% endif %}{% if c.collapse_for_user(v) and request.path != '/admin/removed/comments' or (standalone and c.over_18 and not (v and v.over_18)) %} collapsed{% endif %}" style="{% if isreply %}padding-left:0!important;{% elif not c.unread %}border-left: 2px solid {% if c.ghost %}var(--primary){% else %}#{{c.author.namecolor}};{% endif %}{% endif %} {% if c.unread %}padding: 10px 10px 10px !important;{% endif %}">
+{% if c.blackjack_result %}
+	{% set split_result = c.blackjack_result.split('_') %}
+	{% set blackjack_status = split_result[3] %}
+	{% set player_hand = split_result[0].replace('X', '10') %}
+	{% set dealer_hand = split_result[1].split('/')[0] if blackjack_status == 'active' else split_result[1] %}
+	{% set dealer_hand = dealer_hand.replace('X', '10') %}
+	{% set wager = split_result[4] %}
+{% endif %}
+
+<div id="comment-{{c.id}}" class="anchor {% if c.unread %}unread{% endif %} comment {% if standalone and level==1 %} mt-0{% endif %} {% if c.collapse_for_user(v, request.path) and (standalone and c.over_18 and not (v and v.over_18)) %}collapsed{% endif %}" style="{% if isreply %}padding-left:0!important;{% elif not c.unread %}border-left: 2px solid {% if c.ghost %}var(--primary){% else %}#{{c.author.namecolor}};{% endif %}{% endif %} {% if c.unread %}padding: 10px 10px 10px !important;{% endif %}">
 	{% if not isreply %}
 		<span class="comment-collapse-desktop d-none d-md-block" {% if not c.unread %}style="border-left: 2px solid {% if c.ghost %}var(--primary){% else %}#{{c.author.namecolor}}{% endif %}"{% endif %} onclick="collapse_comment('{{c.id}}')"></span>
 	{% endif %}
@@ -191,7 +202,7 @@
 
 				{% if c.awards %}
 					{% for a in c.awards %}
-						<i class="{{a.class_list}} px-1" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{a.title}} Award given by @{{a.user.username}}"></i>
+						<i class="{{a.class_list}} px-1" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{a.title}} Award{% if a.kind != 'ghosts' %} given by @{{a.user.username}}{% endif %}"></i>
 					{% endfor %}
 				{% endif %}
 
@@ -230,8 +241,35 @@
 				<span class="time-edited" id="time-edit-{{c.id}}" onmouseover="timestamp('time-edit-{{c.id}}','{{c.edited_utc}}')"><span>&#183;</span> <span class="font-italic">Edited {{c.edited_string}}</span></span>
 				{% endif %}
 
+				{% if c.treasure_amount and c.treasure_amount != '0' %}
+				<img class="treasure" alt="treasure" src="/static/assets/images/chest.webp" width="20" />
+					{% if '-' in c.treasure_amount %}
+					<em>A Mimic Ate {{c.treasure_amount.replace('-', '')}} Coins!</em>
+					{% else %}
+					<em>Found {{c.treasure_amount}} Coins!</em>
+					{% endif %}
+				{% endif %}
+
 				{% if c.slots_result %}
-					<em style="position: relative; top: 2px; margin-left: 0.5rem">{{c.slots_result}}</em>
+				<em style="position: relative; top: 2px; margin-left: 0.5rem">{{c.slots_result}}</em>
+				{% endif %}
+
+				{% if c.blackjack_result %}
+				<em>{{player_hand}} vs. {{dealer_hand}}</em>
+					{% if blackjack_status == 'active' and v.id == c.author_id %}
+					<button class="btn btn-success small" style="text-transform: uppercase; padding: 2px;" onclick="handle_blackjack_action('{{c.id}}', 'hit')">Hit</button>
+					<button class="btn btn-danger small" style="text-transform: uppercase; padding: 2px;" onclick="handle_blackjack_action('{{c.id}}', 'stay')">Stay</button>
+					{% elif blackjack_status == 'push' %}
+					<strong>Pushed.</strong>
+					{% elif blackjack_status == 'bust' %}
+					<strong>Bust. Lost {{wager}} Coins.</strong>
+					{% elif blackjack_status == 'lost' %}
+					<strong>Lost {{wager}} Coins.</strong>
+					{% elif blackjack_status == 'won' %}
+					<strong>Won {{wager|int * 2}} Coins.</strong>
+					{% elif blackjack_status == 'blackjack' %}
+					<strong>Blackjack! Won <span id="blackjack-result-{{c.id}}">{{(wager|int * 5/2)|round(0, 'floor')|int}}</span> Coins.</strong>
+					{% endif %}
 				{% endif %}
 			</div>
 			{% if c.active_flags %}
@@ -284,7 +322,7 @@
 						<a id="edit-btn-{{c.id}}" role="button" form="comment-edit-form-{{c.id}}" class="btn btn-primary ml-2 fl-r commentmob" onclick="comment_edit('{{c.id}}')">Save Edit</a> 
 						<a id="cancel-edit-{{c.id}}" role="button" onclick="toggleEdit('{{c.id}}')" class="btn btn-link text-muted ml-auto cancel-form fl-r commentmob">Cancel</a> 
 					</form>
-					<div id="preview-edit-{{c.id}}" class="preview-edit mb-3 mt-5"></div>
+					<div id="preview-edit-{{c.id}}" class="preview mb-3 mt-5"></div>
 					<div class="form-text text-small p-0 m-0"><a href="/formatting" {% if v and v.newtab and not g.webview %}target="_blank"{% endif %}>Formatting help</a></div>
 				</div>
 				{% endif %}
@@ -408,7 +446,7 @@
 						
 						<a class="btn caction nobackground px-1 text-muted" href="{{c.permalink}}"><i class="fas fa-book-open"></i>Context</a>
 
-						<button class="btn caction py-0 nobackground px-1 text-muted copy-link" role="button" role="button" data-clipboard-text="{% if request.host == 'rdrama.net' %}https://rdrama.com{{c.permalink}}{% else %}{{c.permalink | full_link}}{% endif %}"><i class="fas fa-copy"></i>Copy link</button>
+						<button class="btn caction py-0 nobackground px-1 text-muted copy-link" role="button" role="button" data-clipboard-text="{% if request.host == 'rdrama.net' %}https://rdrama.com{{c.shortlink_context}}{% else %}{{c.permalink}}{% endif %}"><i class="fas fa-copy"></i>Copy link</button>
 
 						{% if v %}
 							<button class="btn caction py-0 nobackground px-1 text-muted" data-bs-toggle="modal" data-bs-target="#reportCommentModal" onclick="report_commentModal('{{c.id}}','{{c.author_name}}',)"><i class="fas fa-flag fa-fw"></i>Report</button>
@@ -483,7 +521,7 @@
 			</div>
 
 		{% if c.body and not (v and v.id == c.author_id) %}
-			<div class="d-none card rounded border my-2 p-3" style="white-space:pre" id="markdown-{{c.id}}">{{c.body.strip()}}</div>
+			<div class="d-none card rounded border my-2 p-3" style="white-space:pre-wrap" id="markdown-{{c.id}}">{{c.body.strip()}}</div>
 		{% endif %}
 
 
@@ -521,7 +559,7 @@
 					<a id="save-reply-to-{{c.fullname}}" class="btn btn-primary ml-2 fl-r commentmob" onclick="post_comment('{{c.fullname}}', '{{c.post.id}}');" role="button">Comment</a>
 					<a role="button" onclick="document.getElementById('reply-to-{{c.id}}').classList.add('d-none')" class="btn btn-link text-muted ml-auto cancel-form fl-r commentmob">Cancel</a> 
 				</form>
-				<div id="reply-edit-{{c.id}}" class="mb-3 mt-5"></div>
+				<div id="reply-edit-{{c.id}}" class="preview mb-3 mt-5"></div>
 				<div class="form-text text-small p-0 m-0"><a href="/formatting" {% if v and v.newtab and not g.webview %}target="_blank"{% endif %}>Formatting help</a></div>
 			</div>
 		</div>
@@ -545,10 +583,10 @@
 						<a role="button" onclick="document.getElementById('reply-message-{{c.id}}').classList.add('d-none')" class="btn btn-link text-muted ml-auto cancel-form">Cancel</a> 
 						<a id="save-reply-to-{{c.id}}" class="btn btn-primary ml-2" onclick="post_reply('{{c.id}}');" role="button">Reply</a> 
 					</form>
-					<div id="message-reply-{{c.id}}" class="preview-edit mt-2"></div>
+					<div id="message-reply-{{c.id}}" class="preview mt-2"></div>
 				</div>
 			</div>
-		{% elif level<10 or request.path == '/notifications' %}
+		{% elif level<9 or request.path == '/notifications' %}
 			<div id="replies-of-{{c.id}}">
 				{% for reply in replies %}
 					{{single_comment(reply, level=level+1)}}
@@ -578,7 +616,7 @@
 
 					{% if not c.ghost %}<a href="/votes?link={{c.fullname}}"><li class="list-group-item"><i class="fas fa-arrows-v"></i>Votes</li></a>{% endif %}
 
-					<a role="button" role="button" class="list-group-item copy-link" data-bs-dismiss="modal" data-clipboard-text="{% if request.host == 'rdrama.net' %}https://rdrama.com{{c.permalink}}{% else %}{{c.permalink | full_link}}{% endif %}"><i class="fas fa-copy"></i>Copy link</a>
+					<a role="button" role="button" class="list-group-item copy-link" data-bs-dismiss="modal" data-clipboard-text="{% if request.host == 'rdrama.net' %}https://rdrama.com{{c.shortlink_context}}{% else %}{{c.permalink}}{% endif %}"><i class="fas fa-copy"></i>Copy link</a>
 
 					<a class="list-group-item" href="{{c.permalink}}"><i class="fas fa-dna"></i>Context</a>
 
@@ -706,201 +744,205 @@
 
 {% endfor %}
 
-{% if v %}
-	{% include "gif_modal.html" %}
-	{% include "emoji_modal.html" %}
-	{% if v.admin_level > 1 %}
-		{% include "ban_modal.html" %}
-	{% endif %}
+{% if not ajax %}
+	{% if v %}
+		{% include "gif_modal.html" %}
+		{% include "emoji_modal.html" %}
+		{% if v.admin_level > 1 %}
+			{% include "ban_modal.html" %}
+		{% endif %}
 
-		<div class="modal fade" id="deleteCommentModal" tabindex="-1" role="dialog" aria-labelledby="deleteCommentModalTitle" aria-hidden="true">
-		<div class="modal-dialog modal-dialog-centered" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title">Delete comment?</h5>
-					<button class="close" data-bs-dismiss="modal" aria-label="Close">
-						<span aria-hidden="true"><i class="far fa-times"></i></span>
-					</button>
-				</div>
-				<div class="modal-body text-center">
-
-					<div class="py-4">
-						<i class="fad fa-trash-alt text-muted" style="font-size: 3.5rem;"></i>
+			<div class="modal fade" id="deleteCommentModal" tabindex="-1" role="dialog" aria-labelledby="deleteCommentModalTitle" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">Delete comment?</h5>
+						<button class="close" data-bs-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true"><i class="far fa-times"></i></span>
+						</button>
 					</div>
+					<div class="modal-body text-center">
 
-					<p>Your comment will be removed everywhere on {{SITE_NAME}}. This action can be undone.</p>
-				</div>
-				<div class="modal-footer">
-					<button class="btn btn-link text-muted" data-bs-dismiss="modal">Cancel</button>
-					<button id="deleteCommentButton" class="btn btn-danger">Delete comment</button>
-				</div>
-			</div>
-		</div>
-	</div>
+						<div class="py-4">
+							<i class="fad fa-trash-alt text-muted" style="font-size: 3.5rem;"></i>
+						</div>
 
-	<div class="modal fade" id="reportCommentModal" tabindex="-1" role="dialog" aria-labelledby="reportCommentModalTitle" aria-hidden="true">
-		<div class="modal-dialog modal-dialog-centered" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title">Report <span id="comment-author"></span>'s comment</h5>
-					<button class="close" data-bs-dismiss="modal" aria-label="Close">
-						<span aria-hidden="true"><i class="far fa-times"></i></span>
-					</button>
-				</div>
-				<div class="" id="reportCommentFormBefore">
-					<div class="modal-body">
-						<div class="h6">We're sorry something here is wrong.</div>
-						<small class="form-text text-muted">Please enter a reason for reporting below.</small>
-						<pre></pre>
-						<input autocomplete="off" maxlength="100" id="reason-comment" class="form-control">
+						<p>Your comment will be removed everywhere on {{SITE_NAME}}. This action can be undone.</p>
 					</div>
 					<div class="modal-footer">
 						<button class="btn btn-link text-muted" data-bs-dismiss="modal">Cancel</button>
-						<button id="reportCommentButton" class="btn btn-danger">Report comment</button>
-					</div>
-				</div>
-				
-				<div class="d-none" id="reportCommentFormAfter">
-					<div class="modal-body">
-						<div class="h6">Thank you for reporting this comment!</div>
-						<small class="form-text text-muted">We'll take it from here.</small>
-					</div>
-					<div class="modal-footer">
-						<button class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+						<button id="deleteCommentButton" class="btn btn-danger">Delete comment</button>
 					</div>
 				</div>
 			</div>
 		</div>
-	</div>
-{% endif %}
 
-<style>
-	.mod:before {
-		content: '(((';
-	}
-
-	.mod:after {
-		content: ')))';
-	}
-
-	.mod {
-		padding: 2px 5px 3px 5px;
-		border-radius: 5px;
-		color:white!important;
-		background: -moz-linear-gradient(180deg, red, orange, yellow, green, blue, indigo, violet);
-		background: -webkit-linear-gradient(left, red, orange, yellow, green, blue, indigo, violet );
-		text-shadow:-1px -1px 0 black,1px -1px 0 black,-1px 1px 0 black,1px 1px 0 black;
-	}
-
-	.popover {
-		max-width: 50%;
-		box-shadow: 0 1rem 3rem rgba(0, 0, 0, .175);
-		border-color: #dadada;
-	}
-
-	@media (max-width: 991.98px) {
-		.popover {
-			max-width: 90% !important;
-		}
-	}
-
-	.popover-arrow {
-		display: none !important;
-	}
-
-	.popover-user-profile {
-		display: flex;
-		flex-direction: column;
-		padding: 0;
-		background: var(--gray-600);
-	}
-
-	.popover-body {
-		padding: 0;
-		border-radius: .25rem;
-		overflow: hidden;
-	}
-
-	.mt-n6 {
-		margin-top: -1.75rem !important;
-	}
-
-	.avatar-72 {
-		width: 72px;
-		height: 72px;
-		object-fit: cover;
-	}
-
-	.h-64 {
-		height: 64px;
-	}
-
-	.object-cover {
-		object-fit: cover;
-	}
-
-	.text-black {
-		color: var(--black);
-	}
-
-	.smolbtn {
-		font-weight: 600;
-		font-size: .9rem;
-		border-radius: 0.2rem;
-		padding: 0.1rem 0.50rem 0rem 0.30rem;
-		background-color: var(--black) !important;
-	}
-
-	.smol {
-		font-size: 11.5px;
-	}
-
-	@media (max-width: 768px) {
-		.commentmob {
-			margin-top: 0.5rem !important;
-		}
-	}
-</style>
-
-{% if v %}
-	<script src="/static/assets/js/marked.js?a=220"></script>
-	<script src="/static/assets/js/comments_v.js?a=233"></script>
-{% endif %}
-
-<script src="/static/assets/js/clipboard.js?a=220"></script>
-
-{% if v and v.admin_level > 1 %}
-	<script src="/static/assets/js/comments_admin.js?a=220"></script>
-{% endif %}
-
-{% include "expanded_image_modal.html" %}
-
-<script src="/static/assets/js/comments+submission_listing.js?a=220"></script>
-<script src="/static/assets/js/comments.js?a=220"></script>
-
-<script>
-	{% if p and (not v or v.highlightcomments) %}
-		comments = JSON.parse(localStorage.getItem("comment-counts")) || {}
-		lastCount = comments['{{p.id}}']
-		redhtml = '<i style="color:red !important" class="text-admin fas fa-circle" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Unread"></i>'
-		if (lastCount)
-		{
-			{% for c in p.comments2 %}
-				{% if not (v and v.id==c[0]) %}
-					if ({{c[1]*1000}} > lastCount.t) 
-					try {document.getElementById("reddot-{{c[2]}}").innerHTML = redhtml}
-					catch(e) {}
-				{% endif %}
-			{% endfor %}
-		}
+		<div class="modal fade" id="reportCommentModal" tabindex="-1" role="dialog" aria-labelledby="reportCommentModalTitle" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">Report <span id="comment-author"></span>'s comment</h5>
+						<button class="close" data-bs-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true"><i class="far fa-times"></i></span>
+						</button>
+					</div>
+					<div class="" id="reportCommentFormBefore">
+						<div class="modal-body">
+							<div class="h6">We're sorry something here is wrong.</div>
+							<small class="form-text text-muted">Please enter a reason for reporting below.</small>
+							<pre></pre>
+							<input autocomplete="off" maxlength="100" id="reason-comment" class="form-control">
+						</div>
+						<div class="modal-footer">
+							<button class="btn btn-link text-muted" data-bs-dismiss="modal">Cancel</button>
+							<button id="reportCommentButton" class="btn btn-danger">Report comment</button>
+						</div>
+					</div>
+					
+					<div class="d-none" id="reportCommentFormAfter">
+						<div class="modal-body">
+							<div class="h6">Thank you for reporting this comment!</div>
+							<small class="form-text text-muted">We'll take it from here.</small>
+						</div>
+						<div class="modal-footer">
+							<button class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 	{% endif %}
-</script>
+
+	<style>
+		.mod:before {
+			content: '(((';
+		}
+
+		.mod:after {
+			content: ')))';
+		}
+
+		.mod {
+			padding: 2px 5px 3px 5px;
+			border-radius: 5px;
+			color:white!important;
+			background: -moz-linear-gradient(180deg, red, orange, yellow, green, blue, indigo, violet);
+			background: -webkit-linear-gradient(left, red, orange, yellow, green, blue, indigo, violet );
+			text-shadow:-1px -1px 0 black,1px -1px 0 black,-1px 1px 0 black,1px 1px 0 black;
+		}
+
+		.popover {
+			max-width: 50%;
+			box-shadow: 0 1rem 3rem rgba(0, 0, 0, .175);
+			border-color: #dadada;
+		}
+
+		@media (max-width: 991.98px) {
+			.popover {
+				max-width: 90% !important;
+			}
+		}
+
+		.popover-arrow {
+			display: none !important;
+		}
+
+		.popover-user-profile {
+			display: flex;
+			flex-direction: column;
+			padding: 0;
+			background: var(--gray-600);
+		}
+
+		.popover-body {
+			padding: 0;
+			border-radius: .25rem;
+			overflow: hidden;
+		}
+
+		.mt-n6 {
+			margin-top: -1.75rem !important;
+		}
+
+		.avatar-72 {
+			width: 72px;
+			height: 72px;
+			object-fit: cover;
+		}
+
+		.h-64 {
+			height: 64px;
+		}
+
+		.object-cover {
+			object-fit: cover;
+		}
+
+		.smolbtn {
+			font-weight: 600;
+			font-size: .9rem;
+			border-radius: 0.2rem;
+			padding: 0.1rem 0.50rem 0rem 0.30rem;
+			background-color: var(--black) !important;
+		}
+
+		.smol {
+			font-size: 11.5px;
+		}
+
+		@media (max-width: 768px) {
+			.commentmob {
+				margin-top: 0.5rem !important;
+			}
+		}
+		.treasure {
+			margin-left: 10px;
+			margin-right: 3px;
+			margin-top: -2px;
+		}
+	</style>
+
+	{% if v %}
+		<script src="/static/assets/js/marked.js?a=220"></script>
+		<script src="/static/assets/js/comments_v.js?a=235"></script>
+	{% endif %}
+
+	<script src="/static/assets/js/clipboard.js?a=220"></script>
+
+	{% if v and v.admin_level > 1 %}
+		<script src="/static/assets/js/comments_admin.js?a=220"></script>
+	{% endif %}
+
+	{% include "expanded_image_modal.html" %}
+
+	<script src="/static/assets/js/comments+submission_listing.js?a=221"></script>
+	<script src="/static/assets/js/comments.js?a=221"></script>
+
+	<script>
+		{% if p and (not v or v.highlightcomments) %}
+			comments = JSON.parse(localStorage.getItem("comment-counts")) || {}
+			lastCount = comments['{{p.id}}']
+			redhtml = '<i style="color:red !important" class="text-admin fas fa-circle" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Unread"></i>'
+			if (lastCount)
+			{
+				{% for c in p.comments2 %}
+					{% if not (v and v.id==c[0]) %}
+						if ({{c[1]*1000}} > lastCount.t) 
+						try {document.getElementById("reddot-{{c[2]}}").innerHTML = redhtml}
+						catch(e) {}
+					{% endif %}
+				{% endfor %}
+			}
+		{% endif %}
+	</script>
+{% endif %}
 
 {% if offset %}
 	{% if p %}
 		{% set pid = p.id %}
 	{% endif %}
- 	<br>
+	<br>
 	<div id="viewmore-{{offset}}"><button id="viewbtn" class="btn btn-primary" onclick="viewmore({{pid}},'{{sort}}',{{offset}})">VIEW MORE COMMENTS</a></div>
 {% endif %}
+
 </body>

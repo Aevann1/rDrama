@@ -15,7 +15,7 @@
 
 {% if success %}
 	<script>
-		history.pushState(null, null, '{{p.permalink | full_link}}');
+		history.pushState(null, null, '{{p.permalink}}');
 		localStorage.setItem("post_title", "")
 		localStorage.setItem("post_text", "")
 	</script>
@@ -225,7 +225,7 @@
 {% if p.is_video %}
 	<meta property="og:video" content="{{p.realurl(v)}}" >
 {% endif %}
-<meta property="og:url" content="{{comment_info.permalink | full_link}}" >
+<meta property="og:url" content="{{comment_info.permalink}}" >
 <meta property="og:site_name" content="{{request.host}}" >
 
 <meta name="twitter:card" content="summary" >
@@ -234,7 +234,7 @@
 <meta name="twitter:creator" content="{{'@'+comment_info.author_name}}">
 <meta name="twitter:description" content="{{comment_info.plainbody(v)}}" >
 <meta name="twitter:image" content="{% if p.is_image %}{{p.realurl(v)}}{% elif p.has_thumb%}{{p.thumb_url}}{% else %}{{SITE_NAME}}/static/assets/images/{{SITE_NAME}}/site_preview.webp{% endif %}" >
-<meta name="twitter:url" content="{{p.permalink | full_link}}" >
+<meta name="twitter:url" content="{{p.permalink}}" >
 
 {% else %}
 <title>{{p.plaintitle(v)}} - {{SITE_NAME}}</title>
@@ -250,7 +250,7 @@
 {% if p.url and p.is_video %}
 <meta property="og:video" content="{{p.realurl(v)}}" >
 {% endif %}
-<meta property="og:url" content="{{p.permalink | full_link}}" >
+<meta property="og:url" content="{{p.permalink}}" >
 <meta property="og:site_name" content="{{request.host}}" >
 
 <meta name="twitter:card" content="summary_large_image">
@@ -259,7 +259,7 @@
 {% if p.author %}<meta name="twitter:creator" content="{{'@'+p.author_name}}">{% endif %}
 <meta name="twitter:description" content="{{p.plainbody(v)}}" >
 <meta name="twitter:image" content="{% if p.is_image %}{{p.realurl(v)}}{% elif p.has_thumb %}{{p.thumb_url}}{% else %}{{SITE_NAME}}/static/assets/images/{{SITE_NAME}}/site_preview.webp{% endif %}" >
-<meta name="twitter:url" content="{{p.permalink | full_link}}" >
+<meta name="twitter:url" content="{{p.permalink}}" >
 
 {% endif %}
 {% endblock %}
@@ -324,10 +324,17 @@
 
 							<button id="mark3-{{p.id}}" class="{% if p.over_18 %}d-none{% endif %} nobackground btn btn-link btn-block btn-lg text-left text-danger" onclick="post_toast2('/toggle_post_nsfw/{{p.id}}','mark3-{{p.id}}','unmark3-{{p.id}}')" data-bs-dismiss="modal"><i class="far fa-eye-evil text-center mr-3"></i>Mark +18</button>
 							<button id="unmark3-{{p.id}}" class="{% if not p.over_18 %}d-none{% endif %} nobackground btn btn-link btn-block btn-lg text-left text-success" onclick="post_toast2('/toggle_post_nsfw/{{p.id}}','mark3-{{p.id}}','unmark3-{{p.id}}')" data-bs-dismiss="modal"><i class="far fa-eye-evil text-center mr-3"></i>Unmark +18</button>
-						{% elif not p.ghost %}
-							<button id="unblock2-{{p.id}}" class="nobackground btn btn-link btn-block btn-lg text-success text-left{% if not p.is_blocking %} d-none{% endif %}" data-bs-dismiss="modal" onclick="post_toast2('/settings/unblock?username={{p.author_name}}','block2-{{p.id}}','unblock2-{{p.id}}')"><i class="fas fa-eye mr-3 text-success"></i>Unblock user</button>
-							<button id="prompt2-{{p.id}}" class="blockuser nobackground btn btn-link btn-block btn-lg text-danger text-left d-none" data-bs-dismiss="modal" onclick="post_toast2('/settings/block?username={{p.author_name}}','prompt2-{{p.id}}','unblock2-{{p.id}}')"><i class="fas fa-eye-slash mr-3 text-danger"></i>Are you sure?</button>
-							<button id="block2-{{p.id}}" class="blockuser nobackground btn btn-link btn-block btn-lg text-danger text-left{% if p.is_blocking %} d-none{% endif %}" onclick="document.getElementById('block2-{{p.id}}').classList.toggle('d-none');document.getElementById('prompt2-{{p.id}}').classList.toggle('d-none');"><i class="fas fa-eye-slash mr-3 text-danger"></i>Block user</button>
+						{% else %}
+							{% if p.body %}
+								<button id="view-{{p.id}}" class="nobackground btn btn-link btn-block btn-lg text-left text-muted" data-bs-dismiss="modal" onclick="expandMarkdown('{{p.id}}')"><i class="fas text-expand-icon-{{p.id}} fa-expand-alt text-center mr-3"></i>View source</button>
+								<button id="hide-{{p.id}}" class="nobackground btn btn-link btn-block btn-lg text-left text-muted d-none" data-bs-dismiss="modal" onclick="expandMarkdown('{{p.id}}')"><i class="fas text-expand-icon-{{p.id}} fa-compress-alt text-center mr-3"></i>Hide source</button>
+							{% endif %}
+
+							{% if not p.ghost %}
+								<button id="unblock2-{{p.id}}" class="nobackground btn btn-link btn-block btn-lg text-success text-left{% if not p.is_blocking %} d-none{% endif %}" data-bs-dismiss="modal" onclick="post_toast2('/settings/unblock?username={{p.author_name}}','block2-{{p.id}}','unblock2-{{p.id}}')"><i class="fas fa-eye mr-3 text-success"></i>Unblock user</button>
+								<button id="prompt2-{{p.id}}" class="blockuser nobackground btn btn-link btn-block btn-lg text-danger text-left d-none" data-bs-dismiss="modal" onclick="post_toast2('/settings/block?username={{p.author_name}}','prompt2-{{p.id}}','unblock2-{{p.id}}')"><i class="fas fa-eye-slash mr-3 text-danger"></i>Are you sure?</button>
+								<button id="block2-{{p.id}}" class="blockuser nobackground btn btn-link btn-block btn-lg text-danger text-left{% if p.is_blocking %} d-none{% endif %}" onclick="document.getElementById('block2-{{p.id}}').classList.toggle('d-none');document.getElementById('prompt2-{{p.id}}').classList.toggle('d-none');"><i class="fas fa-eye-slash mr-3 text-danger"></i>Block user</button>
+							{% endif %}
 						{% endif %}
 					</ul>
 				</div>
@@ -420,7 +427,7 @@
 
 						{% if p.awards %}
 							{% for a in p.awards %}
-								<i class="{{a.class_list}} px-1" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{a.title}} Award given by @{{a.user.username}}"></i>
+								<i class="{{a.class_list}} px-1" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{a.title}} Award{% if a.kind != 'ghosts' %} given by @{{a.user.username}}{% endif %}"></i>
 							{% endfor %}
 						{% endif %}
 						{% if v and v.admin_level > 1 and p.author.shadowbanned %}<i class="fas fa-user-times text-admin" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Shadowbanned by @{{p.author.shadowbanned}}"></i>{% endif %}
@@ -560,7 +567,7 @@
 								<button form="post-edit-form-{{p.id}}" class="btn btn-primary ml-2 fl-r">Save Edit</button>
 								<a role="button" onclick="togglePostEdit('{{p.id}}')" class="btn btn-link text-muted ml-auto cancel-form fl-r">Cancel</a> 
 							</form>
-							<div id="post-edit-{{p.id}}" class="preview-edit mb-3 mt-5"></div>
+							<div id="post-edit-{{p.id}}" class="preview mb-3 mt-5"></div>
 							<div class="form-text text-small p-0 m-0"><a href="/formatting" {% if v and v.newtab and not g.webview %}target="_blank"{% endif %}>Formatting help</a></div>
 						</div>
 					{% endif %}
@@ -591,6 +598,10 @@
 							<a class="list-inline-item" role="button" onclick="togglePostEdit('{{p.id}}')"><i class="fas fa-edit"></i>Edit</a>
 						{% endif %}
 
+						{% if not (v and v.id == p.author_id) and p.body %}
+							<a class="list-inline-item" role="button" onclick="expandMarkdown('{{p.id}}')"><i class="fas text-expand-icon-{{p.id}} fa-expand-alt"></i>View source</a>
+						{% endif %}
+
 						{% if v and v.id==p.author_id %}
 							{% if p.private %}
 								<a class="list-inline-item" role="button" onclick="post_toast('/publish/{{p.id}}')"><i class="fas fa-globe"></i>Publish</a>
@@ -603,7 +614,7 @@
 							<a class="list-inline-item text-muted d-none d-md-inline-block" role="button" data-bs-toggle="modal" data-bs-target="#awardModal" onclick="awardModal('/post/{{p.id}}/awards')"><i class="fas fa-gift fa-fw"></i>Give Award</a>
 						{% endif %}
 
-						<a class="list-inline-item copy-link" role="button" role="button" data-clipboard-text="{% if request.host == 'rdrama.net' %}https://rdrama.com{{p.permalink}}{% else %}{{p.permalink | full_link}}{% endif %}"><i class="fas fa-copy"></i>Copy link</a>
+						<a class="list-inline-item copy-link" role="button" role="button" data-clipboard-text="{% if request.host == 'rdrama.net' %}https://rdrama.com{{p.shortlink}}{% else %}{{p.permalink}}{% endif %}"><i class="fas fa-copy"></i>Copy link</a>
 
 						{% if v %}
 							<a id="subscribe-{{p.id}}" class="{% if p.id in v.subscribed_idlist() %}d-none{% endif %} list-inline-item" role="button" onclick="post_toast2('/subscribe/{{p.id}}','subscribe-{{p.id}}','unsubscribe-{{p.id}}')"><i class="fas fa-eye"></i>Subscribe</a>
@@ -740,7 +751,7 @@
 					{% endif %}
 				</li>
 
-				<a class="list-inline-item copy-link" role="button" role="button" data-clipboard-text="{% if request.host == 'rdrama.net' %}https://rdrama.com{{p.permalink}}{% else %}{{p.permalink | full_link}}{% endif %}"><i class="fas fa-link"></i>Copy link</a>
+				<a class="list-inline-item copy-link" role="button" role="button" data-clipboard-text="{% if request.host == 'rdrama.net' %}https://rdrama.com{{p.shortlink}}{% else %}{{p.permalink}}{% endif %}"><i class="fas fa-link"></i>Copy link</a>
 				{% if v %}
 				<li class="list-inline-item">
 					<a role="button" data-bs-toggle="modal" data-bs-target="#actionsModal">
@@ -774,6 +785,10 @@
 	</div>
 
 </div>
+
+{% if p.body and not (v and v.id == p.author_id) %}
+	<div class="d-none card rounded border my-2 p-3" style="white-space:pre-wrap" id="markdown-{{p.id}}">{{p.body.strip()}}</div>
+{% endif %}
 
 <div class="row border-md-0 comment-section pb-3">
 	<div class="col border-top">
@@ -863,7 +878,7 @@
  </div>
  
 {% if offset %}
-	<script src="/static/assets/js/viewmore.js?a=220"></script>
+	<script src="/static/assets/js/viewmore.js?a=221"></script>
 {% endif %}
 
 {% elif not p.replies and p.deleted_utc == 0 %}

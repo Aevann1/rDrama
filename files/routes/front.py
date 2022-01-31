@@ -90,32 +90,50 @@ def notifications(v):
 		
 	if not posts:
 		listing = []
+		all = set()
 		for c in comments:
 			c.is_blocked = False
 			c.is_blocking = False
 			if c.parent_submission and c.parent_comment and c.parent_comment.author_id == v.id:
-				c.replies = []
-				while c.parent_comment and c.parent_comment.author_id == v.id:
+				replies = []
+				for x in c.replies:
+					if x.id not in all and x.author_id == v.id:
+						x.voted = 1
+						replies.append(x)
+						all.add(x.id)
+				c.replies = replies
+				while c.parent_comment and (c.parent_comment.author_id == v.id or c.parent_comment in comments):
 					parent = c.parent_comment
 					if c not in parent.replies2:
 						parent.replies2 = parent.replies2 + [c]
 						parent.replies = parent.replies2
 					c = parent
-				if c not in listing:
+				if c.id not in all and c not in listing:
+					all.add(c.id)
 					listing.append(c)
 					c.replies = c.replies2
 			elif c.parent_submission:
-				c.replies = []
-				if c not in listing:
+				replies = []
+				for x in c.replies:
+					if x.id not in all and x.author_id == v.id:
+						x.voted = 1
+						replies.append(x)
+						all.add(x.id)
+				c.replies = replies
+				if x.id not in all and c not in listing:
+					all.add(c.id)
 					listing.append(c)
 			else:
 				if c.parent_comment:
 					while c.level > 1:
+						all.add(c.id)
 						c = c.parent_comment
 
-				if c not in listing:
+				if c.id not in all and c not in listing:
+					all.add(c.id)
 					listing.append(c)
 
+	listing = listing
 	if request.headers.get("Authorization"): return {"data":[x.json for x in listing]}
 
 	return render_template("notifications.html",
@@ -134,6 +152,9 @@ def notifications(v):
 @limiter.limit("3/second;30/minute;400/hour;2000/day")
 @auth_desired
 def front_all(v):
+	if not session.get("session_id"):
+		session.permanent = True
+		session["session_id"] = secrets.token_hex(49)
 
 	if not v and request.path == "/" and not request.headers.get("Authorization"):
 		return redirect(f"{SITE_FULL}/logged_out{request.full_path}")
@@ -152,11 +173,13 @@ def front_all(v):
 
 	sort=request.values.get("sort", defaultsorting)
 	t=request.values.get('t', defaulttime)
+	ccmode=request.values.get('ccmode', "false")
 
 	ids, next_exists = frontlist(sort=sort,
 					page=page,
 					t=t,
 					v=v,
+					ccmode=ccmode,
 					filter_words=v.filter_words if v else [],
 					gt=int(request.values.get("utc_greater_than", 0)),
 					lt=int(request.values.get("utc_less_than", 0)),
@@ -165,12 +188,27 @@ def front_all(v):
 	posts = get_posts(ids, v=v)
 
 	if v:
+		if v.patron_utc and v.patron_utc < time.time():
+			v.patron = 0
+			v.patron_utc = 0
+			send_repeatable_notification(v.id, "Your paypig status has expired!")
+			g.db.add(v)
+			g.db.commit()
+
+		if v.unban_utc and v.unban_utc < time.time():
+			v.is_banned = 0
+			v.unban_utc = 0
+			v.ban_evade = 0
+			send_repeatable_notification(v.id, "You have been unbanned!")
+			g.db.add(v)
+			g.db.commit()
+
 		if v.hidevotedon: posts = [x for x in posts if not hasattr(x, 'voted') or not x.voted]
 
 		if v.agendaposter_expires_utc and v.agendaposter_expires_utc < time.time():
 			v.agendaposter_expires_utc = 0
 			v.agendaposter = None
-			send_repeatable_notification(v.id, "Your agendaposter theme has expired!")
+			send_repeatable_notification(v.id, "Your chud theme has expired!")
 			g.db.add(v)
 			badge = v.has_badge(26)
 			if badge: g.db.delete(badge)
@@ -216,13 +254,21 @@ def front_all(v):
 			if badge: g.db.delete(badge)
 			g.db.commit()
 
+		if v.rehab and v.rehab < time.time():
+			v.rehab = None
+			send_repeatable_notification(v.id, "Your rehab has finished!")
+			g.db.add(v)
+			badge = v.has_badge(109)
+			if badge: g.db.delete(badge)
+			g.db.commit()
+
 	if request.headers.get("Authorization"): return {"data": [x.json for x in posts], "next_exists": next_exists}
-	return render_template("home.html", v=v, listing=posts, next_exists=next_exists, sort=sort, t=t, page=page)
+	return render_template("home.html", v=v, listing=posts, next_exists=next_exists, sort=sort, t=t, page=page, ccmode=ccmode)
 
 
 
 @cache.memoize(timeout=86400)
-def frontlist(v=None, sort="hot", page=1, t="all", ids_only=True, filter_words='', gt=None, lt=None):
+def frontlist(v=None, sort="hot", page=1, t="all", ids_only=True, ccmode="false", filter_words='', gt=None, lt=None):
 
 	posts = g.db.query(Submission)
 
@@ -235,6 +281,9 @@ def frontlist(v=None, sort="hot", page=1, t="all", ids_only=True, filter_words='
 		elif t == 'year': cutoff = now - 31536000
 		else: cutoff = now - 86400
 		posts = posts.filter(Submission.created_utc >= cutoff)
+
+	if (ccmode == "true"):
+		posts = posts.filter(Submission.club == True)
 
 	if sort == "hot" or (v and v.id == Q_ID): posts = posts.filter_by(is_banned=False, stickied=None, private=False, deleted_utc = 0)
 	else: posts = posts.filter_by(is_banned=False, private=False, deleted_utc = 0)
@@ -289,7 +338,7 @@ def frontlist(v=None, sort="hot", page=1, t="all", ids_only=True, filter_words='
 
 	posts = posts[:size]
 
-	if (sort == "hot" or (v and v.id == Q_ID)) and page == 1:
+	if (sort == "hot" or (v and v.id == Q_ID)) and page == 1 and ccmode == "false":
 		pins = g.db.query(Submission).filter(Submission.stickied != None, Submission.is_banned == False)
 		if v and v.admin_level == 0:
 			blocking = [x[0] for x in g.db.query(UserBlock.target_id).filter_by(user_id=v.id).all()]

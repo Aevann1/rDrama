@@ -46,9 +46,11 @@ class User(Base):
 	profileurl = Column(String)
 	bannerurl = Column(String)
 	patron = Column(Integer, default=0)
+	patron_utc = Column(Integer, default=0)
 	verified = Column(String)
 	verifiedcolor = Column(String)
 	marseyawarded = Column(Integer)
+	rehab = Column(Integer)
 	longpost = Column(Integer)
 	winnings = Column(Integer, default=0)
 	unblockable = Column(Boolean)
@@ -207,7 +209,7 @@ class User(Base):
 	def ban_reason_link(self):
 		if self.ban_reason:
 			if self.ban_reason.startswith("/post/"): return self.ban_reason.split(None, 1)[0]
-			if self.ban_reason.startswith("/comment/"): return self.ban_reason.split(None, 1)[0] + "?context=9#context"
+			if self.ban_reason.startswith("/comment/"): return self.ban_reason.split(None, 1)[0] + "?context=8#context"
 
 	@property
 	@lazy
@@ -313,7 +315,7 @@ class User(Base):
 	@property
 	@lazy
 	def url(self):
-		return f"/@{self.username}"
+		return f"{SITE_FULL}/@{self.username}"
 
 	def __repr__(self):
 		return f"<User(id={self.id})>"
@@ -457,12 +459,6 @@ class User(Base):
 
 	@property
 	@lazy
-	def full_profileurl(self):
-		if self.profile_url.startswith('/'): return SITE_FULL + self.profile_url
-		return self.profile_url
-
-	@property
-	@lazy
 	def json_raw(self):
 		data = {'username': self.username,
 				'url': self.url,
@@ -470,7 +466,7 @@ class User(Base):
 				'created_utc': self.created_utc,
 				'id': self.id,
 				'is_private': self.is_private,
-				'profile_url': self.full_profileurl,
+				'profile_url': self.profile_url,
 				'bannerurl': self.banner_url,
 				'bio': self.bio,
 				'bio_html': self.bio_html_eager,
@@ -535,13 +531,6 @@ class User(Base):
 
 	@property
 	def is_suspended(self):
-		if self.unban_utc and self.unban_utc < time.time():
-			self.is_banned = 0
-			self.unban_utc = 0
-			self.ban_evade = 0
-			g.db.add(self)
-			g.db.commit()
-			return False
 		return (self.is_banned and (self.unban_utc == 0 or self.unban_utc > time.time()))
 
 
@@ -563,10 +552,8 @@ class User(Base):
 	@lazy
 	def saved_idlist(self, page=1):
 
-		posts = g.db.query(Submission.id).filter_by(is_banned=False, deleted_utc=0)
-
 		saved = [x[0] for x in g.db.query(SaveRelationship.submission_id).filter(SaveRelationship.user_id == self.id).all()]
-		posts = posts.filter(Submission.id.in_(saved))
+		posts = g.db.query(Submission.id).filter(Submission.id.in_(saved), Submission.is_banned == False, Submission.deleted_utc == 0)
 
 		if self.admin_level == 0:
 			blocking = [x[0] for x in g.db.query(
@@ -581,16 +568,14 @@ class User(Base):
 				Submission.author_id.notin_(blocked)
 			)
 
-		posts = posts.order_by(Submission.created_utc.desc())
-
-		return [x[0] for x in posts.offset(25 * (page - 1)).limit(26).all()]
+		return [x[0] for x in posts.order_by(Submission.created_utc.desc()).offset(25 * (page - 1)).all()]
 
 	@lazy
-	def saved_comment_idlist(self):
+	def saved_comment_idlist(self, page=1):
 
 		try: saved = [x[0] for x in g.db.query(SaveRelationship.comment_id).filter(SaveRelationship.user_id == self.id).all()]
 		except: return []
-		comments = g.db.query(Comment.id).filter(Comment.id.in_(saved))
+		comments = g.db.query(Comment.id).filter(Comment.id.in_(saved), Comment.is_banned == False, Comment.deleted_utc == 0)
 
 		if self.admin_level == 0:
 			blocking = [x[0] for x in g.db.query(
@@ -605,7 +590,17 @@ class User(Base):
 				Comment.author_id.notin_(blocked)
 			)
 
-		return [x[0] for x in comments.order_by(Comment.created_utc.desc()).all()]
+		return [x[0] for x in comments.order_by(Comment.created_utc.desc()).offset(25 * (page - 1)).all()]
+
+	@property
+	@lazy
+	def saved_count(self):
+		return len(self.saved_idlist())
+
+	@property
+	@lazy
+	def saved_comment_count(self):
+		return len(self.saved_comment_idlist())
 
 	@property
 	@lazy

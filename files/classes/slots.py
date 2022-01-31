@@ -1,5 +1,6 @@
 from json.encoder import INFINITY
 import random
+from files.helpers.const import *
 
 def shuffle(stuff):
 	random.shuffle(stuff)
@@ -8,7 +9,8 @@ def shuffle(stuff):
 class Slots:
 	command_word = "!slots"
 	casino_word = "!casino"
-	minimum_bet = 5
+	if SITE == 'rdrama.net': minimum_bet = 100
+	else: minimum_bet = 10
 	maximum_bet = INFINITY
 	payout_to_symbols = {
 		2: ["👣", "🍀", "🌈", "⭐️"],
@@ -34,6 +36,7 @@ class Slots:
 					elif (wager_value > from_user.coins): break
 
 					from_user.coins -= wager_value
+					from_user.winnings -= wager_value
 
 					payout = self.determine_payout()
 					symbols = self.build_symbols(payout)
@@ -41,10 +44,9 @@ class Slots:
 					reward = wager_value * payout
 
 					from_user.coins += reward
-					self.db.add(from_user)
+					from_user.winnings += reward
 
 					from_comment.slots_result = f'{symbols} {text}'
-					self.db.add(from_comment)
 
 		if self.casino_word in in_text:
 			for word in in_text.split():
@@ -59,6 +61,7 @@ class Slots:
 					elif (wager_value > from_user.procoins): break
 
 					from_user.procoins -= wager_value
+					from_user.winnings -= wager_value
 
 					payout = self.determine_payout()
 					symbols = self.build_symbols(payout)
@@ -66,10 +69,9 @@ class Slots:
 					reward = wager_value * payout
 
 					from_user.procoins += reward
-					self.db.add(from_user)
+					from_user.winnings += reward
 
 					from_comment.slots_result = f'{symbols} {text}'
-					self.db.add(from_comment)
 
 
 	def determine_payout(self):
@@ -90,22 +92,29 @@ class Slots:
 				
 		shuffle(all_symbols)
 				
-		if for_payout == 0: return "".join([all_symbols[0], all_symbols[1], all_symbols[2]])
-		elif for_payout == 1: return "".join([all_symbols[0], all_symbols[0], all_symbols[2]])
+		if for_payout == 0:
+			return "".join([all_symbols[0], all_symbols[1], all_symbols[2]])
+		elif for_payout == 1:
+			indices = shuffle([0, 1, 2])
+			symbol_set = ["", "", ""]
+			match_a = indices[0]
+			match_b = indices[1]
+			nonmatch = indices[2]
+			matching_symbol = all_symbols[0]
+			other_symbol = all_symbols[1]
+			symbol_set[match_a] = matching_symbol
+			symbol_set[match_b] = matching_symbol
+			symbol_set[nonmatch] = other_symbol
+
+			return "".join(symbol_set)
 		else:
 			relevantSymbols = shuffle(self.payout_to_symbols[for_payout])
 			symbol = relevantSymbols[0]
+			
 			return "".join([symbol, symbol, symbol])
 	
 	def build_text(self, wager_value, result, user, currency):
-		if result == 0:
-			user.winnings -= wager_value
-			return f'Lost {wager_value} {currency}'
-		elif result == 1:
-			return 'Broke Even'
-		elif result == 12:
-			user.winnings += wager_value * (result-1)
-			return f'Jackpot! Won {wager_value * result} {currency}'
-		else:
-			user.winnings += wager_value * (result-1)
-			return f'Won {wager_value * result} {currency}'
+		if result == 0: return f'Lost {wager_value} {currency}'
+		elif result == 1: return 'Broke Even'
+		elif result == 12: return f'Jackpot! Won {wager_value * result} {currency}'
+		else: return f'Won {wager_value * result} {currency}'

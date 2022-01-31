@@ -70,7 +70,8 @@ CREATE TABLE public.alts (
     id integer NOT NULL,
     user1 integer NOT NULL,
     user2 integer NOT NULL,
-    is_manual boolean DEFAULT false
+    is_manual boolean DEFAULT false,
+    CONSTRAINT alts_cant_be_equal CHECK ((user1 <> user2))
 );
 
 
@@ -299,7 +300,9 @@ CREATE TABLE public.comments (
     top_comment_id integer,
     is_pinned_utc integer,
     ghost boolean,
-    slots_result character varying(30)
+    slots_result character varying(50),
+    blackjack_result character varying(3000),
+    treasure_amount character varying(10)
 );
 
 
@@ -563,7 +566,6 @@ CREATE TABLE public.save_relationship (
     id integer NOT NULL,
     submission_id integer,
     user_id integer,
-    type integer,
     comment_id integer
 );
 
@@ -808,7 +810,9 @@ CREATE TABLE public.users (
     fish boolean,
     lootboxes_bought integer,
     progressivestack integer,
-    winnings integer
+    winnings integer,
+    patron_utc integer,
+    rehab integer
 );
 
 
@@ -1343,6 +1347,13 @@ ALTER TABLE ONLY public.votes
 
 
 --
+-- Name: alts_unique_combination; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX alts_unique_combination ON public.alts USING btree (GREATEST(user1, user2), LEAST(user1, user2));
+
+
+--
 -- Name: alts_user1_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1813,9 +1824,4 @@ ALTER TABLE ONLY public.flags
 
 ALTER TABLE ONLY public.notifications
     ADD CONSTRAINT notifications_comment_id_fkey FOREIGN KEY (comment_id) REFERENCES public.comments(id);
-
-
---
--- PostgreSQL database dump complete
---
 

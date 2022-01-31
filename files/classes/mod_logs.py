@@ -92,8 +92,8 @@ class ModAction(Base):
 		if self.target_user: return f'<a href="{self.target_user.url}">{self.target_user.username}</a>'
 		elif self.target_post:
 			if self.target_post.club: return f'<a href="{self.target_post.permalink}">{CC} ONLY</a>'
-			return f'<a href="{self.target_post.permalink}">{self.target_post.title.replace("<","")}</a>'
-		elif self.target_comment_id: return f'<a href="/comment/{self.target_comment_id}?context=9#context">comment</a>'
+			return f'<a href="{self.target_post.permalink}">{self.target_post.title.replace("<","").replace(">","")}</a>'
+		elif self.target_comment_id: return f'<a href="/comment/{self.target_comment_id}?context=8#context">comment</a>'
 
 	@property
 	@lazy
@@ -108,7 +108,7 @@ class ModAction(Base):
 	@property
 	@lazy
 	def permalink(self):
-		return f"/log/{self.id}"	
+		return f"{SITE_FULL}/log/{self.id}"	
 
 ACTIONTYPES={
 	"grant_awards": {
@@ -212,12 +212,12 @@ ACTIONTYPES={
 		"color": "bg-success",
 	},
 	"agendaposter": {
-		"str": "set agendaposter theme on {self.target_link}",
+		"str": "set chud theme on {self.target_link}",
 		"icon": "fa-user-slash",
 		"color": "bg-danger",
 	},
 	"unagendaposter": {
-		"str": "removed agendaposter theme from {self.target_link}",
+		"str": "removed chud theme from {self.target_link}",
 		"icon": "fa-user-slash",
 		"color": "bg-success",
 	},

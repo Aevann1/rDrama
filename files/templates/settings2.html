@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-	<meta name="description" content="{{'DESCRIPTION' | app_config}}">
+	<meta name="description" content="{{config('DESCRIPTION')}}">
 	<meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline'; connect-src 'self'; object-src 'none';">
 
 	<script src="/static/assets/js/bootstrap.js?a=220"></script>
@@ -19,8 +19,8 @@
 	<meta property="og:title" content="{{SITE_NAME}}" >
 	<meta property="og:site_name" content="{{request.host}}" >
 	<meta property="og:image" content="{{SITE_NAME}}/static/assets/images/{{SITE_NAME}}/site_preview.webp?a=1008" >
-	<meta property="og:url" content="{{request.path | full_link}}">
-	<meta property="og:description" name="description" content="{{SITE_NAME}} - {{'SLOGAN' | app_config}}">
+	<meta property="og:url" content="{{SITE_FULL}}{{request.full_path}}">
+	<meta property="og:description" name="description" content="{{SITE_NAME}} - {{config('SLOGAN')}}">
 	<meta property="og:author" name="author" content="{{SITE_FULL}}/" >
 	<meta property="og:site_name" content="{{request.host}}" >
 
@@ -28,9 +28,9 @@
 	<meta name="twitter:site" content="{{SITE_FULL}}/">
 	<meta name="twitter:title" content="{{SITE_NAME}}" >
 	<meta name="twitter:creator" content="{{SITE_FULL}}/">
-	<meta name="twitter:description" content="{{SITE_NAME}} - {{'SLOGAN' | app_config}}" >
+	<meta name="twitter:description" content="{{SITE_NAME}} - {{config('SLOGAN')}}" >
 	<meta name="twitter:image" content="/static/assets/images/{{SITE_NAME}}/site_preview.webp?a=1008" >
-	<meta name="twitter:url" content="{{request.path | full_link}}" >
+	<meta name="twitter:url" content="{{SITE_FULL}}{{request.full_path}}" >
 
 
 
@@ -39,10 +39,10 @@
 	
 	{% if v %}
 		<style>:root{--primary:#{{v.themecolor}}}</style>
-		<link rel="stylesheet" href="/static/assets/css/main.css?a=98"><link rel="stylesheet" href="/static/assets/css/{{v.theme}}.css?a=14">
+		<link rel="stylesheet" href="/static/assets/css/main.css?a=102"><link rel="stylesheet" href="/static/assets/css/{{v.theme}}.css?a=14">
 	{% else %}
-		<style>:root{--primary:#{{'DEFAULT_COLOR' | app_config}}</style>
-		<link rel="stylesheet" href="/static/assets/css/main.css?a=98"><link rel="stylesheet" href="/static/assets/css/{{'DEFAULT_THEME' | app_config}}.css?a=14">
+		<style>:root{--primary:#{{config('DEFAULT_COLOR')}}</style>
+		<link rel="stylesheet" href="/static/assets/css/main.css?a=102"><link rel="stylesheet" href="/static/assets/css/{{config('DEFAULT_THEME')}}.css?a=14">
 	{% endif %}
 </head>
 

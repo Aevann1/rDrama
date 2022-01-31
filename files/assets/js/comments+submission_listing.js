@@ -48,30 +48,21 @@ function popovertrigger() {
 popovertrigger()
 
 function popclick(author) {
-    let popfix = document.getElementById("popover-fix")
-    if (popfix) document.body.removeChild(popfix);
+    popover = document.getElementsByClassName("popover")[0]
 
-    var popover_old = document.getElementsByClassName("popover")[0];
-    var popover_new = document.createElement("DIV");
-    popover_new.innerHTML = popover_old.outerHTML;
-    popover_new.id = "popover-fix";
-  
     let badges = ''
     for (const x of author["badges"]) {
         badges += `<img alt="badge" width="32" loading="lazy" src="${x}">`
     }
-    popover_new.getElementsByClassName('pop-banner')[0].src = author["bannerurl"]
-    popover_new.getElementsByClassName('pop-picture')[0].src = author["profile_url"]
-    popover_new.getElementsByClassName('pop-username')[0].innerHTML = author["username"]
-    popover_new.getElementsByClassName('pop-bio')[0].innerHTML = author["bio_html"]
-    popover_new.getElementsByClassName('pop-postcount')[0].innerHTML = author["post_count"]
-    popover_new.getElementsByClassName('pop-commentcount')[0].innerHTML = author["comment_count"]
-    popover_new.getElementsByClassName('pop-coins')[0].innerHTML = author["coins"]
-    popover_new.getElementsByClassName('pop-viewmore')[0].href = author["url"]
-    popover_new.getElementsByClassName('pop-badges')[0].innerHTML = badges
-  
-    document.body.appendChild(popover_new);
-    document.body.removeChild(popover_old);
+    popover.getElementsByClassName('pop-banner')[0].src = author["bannerurl"]
+    popover.getElementsByClassName('pop-picture')[0].src = author["profile_url"]
+    popover.getElementsByClassName('pop-username')[0].innerHTML = author["username"]
+    popover.getElementsByClassName('pop-bio')[0].innerHTML = author["bio_html"]
+    popover.getElementsByClassName('pop-postcount')[0].innerHTML = author["post_count"]
+    popover.getElementsByClassName('pop-commentcount')[0].innerHTML = author["comment_count"]
+    popover.getElementsByClassName('pop-coins')[0].innerHTML = author["coins"]
+    popover.getElementsByClassName('pop-viewmore')[0].href = author["url"]
+    popover.getElementsByClassName('pop-badges')[0].innerHTML = badges
 }
 
 document.addEventListener("click", function(){

@@ -1,0 +1,193 @@
+@import 'classic.css?a=15';
+
+/*navbar*/
+.navbar-light, .navbar .container-fluid, #mobile-bottom-navigation-bar {
+    background-color: var(--black2) !important;
+}
+
+.form-inline.search input {
+	background-color: var(--black1) !important;
+}
+
+.nav-link.active {
+    color: var(--white) !important;
+    box-shadow: inset 0 -2px 0 var(--white) !important;
+}
+
+.nav-link {
+    color: var(--grey) !important;
+}
+
+/*common*/
+body, .card, #main-content-row {
+	background-color: var(--black2) !important;
+    /*background-image: var(--bg2);*/
+    color: var(--white);
+}
+
+.posts .card {
+	border-color: var(--black3) !important;
+}
+
+.arrow-up::before, .arrow-down::before, .score {
+    color: var(--black1);
+}
+
+.post-title a {
+	color: var(--grey) !important;
+}
+
+.flaggers, .flaggers a {
+	background-color: var(--black2) !important;
+	color: var(--black1) !important;
+	border-color: var(--grey);
+}
+
+.dropdown-menu, .dropdown-menu a {
+    color: var(--black3);
+    background-color: white;
+}
+
+.popover, .pop-username, .pop-bio, .popover-user-profile, .popover-user-profile * {
+    background-color: var(--black2);
+    color: var(--grey);
+    border-color: var(--black1) !important;
+}
+
+.text-muted {
+    color: var(--grey) !important;
+}
+
+/*frontpage*/
+#frontpage .sidebar {
+	background-color: var(--black2) !important;
+	color: var(--grey);
+}
+
+#frontpage .dropdown .btn {
+	background-color:transparent !important;
+	color:yellow;
+	text-shadow: -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black, 1px 1px 0 black !important;
+	border-color: transparent;
+    font-size: 1.3rem;
+}
+
+#frontpage .dropdown-toggle, #frontpage i.fas.mr-1 {
+    color:yellow !important;
+}
+
+/*post*/
+.post-meta, .post-actions a, .nav-link .fas, label, small, .comment-actions * {
+	color: var(--grey) !important;
+}
+
+.comment, .comment-text, .comment-section, .comment-body, .post-body {
+	background-color: var(--black2);
+	color: var(--grey) !important;
+}
+
+blockquote {
+	border-left: 2px solid #c5c1ad !important;
+	background-color: var(--black3) !important;
+	color: var(--grey) !important;
+}
+
+.form-control, .comment-box.form-control.rounded {
+    background-color: var(--black2) !important;
+    color: var(--black1) !important;
+}
+
+#thread #dropdownMenuButton {
+	background-color: var(--red) !important;
+    color: white !important;
+	border-color: transparent;
+}
+
+.btn.format {
+    background-color: transparent !important;
+    color: var(--black1) !important;
+    border-color: transparent !important;
+}
+
+/*leaderboard*/
+#settings2 .bg-white {
+    background-color: var(--black2) !important;
+}
+
+/*submit*/
+#submit .row.fixed-bottom {
+    background-color: var(--black2) !important
+}
+
+/*assorted patches I don't feel like categorizing*/
+#followers-table td {
+    color: var(--black1);
+}
+
+#mobile-bottom-navigation-bar .text-primary {
+    color: var(--red) !important;
+}
+
+#mobile-bottom-navigation-bar .text-muted {
+    color: var(--black1) !important;
+}
+
+#settings2 .nav-link.active .fas {
+    color: var(--grey) !important;
+}
+
+#navbarResponsive .nav-link {
+    color: var(--black1) !important;
+}
+
+.mobile-nav-icon {
+    color: var(--black1);
+}
+
+/*patch*/
+#settings2 .text-muted {
+    color: var(--black3)!important;
+}
+
+.btn-primary:hover, .btn-secondary:hover {
+    background-color: var(--red-hover) !important;
+    color: white!important;
+    border-color: var(--red-hover)
+}
+
+.dropdown-menu a:hover {
+    color: var(--red);
+    background-color: #fff;
+    font-weight: bold;
+}
+
+#navbarResponsive .nav-link:hover i {
+    color: var(--red) !important;
+}
+
+.btn-secondary:focus, .btn-secondary.focus {
+    box-shadow: none;
+    background-color: white!important;
+    color: var(--red)!important;
+    border-color: var(--red);
+}
+
+a.nav-link:hover {
+    color: white !important
+}
+
+.nav.settings-nav {
+    border: 1px solid var(--red-hover)
+}
+
+#thread .anchor.comment {
+    border-left: 2px solid var(--black1)!important;
+}  
+
+.notifs .comment-collapse-desktop {
+    border-left: 2px solid var(--black1)!important;
+}
+
+#srd {
+    background-color: var(--black3) !important
+}

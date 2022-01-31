@@ -79,13 +79,13 @@ function awardModal(link) {
 	target.action = link;
 }
 
-function pick(kind) {
+function pick(kind, canbuy1, canbuy2) {
 	let buy1 = document.getElementById('buy1')
-	if (kind == "grass") buy1.disabled=true;
-	else buy1.disabled=false;
+	if (canbuy1 && kind != "grass") buy1.disabled=false;
+	else buy1.disabled=true;
 	let buy2 = document.getElementById('buy2')
-	if (kind == "benefactor") buy2.disabled=true;
-	else buy2.disabled=false;
+	if (canbuy2 && kind != "benefactor") buy2.disabled=false;
+	else buy2.disabled=true;
 	let ownednum = Number(document.getElementById(`${kind}-owned`).textContent);
 	document.getElementById('giveaward').disabled = (ownednum == 0);
 	document.getElementById('kind').value=kind;

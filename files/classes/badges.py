@@ -37,16 +37,17 @@ class Badge(Base):
 	@property
 	@lazy
 	def text(self):
-		if self.name == "Agendaposter":
+		if self.name == "Chud":
 			ti = self.user.agendaposter_expires_utc
 			if ti: text = self.badge.description + " until " + datetime.utcfromtimestamp(ti).strftime('%Y-%m-%d %H:%M:%S')
 			else: text = self.badge.description + " permanently"
-		elif self.badge_id in (94,95,96,97,98):
+		elif self.badge_id in (94,95,96,97,98,109):
 			if self.badge_id == 94: ti = self.user.progressivestack
 			elif self.badge_id == 95: ti = self.user.bird
 			elif self.badge_id == 96: ti = self.user.flairchanged
 			elif self.badge_id == 97: ti = self.user.longpost
-			else: ti = self.user.marseyawarded
+			elif self.badge_id == 98: ti = self.user.marseyawarded
+			elif self.badge_id == 109: ti = self.user.rehab
 			text = self.badge.description + " until " + datetime.utcfromtimestamp(ti).strftime('%Y-%m-%d %H:%M:%S')
 		elif self.description: text = self.description
 		elif self.badge.description: text = self.badge.description
@@ -61,7 +62,7 @@ class Badge(Base):
 	@property
 	@lazy
 	def path(self):
-		return f"/static/assets/images/badges/{self.badge_id}.webp?a=1008"
+		return f"{SITE_FULL}/static/assets/images/badges/{self.badge_id}.webp?a=1008"
 
 	@property
 	@lazy
@@ -69,5 +70,5 @@ class Badge(Base):
 		return {'text': self.text,
 				'name': self.name,
 				'url': self.url,
-				'icon_url':f"{SITE_FULL}{self.path}"
+				'icon_url':self.path
 				}

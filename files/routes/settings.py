@@ -329,7 +329,7 @@ def settings_profile_post(v):
 
 	theme = request.values.get("theme")
 	if theme:
-		if theme in ["dramblr","classic","transparent", "win98", "dark", "light", "coffee", "tron", "4chan", "midnight"]:
+		if theme in ["dramblr","classic","classic_dark","transparent", "win98", "dark", "light", "coffee", "tron", "4chan", "midnight"]:
 			if theme == "transparent" and not v.background: 
 				return {"error": "You need to set a background to use the transparent theme!"}
 			v.theme = theme
@@ -542,7 +542,7 @@ def settings_security_post(v):
 		if new_email == v.email:
 			return render_template("settings_security.html", v=v, error="That email is already yours!")
 
-		url = f"{request.host_url}activate"
+		url = f"{SITE_FULL}/activate"
 
 		now = int(time.time())
 
@@ -638,8 +638,12 @@ def settings_images_profile(v):
 
 	if not imageurl: abort(400)
 
-	if v.highres and '/images/' in v.highres : os.remove('/images/' + v.highres.split('/images/')[1])
-	if v.profileurl and '/images/' in v.profileurl : os.remove('/images/' + v.profileurl.split('/images/')[1])
+	if v.highres and '/images/' in v.highres:
+		fpath = '/images/' + v.highres.split('/images/')[1]
+		if path.isfile(fpath): os.remove(fpath)
+	if v.profileurl and '/images/' in v.profileurl:
+		fpath = '/images/' + v.profileurl.split('/images/')[1]
+		if path.isfile(fpath): os.remove(fpath)
 	v.highres = highres
 	v.profileurl = imageurl
 	g.db.add(v)
@@ -666,7 +670,9 @@ def settings_images_banner(v):
 	bannerurl = process_image(name)
 
 	if bannerurl:
-		if v.bannerurl and '/images/' in v.bannerurl : os.remove('/images/' + v.bannerurl.split('/images/')[1])
+		if v.bannerurl and '/images/' in v.bannerurl:
+			fpath = '/images/' + v.bannerurl.split('/images/')[1]
+			if path.isfile(fpath): os.remove(fpath)
 		v.bannerurl = bannerurl
 		g.db.add(v)
 		g.db.commit()
@@ -970,3 +976,17 @@ def settings_title_change(v):
 		g.db.commit()
 
 	return redirect(f"{SITE_FULL}/settings/profile")
+
+
+@app.get("/settings")
+@auth_required
+def settings(v):
+	return redirect(f"{SITE_FULL}/settings/profile")
+
+
+@app.get("/settings/profile")
+@auth_required
+def settings_profile(v):
+	if v.flairchanged: ti = datetime.utcfromtimestamp(v.flairchanged).strftime('%Y-%m-%d %H:%M:%S')
+	else: ti = ''
+	return render_template("settings_profile.html", v=v, ti=ti)

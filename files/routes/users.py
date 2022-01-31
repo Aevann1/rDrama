@@ -71,9 +71,14 @@ def upvoters(v, username):
 	users2 = []
 	for user in users: users2.append((user, votes[user.id]))
 
-	users = sorted(users2, key=lambda x: x[1], reverse=True)[:25]
+	users = sorted(users2, key=lambda x: x[1], reverse=True)
+	
+	try:
+		pos = [x[0].id for x in users].index(v.id)
+		pos = (pos+1, users[pos][1])
+	except: pos = (len(users)+1, 0)
 
-	return render_template("voters.html", v=v, users=users, name='Up', name2=f'@{username} biggest simps')
+	return render_template("voters.html", v=v, users=users[:25], pos=pos, name='Up', name2=f'@{username} biggest simps')
 
 @app.get("/@<username>/downvoters")
 @auth_required
@@ -90,9 +95,14 @@ def downvoters(v, username):
 	users2 = []
 	for user in users: users2.append((user, votes[user.id]))
 
-	users = sorted(users2, key=lambda x: x[1], reverse=True)[:25]
+	users = sorted(users2, key=lambda x: x[1], reverse=True)
+	
+	try:
+		pos = [x[0].id for x in users].index(v.id)
+		pos = (pos+1, users[pos][1])
+	except: pos = (len(users)+1, 0)
 
-	return render_template("voters.html", v=v, users=users, name='Down', name2=f'@{username} biggest haters')
+	return render_template("voters.html", v=v, users=users[:25], pos=pos, name='Down', name2=f'@{username} biggest haters')
 
 @app.get("/@<username>/upvoting")
 @auth_required
@@ -109,9 +119,14 @@ def upvoting(v, username):
 	users2 = []
 	for user in users: users2.append((user, votes[user.id]))
 
-	users = sorted(users2, key=lambda x: x[1], reverse=True)[:25]
+	users = sorted(users2, key=lambda x: x[1], reverse=True)
+	
+	try:
+		pos = [x[0].id for x in users].index(v.id)
+		pos = (pos+1, users[pos][1])
+	except: pos = (len(users)+1, 0)
 
-	return render_template("voters.html", v=v, users=users, name='Up', name2=f'Who @{username} simps for')
+	return render_template("voters.html", v=v, users=users[:25], pos=pos, name='Up', name2=f'Who @{username} simps for')
 
 @app.get("/@<username>/downvoting")
 @auth_required
@@ -128,9 +143,14 @@ def downvoting(v, username):
 	users2 = []
 	for user in users: users2.append((user, votes[user.id]))
 
-	users = sorted(users2, key=lambda x: x[1], reverse=True)[:25]
+	users = sorted(users2, key=lambda x: x[1], reverse=True)
+	
+	try:
+		pos = [x[0].id for x in users].index(v.id)
+		pos = (pos+1, users[pos][1])
+	except: pos = (len(users)+1, 0)
 
-	return render_template("voters.html", v=v, users=users, name='Down', name2=f'Who @{username} hates')
+	return render_template("voters.html", v=v, users=users[:25], pos=pos, name='Down', name2=f'Who @{username} hates')
 
 @app.post("/pay_rent")
 @limiter.limit("1/second;30/minute;200/hour;1000/day")
@@ -427,7 +447,7 @@ def reportbugs(v):
 	return redirect(f'{SITE_FULL}/post/{BUG_THREAD}')
 
 @app.post("/@<username>/message")
-@limiter.limit("1/second;2/minute;10/hour;50/day")
+@limiter.limit("1/second;10/minute;20/hour;50/day")
 @is_not_permabanned
 def message2(v, username):
 
@@ -534,35 +554,36 @@ def messagereply(v):
 	g.db.add(new_comment)
 	g.db.flush()
 
-	if PUSHER_ID and user_id != v.id:
+	if user_id != v.id:
 		notif = Notification(comment_id=new_comment.id, user_id=user_id)
 		g.db.add(notif)
 
-		if len(message) > 500: notifbody = message[:500] + '...'
-		else: notifbody = message
-		
-		beams_client.publish_to_interests(
-			interests=[f'{request.host}{user_id}'],
-			publish_body={
-				'web': {
-					'notification': {
-						'title': f'New message from @{v.username}',
-						'body': notifbody,
-						'deep_link': f'{SITE_FULL}/notifications?messages=true',
-						'icon': f'{SITE_FULL}/assets/images/{SITE_NAME}/icon.webp',
+		if PUSHER_ID:
+			if len(message) > 500: notifbody = message[:500] + '...'
+			else: notifbody = message
+			
+			beams_client.publish_to_interests(
+				interests=[f'{request.host}{user_id}'],
+				publish_body={
+					'web': {
+						'notification': {
+							'title': f'New message from @{v.username}',
+							'body': notifbody,
+							'deep_link': f'{SITE_FULL}/notifications?messages=true',
+							'icon': f'{SITE_FULL}/assets/images/{SITE_NAME}/icon.webp',
+						}
+					},
+					'fcm': {
+						'notification': {
+							'title': f'New message from @{v.username}',
+							'body': notifbody,
+						},
+						'data': {
+							'url': '/notifications?messages=true',
+						}
 					}
 				},
-				'fcm': {
-					'notification': {
-						'title': f'New message from @{v.username}',
-						'body': notifbody,
-					},
-					'data': {
-						'url': '/notifications?messages=true',
-					}
-				}
-			},
-		)
+			)
 
 
 	if new_comment.top_comment.sentto == 0:
@@ -572,7 +593,7 @@ def messagereply(v):
 			g.db.add(notif)
 	g.db.commit()
 
-	return render_template("comments.html", v=v, comments=[new_comment])
+	return render_template("comments.html", v=v, comments=[new_comment], ajax=True)
 
 @app.get("/2faqr/<secret>")
 @auth_required
@@ -665,7 +686,7 @@ def u_username(username, v=None):
 
 
 	if username != u.username:
-		return redirect(request.full_path.replace(username, u.username))
+		return redirect(SITE_FULL + request.full_path.replace(username, u.username)[:-1])
 
 	if u.reserved:
 		if request.headers.get("Authorization") or request.headers.get("xhr"): return {"error": f"That username is reserved for: {u.reserved}"}
@@ -984,10 +1005,7 @@ def saved_comments(v, username):
 
 	page=int(request.values.get("page",1))
 
-	firstrange = 25 * (page - 1)
-	secondrange = firstrange+26
-
-	ids=v.saved_comment_idlist()[firstrange:secondrange]
+	ids=v.saved_comment_idlist(page=page)
 
 	next_exists=len(ids) > 25
 
@@ -1009,19 +1027,22 @@ def saved_comments(v, username):
 @app.post("/fp/<fp>")
 @auth_required
 def fp(v, fp):
-	if v.username != fp:
-		v.fp = fp
-		users = g.db.query(User).filter(User.fp == fp, User.id != v.id).all()
-		if v.email and v.is_activated:
-			users += g.db.query(User).filter(User.email == v.email, User.is_activated, User.id != v.id).all()
-		for u in users:
-			li = [v.id, u.id]
-			existing = g.db.query(Alt).filter(Alt.user1.in_(li), Alt.user2.in_(li)).first()
-			if existing: continue
-			new_alt = Alt(user1=v.id, user2=u.id)
-			g.db.add(new_alt)
-			g.db.flush()
-			print('\n\n' + v.username + ' + ' + u.username + '\n\n')
-		g.db.add(v)
-		g.db.commit()
+	v.fp = fp
+	users = g.db.query(User).filter(User.fp == fp, User.id != v.id).all()
+	if users: print(f'{v.username}: fp {v.fp}')
+	if v.email and v.is_activated:
+		alts = g.db.query(User).filter(User.email == v.email, User.is_activated, User.id != v.id).all()
+		if alts:
+			print(f'{v.username}: email {v.email}')
+			users += alts
+	for u in users:
+		li = [v.id, u.id]
+		existing = g.db.query(Alt).filter(Alt.user1.in_(li), Alt.user2.in_(li)).first()
+		if existing: continue
+		new_alt = Alt(user1=v.id, user2=u.id)
+		g.db.add(new_alt)
+		g.db.flush()
+		print(v.username + ' + ' + u.username)
+	g.db.add(v)
+	g.db.commit()
 	return '', 204

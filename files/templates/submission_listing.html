@@ -168,7 +168,7 @@
 
 				{% if p.awards %}
 					{% for a in p.awards %}
-						<i class="{{a.class_list}} px-1" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{a.title}} Award given by @{{a.user.username}}"></i>
+						<i class="{{a.class_list}} px-1" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{a.title}} Award{% if a.kind != 'ghosts' %} given by @{{a.user.username}}{% endif %}"></i>
 					{% endfor %}
 				{% endif %}
 				{% if v and v.admin_level > 1 and p.author.shadowbanned %}
@@ -226,7 +226,7 @@
 							<a class="list-inline-item text-muted d-none d-md-inline-block" role="button" data-bs-toggle="modal" data-bs-target="#awardModal" onclick="awardModal('/post/{{p.id}}/awards')"><i class="fas fa-gift fa-fw"></i>Give Award</a>
 						{% endif %}
 
-						<a class="list-inline-item copy-link" role="button" data-clipboard-text="{% if request.host == 'rdrama.net' %}https://rdrama.com{{p.permalink}}{% else %}{{p.permalink | full_link}}{% endif %}"><i class="fas fa-copy"></i>Copy link</a>
+						<a class="list-inline-item copy-link" role="button" data-clipboard-text="{% if request.host == 'rdrama.net' %}https://rdrama.com{{p.shortlink}}{% else %}{{p.permalink}}{% endif %}"><i class="fas fa-copy"></i>Copy link</a>
 
 						{% if v %}
 							<a id="subscribe-{{p.id}}" class="{% if p.id in v.subscribed_idlist() %}d-none{% endif %} list-inline-item" role="button" onclick="post_toast2('/subscribe/{{p.id}}','subscribe-{{p.id}}','unsubscribe-{{p.id}}')"><i class="fas fa-eye"></i>Subscribe</a>
@@ -288,11 +288,9 @@
 
 
 								{% if v.id != p.author_id and not p.ghost %}
-									<a id="unblock-{{p.id}}" class="text-success list-inline-item {% if not p.is_blocking %} d-none{% endif %}" role="button" onclick="post_toast2('/settings/unblock?username={{p.author_name}}','block-{{p.id}}','unblock-{{p.id}}')"><i class="fas fa-eye text-success"></i>Unblock user</a>
+									<a id="unblock-{{p.id}}" class="dropdown-item text-success list-inline-item {% if not p.is_blocking %}d-none{% endif %}" role="button" onclick="post_toast2('/settings/unblock?username={{p.author_name}}','block-{{p.id}}','unblock-{{p.id}}')"><i class="fas fa-eye text-success"></i>Unblock user</a>
 
-									<a id="prompt-{{p.id}}" class="dropdown-item text-danger blockuser list-inline-item d-none" role="button" onclick="post_toast2('/settings/block?username={{p.author_name}}','prompt-{{p.id}}','unblock-{{p.id}}')"><i class="fas fa-eye-slash text-danger"></i>Are you sure?</a>
-
-									<a id="block-{{p.id}}" class="dropdown-item text-danger blockuser list-inline-item {% if p.is_blocking %} d-none{% endif %}" role="button" onclick="document.getElementById('block-{{p.id}}').classList.toggle('d-none');document.getElementById('prompt-{{p.id}}').classList.toggle('d-none');"><i class="fas fa-eye-slash text-danger"></i>Block user</a>
+									<a id="block-{{p.id}}" class="dropdown-item list-inline-item text-danger {% if p.is_blocking %}d-none{% endif %}" role="button" onclick="post_toast2('/settings/block?username={{p.author_name}}','block-{{p.id}}','unblock-{{p.id}}')"><i class="fas fa-eye-slash text-danger"></i>Block user</a>
 								{% endif %}
 
 								{% if v.id==p.author_id or v.admin_level > 1 %}
@@ -328,7 +326,7 @@
 
 			</li>
 			
-			<a class="copy-link" role="button" data-clipboard-text="{% if request.host == 'rdrama.net' %}https://rdrama.com{{p.permalink}}{% else %}{{p.permalink | full_link}}{% endif %}" style="margin-right: 15px;margin-top:5px;"><i class="fas fa-link"></i></a>
+			<a class="copy-link" role="button" data-clipboard-text="{% if request.host == 'rdrama.net' %}https://rdrama.com{{p.shortlink}}{% else %}{{p.permalink}}{% endif %}" style="margin-right: 15px;margin-top:5px;"><i class="fas fa-link"></i></a>
 
 			{% if p.realbody(v) and request.path != "/changelog"%}
 				<a class="list-inline-item" role="button" onclick="expandText('{{p.id}}')"><i class="fas fa-expand-alt mr-0 text-expand-icon-{{p.id}}"></i></a>
@@ -520,8 +518,8 @@
 
 	{% if p.is_image and not p.over_18 and ((v and v.cardview) or (not v and environ.get('CARD_VIEW') == '1')) %}
 		<div style="text-align: center" class="mt-3 mb-4">
-			<a {% if v and v.newtab and not g.webview %}target="_blank"{% endif %} rel="nofollow noopener noreferrer" href="{{p.url}}">
-				<img loading="lazy" data-src="{{p.url}}" src="/static/assets/images/loading.webp" class="img-fluid" style="max-height:20rem;" alt="Unable to load image">
+			<a {% if v and v.newtab and not g.webview %}target="_blank"{% endif %} rel="nofollow noopener noreferrer" href="{{p.realurl(v)}}">
+				<img loading="lazy" data-src="{{p.realurl(v)}}" src="/static/assets/images/loading.webp" class="img-fluid" style="max-height:20rem;" alt="Unable to load image">
 			</a>
 		</div>
 	{% elif p.is_video %}
@@ -661,10 +659,6 @@
 		object-fit: cover;
 	}
 
-	.text-black {
-		color: var(--black);
-	}
-
 	.smolbtn {
 		font-weight: 600;
 		font-size: .9rem;
@@ -696,5 +690,5 @@
 </style>
 
 <script src="/static/assets/js/clipboard.js?a=220"></script>
-<script src="/static/assets/js/comments+submission_listing.js?a=220"></script>
+<script src="/static/assets/js/comments+submission_listing.js?a=221"></script>
 <script src="/static/assets/js/submission_listing.js?a=220"></script>
