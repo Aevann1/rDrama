@@ -17,7 +17,7 @@ Installing Drama locally is the fastest way to get the software up and running a
 ```
 git clone https://github.com/Aevann1/Drama/
 
-cd drama
+cd Drama
 
 docker-compose up
 ```
