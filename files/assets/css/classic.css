@@ -487,3 +487,13 @@ a.nav-link:hover {
 #frontpage .container .col-lg-8 {
     background-image: none !important;
 }
+
+#post-text a, #post-text img {
+    margin-left: 0px;
+    margin-right: 0px;
+    margin-top: 0px;
+}
+
+.tooltip {
+    color:black !important;
+}
