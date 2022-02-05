@@ -146,10 +146,8 @@ a {
 	color: var(--black2) !important;
 }
 
-.post-body * {
-    margin-left:10px;
-    margin-top:10px;
-    margin-right:10px;
+.post-text {
+	margin: 15px;
 }
 
 .anchor.comment {
