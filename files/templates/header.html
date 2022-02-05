@@ -13,7 +13,7 @@
 		</style>
 		<div id="srd" style="width: 100%; background-color: var(--primary); padding: 2px; text-align: left; font-weight: bold;white-space:nowrap">
 			{% for s in SUBS %}
-				<a {% if sub and s == sub.name %} style="color: var(--secondary)" {% else %} style="color: white"{% endif %} class="text-small-mobile ml-2 px-2" href="/s/{{s}}">/s/{{s}}</a>
+				<a {% if sub and s == sub.name %} style="color: var(--secondary)" {% else %} style="color: white"{% endif %} class="text-small-mobile ml-2" href="/s/{{s}}">/s/{{s}}</a>
 			{% endfor %}
 		</div>
 	{% else %}
@@ -34,9 +34,7 @@
 					{% if SITE_NAME == 'Drama' %}
 						<img alt="logo" src="/static/assets/images/{{SITE_NAME}}/logo.webp?a=1010" height=20 width=77>
 					{% elif sub %}
-						<a href="/s/{{sub.name}}" class="font-weight-bold ml-4 mt-2" style="font-size:25px;position:absolute">/s/{{sub.name}}</a>
-					{% else %}
-						<a href="/" class="font-weight-bold ml-4 mt-2" style="font-size:25px;position:absolute">{{SITE_NAME}}</a>
+						<a href="/s/{{sub.name}}" class="font-weight-bold ml-1 mt-2">/s/{{sub.name}}</a>
 					{% endif %}
 				</a>
 			</div>

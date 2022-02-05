@@ -448,7 +448,7 @@ def comment_idlist(page=1, v=None, nsfw=False, sort="new", t="all"):
 
 	cc_idlist = [x[0] for x in g.db.query(Submission.id).filter(Submission.club == True).all()]
 
-	comments = g.db.query(Comment.id).filter(Comment.parent_submission.notin_(cc_idlist))
+	comments = g.db.query(Comment.id).filter(Comment.parent_submission != None, Comment.parent_submission.notin_(cc_idlist))
 
 	if v and v.admin_level <= 3:
 		blocking = [x[0] for x in g.db.query(

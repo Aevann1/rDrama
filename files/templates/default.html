@@ -8,7 +8,7 @@
 	{% if v %}
 		<style>:root{--primary:#{{v.themecolor}}}</style>
 		<link rel="stylesheet" href="/static/assets/css/main.css?a=109">
-		<link rel="stylesheet" href="/static/assets/css/{{v.theme}}.css?a=17">
+		<link rel="stylesheet" href="/static/assets/css/{{v.theme}}.css?a=18">
 		{% if v.agendaposter %}
 			<style>
 				html {
@@ -32,13 +32,13 @@
 		{% endif %}
 	{% else %}
 		<style>:root{--primary:#{{config('DEFAULT_COLOR')}}</style>
-		<link rel="stylesheet" href="/static/assets/css/main.css?a=109"><link rel="stylesheet" href="/static/assets/css/{{config('DEFAULT_THEME')}}.css?a=17">
+		<link rel="stylesheet" href="/static/assets/css/main.css?a=109"><link rel="stylesheet" href="/static/assets/css/{{config('DEFAULT_THEME')}}.css?a=18">
 	{% endif %}
 
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-	<meta name="thumbnail" content="/static/assets/images/{{SITE_NAME}}/site_preview.webp?a=1009">
+	<meta name="thumbnail" content="/static/assets/images/{{SITE_NAME}}/site_preview.webp?a=1010">
 
 	<link rel="icon" type="image/png" href="/static/assets/images/{{SITE_NAME}}/icon.webp?a=1009">
 	{% block title %}
@@ -47,7 +47,7 @@
 	<meta property="og:type" content="article" >
 	<meta property="og:title" content="{{SITE_NAME}}" >
 	<meta property="og:site_name" content="{{request.host}}" >
-	<meta property="og:image" content="/static/assets/images/{{SITE_NAME}}/site_preview.webp?a=1009" >
+	<meta property="og:image" content="/static/assets/images/{{SITE_NAME}}/site_preview.webp?a=1010" >
 	<meta property="og:url" content="{{SITE_FULL}}{{request.full_path}}">
 	<meta property="og:description" name="description" content="{{SITE_NAME}} - {{config('DESCRIPTION')}}">
 	<meta property="og:author" name="author" content="@{{SITE_FULL}}/" >
@@ -58,7 +58,7 @@
 	<meta name="twitter:title" content="{{SITE_NAME}}" >
 	<meta name="twitter:creator" content="@{{SITE_FULL}}/">
 	<meta name="twitter:description" content="{{SITE_NAME}} - {{config('DESCRIPTION')}}" >
-	<meta name="twitter:image" content="/static/assets/images/{{SITE_NAME}}/site_preview.webp?a=1009" >
+	<meta name="twitter:image" content="/static/assets/images/{{SITE_NAME}}/site_preview.webp?a=1010" >
 	<meta name="twitter:url" content="{{SITE_FULL}}{{request.full_path}}" >
 	{% endblock %}
 
