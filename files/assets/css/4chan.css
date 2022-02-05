@@ -140,3 +140,7 @@ blockquote a {
 .caction {
     color: var(--gray-400) !important;
 }
+
+.user-name span {
+    color: #117743 !important;
+}
