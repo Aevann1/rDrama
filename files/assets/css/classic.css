@@ -495,3 +495,9 @@ a.nav-link:hover {
 .tooltip {
     color:black !important;
 }
+
+#frontpage .btn.btn-secondary.text-small-m {
+	color: #ff0 !important;
+	text-shadow: -1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000 !important;
+	background: transparent !important;
+}
