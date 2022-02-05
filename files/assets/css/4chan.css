@@ -19,11 +19,6 @@
 	--gray-900: #F0E0D6;
 }
 
-
-blockquote {
-	background-color: #c0c0c0;
-}
-
 .text-muted {
 	color: var(--black) !important;
 }
@@ -99,5 +94,49 @@ blockquote p {
 }
 
 .navbar-light, .navbar .container-fluid, #mobile-bottom-navigation-bar {
-    background:#ffe url('../images/yotsuba_fade.webp') top center repeat-x;
+    background:#ffe url(https://i.imgur.com/kAfDGxF.png);
+    background-size: contain;
+}
+
+blockquote {
+	background-color: transparent;
+    border-color: #789922 !important;
+    border-width: 1px !important;
+}
+
+blockquote a {
+    color: navy;
+}
+
+.comment-collapse-desktop {
+    border-color: maroon !important;
+    border-width: 1px !important;
+}
+
+.score-up, .active.arrow-up::before, .arrow-up::after, .arrow-up:hover::before {
+    color: maroon !important;
+}
+
+.score-down, .active.arrow-down::before, .arrow-down::after, .arrow-down:hover::before {
+    color: maroon !important;
+}
+
+.arrow-up::before, .arrow-down::before, .score {
+    color: var(--gray-400);
+}
+
+#srd {
+    background-color: var(--gray-700) !important;
+}
+
+#srd a {
+    color: maroon !important;
+}
+
+:root {
+    --primary: maroon;
+}
+
+.caction {
+    color: var(--gray-400) !important;
 }
