@@ -146,7 +146,7 @@ a {
 	color: var(--black2) !important;
 }
 
-.post-text {
+#post-text {
 	margin: 15px;
 }
 
