@@ -24,7 +24,7 @@ marseys = tuple(f':#{x[0]}:' for x in db.query(Marsey.name).all())
 db.close()
 
 if path.exists(f'snappy_{SITE_NAME}.txt'):
-	with open(f'snappy_{SITE_NAME}.txt', "r") as f:
+	with open(f'snappy_{SITE_NAME}.txt', "r", encoding="utf-8") as f:
 		if SITE == 'pcmemes.net': snappyquotes = tuple(f.read().split("{[para]}"))
 		else: snappyquotes = tuple(f.read().split("{[para]}")) + marseys
 else: snappyquotes = marseys
@@ -88,17 +88,25 @@ def publish(pid, v):
 	return {"message": "Post published!"}
 
 @app.get("/submit")
+@app.get("/s/<sub>/submit")
 @auth_required
-def submit_get(v):
-	return render_template("submit.html",
-						   v=v)
+def submit_get(v, sub=None):
+	if sub: sub = g.db.query(Sub.name).filter_by(name=sub).one_or_none()
+	
+	if request.path.startswith('/s/') and not sub: abort(404)
+
+	return render_template("submit.html", v=v, sub=sub)
 
 @app.get("/post/<pid>")
 @app.get("/post/<pid>/<anything>")
 @app.get("/logged_out/post/<pid>")
 @app.get("/logged_out/post/<pid>/<anything>")
+@app.get("/s/<sub>/post/<pid>")
+@app.get("/s/<sub>/post/<pid>/<anything>")
+@app.get("/logged_out/s/<sub>/post/<pid>")
+@app.get("/logged_out/s/<sub>/post/<pid>/<anything>")
 @auth_desired
-def post_id(pid, anything=None, v=None):
+def post_id(pid, anything=None, v=None, sub=None):
 	if not v and not request.path.startswith('/logged_out') and not request.headers.get("Authorization"):
 		return redirect(f"{SITE_FULL}/logged_out{request.full_path}")
 
@@ -110,9 +118,7 @@ def post_id(pid, anything=None, v=None):
 
 
 	try: pid = int(pid)
-	except:
-		try: pid = int(pid, 36)
-		except: abort(404)
+	except: abort(404)
 
 	post = get_post(pid, v=v)
 
@@ -179,8 +185,8 @@ def post_id(pid, anything=None, v=None):
 		elif sort == "bottom":
 			comments = comments.order_by(Comment.upvotes - Comment.downvotes)
 
-		first = [c[0] for c in comments.filter(or_(and_(Comment.slots_result == None, Comment.blackjack_result == None), func.length(Comment.body) > 20)).all()]
-		second = [c[0] for c in comments.filter(or_(Comment.slots_result != None, Comment.blackjack_result != None), func.length(Comment.body) <= 20).all()]
+		first = [c[0] for c in comments.filter(or_(and_(Comment.slots_result == None, Comment.blackjack_result == None), func.length(Comment.body) > 50)).all()]
+		second = [c[0] for c in comments.filter(or_(Comment.slots_result != None, Comment.blackjack_result != None), func.length(Comment.body) <= 50).all()]
 		comments = first + second
 	else:
 		pinned = g.db.query(Comment).filter(Comment.parent_submission == post.id, Comment.is_pinned != None).all()
@@ -198,11 +204,12 @@ def post_id(pid, anything=None, v=None):
 		elif sort == "bottom":
 			comments = comments.order_by(Comment.upvotes - Comment.downvotes)
 
-		first = comments.filter(or_(and_(Comment.slots_result == None, Comment.blackjack_result == None), func.length(Comment.body) > 20)).all()
-		second = comments.filter(or_(Comment.slots_result != None, Comment.blackjack_result != None), func.length(Comment.body) <= 20).all()
+		first = comments.filter(or_(and_(Comment.slots_result == None, Comment.blackjack_result == None), func.length(Comment.body) > 50)).all()
+		second = comments.filter(or_(Comment.slots_result != None, Comment.blackjack_result != None), func.length(Comment.body) <= 50).all()
 		comments = first + second
 
 	offset = 0
+	ids = set()
 
 	if post.comment_count > 60 and not request.headers.get("Authorization") and not request.values.get("all"):
 		comments2 = []
@@ -210,17 +217,18 @@ def post_id(pid, anything=None, v=None):
 		if post.created_utc > 1638672040:
 			for comment in comments:
 				comments2.append(comment)
+				ids.add(comment.id)
 				count += g.db.query(Comment.id).filter_by(parent_submission=post.id, top_comment_id=comment.id).count() + 1
-				offset += 1
 				if count > 50: break
 		else:
 			for comment in comments:
 				comments2.append(comment)
+				ids.add(comment.id)
 				count += g.db.query(Comment.id).filter_by(parent_submission=post.id, parent_comment_id=comment.id).count() + 1
-				offset += 1
 				if count > 10: break
 
-		if len(comments) == len(comments2): offset = None
+		if len(comments) == len(comments2): offset = 0
+		else: offset = 1
 		comments = comments2
 
 	for pin in pinned:
@@ -243,13 +251,14 @@ def post_id(pid, anything=None, v=None):
 	else:
 		if post.is_banned and not (v and (v.admin_level > 1 or post.author_id == v.id)): template = "submission_banned.html"
 		else: template = "submission.html"
-		return render_template(template, v=v, p=post, sort=sort, render_replies=True, offset=offset)
+		return render_template(template, v=v, p=post, ids=list(ids), sort=sort, render_replies=True, offset=offset, sub=post.subr)
 
-@app.post("/viewmore/<pid>/<sort>/<offset>")
+@app.get("/viewmore/<pid>/<sort>/<offset>")
 @limiter.limit("1/second;30/minute;200/hour;1000/day")
 @auth_desired
 def viewmore(v, pid, sort, offset):
 	offset = int(offset)
+	ids = set(int(x) for x in request.values.get("ids").split(','))
 	if v:
 		votes = g.db.query(CommentVote).filter_by(user_id=v.id).subquery()
 
@@ -262,12 +271,12 @@ def viewmore(v, pid, sort, offset):
 			votes.c.vote_type,
 			blocking.c.id,
 			blocked.c.id,
-		)
+		).filter(Comment.parent_submission == pid, Comment.author_id.notin_((AUTOPOLLER_ID, AUTOBETTER_ID)), Comment.is_pinned == None, Comment.id.notin_(ids))
 		
 		if not (v and v.shadowbanned) and not (v and v.admin_level > 1):
 			comments = comments.join(User, User.id == Comment.author_id).filter(User.shadowbanned == None)
  
-		comments=comments.filter(Comment.parent_submission == pid, Comment.author_id.notin_((AUTOPOLLER_ID, AUTOBETTER_ID)), Comment.is_pinned == None).join(
+		comments=comments.join(
 			votes,
 			votes.c.comment_id == Comment.id,
 			isouter=True
@@ -288,7 +297,7 @@ def viewmore(v, pid, sort, offset):
 			comment.is_blocking = c[2] or 0
 			comment.is_blocked = c[3] or 0
 			output.append(comment)
-				
+		
 		comments = comments.filter(Comment.level == 1)
 
 		if sort == "new":
@@ -302,12 +311,11 @@ def viewmore(v, pid, sort, offset):
 		elif sort == "bottom":
 			comments = comments.order_by(Comment.upvotes - Comment.downvotes)
 
-		first = [c[0] for c in comments.filter(or_(and_(Comment.slots_result == None, Comment.blackjack_result == None), func.length(Comment.body) > 20)).all()]
-		second = [c[0] for c in comments.filter(or_(Comment.slots_result != None, Comment.blackjack_result != None), func.length(Comment.body) <= 20).all()]
+		first = [c[0] for c in comments.filter(or_(and_(Comment.slots_result == None, Comment.blackjack_result == None), func.length(Comment.body) > 50)).all()]
+		second = [c[0] for c in comments.filter(or_(Comment.slots_result != None, Comment.blackjack_result != None), func.length(Comment.body) <= 50).all()]
 		comments = first + second
-		comments = comments[offset:]
 	else:
-		comments = g.db.query(Comment).join(User, User.id == Comment.author_id).filter(User.shadowbanned == None, Comment.parent_submission == pid, Comment.author_id.notin_((AUTOPOLLER_ID, AUTOBETTER_ID)), Comment.level == 1, Comment.is_pinned == None)
+		comments = g.db.query(Comment).join(User, User.id == Comment.author_id).filter(User.shadowbanned == None, Comment.parent_submission == pid, Comment.author_id.notin_((AUTOPOLLER_ID, AUTOBETTER_ID)), Comment.level == 1, Comment.is_pinned == None, Comment.id.notin_(ids))
 
 		if sort == "new":
 			comments = comments.order_by(Comment.created_utc.desc())
@@ -320,8 +328,8 @@ def viewmore(v, pid, sort, offset):
 		elif sort == "bottom":
 			comments = comments.order_by(Comment.upvotes - Comment.downvotes)
 		
-		first = comments.filter(or_(and_(Comment.slots_result == None, Comment.blackjack_result == None), func.length(Comment.body) > 20)).all()
-		second = comments.filter(or_(Comment.slots_result != None, Comment.blackjack_result != None), func.length(Comment.body) <= 20).all()
+		first = comments.filter(or_(and_(Comment.slots_result == None, Comment.blackjack_result == None), func.length(Comment.body) > 50)).all()
+		second = comments.filter(or_(Comment.slots_result != None, Comment.blackjack_result != None), func.length(Comment.body) <= 50).all()
 		comments = first + second
 		comments = comments[offset:]
 
@@ -331,23 +339,24 @@ def viewmore(v, pid, sort, offset):
 	if post.created_utc > 1638672040:
 		for comment in comments:
 			comments2.append(comment)
+			ids.add(comment.id)
 			count += g.db.query(Comment.id).filter_by(parent_submission=post.id, top_comment_id=comment.id).count() + 1
-			offset += 1
 			if count > 50: break
 	else:
 		for comment in comments:
 			comments2.append(comment)
+			ids.add(comment.id)
 			count += g.db.query(Comment.id).filter_by(parent_submission=post.id, parent_comment_id=comment.id).count() + 1
-			offset += 1
 			if count > 10: break
-
-	if len(comments) == len(comments2): offset = None
+	
+	if len(comments) == len(comments2): offset = 0
+	else: offset += 1
 	comments = comments2
 
-	return render_template("comments.html", v=v, comments=comments, render_replies=True, pid=pid, sort=sort, offset=offset, ajax=True)
+	return render_template("comments.html", v=v, comments=comments, ids=list(ids), render_replies=True, pid=pid, sort=sort, offset=offset, ajax=True)
 
 
-@app.post("/morecomments/<cid>")
+@app.get("/morecomments/<cid>")
 @limiter.limit("1/second;30/minute;200/hour;1000/day")
 @auth_desired
 def morecomments(v, cid):
@@ -414,10 +423,10 @@ def edit_post(pid, v):
 	if len(body) > 20000: return {"error":"Character limit is 20000!"}, 403
 
 	if v.marseyawarded:
-		marregex = list(re.finditer("^(:[!#]{0,2}m\w+:\s*)+$", title, flags=re.A))
+		marregex = list(re.finditer("^(:[!#]{0,2}m\w+:\s*)+$", title, re.A))
 		if len(marregex) == 0: return {"error":"You can only type marseys!"}, 403
 		if body:
-			marregex = list(re.finditer("^(:[!#]{0,2}m\w+:\s*)+$", body, flags=re.A))
+			marregex = list(re.finditer("^(:[!#]{0,2}m\w+:\s*)+$", body, re.A))
 			if len(marregex) == 0: return {"error":"You can only type marseys!"}, 403
 
 	if v.longpost and len(body) < 280 or ' [](' in body or body.startswith('[]('): return {"error":"You have to type more than 280 characters!"}, 403
@@ -427,7 +436,7 @@ def edit_post(pid, v):
 		if v.agendaposter and not v.marseyawarded: title = torture_ap(title, v.username)
 
 		title_html = filter_emojis_only(title, edit=True)
-		if v.marseyawarded and len(list(re.finditer('>[^<\s+]|[^>\s+]<', title_html, flags=re.A))): return {"error":"You can only type marseys!"}, 403
+		if v.marseyawarded and len(list(re.finditer('>[^<\s+]|[^>\s+]<', title_html, re.A))): return {"error":"You can only type marseys!"}, 403
 		p.title = title[:500]
 		p.title_html = title_html
 
@@ -448,13 +457,13 @@ def edit_post(pid, v):
 		else: return {"error": "Image/Video files only"}, 400
 
 	if body != p.body:
-		for i in re.finditer('^(https:\/\/.*\.(png|jpg|jpeg|gif|webp|PNG|JPG|JPEG|GIF|WEBP|9999))', body, re.MULTILINE):
+		for i in re.finditer('^(https:\/\/.*\.(png|jpg|jpeg|gif|webp|PNG|JPG|JPEG|GIF|WEBP|9999)($|\s|\n))', body, re.M|re.A):
 			if "wikipedia" not in i.group(1): body = body.replace(i.group(1), f'![]({i.group(1)})')
 
 		if v.agendaposter and not v.marseyawarded: body = torture_ap(body, v.username)
 
 		if not p.options.count():
-			for i in re.finditer('\s*\$\$([^\$\n]+)\$\$\s*', body, flags=re.A):
+			for i in re.finditer('\s*\$\$([^\$\n]+)\$\$\s*', body, re.A):
 				body = body.replace(i.group(0), "")
 				c = Comment(author_id=AUTOPOLLER_ID,
 					parent_submission=p.id,
@@ -477,7 +486,7 @@ def edit_post(pid, v):
 			return {"error": reason}, 403
 
 		p.body = body
-		if v.marseyawarded and len(list(re.finditer('>[^<\s+]|[^>\s+]<', body_html, flags=re.A))): return {"error":"You can only type marseys!"}, 40
+		if v.marseyawarded and len(list(re.finditer('>[^<\s+]|[^>\s+]<', body_html, re.A))): return {"error":"You can only type marseys!"}, 40
 
 		if v.longpost:
 			if len(body) < 280 or ' [](' in body or body.startswith('[]('): return {"error":"You have to type more than 280 characters!"}, 403
@@ -508,6 +517,7 @@ def edit_post(pid, v):
 				is_pinned='AutoJanny',
 				distinguish_level=6,
 				body_html=body_jannied_html,
+				ghost=p.ghost
 				)
 
 			g.db.add(c_jannied)
@@ -515,7 +525,36 @@ def edit_post(pid, v):
 
 			n = Notification(comment_id=c_jannied.id, user_id=v.id)
 			g.db.add(n)
-		
+
+		elif request.host == 'rdrama.net' and 'nigg' in f'{p.body}{p.title}'.lower() and not v.nwordpass:
+
+			p.is_banned = True
+			p.ban_reason = "AutoJanny"
+			g.db.add(p)
+
+			c_jannied = Comment(author_id=NOTIFICATIONS_ID,
+				parent_submission=p.id,
+				level=1,
+				over_18=False,
+				is_bot=True,
+				app_id=None,
+				is_pinned='AutoJanny',
+				distinguish_level=6,
+				body_html=no_pass_phrase,
+				ghost=p.ghost
+				)
+
+			g.db.add(c_jannied)
+			g.db.flush()
+
+			v.ban(reason="White people nonsense.", days=0.007)
+
+			text = "Your account has been suspended for 10 minutes for the following reason:\n\n> Unsanctioned NWord"
+			send_repeatable_notification(v.id, text)		
+
+			n = Notification(comment_id=c_jannied.id, user_id=v.id)
+			g.db.add(n)
+
 
 		notify_users = NOTIFY_USERS(body_html, v) | NOTIFY_USERS2(title, v)
 		
@@ -667,49 +706,50 @@ def thumbnail_thread(pid):
 	db.add(post)
 	db.commit()
 
-	if SITE == 'rdrama.net' and random.random() < 0.02:
+	if SITE == 'rdrama.net':
 		for t in ("submission","comment"):
-			for term in ('rdrama','freeghettohoes.biz','marsey'):
-				for i in requests.get(f'https://api.pushshift.io/reddit/{t}/search?html_decode=true&q={term}&size=10').json()["data"]:
+			for i in requests.get(f'https://api.pushshift.io/reddit/{t}/search?html_decode=true&q=rdrama&size=1').json()["data"]:
 
-					body_html = sanitize(f'New rdrama mention: https://old.reddit.com{i["permalink"]}?context=89', noimages=True)
+				body_html = sanitize(f'New rdrama mention: https://old.reddit.com{i["permalink"]}?context=89', noimages=True)
 
-					existing_comment = db.query(Comment.id).filter_by(author_id=NOTIFICATIONS_ID, parent_submission=None, distinguish_level=6, body_html=body_html, level=1, sentto=0).first()
+				existing_comment = db.query(Comment.id).filter_by(author_id=NOTIFICATIONS_ID, parent_submission=None, distinguish_level=6, body_html=body_html, level=1, sentto=0).first()
 
-					if existing_comment: break
+				if existing_comment: break
 
-					new_comment = Comment(author_id=NOTIFICATIONS_ID,
-										parent_submission=None,
-										distinguish_level=6,
-										body_html=body_html,
-										level=1,
-										sentto=0,
-										)
-					db.add(new_comment)
-					db.flush()
+				print(body_html, flush=True)
+				new_comment = Comment(author_id=NOTIFICATIONS_ID,
+									parent_submission=None,
+									distinguish_level=6,
+									body_html=body_html,
+									level=1,
+									sentto=0,
+									)
+				db.add(new_comment)
+				db.flush()
 
-					admins = db.query(User).filter(User.admin_level > 0).all()
-					for admin in admins:
-						notif = Notification(comment_id=new_comment.id, user_id=admin.id)
-						db.add(notif)
-
-			for k,v in REDDIT_NOTIFS.items():
-				for i in requests.get(f'https://api.pushshift.io/reddit/{t}/search?html_decode=true&q={k}&size=10').json()["data"]:
-					try: body_html = sanitize(f'New mention of you: https://old.reddit.com{i["permalink"]}?context=89', noimages=True)
-					except: continue
-					existing_comment = db.query(Comment.id).filter_by(author_id=NOTIFICATIONS_ID, parent_submission=None, distinguish_level=6, body_html=body_html).first()
-					if existing_comment: break
-					new_comment = Comment(author_id=NOTIFICATIONS_ID,
-										parent_submission=None,
-										distinguish_level=6,
-										body_html=body_html
-										)
-
-					db.add(new_comment)
-					db.flush()
-
-					notif = Notification(comment_id=new_comment.id, user_id=v)
+				admins = db.query(User).filter(User.admin_level > 0).all()
+				for admin in admins:
+					notif = Notification(comment_id=new_comment.id, user_id=admin.id)
 					db.add(notif)
+
+			for i in requests.get(f'https://api.pushshift.io/reddit/{t}/search?html_decode=true&q=aevann&size=1').json()["data"]:
+				try: body_html = sanitize(f'New mention of you: https://old.reddit.com{i["permalink"]}?context=89', noimages=True)
+				except: continue
+				existing_comment = db.query(Comment.id).filter_by(author_id=NOTIFICATIONS_ID, parent_submission=None, distinguish_level=6, body_html=body_html).first()
+				if existing_comment: break
+
+				print(body_html, flush=True)
+				new_comment = Comment(author_id=NOTIFICATIONS_ID,
+									parent_submission=None,
+									distinguish_level=6,
+									body_html=body_html
+									)
+
+				db.add(new_comment)
+				db.flush()
+
+				notif = Notification(comment_id=new_comment.id, user_id=AEVANN_ID)
+				db.add(notif)
 
 
 	db.commit()
@@ -719,9 +759,15 @@ def thumbnail_thread(pid):
 
 
 @app.post("/submit")
+@app.post("/s/<sub>/submit")
 @limiter.limit("1/second;6/minute;200/hour;1000/day")
 @auth_required
-def submit_post(v):
+def submit_post(v, sub=None):
+	if not sub: sub = request.values.get("sub")
+	sub = g.db.query(Sub.name).filter_by(name=sub).one_or_none()
+	if sub: sub = sub[0]
+	else: sub = None
+
 	if v.is_suspended: return {"error": "You can't perform this action while banned."}, 403
 	
 	if v and v.patron:
@@ -737,7 +783,7 @@ def submit_post(v):
 	title_html = filter_emojis_only(title)
 	body = request.values.get("body", "").strip().replace('‎','')
 
-	if v.marseyawarded and len(list(re.finditer('>[^<\s+]|[^>\s+]<', title_html, flags=re.A))): return {"error":"You can only type marseys!"}, 40
+	if v.marseyawarded and len(list(re.finditer('>[^<\s+]|[^>\s+]<', title_html, re.A))): return {"error":"You can only type marseys!"}, 40
 
 	if v.longpost:
 		if len(body) < 280 or ' [](' in body or body.startswith('[]('): return {"error":"You have to type more than 280 characters!"}, 403
@@ -789,9 +835,11 @@ def submit_post(v):
 			if repost: return redirect(repost.permalink)
 
 		domain_obj = get_domain(domain)
+		if not domain_obj: domain_obj = get_domain(domain+parsed_url.path)
 		if domain_obj:
-			if request.headers.get("Authorization") or request.headers.get("xhr"): return {"error":domain_obj.reason}, 400
-			return render_template("submit.html", v=v, error=domain_obj.reason, title=title, url=url, body=request.values.get("body", "")), 400
+			reason = f"Remove the {domain_obj.domain} link from your post and try again. {domain_obj.reason}"
+			if request.headers.get("Authorization") or request.headers.get("xhr"): return {"error":reason}, 400
+			return render_template("submit.html", v=v, error=reason, title=title, url=url, body=request.values.get("body", "")), 400
 		elif "twitter.com" == domain:
 			try: embed = requests.get("https://publish.twitter.com/oembed", timeout=5, params={"url":url, "omit_script":"t"}).json()["html"]
 			except: embed = None
@@ -825,10 +873,10 @@ def submit_post(v):
 		else: render_template("submit.html", v=v, error="500 character limit for titles.", title=title[:500], url=url, body=request.values.get("body", "")), 400
 
 	if v.marseyawarded:
-		marregex = list(re.finditer("^(:[!#]{0,2}m\w+:\s*)+$", title, flags=re.A))
+		marregex = list(re.finditer("^(:[!#]{0,2}m\w+:\s*)+$", title, re.A))
 		if len(marregex) == 0: return {"error":"You can only type marseys!"}, 403
 		if body:
-			marregex = list(re.finditer("^(:[!#]{0,2}m\w+:\s*)+$", body, flags=re.A))
+			marregex = list(re.finditer("^(:[!#]{0,2}m\w+:\s*)+$", body, re.A))
 			if len(marregex) == 0: return {"error":"You can only type marseys!"}, 403
 
 	if v.longpost and len(body) < 280 or ' [](' in body or body.startswith('[]('): return {"error":"You have to type more than 280 characters!"}, 403
@@ -898,17 +946,17 @@ def submit_post(v):
 		if request.headers.get("Authorization") or request.headers.get("xhr"): return {"error":"2048 character limit for URLs."}, 400
 		return render_template("submit.html", v=v, error="2048 character limit for URLs.", title=title, url=url,body=request.values.get("body", "")), 400
 
-	for i in re.finditer('^(https:\/\/.*\.(png|jpg|jpeg|gif|webp|PNG|JPG|JPEG|GIF|WEBP|9999))', body, re.MULTILINE):
+	for i in re.finditer('^(https:\/\/.*\.(png|jpg|jpeg|gif|webp|PNG|JPG|JPEG|GIF|WEBP|9999)($|\s|\n))', body, re.M|re.A):
 		if "wikipedia" not in i.group(1): body = body.replace(i.group(1), f'![]({i.group(1)})')
 
 	if v and v.admin_level > 2:
 		bet_options = []
-		for i in re.finditer('\s*\$\$\$([^\$\n]+)\$\$\$\s*', body, flags=re.A):
+		for i in re.finditer('\s*\$\$\$([^\$\n]+)\$\$\$\s*', body, re.A):
 			bet_options.append(i.group(1))
 			body = body.replace(i.group(0), "")
 
 	options = []
-	for i in re.finditer('\s*\$\$([^\$\n]+)\$\$\s*', body, flags=re.A):
+	for i in re.finditer('\s*\$\$([^\$\n]+)\$\$\s*', body, re.A):
 		options.append(i.group(1))
 		body = body.replace(i.group(0), "")
 
@@ -929,7 +977,7 @@ def submit_post(v):
 			body += f"\n\n{url}"
 		else:
 			if request.headers.get("Authorization") or request.headers.get("xhr"): return {"error": "Image/Video files only"}, 400
-			return render_template("submit.html", v=v, error=f"Image/Video files only."), 400
+			return render_template("submit.html", v=v, error="Image/Video files only."), 400
 
 	if '#fortune' in body:
 		body = body.replace('#fortune', '')
@@ -937,7 +985,7 @@ def submit_post(v):
 
 	body_html = sanitize(body)
 
-	if v.marseyawarded and len(list(re.finditer('>[^<\s+]|[^>\s+]<', body_html, flags=re.A))): return {"error":"You can only type marseys!"}, 400
+	if v.marseyawarded and len(list(re.finditer('>[^<\s+]|[^>\s+]<', body_html, re.A))): return {"error":"You can only type marseys!"}, 400
 
 	if v.longpost:
 		if len(body) < 280 or ' [](' in body or body.startswith('[]('): return {"error":"You have to type more than 280 characters!"}, 403
@@ -972,7 +1020,8 @@ def submit_post(v):
 		embed_url=embed,
 		title=title[:500],
 		title_html=title_html,
-		created_utc=int(time.time())	
+		created_utc=int(time.time()),
+		sub=sub
 	)
 
 	g.db.add(new_post)
@@ -1078,6 +1127,33 @@ def submit_post(v):
 		n = Notification(comment_id=c_jannied.id, user_id=v.id)
 		g.db.add(n)
 
+	elif request.host == 'rdrama.net' and 'nigg' in f'{new_post.body}{new_post.title}'.lower() and not v.nwordpass:
+
+		new_post.is_banned = True
+		new_post.ban_reason = "AutoJanny"
+
+		c_jannied = Comment(author_id=NOTIFICATIONS_ID,
+			parent_submission=new_post.id,
+			level=1,
+			over_18=False,
+			is_bot=True,
+			app_id=None,
+			is_pinned='AutoJanny',
+			distinguish_level=6,
+			body_html=no_pass_phrase,
+			)
+
+		g.db.add(c_jannied)
+		g.db.flush()
+
+		v.ban(reason="White people nonsense.", days=0.007)
+
+		text = "Your account has been suspended for 10 minutes for the following reason:\n\n> Unsanctioned NWord"
+		send_repeatable_notification(v.id, text)		
+
+		n = Notification(comment_id=c_jannied.id, user_id=v.id)
+		g.db.add(n)
+
 	if v.id == CARP_ID:
 		if random.random() < 0.02: body = "i love you carp"
 		else: body = ":#marseyfuckoffcarp:"
@@ -1098,7 +1174,7 @@ def submit_post(v):
 		gevent.spawn(archiveorg, newposturl)
 
 	url_regex = '<a href=\"(https?:\/\/[a-z]{1,20}\.[^\"]+)\" rel=\"nofollow noopener noreferrer\" target=\"_blank\">(.*?)<\/a>'
-	for url_match in re.finditer(url_regex, new_post.body_html):
+	for url_match in list(re.finditer(url_regex, new_post.body_html))[:20]:
 		href = url_match.group(1)
 		if not href: continue
 
@@ -1138,7 +1214,7 @@ def submit_post(v):
 			n = Notification(comment_id=c.id, user_id=v.id)
 			g.db.add(n)
 		
-		if body == '!slots1000':
+		if body.startswith('!slots1000'):
 			slots = Slots(g)
 			slots.check_for_slots_command(body, snappy, c)
 
@@ -1174,7 +1250,7 @@ def submit_post(v):
 		if 'megathread' in new_post.title.lower(): sort = 'new'
 		else: sort = v.defaultsortingcomments
 		if len(body_html) < 40000: new_post.replies = [c]
-		return render_template('submission.html', v=v, p=new_post, sort=sort, render_replies=True, offset=0, success=True)
+		return render_template('submission.html', v=v, p=new_post, sort=sort, render_replies=True, offset=0, success=True, sub=new_post.subr)
 
 
 @app.post("/delete_post/<pid>")

@@ -15,7 +15,6 @@ def get_logged_in_user():
 
 		v = client.user
 		v.client = client
-		return v
 	else:
 		lo_user = session.get("lo_user")
 		if not lo_user: return None
@@ -31,7 +30,7 @@ def get_logged_in_user():
 			if not submitted_key: abort(401)
 			elif not v.validate_formkey(submitted_key): abort(401)
 
-		return v
+	return v
 
 def check_ban_evade(v):
 	if v and not v.patron and v.admin_level == 0 and v.ban_evade and not v.unban_utc:

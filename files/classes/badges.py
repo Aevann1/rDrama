@@ -51,7 +51,7 @@ class Badge(Base):
 			text = self.badge.description + " until " + datetime.utcfromtimestamp(ti).strftime('%Y-%m-%d %H:%M:%S')
 		elif self.description: text = self.description
 		elif self.badge.description: text = self.badge.description
-		else: return ''
+		else: return self.name
 		return f'{self.name} - {text}'
 
 	@property
@@ -62,7 +62,7 @@ class Badge(Base):
 	@property
 	@lazy
 	def path(self):
-		return f"{SITE_FULL}/static/assets/images/badges/{self.badge_id}.webp?a=1008"
+		return f"{SITE_FULL}/static/assets/images/badges/{self.badge_id}.webp"
 
 	@property
 	@lazy

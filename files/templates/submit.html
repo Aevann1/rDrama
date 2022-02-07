@@ -4,13 +4,13 @@
 	<meta name="description" content="{{config('DESCRIPTION')}}">
 		<meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline'; connect-src 'self'; object-src 'none';">
 
-		<script src="/static/assets/js/bootstrap.js?a=220"></script>
+		<script src="/static/assets/js/bootstrap.js?a=240"></script>
 
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
 		<meta name="author" content="">
-		<link rel="icon" type="image/png" href="/static/assets/images/{{SITE_NAME}}/icon.webp?a=1008">
+		<link rel="icon" type="image/png" href="/static/assets/images/{{SITE_NAME}}/icon.webp?a=1010">
 
 		{% if request.host == 'pcmemes.net' %}
 			{% set cc='Splash Mountain' %}
@@ -26,7 +26,7 @@
 		{% block stylesheets %}
 		{% if v %}
 			<style>:root{--primary:#{{v.themecolor}}}</style>
-			<link rel="stylesheet" href="/static/assets/css/main.css?a=102"><link rel="stylesheet" href="/static/assets/css/{{v.theme}}.css?a=14">
+			<link rel="stylesheet" href="/static/assets/css/main.css?a=115"><link rel="stylesheet" href="/static/assets/css/{{v.theme}}.css?a=19">
 			{% if v.agendaposter %}
 				<style>
 					html {
@@ -50,8 +50,8 @@
 			{% endif %}
 		{% else %}
 			<style>:root{--primary:#{{config('DEFAULT_COLOR')}}</style>
-			<link rel="stylesheet" href="/static/assets/css/main.css?a=102">
-			<link rel="stylesheet" href="/static/assets/css/{{config('DEFAULT_THEME')}}.css?a=14">
+			<link rel="stylesheet" href="/static/assets/css/main.css?a=115">
+			<link rel="stylesheet" href="/static/assets/css/{{config('DEFAULT_THEME')}}.css?a=19">
 		{% endif %}
 		{% endblock %}
 
@@ -63,7 +63,7 @@
 
 		
 		<div class="submit-grid-view">
-			<form id="submitform" action="/submit" method="post" enctype="multipart/form-data" style="grid-column: 2">
+			<form id="submitform" action="{% if sub %}/s/{{sub.name}}{% endif %}/submit" method="post" enctype="multipart/form-data" style="grid-column: 2">
 
 				<div class="container">
 
@@ -79,7 +79,24 @@
 
 												<input autocomplete="off" type="hidden" name="formkey" value="{{v.formkey}}">
 
-												<label for="title">Post Title</label>
+												{% if SUBS %}
+													<label class='mt-4' for="title">Sub</label>
+
+													<div class="input-group mb2">
+														<select autocomplete="off" id='sub' class="form-control" form="submitform" name="sub">
+															<option {% if not sub %}selected{% endif %}>
+																general
+															</option>
+															{% for s in SUBS %}
+																<option value="{{s}}" {% if sub.name == s %}selected{% endif %}>
+																	/s/{{s}}
+																</option>
+															{% endfor %}
+														</select>
+													</div>
+												{% endif %}
+						
+												<label class='mt-4' for="title">Post Title</label>
 
 
 												<input autocomplete="off" class="form-control" id="post-title" aria-describedby="titleHelpRegister" type="text" name="title" placeholder="Required" value="{{title}}" minlength="1" maxlength="500" required oninput="checkForRequired();savetext()">
@@ -141,7 +158,7 @@
 																
 												<label class="format btn btn-secondary m-0 ml-1 {% if v %}d-inline-block{% else %}d-none{% endif %}" for="file-upload-submit">
 													<div id="filename-show-submit"><i class="far fa-image"></i></div>
-													<input autocomplete="off" id="file-upload-submit" type="file" name="file2" accept="image/*, video/*" {% if request.headers.get('cf-ipcountry')=="T1" %}disabled{% endif %} onchange="document.getElementById('filename-show-submit').innerHTML='image/video';" hidden>
+													<input autocomplete="off" id="file-upload-submit" type="file" name="file2" accept="image/*, video/*" {% if request.headers.get('cf-ipcountry')=="T1" %}disabled{% endif %} onchange="changename('filename-show-submit','file-upload-submit')" hidden>
 												</label>		
 
 												<pre></pre>
@@ -239,9 +256,9 @@
 			checkForRequired()
 		</script>
 
-		<script src="/static/assets/js/marked.js?a=220"></script>
-		<script src="/static/assets/js/formatting.js?a=220"></script>
-		<script src="/static/assets/js/submit.js?a=220"></script>
+		<script src="/static/assets/js/marked.js?a=240"></script>
+		<script src="/static/assets/js/formatting.js?a=240"></script>
+		<script src="/static/assets/js/submit.js?a=243"></script>
 		{% include "emoji_modal.html" %}
 		{% include "gif_modal.html" %}
 

@@ -9,18 +9,8 @@
 {% endif %}
 
 {% if not v or v.highlightcomments %}
-	<script src="/static/assets/js/new_comments_count.js?a=220"></script>
+	<script src="/static/assets/js/new_comments_count.js?a=240"></script>
 {% endif %}
-
-<script>
-	function togglevideo(pid) {
-		let vid = document.getElementById(`video-${pid}`).classList
-		vid.toggle('d-none')
-		let vid2 = document.getElementById(`video2-${pid}`)
-		if (vid.contains('d-none')) vid2.pause()
-		else vid2.play()
-	}
-</script>
 
 <div style="display:none" id="popover">
 	<div class="popover-user-profile" role="tooltip">
@@ -162,6 +152,10 @@
 		<div class="card-block text-left x-scroll-parent my-md-auto w-100">
 
 			<div class="post-meta text-left x-scroll mb-md-2">
+				{% if p.sub %}
+					<a href='/s/{{p.sub}}'>/s/{{p.sub}}</a>&nbsp;&nbsp;
+				{% endif %}
+
 				{% if p.bannedfor %}
 					<a role="button"><i class="fad fa-gavel text-danger" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="User was banned for this post{% if p.author.banned_by %} by @{{p.author.banned_by.username}}{% endif %}"></i></a>
 				{% endif %}
@@ -190,9 +184,13 @@
 				{% if p.ghost %}
 					👻
 				{% else %}
+					{% if p.author.house %}
+						<img src="/assets/images/{{SITE_NAME}}/houses/{{p.author.house}}.webp?a=5" height="20" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="House {{p.author.house}}">
+					{% endif %}
+
 					{% if p.author.verified %}<i class="fas fa-badge-check align-middle ml-1" style="color:{% if p.author.verifiedcolor %}#{{p.author.verifiedcolor}}{% else %}#1DA1F2{% endif %}" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{p.author.verified}}"></i>
 					{% endif %}
-					<a class="user-name text-decoration-none" onclick='popclick({{p.author.json_popover(v) | tojson}})' data-bs-placement="bottom" data-bs-toggle="popover" data-bs-trigger="focus" data-content-id="popover" role="button" tabindex="0" style="color: #{{p.author.namecolor}};  font-weight: bold;"><img alt="@{{p.author_name}}'s profile picture" loading="lazy" src="{{p.author.profile_url}}" class="profile-pic-25 mr-2"><span {% if p.author.patron and not p.distinguish_level %}class="patron" style="background-color:#{{p.author.namecolor}};"{% elif p.distinguish_level and request.host == 'rdrama.net' %}class="mod"{% endif %}>{{p.author_name}}</span></a>{% if p.author.customtitle %}<bdi  style="color: #{{p.author.titlecolor}}">&nbsp;&nbsp;{% if p.author.quadrant %}<img alt="{{p.author.quadrant}} quadrant" loading="lazy" height="20" src="/static/assets/images/quadrants/{{p.author.quadrant}}.webp?a=1008">{% endif %}{{p.author.customtitle | safe}}</bdi>{% endif %}
+					<a class="user-name text-decoration-none" onclick='popclick({{p.author.json_popover(v) | tojson}})' data-bs-placement="bottom" data-bs-toggle="popover" data-bs-trigger="click" data-content-id="popover" role="button" tabindex="0" style="color: #{{p.author.namecolor}};  font-weight: bold;"><img alt="@{{p.author_name}}'s profile picture" loading="lazy" src="{{p.author.profile_url}}" class="profile-pic-25 mr-2"><span {% if p.author.patron and not p.distinguish_level %}class="patron" style="background-color:#{{p.author.namecolor}};"{% elif p.distinguish_level and request.host == 'rdrama.net' %}class="mod"{% endif %}>{{p.author_name}}</span></a>{% if p.author.customtitle %}<bdi  style="color: #{{p.author.titlecolor}}">&nbsp;&nbsp;{% if p.author.quadrant %}<img alt="{{p.author.quadrant}} quadrant" loading="lazy" height="20" src="/static/assets/images/quadrants/{{p.author.quadrant}}.webp?a=1008">{% endif %}{{p.author.customtitle | safe}}</bdi>{% endif %}
 				{% endif %}
 				<span data-bs-toggle="tooltip" data-bs-placement="bottom" onmouseover="timestamp('timestamp-{{p.id}}','{{p.created_utc}}')" id="timestamp-{{p.id}}">&nbsp;{{p.age_string}}</span>
 				&nbsp;
@@ -246,11 +244,9 @@
 								<a id="unpin-profile-{{p.id}}" class="{% if not p.is_pinned %}d-none{% endif %} list-inline-item text-muted" role="button" onclick="post_toast2('/pin/{{p.id}}','unpin-profile-{{p.id}}','pin-profile-{{p.id}}')"><i class="fas fa-thumbtack fa-rotate--45"></i>Unpin from profile</a>
 							{% endif %}
 
-								{% if p.deleted_utc %}
-									<a class="list-inline-item" role="button" onclick="post_toast('/undelete_post/{{p.id}}')"><i class="fas fa-trash-alt"></i>Undelete</a>
-								{% else %}
-									<a class="list-inline-item" role="button" data-bs-toggle="modal" data-bs-dismiss="modal" data-bs-target="#deletePostModal" onclick="delete_postModal('{{p.id}}')"><i class="fas fa-trash-alt"></i>Delete</a>
-								{% endif %}
+								<a id="undelete2-{{p.id}}" class="{% if not p.deleted_utc %}d-none{% endif %} list-inline-item" role="button" onclick="post_toast2('/undelete_post/{{p.id}}', 'delete2-{{p.id}}', 'undelete2-{{p.id}}');document.getElementById('post-{{p.id}}').classList.remove('deleted')"><i class="fas fa-trash-alt"></i>Undelete</a>
+
+								<a id="delete2-{{p.id}}" class="{% if p.deleted_utc %}d-none{% endif %} list-inline-item" role="button" data-bs-toggle="modal" data-bs-dismiss="modal" data-bs-target="#deletePostModal" onclick="delete_postModal('{{p.id}}')"><i class="fas fa-trash-alt"></i>Delete</a>
 							{% endif %}
 
 							{% if v %}
@@ -392,7 +388,7 @@
 			<div class="modal-content">
 				<div class="modal-header p-3">
 					<h5 class="col modal-title text-center h6">More options</h5>
-					<button role="button" class="close position-absolute py-3" style="right: 1rem;" data-bs-dismiss="modal" aria-label="Close">
+					<button class="close position-absolute py-3" style="right: 1rem;" data-bs-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true"><i class="fas fa-times-circle text-gray-500"></i></span>
 					</button>
 				</div>
@@ -427,12 +423,11 @@
 								<button id="pin-profile2-{{p.id}}" class="{% if p.is_pinned %}d-none{% endif %} nobackground btn btn-link btn-block btn-lg text-muted text-left"role="button" onclick="post_toast2('/pin/{{p.id}}','pin-profile2-{{p.id}}','unpin-profile2-{{p.id}}')" data-bs-dismiss="modal"><i class="fas fa-thumbtack fa-rotate--45 text-center mr-3"></i>Pin to profile</button>
 								<button id="unpin-profile2-{{p.id}}" class="{% if not p.is_pinned %}d-none{% endif %} nobackground btn btn-link btn-block btn-lg text-muted text-left" role="button" onclick="post_toast2('/pin/{{p.id}}','pin-profile2-{{p.id}}','unpin-profile2-{{p.id}}')" data-bs-dismiss="modal"><i class="fas fa-thumbtack fa-rotate--45 text-center mr-3"></i>Unpin from profile</button>
 							{% endif %}
+
 							
-							{% if p.deleted_utc %}
-								<button class="nobackground btn btn-link btn-block btn-lg text-left text-success" role="button" onclick="post_toast('/undelete_post/{{p.id}}')" data-bs-dismiss="modal"><i class="far fa-trash-alt text-center mr-3"></i>Undelete</button>
-							{% else %}
-								<button class="nobackground btn btn-link btn-block btn-lg text-left text-danger" data-bs-toggle="modal" data-bs-dismiss="modal" data-bs-target="#deletePostModal" onclick="delete_postModal('{{p.id}}')"><i class="far fa-trash-alt mr-3"></i>Delete</button>
-							{% endif %}
+							<button id="undelete-{{p.id}}" class="{% if not p.deleted_utc %}d-none{% endif %} nobackground btn btn-link btn-block btn-lg text-left text-success" role="button" onclick="post_toast2('/undelete_post/{{p.id}}', 'delete-{{p.id}}', 'undelete-{{p.id}}');document.getElementById('post-{{p.id}}').classList.remove('deleted')" data-bs-dismiss="modal"><i class="far fa-trash-alt text-center mr-3"></i>Undelete</button>
+
+							<button id="delete-{{p.id}}" class="{% if p.deleted_utc %}d-none{% endif %}  nobackground btn btn-link btn-block btn-lg text-left text-danger" data-bs-toggle="modal" data-bs-dismiss="modal" data-bs-target="#deletePostModal" onclick="delete_postModal('{{p.id}}')"><i class="far fa-trash-alt mr-3"></i>Delete</button>
 
 
 							{% if v.club_allowed != False %}
@@ -460,7 +455,7 @@
 			<div class="modal-content">
 				<div class="modal-header p-3">
 					<h5 class="col modal-title text-center h6">Admin options</h5>
-					<button role="button" class="close position-absolute py-3" style="right: 1rem;" data-bs-dismiss="modal" aria-label="Close">
+					<button class="close position-absolute py-3" style="right: 1rem;" data-bs-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true"><i class="fas fa-times-circle text-gray-500"></i></span>
 					</button>
 				</div>
@@ -559,7 +554,7 @@
 			</span>
 			<h2 class="h5">You haven't {% if "saved" in request.full_path %}saved{% else %}made{% endif %} a post yet</h2>
 			<p class="text-muted mb-md-5">Your {% if "saved" in request.full_path %}saved posts{% else %}posting history{% endif %} will show here.</p>
-			{% if "saved" not in request.full_path %}<a href="/submit" class="btn btn-primary">Create a post</a>{% endif %}
+			{% if "saved" not in request.full_path %}<a href="{% if sub %}/s/{{sub.name}}{% endif %}/submit" class="btn btn-primary">Create a post</a>{% endif %}
 		</div>			
 	</div>	
 </div>
@@ -689,6 +684,6 @@
 	}
 </style>
 
-<script src="/static/assets/js/clipboard.js?a=220"></script>
-<script src="/static/assets/js/comments+submission_listing.js?a=221"></script>
-<script src="/static/assets/js/submission_listing.js?a=220"></script>
+<script src="/static/assets/js/clipboard.js?a=240"></script>
+<script src="/static/assets/js/comments+submission_listing.js?a=240"></script>
+<script src="/static/assets/js/submission_listing.js?a=240"></script>

@@ -221,7 +221,7 @@
 <meta property="og:description" name="description" content="{{comment_info.plainbody(v)}}" >
 <meta property="og:author" name="author" content="{{'@'+comment_info.author_name}}" >
 <meta property="og:title" content="{{'@'+comment_info.author_name}} comments on {{p.plaintitle(v)}} - {{SITE_NAME}}" >
-<meta property="og:image" content="{% if p.is_image %}{{p.realurl(v)}}{% elif p.has_thumb%}{{p.thumb_url}}{% else %}{{SITE_NAME}}/static/assets/images/{{SITE_NAME}}/site_preview.webp{% endif %}" >
+<meta property="og:image" content="{% if p.is_image %}{{p.realurl(v)}}{% elif p.has_thumb%}{{p.thumb_url}}{% else %}{{SITE_NAME}}/static/assets/images/{{SITE_NAME}}/site_preview.webp?a=1011{% endif %}" >
 {% if p.is_video %}
 	<meta property="og:video" content="{{p.realurl(v)}}" >
 {% endif %}
@@ -233,7 +233,7 @@
 <meta name="twitter:title" content="{{'@'+comment_info.author_name}} comments on {{p.plaintitle(v)}} - {{SITE_NAME}}" >
 <meta name="twitter:creator" content="{{'@'+comment_info.author_name}}">
 <meta name="twitter:description" content="{{comment_info.plainbody(v)}}" >
-<meta name="twitter:image" content="{% if p.is_image %}{{p.realurl(v)}}{% elif p.has_thumb%}{{p.thumb_url}}{% else %}{{SITE_NAME}}/static/assets/images/{{SITE_NAME}}/site_preview.webp{% endif %}" >
+<meta name="twitter:image" content="{% if p.is_image %}{{p.realurl(v)}}{% elif p.has_thumb%}{{p.thumb_url}}{% else %}{{SITE_NAME}}/static/assets/images/{{SITE_NAME}}/site_preview.webp?a=1011{% endif %}" >
 <meta name="twitter:url" content="{{p.permalink}}" >
 
 {% else %}
@@ -246,7 +246,7 @@
 <meta property="og:description" name="description" content="{{p.plainbody(v)}}" >
 {% if p.author %}<meta property="og:author" name="author" content="{{'@'+p.author_name}}" >{% endif %}
 <meta property="og:title" content="{{p.plaintitle(v)}} - {{SITE_NAME}}" >
-<meta property="og:image" content="{% if p.is_image %}{{p.realurl(v)}}{% elif p.has_thumb%}{{p.thumb_url}}{% else %}{{SITE_NAME}}/static/assets/images/{{SITE_NAME}}/site_preview.webp{% endif %}" >
+<meta property="og:image" content="{% if p.is_image %}{{p.realurl(v)}}{% elif p.has_thumb%}{{p.thumb_url}}{% else %}{{SITE_NAME}}/static/assets/images/{{SITE_NAME}}/site_preview.webp?a=1011{% endif %}" >
 {% if p.url and p.is_video %}
 <meta property="og:video" content="{{p.realurl(v)}}" >
 {% endif %}
@@ -258,7 +258,7 @@
 <meta name="twitter:title" content="{{p.plaintitle(v)}} - {{SITE_NAME}}" >
 {% if p.author %}<meta name="twitter:creator" content="{{'@'+p.author_name}}">{% endif %}
 <meta name="twitter:description" content="{{p.plainbody(v)}}" >
-<meta name="twitter:image" content="{% if p.is_image %}{{p.realurl(v)}}{% elif p.has_thumb %}{{p.thumb_url}}{% else %}{{SITE_NAME}}/static/assets/images/{{SITE_NAME}}/site_preview.webp{% endif %}" >
+<meta name="twitter:image" content="{% if p.is_image %}{{p.realurl(v)}}{% elif p.has_thumb %}{{p.thumb_url}}{% else %}{{SITE_NAME}}/static/assets/images/{{SITE_NAME}}/site_preview.webp?a=1011{% endif %}" >
 <meta name="twitter:url" content="{{p.permalink}}" >
 
 {% endif %}
@@ -310,11 +310,10 @@
 								<button id="unpin-profile2-{{p.id}}" class="{% if not p.is_pinned %}d-none{% endif %} nobackground btn btn-link btn-block btn-lg text-muted text-left" role="button" onclick="post_toast2('/pin/{{p.id}}','pin-profile2-{{p.id}}','unpin-profile2-{{p.id}}')" data-bs-dismiss="modal"><i class="fas fa-thumbtack fa-rotate--45 text-center mr-3"></i>Unpin from profile</button>
 							{% endif %}
 
-							{% if p.deleted_utc %}
-								<button class="nobackground btn btn-link btn-block btn-lg text-left text-success" role="button" onclick="post_toast('/undelete_post/{{p.id}}')" data-bs-dismiss="modal"><i class="far fa-trash-alt text-center mr-3"></i>Undelete</button>
-							{% else %}
-								<button class="nobackground btn btn-link btn-block btn-lg text-left text-danger" data-bs-toggle="modal" data-bs-dismiss="modal" data-bs-target="#deletePostModal" onclick="delete_postModal('{{p.id}}')"><i class="far fa-trash-alt mr-3"></i>Delete</button>
-							{% endif %}
+
+							<button id="undelete-{{p.id}}" class="{% if not p.deleted_utc %}d-none{% endif %} nobackground btn btn-link btn-block btn-lg text-left text-success" role="button" onclick="post_toast2('/undelete_post/{{p.id}}', 'delete-{{p.id}}', 'undelete-{{p.id}}');document.getElementById('post-{{p.id}}').classList.remove('deleted')" data-bs-dismiss="modal"><i class="far fa-trash-alt text-center mr-3"></i>Undelete</button>
+
+							<button id="delete-{{p.id}}" class="{% if p.deleted_utc %}d-none{% endif %}  nobackground btn btn-link btn-block btn-lg text-left text-danger" data-bs-toggle="modal" data-bs-dismiss="modal" data-bs-target="#deletePostModal" onclick="delete_postModal('{{p.id}}')"><i class="far fa-trash-alt mr-3"></i>Delete</button>
 
 
 							{% if v.club_allowed != False %}
@@ -409,8 +408,8 @@
 
 	<div id="post-root" class="col-12">
 
-		<div id="post-{{p.id}}" class="card border-0 mt-3{% if p.is_banned %} banned{% endif %}{% if p.stickied %} stickied{% endif %}{% if voted==1 %} upvoted{% elif voted==-1 %} downvoted{% endif %}">
-			<div class="{% if p.deleted_utc %}deleted {% endif %}d-flex flex-row-reverse flex-nowrap justify-content-end">
+		<div class="card border-0 mt-3{% if p.is_banned %} banned{% endif %}{% if p.stickied %} stickied{% endif %}{% if voted==1 %} upvoted{% elif voted==-1 %} downvoted{% endif %}">
+			<div id="post-{{p.id}}" class="{% if p.deleted_utc %}deleted {% endif %}d-flex flex-row-reverse flex-nowrap justify-content-end">
 
 				{% if not p.is_image and p.thumb_url and not p.embed_url %}
 				<div class="card-header bg-transparent border-0 d-none d-md-flex flex-row flex-nowrap pl-3 p-0">
@@ -421,6 +420,10 @@
 				<div id="post-content" class="{% if p.deleted_utc %}deleted {% endif %}card-block w-100 my-md-auto">
 
 					<div class="post-meta text-left mb-2">
+						{% if p.sub %}
+							<a href='/s/{{p.sub}}'>/s/{{p.sub}}</a>&nbsp;&nbsp;
+						{% endif %}
+
 						{% if p.bannedfor %}
 							<a role="button"><i class="fad fa-gavel text-danger" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="User was banned for this post{% if p.author.banned_by %} by @{{p.author.banned_by.username}}{% endif %}"></i></a>
 						{% endif %}	
@@ -445,9 +448,13 @@
 						{% if p.ghost %}
 							👻
 						{% else %}
+							{% if p.author.house %}
+								<img src="/assets/images/{{SITE_NAME}}/houses/{{p.author.house}}.webp?a=5" height="20" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="House {{p.author.house}}">
+							{% endif %}
+
 							{% if p.author.verified %}<i class="fas fa-badge-check align-middle ml-1" style="color:{% if p.author.verifiedcolor %}#{{p.author.verifiedcolor}}{% else %}#1DA1F2{% endif %}" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{p.author.verified}}"></i>
 							{% endif %}
-							<a class="user-name text-decoration-none" onclick='popclick({{p.author.json_popover(v) | tojson}})' data-bs-placement="bottom" data-bs-toggle="popover" data-bs-trigger="focus" data-content-id="popover" role="button" tabindex="0" style="color: #{{p.author.namecolor}}; font-weight: bold;" class="user-name"><img alt="@{{p.author_name}}'s profile picture" loading="lazy" src="{{p.author.profile_url}}" class="profile-pic-25 mr-2"><span {% if p.author.patron and not p.distinguish_level %}class="patron" style="background-color:#{{p.author.namecolor}};"{% elif p.distinguish_level and request.host == 'rdrama.net' %}class="mod"{% endif %}>{{p.author_name}}</span></a>{% if p.author.customtitle %}&nbsp;<bdi style="color: #{{p.author.titlecolor}}">&nbsp;{% if p.author.quadrant %}<img alt="{{p.author.quadrant}} quadrant" loading="lazy" height="20" src="/static/assets/images/quadrants/{{p.author.quadrant}}.webp?a=1008">{% endif %}{{p.author.customtitle | safe}}</bdi>{% endif %}
+							<a class="user-name text-decoration-none" onclick='popclick({{p.author.json_popover(v) | tojson}})' data-bs-placement="bottom" data-bs-toggle="popover" data-bs-trigger="click" data-content-id="popover" role="button" tabindex="0" style="color: #{{p.author.namecolor}}; font-weight: bold;" class="user-name"><img alt="@{{p.author_name}}'s profile picture" loading="lazy" src="{{p.author.profile_url}}" class="profile-pic-25 mr-2"><span {% if p.author.patron and not p.distinguish_level %}class="patron" style="background-color:#{{p.author.namecolor}};"{% elif p.distinguish_level and request.host == 'rdrama.net' %}class="mod"{% endif %}>{{p.author_name}}</span></a>{% if p.author.customtitle %}&nbsp;<bdi style="color: #{{p.author.titlecolor}}">&nbsp;{% if p.author.quadrant %}<img alt="{{p.author.quadrant}} quadrant" loading="lazy" height="20" src="/static/assets/images/quadrants/{{p.author.quadrant}}.webp?a=1008">{% endif %}{{p.author.customtitle | safe}}</bdi>{% endif %}
 						{% endif %}
 						<span data-bs-toggle="tooltip" data-bs-placement="bottom" id="timestamp" onmouseover="timestamp('timestamp','{{p.created_utc}}')">&nbsp;{{p.age_string}}</span>
 						({% if p.is_image %}image post{% elif p.is_video %}video post{% elif p.realurl(v) %}<a href="/search/posts/?q=domain%3A{{p.domain}}&sort=new&t=all" {% if not v or v.newtabexternal %}target="_blank"{% endif %}>{{p.domain}}</a>{% else %}text post{% endif %})
@@ -499,9 +506,9 @@
 							{% if p.domain == "twitter.com" %}
 								{{p.embed_url | safe}}
 								{% if v and v.theme.split("_")[0] in ["light", "coffee", "4chan"] %}
-									<script src="/static/assets/js/twitterlight.js?a=220"></script>
+									<script src="/static/assets/js/twitterlight.js?a=242"></script>
 								{% else %}
-									<script src="/static/assets/js/twitter.js?a=220"></script>
+									<script src="/static/assets/js/twitter.js?a=242"></script>
 								{% endif %}
 							{% elif p.domain in ['youtu.be','youtube.com'] and p.embed_url and p.embed_url.startswith('<lite-youtube') %}
 								{{p.embed_url | safe}}
@@ -558,7 +565,7 @@
 
 										<label class="format btn btn-secondary m-0 ml-1 {% if v %}d-inline-block{% else %}d-none{% endif %}" for="file-upload-edit-{{p.id}}">
 											<div id="filename-show-edit-{{p.id}}"><i class="far fa-image"></i></div>
-											<input autocomplete="off" id="file-upload-edit-{{p.id}}" type="file" name="file" accept="image/*, video/*" {% if request.headers.get('cf-ipcountry')=="T1" %}disabled{% endif %} onchange="document.getElementById('filename-show-edit-{{p.id}}').innerHTML='image/video';" hidden>
+											<input autocomplete="off" id="file-upload-edit-{{p.id}}" type="file" name="file" accept="image/*, video/*" {% if request.headers.get('cf-ipcountry')=="T1" %}disabled{% endif %} onchange="changename('filename-show-edit-{{p.id}}','file-upload-edit-{{p.id}}')" hidden>
 										</label>
 						
 										<small class="format d-none"><i class="fas fa-link" aria-hidden="true"></i></small> 
@@ -632,11 +639,9 @@
 								<a id="unpin-profile-{{p.id}}" class="{% if not p.is_pinned %}d-none{% endif %} list-inline-item text-muted" role="button" onclick="post_toast2('/pin/{{p.id}}','unpin-profile-{{p.id}}','pin-profile-{{p.id}}')"><i class="fas fa-thumbtack fa-rotate--45"></i>Unpin from profile</a>
 							{% endif %}
 							
-							{% if p.deleted_utc %}
-								<a class="list-inline-item" role="button" onclick="post_toast('/undelete_post/{{p.id}}')"><i class="fas fa-trash-alt"></i>Undelete</a>
-							{% else %}
-								<a class="list-inline-item" role="button" data-bs-toggle="modal" data-bs-dismiss="modal" data-bs-target="#deletePostModal" onclick="delete_postModal('{{p.id}}')"><i class="fas fa-trash-alt"></i>Delete</a>
-							{% endif %}
+							<a id="undelete2-{{p.id}}" class="{% if not p.deleted_utc %}d-none{% endif %} list-inline-item" role="button" onclick="post_toast2('/undelete_post/{{p.id}}', 'delete2-{{p.id}}', 'undelete2-{{p.id}}');document.getElementById('post-{{p.id}}').classList.remove('deleted')"><i class="fas fa-trash-alt"></i>Undelete</a>
+
+							<a id="delete2-{{p.id}}" class="{% if p.deleted_utc %}d-none{% endif %} list-inline-item" role="button" data-bs-toggle="modal" data-bs-dismiss="modal" data-bs-target="#deletePostModal" onclick="delete_postModal('{{p.id}}')"><i class="fas fa-trash-alt"></i>Delete</a>
 						{% endif %}
 
 						{% if v %}
@@ -843,7 +848,7 @@
 				</label> 
 				<label class="format btn btn-secondary m-0 ml-1 {% if v %}d-inline-block{% else %}d-none{% endif %}" for="file-upload-reply-{{p.fullname}}">
 					<div id="filename-show-reply-{{p.fullname}}"><i class="far fa-image"></i></div>
-					<input autocomplete="off" id="file-upload-reply-{{p.fullname}}" type="file" name="file" accept="image/*, video/*" {% if request.headers.get('cf-ipcountry')=="T1" %}disabled{% endif %} onchange="document.getElementById('filename-show-reply-{{p.fullname}}').innerHTML='image/video';" hidden>
+					<input autocomplete="off" id="file-upload-reply-{{p.fullname}}" type="file" name="file" accept="image/*, video/*" {% if request.headers.get('cf-ipcountry')=="T1" %}disabled{% endif %} onchange="changename('filename-show-reply-{{p.fullname}}','file-upload-reply-{{p.fullname}}')" hidden>
 				</label>
 			</div>
 			<a id="save-reply-to-{{p.fullname}}" role="button" form="reply-to-{{p.fullname}}" class="btn btn-primary text-whitebtn ml-auto fl-r" onclick="post_comment('{{p.fullname}}', '{{p.id}}')">Comment</a>
@@ -878,7 +883,7 @@
  </div>
  
 {% if offset %}
-	<script src="/static/assets/js/viewmore.js?a=221"></script>
+	<script src="/static/assets/js/viewmore.js?a=242"></script>
 {% endif %}
 
 {% elif not p.replies and p.deleted_utc == 0 %}
@@ -909,32 +914,32 @@
 {% endif %}
 
 {% if v and (v.id == p.author_id or v.admin_level > 1 and v.admin_level > 2) %}
-	<script src="/static/assets/js/togglePostEdit.js?a=220"></script>
+	<script src="/static/assets/js/togglePostEdit.js?a=240"></script>
 {% endif %}
 
 {% if v %}
-	<script src="/static/assets/js/submission.js?a=220"></script>
+	<script src="/static/assets/js/submission.js?a=240"></script>
 {% endif %}
 
 {% if not v or v.highlightcomments %}
-	<script src="/static/assets/js/new_comments_count.js?a=220"></script>
+	<script src="/static/assets/js/new_comments_count.js?a=240"></script>
 {% endif %}
 
-<script src="/static/assets/js/clipboard.js?a=220"></script>
+<script src="/static/assets/js/clipboard.js?a=240"></script>
 
 {% if not p.comment_count %}
 	{% include "comments.html" %}
 {% endif %}
 
 {% if p.award_count("shit") %}
-	<script src="/static/assets/js/critters.js?a=220"></script>
-	<script src="/static/assets/js/bugs.js?a=220"></script>
+	<script src="/static/assets/js/critters.js?a=240"></script>
+	<script src="/static/assets/js/bugs.js?a=240"></script>
 {% endif %}
 
 
 {% if p.award_count("fireflies") %}
-	<script src="/static/assets/js/critters.js?a=220"></script>
-	<script src="/static/assets/js/fireflies.js?a=220"></script>
+	<script src="/static/assets/js/critters.js?a=240"></script>
+	<script src="/static/assets/js/fireflies.js?a=240"></script>
 {% endif %}
 
 

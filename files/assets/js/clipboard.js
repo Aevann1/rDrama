@@ -2,6 +2,6 @@
 
 var clipboard = new ClipboardJS('.copy-link');
 clipboard.on('success', function(e) {
-        var myToast = new bootstrap.Toast(document.getElementById('toast-success'));
+        var myToast = bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-success'));
         myToast.show();
 });

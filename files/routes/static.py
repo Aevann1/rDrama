@@ -98,7 +98,11 @@ def stats():
 def chart(v):
 	days = int(request.values.get("days", 0))
 	file = cached_chart(days)
-	return send_file(file)
+	try: f = send_file(file)
+	except:
+		print('/chart', flush=True)
+		abort(404)
+	return f
 
 
 @cache.memoize(timeout=86400)
@@ -233,17 +237,11 @@ def log(v):
 def log_item(id, v):
 
 	try: id = int(id)
-	except:
-		try: id = int(id, 36)
-		except: abort(404)
+	except: abort(404)
 
 	action=g.db.query(ModAction).filter_by(id=id).one_or_none()
 
-	if not action:
-		abort(404)
-
-	if request.path != action.permalink:
-		return redirect(action.permalink)
+	if not action: abort(404)
 
 	admins = [x[0] for x in g.db.query(User.username).filter(User.admin_level > 1).all()]
 
@@ -254,7 +252,11 @@ def log_item(id, v):
 
 @app.get("/static/assets/favicon.ico")
 def favicon():
-	return send_file(f"./assets/images/{SITE_NAME}/icon.webp")
+	try: f = send_file(f"./assets/images/{SITE_NAME}/icon.webp")
+	except:
+		print('/static/assets/favicon.ico', flush=True)
+		abort(404)
+	return f
 
 @app.get("/api")
 @auth_required
@@ -295,19 +297,7 @@ def submit_contact(v):
 			body_html += f"<p>{url}</p>"
 		else: return {"error": "Image/Video files only"}, 400
 
-	new_comment = Comment(author_id=v.id,
-						  parent_submission=None,
-						  level=1,
-						  sentto=0,
-						  body_html=body_html,
-						  )
-	g.db.add(new_comment)
-	g.db.flush()
-
-	admins = g.db.query(User).filter(User.admin_level > 2).all()
-	for admin in admins:
-		notif = Notification(comment_id=new_comment.id, user_id=admin.id)
-		g.db.add(notif)
+	send_admin(v.id, body_html)
 
 	g.db.commit()
 	return render_template("contact.html", v=v, msg="Your message has been sent.")
@@ -352,8 +342,11 @@ def images(path):
 
 @app.get("/robots.txt")
 def robots_txt():
-	return send_file("assets/robots.txt")
-
+	try: f = send_file("assets/robots.txt")
+	except:
+		print('/robots.txt', flush=True)
+		abort(404)
+	return f
 
 @app.get("/badges")
 @auth_required
@@ -391,7 +384,7 @@ def formatting(v):
 
 @app.get("/service-worker.js")
 def serviceworker():
-	with open("files/assets/js/service-worker.js", "r") as f: return Response(f.read(), mimetype='application/javascript')
+	with open("files/assets/js/service-worker.js", "r", encoding="utf-8") as f: return Response(f.read(), mimetype='application/javascript')
 
 @app.get("/settings/security")
 @auth_required

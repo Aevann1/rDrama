@@ -2,6 +2,8 @@ from os import environ, listdir
 import re
 from copy import deepcopy
 from json import loads
+from files.__main__ import db_session
+from files.classes.sub import Sub
 
 SITE = environ.get("DOMAIN", '').strip()
 SITE_NAME = environ.get("SITE_NAME", '').strip()
@@ -100,31 +102,39 @@ SLURS = {
 }
 
 single_words = "|".join([slur.lower() for slur in SLURS.keys()])
-SLUR_REGEX = re.compile(rf"(?i)((?<=\s|>)|^)({single_words})((?=[\s<,.]|s[\s<,.])|$)", flags=re.A)
 
-def sub_matcher(match: re.Match):
+SLUR_REGEX = re.compile(rf"(?i)((?<=\s|>)|^)({single_words})((?=[\s<,.]|s[\s<,.])|$)", re.A)
+SLUR_REGEX_UPPER = re.compile(rf"((?<=\s|>)|^)({single_words.upper()})((?=[\s<,.]|s[\s<,.])|$)", re.A)
+
+def sub_matcher(match):
 	return SLURS[match.group(0).lower()]
 
-def censor_slurs(body: str, logged_user):
-	if not logged_user or logged_user.slurreplacer: body = SLUR_REGEX.sub(sub_matcher, body)
+def sub_matcher_upper(match):
+	return SLURS[match.group(0).lower()].upper()
+
+def censor_slurs(body, logged_user):
+	if not logged_user or logged_user.slurreplacer:
+		body = SLUR_REGEX_UPPER.sub(sub_matcher_upper, body)
+		body = SLUR_REGEX.sub(sub_matcher, body)
 	return body
 
 def torture_ap(body, username):
+	body = SLUR_REGEX_UPPER.sub(sub_matcher_upper, body)
 	body = SLUR_REGEX.sub(sub_matcher, body)
 	for k, l in AJ_REPLACEMENTS.items(): body = body.replace(k, l)
-	body = re.sub('(^|\s|\n)(i|me) ', rf'\1@{username} ', body, flags=re.I|re.A)
-	body = re.sub("(^|\s|\n)i'm ", rf'\1@{username} is ', body, flags=re.I|re.A)
+	body = re.sub('(^|\s|\n)(i|me) ', rf'\1@{username} ', body, re.I|re.A)
+	body = re.sub("(^|\s|\n)i'm ", rf'\1@{username} is ', body, re.I|re.A)
 	return body
 
 
 LONGPOST_REPLIES = ('Wow, you must be a JP fan.', 'This is one of the worst posts I have EVER seen. Delete it.', "No, don't reply like this, please do another wall of unhinged rant please.", '# 😴😴😴', "Ma'am we've been over this before. You need to stop.", "I've known more coherent downies.", "Your pulitzer's in the mail", "That's great and all, but I asked for my burger without cheese.", 'That degree finally paying off', "That's nice sweaty. Why don't you have a seat in the time out corner with Pizzashill until you calm down, then you can have your Capri Sun.", "All them words won't bring your pa back.", "You had a chance to not be completely worthless, but it looks like you threw it away. At least you're consistent.", 'Some people are able to display their intelligence by going on at length on a subject and never actually saying anything. This ability is most common in trades such as politics, public relations, and law. You have impressed me by being able to best them all, while still coming off as an absolute idiot.', "You can type 10,000 characters and you decided that these were the one's that you wanted.", 'Have you owned the libs yet?', "I don't know what you said, because I've seen another human naked.", 'Impressive. Normally people with such severe developmental disabilities struggle to write much more than a sentence or two. He really has exceded our expectations for the writing portion. Sadly the coherency of his writing, along with his abilities in the social skills and reading portions, are far behind his peers with similar disabilities.', "This is a really long way of saying you don't fuck.", "Sorry ma'am, looks like his delusions have gotten worse. We'll have to admit him.", ':#marseywoah:', 'If only you could put that energy into your relationships', 'Posts like this is why I do Heroine.', 'still unemployed then?', 'K', 'look im gunna have 2 ask u 2 keep ur giant dumps in the toilet not in my replys 😷😷😷', "Mommy is soooo proud of you, sweaty. Let's put this sperg out up on the fridge with all your other failures.", "Good job bobby, here's a star", "That was a mistake. You're about to find out the hard way why.", 'You sat down and wrote all this shit. You could have done so many other things with your life. What happened to your life that made you decide writing novels of bullshit on rdrama.net was the best option?', "I don't have enough spoons to read this shit", "All those words won't bring daddy back.", 'OUT!', "Damn, you're really mad over this, but thanks for the effort you put into typing that all out! Sadly I won't read it all.", "Jesse what the fuck are you talking about??")
 
-AGENDAPOSTER_PHRASE = 'trans lives matter'
+AGENDAPOSTER_PHRASE = 'black lives matter'
 
 AGENDAPOSTER_MSG = """Hi @{username},\n\nYour {type} has been automatically removed because you forgot
 		to include `{AGENDAPOSTER_PHRASE}`.\n\nDon't worry, we're here to help! We 
 		won't let you post or comment anything that doesn't express your love and acceptance towards 
-		the trans community. Feel free to resubmit your {type} with `{AGENDAPOSTER_PHRASE}` 
+		the black community. Feel free to resubmit your {type} with `{AGENDAPOSTER_PHRASE}` 
 		included. \n\n*This is an automated message; if you need help,
 		you can message us [here](/contact).*"""
 
@@ -153,6 +163,7 @@ if SITE == 'rdrama.net':
 	LAWLZ_ID = 3833
 	LLM_ID = 253
 	DAD_ID = 2513
+	SOREN_ID = 2546
 	MOM_ID = 4588
 	DONGER_ID = 541
 	BUG_THREAD = 18459
@@ -182,6 +193,7 @@ elif SITE == "pcmemes.net":
 	LAWLZ_ID = 0
 	LLM_ID = 0
 	DAD_ID = 0
+	SOREN_ID = 0
 	MOM_ID = 0
 	DONGER_ID = 0
 	BUG_THREAD = 4103
@@ -211,6 +223,7 @@ else:
 	LAWLZ_ID = 0
 	LLM_ID = 0
 	DAD_ID = 0
+	SOREN_ID = 0
 	MOM_ID = 0
 	DONGER_ID = 0
 	BUG_THREAD = 0
@@ -218,6 +231,8 @@ else:
 
 PUSHER_ID = environ.get("PUSHER_ID", "").strip()
 PUSHER_KEY = environ.get("PUSHER_KEY", "").strip()
+DEFAULT_COLOR = environ.get("DEFAULT_COLOR", "fff").strip()
+COLORS = {'ff66ac','805ad5','62ca56','38a169','80ffff','2a96f3','eb4963','ff0000','f39731','30409f','3e98a7','e4432d','7b9ae4','ec72de','7f8fa6', 'f8db58','8cdbe6', DEFAULT_COLOR}
 
 AWARDS = {
 	"snow": {
@@ -476,6 +491,14 @@ AWARDS = {
 		"color": "text-lightgreen",
 		"price": 10000
 	},
+	"nword": {
+		"kind": "nword",
+		"title": "Nword Pass",
+		"description": "Gives the recipient the ability to speak that which must not be spoken",
+		"icon": "fas fa-edit",
+		"color": "text-success",
+		"price": 10000
+	},
 	"fish": {
 		"kind": "fish",
 		"title": "Fish",
@@ -513,6 +536,7 @@ AWARDS = {
 AWARDS2 = deepcopy(AWARDS)
 for k, val in AWARDS.items():
 	if val['description'] == '???': AWARDS2.pop(k)
+	if SITE == 'pcmemes.net' and k in ('ban','pizzashill','marsey','bird','grass','chud'): AWARDS2.pop(k)
 
 TROLLTITLES = [
 	"how will @{username} ever recover?",
@@ -536,16 +560,29 @@ NOTIFIED_USERS = {
 	'landlet': LLM_ID,
 	'dong': DONGER_ID,
 	'kippy': KIPPY_ID,
-	'the_homocracy': HOMO_ID
+	'the_homocracy': HOMO_ID,
+	'soren': SOREN_ID
 }
 
 FORTUNE_REPLIES = ('<b style="color:#6023f8">Your fortune: Allah Wills It</b>','<b style="color:#d302a7">Your fortune: Inshallah, Only Good Things Shall Come To Pass</b>','<b style="color:#e7890c">Your fortune: Allah Smiles At You This Day</b>','<b style="color:#7fec11">Your fortune: Your Bussy Is In For A Blasting</b>','<b style="color:#43fd3b">Your fortune: You Will Be Propositioned By A High-Tier Twink</b>','<b style="color:#9d05da">Your fortune: Repent, You Have Displeased Allah And His Vengeance Is Nigh</b>','<b style="color:#f51c6a">Your fortune: Reply Hazy, Try Again</b>','<b style="color:#00cbb0">Your fortune: lmao you just lost 100 dramacoin</b>','<b style="color:#2a56fb">Your fortune: Yikes 😬</b>','<b style="color:#0893e1">Your fortune: You Will Be Blessed With Many Black Bulls</b>','<b style="color:#16f174">Your fortune: NEETmax, The Day Is Lost If You Venture Outside</b>','<b style="color:#fd4d32">Your fortune: A Taste Of Jannah Awaits You Today</b>','<b style="color:#bac200">Your fortune: Watch Your Back</b>','<b style="color:#6023f8">Your fortune: Outlook good</b>','<b style="color:#d302a7">Your fortune: Godly Luck</b>','<b style="color:#e7890c">Your fortune: Good Luck</b>','<b style="color:#7fec11">Your fortune: Bad Luck</b>','<b style="color:#43fd3b">Your fortune: Good news will come to you by mail</b>','<b style="color:#9d05da">Your fortune: Very Bad Luck</b>','<b style="color:#00cbb0">Your fortune: ｷﾀ━━━━━━(ﾟ∀ﾟ)━━━━━━ !!!!</b>','<b style="color:#2a56fb">Your fortune: Better not tell you now</b>','<b style="color:#0893e1">Your fortune: You will meet a dark handsome stranger</b>','<b style="color:#16f174">Your fortune: （　´_ゝ`）ﾌｰﾝ</b>','<b style="color:#fd4d32">Your fortune: Excellent Luck</b>','<b style="color:#bac200">Your fortune: Average Luck</b>')
 
-REDDIT_NOTIFS = {
-	'idio3': IDIO_ID,
-	'aevann': AEVANN_ID,
-	'carpflo': CARP_ID,
-	'carpathianflorist': CARP_ID,
-	'carpathian florist': CARP_ID,
-	'the_homocracy': HOMO_ID
-}
+no_pass_phrase = """<p>Sorry whiteboy, we're gonna need to see some ID before you start throwin that word around like it's nothing.\n\nTake a 10 minute time-out and come back when you've learned your lesson and/or paid reparations (by purchasing a BIPOC Approved™ Rdrama NWord Pass© from the <a href="/shop">shop</a>) \n\n<em>This is an automated message; if you need help, you can message us <a href="/contact">here</a>.</em></p>"""
+
+db = db_session()
+SUBS = [x[0] for x in db.query(Sub.name).all()]
+db.close()
+
+ROLES={
+	"owner": "864612849199480914",
+	"admin": "879459632656048180" if environ.get("DOMAIN") == "pcmemes.net" else "846509661288267776",
+	"linked": "890342909390520382",
+	"1": "868129042346414132",
+	"2": "875569477671067688",
+	"3": "869434199575236649",
+	"4": "868140288013664296",
+	"5": "880445545771044884",
+	"8": "886781932430565418",
+	}
+
+if SITE_NAME == 'Drama': patron = 'Paypig'
+else: patron = 'Patron'

@@ -256,9 +256,9 @@ def transfer_coins(v, username):
 		amount = request.values.get("amount", "").strip()
 		amount = int(amount) if amount.isdigit() else None
 
-		if amount is None or amount <= 0: return {"error": f"Invalid amount of coins."}, 400
-		if v.coins < amount: return {"error": f"You don't have enough coins."}, 400
-		if amount < 100: return {"error": f"You have to gift at least 100 coins."}, 400
+		if amount is None or amount <= 0: return {"error": "Invalid amount of coins."}, 400
+		if v.coins < amount: return {"error": "You don't have enough coins."}, 400
+		if amount < 100: return {"error": "You have to gift at least 100 coins."}, 400
 
 		if not v.patron and not receiver.patron and not v.alts_patron and not receiver.alts_patron: tax = math.ceil(amount*0.03)
 		else: tax = 0
@@ -275,7 +275,7 @@ def transfer_coins(v, username):
 		g.db.commit()
 		return {"message": f"{amount-tax} coins transferred!"}, 200
 
-	return {"message": f"You can't transfer coins to yourself!"}, 400
+	return {"message": "You can't transfer coins to yourself!"}, 400
 
 
 @app.post("/@<username>/transfer_bux")
@@ -457,7 +457,7 @@ def message2(v, username):
 	if v.admin_level <= 1 and hasattr(user, 'is_blocked') and user.is_blocked:
 		return {"error": "This user is blocking you."}, 403
 
-	if v.shadowbanned: return {"message": "Message sent!"}
+	if v.shadowbanned and user.admin_level < 2: return {"message": "Message sent!"}
 
 	message = request.values.get("message", "").strip()[:10000].strip()
 
@@ -494,28 +494,30 @@ def message2(v, username):
 		if len(message) > 500: notifbody = message[:500] + '...'
 		else: notifbody = message
 
-		beams_client.publish_to_interests(
-			interests=[f'{request.host}{user.id}'],
-			publish_body={
-				'web': {
-					'notification': {
-						'title': f'New message from @{v.username}',
-						'body': notifbody,
-						'deep_link': f'{SITE_FULL}/notifications?messages=true',
-						'icon': f'{SITE_FULL}/assets/images/{SITE_NAME}/icon.webp',
+		try:
+			beams_client.publish_to_interests(
+				interests=[f'{request.host}{user.id}'],
+				publish_body={
+					'web': {
+						'notification': {
+							'title': f'New message from @{v.username}',
+							'body': notifbody,
+							'deep_link': f'{SITE_FULL}/notifications?messages=true',
+							'icon': f'{SITE_FULL}/assets/images/{SITE_NAME}/icon.webp?a=1010',
+						}
+					},
+					'fcm': {
+						'notification': {
+							'title': f'New message from @{v.username}',
+							'body': notifbody,
+						},
+						'data': {
+							'url': '/notifications?messages=true',
+						}
 					}
 				},
-				'fcm': {
-					'notification': {
-						'title': f'New message from @{v.username}',
-						'body': notifbody,
-					},
-					'data': {
-						'url': '/notifications?messages=true',
-					}
-				}
-			},
-		)
+			)
+		except: pass
 
 	g.db.commit()
 
@@ -562,28 +564,30 @@ def messagereply(v):
 			if len(message) > 500: notifbody = message[:500] + '...'
 			else: notifbody = message
 			
-			beams_client.publish_to_interests(
-				interests=[f'{request.host}{user_id}'],
-				publish_body={
-					'web': {
-						'notification': {
-							'title': f'New message from @{v.username}',
-							'body': notifbody,
-							'deep_link': f'{SITE_FULL}/notifications?messages=true',
-							'icon': f'{SITE_FULL}/assets/images/{SITE_NAME}/icon.webp',
+			try:
+				beams_client.publish_to_interests(
+					interests=[f'{request.host}{user_id}'],
+					publish_body={
+						'web': {
+							'notification': {
+								'title': f'New message from @{v.username}',
+								'body': notifbody,
+								'deep_link': f'{SITE_FULL}/notifications?messages=true',
+								'icon': f'{SITE_FULL}/assets/images/{SITE_NAME}/icon.webp"a=1008',
+							}
+						},
+						'fcm': {
+							'notification': {
+								'title': f'New message from @{v.username}',
+								'body': notifbody,
+							},
+							'data': {
+								'url': '/notifications?messages=true',
+							}
 						}
 					},
-					'fcm': {
-						'notification': {
-							'title': f'New message from @{v.username}',
-							'body': notifbody,
-						},
-						'data': {
-							'url': '/notifications?messages=true',
-						}
-					}
-				},
-			)
+				)
+			except: pass
 
 
 	if new_comment.top_comment.sentto == 0:
@@ -609,7 +613,12 @@ def mfa_qr(secret, v):
 
 	img.save(mem, format="PNG")
 	mem.seek(0, 0)
-	return send_file(mem, mimetype="image/png", as_attachment=False)
+
+	try: f = send_file(mem, mimetype="image/png", as_attachment=False)
+	except:
+		print('/2faqr/<secret>', flush=True)
+		abort(404)
+	return f
 
 
 @app.get("/is_available/<name>")
@@ -962,9 +971,7 @@ def user_profile_uid(v, id):
 	if v and request.path.startswith('/logged_out'): v = None
 
 	try: id = int(id)
-	except:
-		try: id = int(id, 36)
-		except: abort(404)
+	except: abort(404)
 	x=get_account(id)
 	return redirect(x.profile_url)
 

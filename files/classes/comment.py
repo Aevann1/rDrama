@@ -197,33 +197,26 @@ class Comment(Base):
 
 	@property
 	def replies(self):
-		r = self.__dict__.get("replies", None)
-		if r: r = [x for x in r if not x.author.shadowbanned]
-		if not r and r != []: r = sorted((x for x in self.child_comments if not x.author.shadowbanned and x.author_id not in (AUTOPOLLER_ID, AUTOBETTER_ID)), key=lambda x: x.realupvotes, reverse=True)
-		return r
+		if self.replies2 != None:  return [x for x in self.replies2 if not x.author.shadowbanned]
+		return sorted((x for x in self.child_comments if x.author and not x.author.shadowbanned and x.author_id not in (AUTOPOLLER_ID, AUTOBETTER_ID)), key=lambda x: x.realupvotes, reverse=True)
 
-	@replies.setter
-	def replies(self, value):
-		self.__dict__["replies"] = value
+	@property
+	def replies3(self):
+		if self.replies2 != None: return self.replies2
+		return sorted((x for x in self.child_comments if x.author_id not in (AUTOPOLLER_ID, AUTOBETTER_ID)), key=lambda x: x.realupvotes, reverse=True)
 
 	@property
 	def replies2(self):
-		return self.__dict__.get("replies2", [])
+		return self.__dict__.get("replies2", None)
 
 	@replies2.setter
 	def replies2(self, value):
 		self.__dict__["replies2"] = value
 
 	@property
-	def replies3(self):
-		r = self.__dict__.get("replies", None)
-		if not r and r != []: r = sorted((x for x in self.child_comments if x.author_id not in (AUTOPOLLER_ID, AUTOBETTER_ID)), key=lambda x: x.realupvotes, reverse=True)
-		return r
-
-	@property
 	@lazy
 	def shortlink(self):
-		return f"/comment/{self.id}#context"
+		return f"{SITE_FULL}/comment/{self.id}#context"
 
 	@property
 	@lazy
@@ -239,7 +232,9 @@ class Comment(Base):
 	@property
 	@lazy
 	def permalink(self):
-		if self.post and self.post.club: return f"{SITE_FULL}/comment/{self.id}?context=8#context"
+		if self.post and self.post.club:
+			if self.post.sub: f"{SITE_FULL}/s/{self.post.sub}/comment/{self.id}?context=8#context"
+			else: f"{SITE_FULL}/comment/{self.id}?context=8#context"
 
 		if self.post: return f"{self.post.permalink}/{self.id}?context=8#context"
 		else: return f"{SITE_FULL}/comment/{self.id}?context=8#context"
@@ -341,7 +336,7 @@ class Comment(Base):
 			if v.teddit: body = body.replace("old.reddit.com", "teddit.net")
 			elif not v.oldreddit: body = body.replace("old.reddit.com", "reddit.com")
 
-			if v.nitter: body = body.replace("www.twitter.com", "nitter.net").replace("twitter.com", "nitter.net")
+			if v.nitter and not '/i/spaces/' in body: body = body.replace("www.twitter.com", "nitter.net").replace("twitter.com", "nitter.net")
 
 		if v and v.controversial:
 			for i in re.finditer('(/comments/.*?)"', body):
@@ -392,7 +387,7 @@ class Comment(Base):
 
 		if v and not v.oldreddit: body = body.replace("old.reddit.com", "reddit.com")
 
-		if v and v.nitter: body = body.replace("www.twitter.com", "nitter.net").replace("twitter.com", "nitter.net")
+		if v and v.nitter and not '/i/spaces/' in body: body = body.replace("www.twitter.com", "nitter.net").replace("twitter.com", "nitter.net")
 
 		if v and v.controversial:
 			for i in re.finditer('(/comments/.*?)"', body):
@@ -415,13 +410,11 @@ class Comment(Base):
 
 		if self.over_18 and not (v and v.over_18) and not (self.post and self.post.over_18): return True
 
-		if not v: return False
-			
-		if v.filter_words and self.body and any(x in self.body for x in v.filter_words): return True
-		
 		if self.is_banned: return True
-		
-		if path.startswith('/post') and (self.slots_result or self.blackjack_result) and len(self.body) <= 20 and self.level > 1: return True
+
+		if path.startswith('/post') and (self.slots_result or self.blackjack_result) and (not self.body or len(self.body) <= 50) and self.level > 1: return True
+			
+		if v and v.filter_words and self.body and any(x in self.body for x in v.filter_words): return True
 		
 		return False
 

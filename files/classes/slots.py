@@ -8,7 +8,7 @@ def shuffle(stuff):
 
 class Slots:
 	command_word = "!slots"
-	casino_word = "!casino"
+	casino_word = "!slotsmb"
 	if SITE == 'rdrama.net': minimum_bet = 100
 	else: minimum_bet = 10
 	maximum_bet = INFINITY
@@ -23,6 +23,7 @@ class Slots:
 		self.db = g.db
 			
 	def check_for_slots_command(self, in_text, from_user, from_comment):
+		in_text = in_text.lower()
 		if self.command_word in in_text:
 			for word in in_text.split():
 				if self.command_word in word:
@@ -116,5 +117,5 @@ class Slots:
 	def build_text(self, wager_value, result, user, currency):
 		if result == 0: return f'Lost {wager_value} {currency}'
 		elif result == 1: return 'Broke Even'
-		elif result == 12: return f'Jackpot! Won {wager_value * result} {currency}'
-		else: return f'Won {wager_value * result} {currency}'
+		elif result == 12: return f'Jackpot! Won {wager_value * (result-1)} {currency}'
+		else: return f'Won {wager_value * (result-1)} {currency}'

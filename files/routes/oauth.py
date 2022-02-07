@@ -48,23 +48,11 @@ def request_api_keys(v):
 
 	g.db.add(new_app)
 
-	text = f"{v.username} has requested API keys for `{request.values.get('name')}`. You can approve or deny the request [here](/admin/apps)."
+	body = f"{v.username} has requested API keys for `{request.values.get('name')}`. You can approve or deny the request [here](/admin/apps)."
 
-	text_html = sanitize(text, noimages=True)
+	body_html = sanitize(body, noimages=True)
 
-	new_comment = Comment(author_id=NOTIFICATIONS_ID,
-						  parent_submission=None,
-						  level=1,
-						  sentto=0,
-						  body_html=text_html,
-						  )
-	g.db.add(new_comment)
-	g.db.flush()
-
-	admins = g.db.query(User).filter(User.admin_level > 2).all()
-	for admin in admins:
-		notif = Notification(comment_id=new_comment.id, user_id=admin.id)
-		g.db.add(notif)
+	send_admin(NOTIFICATIONS_ID, body_html)
 
 	g.db.commit()
 
@@ -114,7 +102,7 @@ def edit_oauth_app(v, aid):
 
 @app.post("/admin/app/approve/<aid>")
 @limiter.limit("1/second;30/minute;200/hour;1000/day")
-@admin_level_required(2)
+@admin_level_required(3)
 def admin_app_approve(v, aid):
 
 	app = g.db.query(OauthApp).filter_by(id=aid).one_or_none()

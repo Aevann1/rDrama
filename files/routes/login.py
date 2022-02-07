@@ -85,11 +85,10 @@ def login_post():
 	username = request.values.get("username")
 
 	if not username: abort(400)
-	if "@" in username:
-		account = g.db.query(User).filter(
-			User.email.ilike(username)).one_or_none()
-	else:
-		account = get_user(username, graceful=True)
+	if username.startswith('@'): username = username[1:]
+
+	if "@" in username: account = g.db.query(User).filter(User.email.ilike(username)).one_or_none()
+	else: account = get_user(username, graceful=True)
 
 	if not account:
 		time.sleep(random.uniform(0, 2))
@@ -316,7 +315,7 @@ def sign_up_post(v):
 				g.db.add(new_badge)
 
 
-	id_1 = g.db.query(User.id).filter_by(id=7).count()
+	id_1 = g.db.query(User.id).filter_by(id=8).count()
 	users_count = g.db.query(User.id).count()
 	if id_1 == 0 and users_count == 7: admin_level=3
 	else: admin_level=0

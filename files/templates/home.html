@@ -2,12 +2,12 @@
 
 {% block desktopBanner %}
 
-{% if v %}
+{% if v and environ.get("FP") %}
 	{% if not v.fp %}
 		<script>
 			function fp(fp) {
 				const xhr = new XMLHttpRequest();
-				xhr.open("POST", '{{SITE_FULL}}/fp/'+fp, true);
+				xhr.open("POST", '{{SITE_FULL}}/fp/'+fp);
 				xhr.setRequestHeader('xhr', 'xhr');
 				var form = new FormData()
 				form.append("formkey", formkey());
@@ -19,7 +19,7 @@
 				script.onload = resolve;
 				script.onerror = reject;
 				script.async = true;
-				script.src = "/static/assets/js/fp.js?a=220";
+				script.src = "/static/assets/js/fp.js?a=240";
 				document.head.appendChild(script);
 			})
 				.then(() => FingerprintJS.load({token: '{{environ.get("FP")}}'}));
@@ -41,6 +41,13 @@
 
 			<div class="d-flex align-items-center sortingbarmargin">
 				<div class="text-small font-weight-bold mr-2">‎</div>
+
+				{% if request.path == '/' and v.paid_dues %}
+					{% if ccmode=="true"%}<a class="btn btn-secondary text-primary text-small-m" href="?sort={{sort}}&t={{t}}&ccmode=false"><i class="fas fa-angry mr-2"></i>CC Mode: Activated</a>{% endif %}
+					{% if ccmode=="false" %}<a class="btn btn-secondary text-small-m" href="?sort={{sort}}&t={{t}}&ccmode=true"><i class="fas fa-angry mr-2"></i>CC Mode</a>{% endif %}
+				<div class="text-small font-weight-bold ml-3 mr-2">‎</div>
+				{% endif %}
+
 				<div class="dropdown dropdown-actions">
 					<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 						{% if t=="hour" %}<i class="fas fa-clock mr-1"></i>
@@ -53,12 +60,12 @@
 						{{t | capitalize}}
 					</button>
 					<div class="dropdown-menu" aria-labelledby="dropdownMenuButton" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 31px, 0px);">
-						{% if t != "hour" %}<a class="dropdown-item" href="?sort={{sort}}&t=hour"><i class="fas fa-clock mr-2"></i>Hour</a>{% endif %}
-						{% if t != "day" %}<a class="dropdown-item" href="?sort={{sort}}&t=day"><i class="fas fa-calendar-day mr-2"></i>Day</a>{% endif %}
-						{% if t != "week" %}<a class="dropdown-item" href="?sort={{sort}}&t=week"><i class="fas fa-calendar-week mr-2"></i>Week</a>{% endif %}
-						{% if t != "month" %}<a class="dropdown-item" href="?sort={{sort}}&t=month"><i class="fas fa-calendar-alt mr-2"></i>Month</a>{% endif %}
-						{% if t != "year" %}<a class="dropdown-item" href="?sort={{sort}}&t=year"><i class="fas fa-calendar mr-2"></i>Year</a>{% endif %}
-						{% if t != "all" %}<a class="dropdown-item" href="?sort={{sort}}&t=all"><i class="fas fa-infinity mr-2"></i>All</a>{% endif %}
+						{% if t != "hour" %}<a class="dropdown-item" href="?sort={{sort}}&t=hour&ccmode={{ccmode}}"><i class="fas fa-clock mr-2"></i>Hour</a>{% endif %}
+						{% if t != "day" %}<a class="dropdown-item" href="?sort={{sort}}&t=day&ccmode={{ccmode}}"><i class="fas fa-calendar-day mr-2"></i>Day</a>{% endif %}
+						{% if t != "week" %}<a class="dropdown-item" href="?sort={{sort}}&t=week&ccmode={{ccmode}}"><i class="fas fa-calendar-week mr-2"></i>Week</a>{% endif %}
+						{% if t != "month" %}<a class="dropdown-item" href="?sort={{sort}}&t=month&ccmode={{ccmode}}"><i class="fas fa-calendar-alt mr-2"></i>Month</a>{% endif %}
+						{% if t != "year" %}<a class="dropdown-item" href="?sort={{sort}}&t=year&ccmode={{ccmode}}"><i class="fas fa-calendar mr-2"></i>Year</a>{% endif %}
+						{% if t != "all" %}<a class="dropdown-item" href="?sort={{sort}}&t=all&ccmode={{ccmode}}"><i class="fas fa-infinity mr-2"></i>All</a>{% endif %}
 					</div>
 				</div>
 
@@ -107,7 +114,7 @@
 			</div>
 			<div class="card-body">
 				{% if v %}
-					<a href="/submit">
+					<a href="{% if sub %}/s/{{sub.name}}{% endif %}/submit">
 						<input autocomplete="off" type="text" class="form-control"
 						aria-label="Username"
 						aria-describedby="basic-addon1">
@@ -148,14 +155,14 @@
 	<ul class="pagination pagination-sm mb-0">
 		{% if page>1 %}
 		<li class="page-item">
-			<small><a class="page-link" href="?sort={{sort}}&page={{page-1}}&t={{t}}{% if only %}&only={{only}}{% endif %}" tabindex="-1">Prev</a></small>
+			<small><a class="page-link" href="?sort={{sort}}&page={{page-1}}&t={{t}}&ccmode={{ccmode}}" tabindex="-1">Prev</a></small>
 		</li>
 		{% else %}
 		<li class="page-item disabled"><span class="page-link">Prev</span></li>
 		{% endif %}
 		{% if next_exists %}
 		<li class="page-item">
-			<small><a class="page-link" href="?sort={{sort}}&page={{page+1}}&t={{t}}{% if only %}&only={{only}}{% endif %}">Next</a></small>
+			<small><a class="page-link" href="?sort={{sort}}&page={{page+1}}&t={{t}}&ccmode={{ccmode}}">Next</a></small>
 		</li>
 		{% else %}
 		<li class="page-item disabled"><span class="page-link">Next</span></li>
@@ -167,7 +174,7 @@
 {% if PUSHER_ID and v %}
 	<div class="d-none" id="strid">{{request.host}}{{v.id}}</div>
 	<div class="d-none" id="pusherid">{{PUSHER_ID}}</div>
-	<script src="/static/assets/js/pusher.js?a=220"></script>
+	<script src="/static/assets/js/pusher.js?a=240"></script>
 	<script>
 		if (typeof Android !== 'undefined') {
 			Android.Subscribe('{{request.host}}{{v.id}}');

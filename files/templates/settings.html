@@ -5,22 +5,22 @@
 	<meta name="description" content="{{config('DESCRIPTION')}}">
 	<meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline'; connect-src 'self'; object-src 'none';">
 
-	<script src="/static/assets/js/bootstrap.js?a=220"></script>
+	<script src="/static/assets/js/bootstrap.js?a=240"></script>
 
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
 	<meta name="author" content="">
 
-	<link rel="icon" type="image/png" href="/static/assets/images/{{SITE_NAME}}/icon.webp?a=1008">
+	<link rel="icon" type="image/png" href="/static/assets/images/{{SITE_NAME}}/icon.webp?a=1010">
 
 	<title>{% block pagetitle %}Settings - {{SITE_NAME}}{% endblock %}</title>
 		<meta property="og:type" content="article" >
 		<meta property="og:title" content="{{SITE_NAME}}" >
 		<meta property="og:site_name" content="{{request.host}}" >
-		<meta property="og:image" content="{{SITE_NAME}}/static/assets/images/{{SITE_NAME}}/site_preview.webp?a=1008" >
+		<meta property="og:image" content="/static/assets/images/{{SITE_NAME}}/site_preview.webp?a=1011" >
 		<meta property="og:url" content="{{request.host}}">
-		<meta property="og:description" name="description" content="{{SITE_NAME}} - {{config('SLOGAN')}}">
+		<meta property="og:description" name="description" content="{{SITE_NAME}} - {{config('DESCRIPTION')}}">
 		<meta property="og:author" name="author" content="@{{SITE_FULL}}/" >
 		<meta property="og:site_name" content="{{request.host}}" >
 
@@ -28,13 +28,13 @@
 		<meta name="twitter:site" content="@{{SITE_FULL}}/">
 		<meta name="twitter:title" content="{{SITE_NAME}}" >
 		<meta name="twitter:creator" content="@{{SITE_FULL}}/">
-		<meta name="twitter:description" content="{{SITE_NAME}} - {{config('SLOGAN')}}" >
-		<meta name="twitter:image" content="{{SITE_NAME}}/static/assets/images/{{SITE_NAME}}/site_preview.webp?a=1008" >
+		<meta name="twitter:description" content="{{SITE_NAME}} - {{config('DESCRIPTION')}}" >
+		<meta name="twitter:image" content="/static/assets/images/{{SITE_NAME}}/site_preview.webp?a=1011" >
 		<meta name="twitter:url" content="{{request.host}}" >
 
 
 	<style>:root{--primary:#{{v.themecolor}}}</style>
-	<link rel="stylesheet" href="/static/assets/css/main.css?a=102"><link rel="stylesheet" href="/static/assets/css/{{v.theme}}.css?a=14">
+	<link rel="stylesheet" href="/static/assets/css/main.css?a=115"><link rel="stylesheet" href="/static/assets/css/{{v.theme}}.css?a=19">
 	{% if v.agendaposter %}
 		<style>
 			html {
@@ -73,7 +73,7 @@
 			<span>
 				{{error}}
 			</span>
-			<button role="button" class="close" data-bs-dismiss="alert" aria-label="Close">
+			<button class="close" data-bs-dismiss="alert" aria-label="Close">
 				<span aria-hidden="true"><i class="far fa-times"></i></span>
 			</button>
 		</div>
@@ -84,7 +84,7 @@
 			<span>
 				{{msg}}
 			</span>
-			<button role="button" class="close" data-bs-dismiss="alert" aria-label="Close">
+			<button class="close" data-bs-dismiss="alert" aria-label="Close">
 				<span aria-hidden="true"><i class="far fa-times"></i></span>
 			</button>
 		</div>
@@ -170,7 +170,7 @@
 			<div class="modal-content">
 				<div class="modal-header">
 					<h5 class="modal-title">{% if mfa_secret %}Setup two-step login{% elif mfa_secret and not v.email %}Email required for two-step login{% else %}Disable two-step login{% endif %}</h5>
-					<button role="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+					<button class="close" data-bs-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true"><i class="far fa-times"></i></span>
 					</button>
 				</div>
@@ -198,7 +198,7 @@
 							<input autocomplete="off" type="password" class="form-control mb-2" id="2fa_input_password" name="password" oninput="document.getElementById('enable2faButton').disabled=false" required>
 						</div>
 						<div class="modal-footer">
-							<button role="button" class="btn btn-link text-muted" data-bs-dismiss="modal">Cancel</button>
+							<button class="btn btn-link text-muted" data-bs-dismiss="modal">Cancel</button>
 							<input autocomplete="off" id="enable2faButton" class="btn btn-primary" type="submit" value="Enable 2-step login" disabled>
 						</div>
 					</form>
@@ -222,7 +222,7 @@
 							<input autocomplete="off" type="text" class="form-control mb-2" id="2fa_input" name="2fa_remove" placeholder="# # # # # #" oninput="document.getElementById('disable2faButton').disabled=false" required>
 						</div>
 						<div class="modal-footer">
-							<button role="button" class="btn btn-link text-muted" data-bs-dismiss="modal">Cancel</button>
+							<button class="btn btn-link text-muted" data-bs-dismiss="modal">Cancel</button>
 							<input autocomplete="off" id="disable2faButton" class="btn btn-primary" type="submit" value="Disable 2-step login" disabled>
 						</div>
 					</form>
@@ -258,7 +258,7 @@
 
 {% block onload %}{% endblock %}
 
-<script src="/static/assets/js/clipboard.js?a=220"></script>
+<script src="/static/assets/js/clipboard.js?a=240"></script>
 
 <style>
 	.navsettings {

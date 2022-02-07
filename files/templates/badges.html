@@ -13,6 +13,7 @@
 <div class="overflow-x-auto"><table class="table table-striped mb-5">
 <thead class="bg-primary text-white">
 	<tr>
+		<th>#</th>
 		<th>Name</th>
 		<th>Image</th>
 		<th>Description</th>
@@ -20,8 +21,9 @@
 </thead>
 {% for badge in badges %}
 	<tr>
+		<td style="font-weight:bold">{{loop.index}}</td>
 		<td>{{badge.name}}</td>
-		<td><img alt="{{badge.name}}" loading="lazy" src="/static/assets/images/badges/{{badge.id}}.webp?a=1008" width=45.83 height=50>
+		<td><img alt="{{badge.name}}" loading="lazy" src="/static/assets/images/badges/{{badge.id}}.webp?a=1011" width=45.83 height=50>
 		<td>{{badge.description}}</td>
 	</tr>
 {% endfor %}

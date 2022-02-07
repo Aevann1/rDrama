@@ -8,11 +8,11 @@ function banModal(link, id, name) {
         fd.append("formkey", formkey());
 
         const xhr = new XMLHttpRequest();
-        xhr.open("POST", `/ban_user/${id}?form`, true);
+        xhr.open("POST", `/ban_user/${id}?form`);
         xhr.setRequestHeader('xhr', 'xhr');
 
         xhr.onload = function(){
-            var myToast = new bootstrap.Toast(document.getElementById('toast-post-success'));
+            var myToast = bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-post-success'));
             myToast.show();
             document.getElementById('toast-post-success-text').innerHTML = `@${name} banned`;
         }

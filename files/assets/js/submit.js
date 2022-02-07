@@ -10,18 +10,25 @@ function hide_image() {
 }
 
 document.onpaste = function(event) {
-	f=document.getElementById('file-upload');
 	files = event.clipboardData.files
 	filename = files[0].name.toLowerCase()
+
 	if (filename.endsWith(".jpg") || filename.endsWith(".jpeg") || filename.endsWith(".png") || filename.endsWith(".webp") || filename.endsWith(".gif"))
 	{
-		f.files = files;
-		document.getElementById('filename-show').textContent = filename;
-		document.getElementById('urlblock').classList.add('d-none');
-		var fileReader = new FileReader();
-		fileReader.readAsDataURL(f.files[0]);
-		fileReader.addEventListener("load", function () {document.getElementById('image-preview').setAttribute('src', this.result);});  
-		document.getElementById('file-upload').setAttribute('required', 'false');
+		if (document.activeElement.id == 'post-text') {
+			document.getElementById('file-upload-submit').files = files;
+			document.getElementById('filename-show-submit').textContent = filename;
+		}
+		else {
+			f=document.getElementById('file-upload');
+			f.files = files;
+			document.getElementById('filename-show').textContent = filename;
+			document.getElementById('urlblock').classList.add('d-none');
+			var fileReader = new FileReader();
+			fileReader.readAsDataURL(f.files[0]);
+			fileReader.addEventListener("load", function () {document.getElementById('image-preview').setAttribute('src', this.result);});  
+			document.getElementById('file-upload').setAttribute('required', 'false');	
+		}
 		checkForRequired();
 	}
 }
@@ -29,8 +36,8 @@ document.onpaste = function(event) {
 document.getElementById('file-upload').addEventListener('change', function(){
 	f=document.getElementById('file-upload');
 	document.getElementById('urlblock').classList.add('d-none');
-	document.getElementById('filename-show').textContent = document.getElementById('file-upload').files[0].name;
-	filename = f.files[0].name.toLowerCase()
+	document.getElementById('filename-show').textContent = document.getElementById('file-upload').files[0].name.substr(0, 20);
+	filename = f.files[0].name.toLowerCase().substr(0, 20)
 	if (filename.endsWith(".jpg") || filename.endsWith(".jpeg") || filename.endsWith(".png") || filename.endsWith(".webp") || filename.endsWith(".webp"))
 	{
 		var fileReader = new FileReader();

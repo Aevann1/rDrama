@@ -12,6 +12,7 @@ from files.helpers.lazy import lazy
 from .flags import Flag
 from .comment import Comment
 from flask import g
+from .sub import *
 
 class Submission(Base):
 	__tablename__ = "submissions"
@@ -29,6 +30,7 @@ class Submission(Base):
 	distinguish_level = Column(Integer, default=0)
 	stickied = Column(String)
 	stickied_utc = Column(Integer)
+	sub = Column(String)
 	is_pinned = Column(Boolean, default=False)
 	private = Column(Boolean, default=False)
 	club = Column(Boolean, default=False)
@@ -55,6 +57,7 @@ class Submission(Base):
 	awards = relationship("AwardRelationship", viewonly=True)
 	reports = relationship("Flag", viewonly=True)
 	comments = relationship("Comment", primaryjoin="Comment.parent_submission==Submission.id")
+	subr = relationship("Sub", primaryjoin="foreign(Submission.sub)==remote(Sub.name)", viewonly=True)
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
@@ -192,25 +195,24 @@ class Submission(Base):
 	@property
 	@lazy
 	def shortlink(self):
-		return f"/post/{self.id}"
+		link = f"/post/{self.id}"
+		if self.sub: link = f"/s/{self.sub}{link}"
+
+		if self.club: return link
+
+		output = self.title.lower()
+		output = re.sub('&\w{2,3};', '', output, re.A)
+		output = [re.sub('\W', '', word, re.A) for word in output.split()]
+		output = [x for x in output if x][:6]
+		output = '-'.join(output)
+		if not output: output = '-'
+
+		return f"{link}/{output}"
 
 	@property
 	@lazy
 	def permalink(self):
-		if self.club: return f"{SITE_FULL}/post/{self.id}"
-
-		output = self.title.lower()
-
-		output = re.sub('&\w{2,3};', '', output, flags=re.A)
-
-		output = [re.sub('\W', '', word, flags=re.A) for word in output.split()]
-		output = [x for x in output if x][:6]
-
-		output = '-'.join(output)
-
-		if not output: output = '-'
-
-		return f"{SITE_FULL}/post/{self.id}/{output}"
+		return SITE_FULL + self.shortlink
 
 	@property
 	@lazy
@@ -340,7 +342,7 @@ class Submission(Base):
 				if v.controversial: url += "&sort=controversial"
 			return url
 		elif self.url:
-			if v and v.nitter: return self.url.replace("www.twitter.com", "nitter.net").replace("twitter.com", "nitter.net")
+			if v and v.nitter and not '/i/spaces/' in self.url: return self.url.replace("www.twitter.com", "nitter.net").replace("twitter.com", "nitter.net")
 			if self.url.startswith('/'): return SITE_FULL + self.url
 			return self.url
 		else: return ""
@@ -356,7 +358,7 @@ class Submission(Base):
 			if v.teddit: body = body.replace("old.reddit.com", "teddit.net")
 			elif not v.oldreddit: body = body.replace("old.reddit.com", "reddit.com")
 
-			if v.nitter: body = body.replace("www.twitter.com", "nitter.net").replace("twitter.com", "nitter.net")
+			if v.nitter and not '/i/spaces/' in body: body = body.replace("www.twitter.com", "nitter.net").replace("twitter.com", "nitter.net")
 
 		if v and v.shadowbanned and v.id == self.author_id and 86400 > time.time() - self.created_utc > 20:
 			ti = max(int((time.time() - self.created_utc)/60), 1)
@@ -412,7 +414,7 @@ class Submission(Base):
 			if v.teddit: body = body.replace("old.reddit.com", "teddit.net")
 			elif not v.oldreddit: body = body.replace("old.reddit.com", "reddit.com")
 
-			if v.nitter: body = body.replace("www.twitter.com", "nitter.net").replace("twitter.com", "nitter.net")
+			if v.nitter and not '/i/spaces/' in body: body = body.replace("www.twitter.com", "nitter.net").replace("twitter.com", "nitter.net")
 
 		return body
 

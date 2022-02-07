@@ -15,7 +15,7 @@
 
 		{% if v %}
 			<style>:root{--primary:#{{v.themecolor}}}</style>
-			<link rel="stylesheet" href="/static/assets/css/main.css?a=102"><link rel="stylesheet" href="/static/assets/css/{{v.theme}}.css?a=14">
+			<link rel="stylesheet" href="/static/assets/css/main.css?a=115"><link rel="stylesheet" href="/static/assets/css/{{v.theme}}.css?a=19">
 			{% if v.agendaposter %}
 				<style>
 					html {
@@ -39,7 +39,7 @@
 			{% endif %}
 		{% else %}
 			<style>:root{--primary:#{{config('DEFAULT_COLOR')}}</style>
-			<link rel="stylesheet" href="/static/assets/css/main.css?a=102"><link rel="stylesheet" href="/static/assets/css/{{config('DEFAULT_THEME')}}.css?a=14">
+			<link rel="stylesheet" href="/static/assets/css/main.css?a=108"><link rel="stylesheet" href="/static/assets/css/{{config('DEFAULT_THEME')}}.css?a=19">
 		{% endif %}
 
 </head>
@@ -79,7 +79,7 @@
 													<span>
 													{{error}}
 													</span>
-													<button role="button" class="close" data-bs-dismiss="alert" aria-label="Close">
+													<button class="close" data-bs-dismiss="alert" aria-label="Close">
 														<span aria-hidden="true"><i class="far fa-times"></i></span>
 												</button>
 								</div>
@@ -90,7 +90,7 @@
 													<span>
 													{{msg}}
 													</span>
-													<button role="button" class="close" data-bs-dismiss="alert" aria-label="Close">
+													<button class="close" data-bs-dismiss="alert" aria-label="Close">
 														<span aria-hidden="true"><i class="far fa-times"></i></span>
 												</button>
 								</div>
@@ -111,7 +111,7 @@
 
 										<div class="splash-overlay"></div>
 
-										<img alt="cover" loading="lazy" class="splash-img" src="/static/assets/images/{{SITE_NAME}}/cover.webp?a=1008"></img>
+										<img alt="cover" loading="lazy" class="splash-img" src="/static/assets/images/{{SITE_NAME}}/cover.webp?a=1010"></img>
 								</div>
 
 						</div>

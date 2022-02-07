@@ -15,15 +15,17 @@ def filter_comment_html(html_text):
 
 		href = link.get("href")
 		if not href: continue
-
-		domain = urlparse(href).netloc
+		
+		url = urlparse(href)
+		domain = url.netloc
+		path = url.path
+		domain_list.add(domain+path)
 
 		parts = domain.split(".")
 		for i in range(len(parts)):
 			new_domain = parts[i]
 			for j in range(i + 1, len(parts)):
 				new_domain += "." + parts[j]
-
 				domain_list.add(new_domain)
 
 	bans = [x for x in g.db.query(BannedDomain).filter(BannedDomain.domain.in_(list(domain_list))).all()]

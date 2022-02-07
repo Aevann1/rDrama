@@ -5,6 +5,7 @@ import time
 from files.__main__ import app, limiter
 
 
+
 @app.errorhandler(400)
 def error_400(e):
 	if request.headers.get("Authorization") or request.headers.get("xhr"): return {"error": "400 Bad Request"}, 400
@@ -20,7 +21,6 @@ def error_401(e):
 		argval = quote(f"{path}?{qs}", safe='')
 		return redirect(f"{SITE_FULL}/login?redirect={argval}")
 
-
 @app.errorhandler(403)
 def error_403(e):
 	if request.headers.get("Authorization") or request.headers.get("xhr"): return {"error": "403 Forbidden"}, 403
@@ -32,16 +32,18 @@ def error_404(e):
 	if request.headers.get("Authorization") or request.headers.get("xhr"): return {"error": "404 Not Found"}, 404
 	else: return render_template('errors/404.html', err=True), 404
 
-
 @app.errorhandler(405)
 def error_405(e):
 	if request.headers.get("Authorization") or request.headers.get("xhr"): return {"error": "405 Method Not Allowed"}, 405
 	else: return render_template('errors/405.html', err=True), 405
 
-
 @app.errorhandler(413)
 def error_413(e):
 	return {"error": "Max file size is 4 MB (8 MB for paypigs)"}, 413
+
+@app.errorhandler(418)
+def error_418(e):
+	return {"error": "Too many emojis!"}, 418
 
 @app.errorhandler(429)
 def error_429(e):

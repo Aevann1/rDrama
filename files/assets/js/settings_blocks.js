@@ -19,9 +19,9 @@ function block_user() {
                 location.reload(true);
             }
             else {
-                var myToast = new bootstrap.Toast(document.getElementById('toast-post-success'));
+                var myToast = bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-post-success'));
                 myToast.hide();
-                var myToast = new bootstrap.Toast(document.getElementById('toast-post-error'));
+                var myToast = bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-post-error'));
                 myToast.show();
                 document.getElementById("toast-error-message").textContent = "Error. Please try again later.";
             }

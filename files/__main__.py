@@ -1,6 +1,6 @@
 import gevent.monkey
 gevent.monkey.patch_all()
-from os import environ
+from os import environ, path
 import secrets
 from flask import *
 from flask_caching import Cache
@@ -16,6 +16,10 @@ import time
 from sys import stdout
 import faulthandler
 from json import loads
+
+f = 'files/templates/sidebar_' + environ.get("SITE_NAME").strip() + '.html'
+if not path.exists(f):
+    with open(f, 'w', encoding="utf-8"): pass
 
 app = Flask(__name__, template_folder='templates')
 app.url_map.strict_slashes = False
@@ -36,7 +40,6 @@ app.config['MAX_CONTENT_LENGTH'] = 8 * 1024 * 1024
 app.config["SESSION_COOKIE_SECURE"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 app.config["PERMANENT_SESSION_LIFETIME"] = 60 * 60 * 24 * 365
-app.config["SLOGAN"] = environ.get("SLOGAN", "").strip()
 app.config["DEFAULT_COLOR"] = environ.get("DEFAULT_COLOR", "ff0000").strip()
 app.config["DEFAULT_THEME"] = environ.get("DEFAULT_THEME", "midnight").strip()
 app.config["FORCE_HTTPS"] = 1

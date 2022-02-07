@@ -23,7 +23,7 @@
 		<span>
 			{{error}}
 		</span>
-		<button role="button" class="close" data-dismiss="alert" aria-label="Close">
+		<button class="close" data-dismiss="alert" aria-label="Close">
 			<span aria-hidden="true"><i class="far fa-times"></i></span>
 		</button>
 	</div>
@@ -34,7 +34,7 @@
 		<span>
 			{{msg}}
 		</span>
-		<button role="button" class="close" data-dismiss="alert" aria-label="Close">
+		<button class="close" data-dismiss="alert" aria-label="Close">
 			<span aria-hidden="true"><i class="far fa-times"></i></span>
 		</button>
 	</div>
@@ -60,7 +60,12 @@
 			<tr data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{a['description']}}">
 				<td><i class="{{a['icon']}} {{a['color']}}" style="font-size: 30px"></i></td>
 				<td style="font-weight: bold">{{a['title']}}</td>
+				{% if a['baseprice'] != a['price'] %}
+				<td style="font-weight: bold"><strike>{{a['baseprice']}}</strike> <em class="text-success">{{a['price']}}</em></td>
+				{% endif %}
+				{% if a['baseprice'] == a['price'] %}
 				<td style="font-weight: bold">{{a['price']}}</td>
+				{% endif %}
 				<td style="font-weight: bold">{{a['owned']}}</td>
 				{% set kind = a['kind'] %}
 				<td style="font-weight: bold">

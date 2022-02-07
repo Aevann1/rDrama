@@ -13,13 +13,13 @@ from .userblock import *
 from .badges import *
 from .clients import *
 from .mod_logs import *
+from .mod import *
 from files.__main__ import Base, cache
 from files.helpers.security import *
 import random
 from os import environ, remove, path
 
 defaulttheme = environ.get("DEFAULT_THEME", "midnight").strip()
-defaultcolor = environ.get("DEFAULT_COLOR", "fff").strip()
 defaulttimefilter = environ.get("DEFAULT_TIME_FILTER", "all").strip()
 cardview = bool(int(environ.get("CARD_VIEW", 1)))
 
@@ -33,18 +33,19 @@ class User(Base):
 
 	id = Column(Integer, primary_key=True)
 	username = Column(String)
-	namecolor = Column(String, default=defaultcolor)
+	namecolor = Column(String, default=DEFAULT_COLOR)
 	background = Column(String)
 	customtitle = Column(String)
 	customtitleplain = deferred(Column(String))
-	titlecolor = Column(String, default=defaultcolor)
+	titlecolor = Column(String, default=DEFAULT_COLOR)
 	theme = Column(String, default=defaulttheme)
-	themecolor = Column(String, default=defaultcolor)
+	themecolor = Column(String, default=DEFAULT_COLOR)
 	cardview = Column(Boolean, default=cardview)
 	song = Column(String)
 	highres = Column(String)
 	profileurl = Column(String)
 	bannerurl = Column(String)
+	house = Column(String)
 	patron = Column(Integer, default=0)
 	patron_utc = Column(Integer, default=0)
 	verified = Column(String)
@@ -125,7 +126,8 @@ class User(Base):
 	ban_evade = Column(Integer, default=0)
 	original_username = deferred(Column(String))
 	referred_by = Column(Integer, ForeignKey("users.id"))
-
+	nwordpass = Column(Boolean)
+	
 	badges = relationship("Badge", viewonly=True)
 	subscriptions = relationship("Subscription", viewonly=True)
 	following = relationship("Follow", primaryjoin="Follow.user_id==User.id", viewonly=True)
@@ -147,6 +149,10 @@ class User(Base):
 
 		super().__init__(**kwargs)
 
+
+	@lazy
+	def mods(self, sub):
+		return self.admin_level > 1 or g.db.query(Mod.user_id).filter_by(user_id=self.id, sub=sub).one_or_none()
 
 	@property
 	@lazy
@@ -429,7 +435,7 @@ class User(Base):
 	@lazy
 	def banner_url(self):
 		if self.bannerurl: return self.bannerurl
-		else: return f"{SITE_FULL}/static/assets/images/{SITE_NAME}/site_preview.webp?a=1008"
+		else: return f"{SITE_FULL}/static/assets/images/{SITE_NAME}/site_preview.webp?a=1011"
 
 	@property
 	@lazy
@@ -438,7 +444,7 @@ class User(Base):
 		if self.profileurl: 
 			if self.profileurl.startswith('/'): return SITE_FULL + self.profileurl
 			return self.profileurl
-		if SITE_NAME == 'Drama': return f"{SITE_FULL}/static/assets/images/defaultpictures/{random.randint(1, 150)}.webp?a=1008"
+		if SITE_NAME == 'Drama': return f"{SITE_FULL}/static/assets/images/defaultpictures/bhm/{random.randint(1, 25)}.webp?a=1008"
 		return f"{SITE_FULL}/static/assets/images/default-profile-pic.webp?a=1008"
 
 	@lazy

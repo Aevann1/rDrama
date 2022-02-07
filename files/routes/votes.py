@@ -7,8 +7,6 @@ from files.__main__ import app, limiter, cache
 from sqlalchemy.orm import joinedload
 from os import environ
 
-defaultcolor = environ.get("DEFAULT_COLOR").strip()
-
 @app.get("/votes")
 @limiter.limit("5/second;60/minute;200/hour;1000/day")
 @auth_required
@@ -24,6 +22,8 @@ def admin_vote_info_get(v):
 
 	if thing.ghost: abort(403)
 
+	if not thing.author:
+		print(thing.id, flush=True)
 	if isinstance(thing, Submission):
 		if thing.author.shadowbanned and not (v and v.admin_level):
 			thing_id = g.db.query(Submission.id).filter_by(upvotes=thing.upvotes, downvotes=thing.downvotes).order_by(Submission.id).first()[0]
@@ -60,7 +60,7 @@ def admin_vote_info_get(v):
 						   v=v,
 						   thing=thing,
 						   ups=ups,
-						   downs=downs,)
+						   downs=downs)
 
 
 
@@ -102,7 +102,7 @@ def api_vote_post(post_id, new, v):
 		post.author.coins += 1
 		post.author.truecoins += 1
 		g.db.add(post.author)
-		real = new == -1 or (not v.agendaposter and not v.shadowbanned and (bool(v.profileurl) or bool(v.customtitle) or v.namecolor != defaultcolor))
+		real = new == -1 or (not v.agendaposter and not v.shadowbanned and (bool(v.profileurl) or bool(v.customtitle) or v.namecolor != DEFAULT_COLOR))
 		vote = Vote(user_id=v.id,
 					vote_type=new,
 					submission_id=post_id,
@@ -136,9 +136,7 @@ def api_vote_comment(comment_id, new, v):
 	new = int(new)
 
 	try: comment_id = int(comment_id)
-	except:
-		try: comment_id = int(comment_id, 36)
-		except: abort(404)
+	except: abort(404)
 
 	comment = get_comment(comment_id)
 
@@ -167,7 +165,7 @@ def api_vote_comment(comment_id, new, v):
 		comment.author.coins += 1
 		comment.author.truecoins += 1
 		g.db.add(comment.author)
-		real = new == -1 or (not v.agendaposter and not v.shadowbanned and (bool(v.profileurl) or bool(v.customtitle) or v.namecolor != defaultcolor))
+		real = new == -1 or (not v.agendaposter and not v.shadowbanned and (bool(v.profileurl) or bool(v.customtitle) or v.namecolor != DEFAULT_COLOR))
 		vote = CommentVote(user_id=v.id,
 						vote_type=new,
 						comment_id=comment_id,

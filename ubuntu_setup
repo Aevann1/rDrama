@@ -1,0 +1,18 @@
+cd /Drama
+sudo apt update
+sudo apt -y upgrade
+sudo apt -y install postgresql postgresql-contrib
+sudo apt -y install redis-server
+cp pg_hba.conf /etc/postgresql/12/main/pg_hba.conf
+sudo service postgresql restart
+sudo psql -U postgres -f schema.sql postgres
+sudo psql -U postgres -f seed-db.sql postgres
+sudo apt -y install python3-pip
+sudo pip3 install -r requirements.txt
+sudo apt -y install gunicorn
+sudo apt -y install ffmpeg
+mkdir /songs
+mkdir /images
+cp ./env /env
+. /env
+sudo -E gunicorn files.__main__:app -k gevent -w 2 --reload -b 0.0.0.0:80:80 --max-requests 1000 --max-requests-jitter 500

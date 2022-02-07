@@ -13,7 +13,7 @@
 			<span>
 				{{msg}}
 			</span>
-			<button role="button" class="close" data-bs-dismiss="alert" aria-label="Close">
+			<button class="close" data-bs-dismiss="alert" aria-label="Close">
 				<span aria-hidden="true"><i class="far fa-times"></i></span>
 			</button>
 		</div>
@@ -33,7 +33,7 @@
 		<textarea autocomplete="off" maxlength="10000" id="input-message" form="contactform" name="message" class="form-control" required></textarea>
 		<label class="btn btn-secondary m-0 mt-3" for="file-upload">
 			<div id="filename"><i class="far fa-image"></i></div>
-			<input autocomplete="off" id="file-upload" type="file" name="file" accept="image/*, video/*" {% if request.headers.get('cf-ipcountry')=="T1" %}disabled{% endif %} onchange="document.getElementById('filename').innerHTML='image/video';" hidden>
+			<input autocomplete="off" id="file-upload" type="file" name="file" accept="image/*, video/*" {% if request.headers.get('cf-ipcountry')=="T1" %}disabled{% endif %} onchange="changename('filename','file-upload')" hidden>
 		</label>
 		<input autocomplete="off" type="submit" value="Submit" class="btn btn-primary mt-3">
 	</form>

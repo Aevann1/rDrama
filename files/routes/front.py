@@ -32,6 +32,7 @@ def unread(v):
 
 	return {"data":[x.json for x in listing]}
 
+
 @app.get("/notifications")
 @auth_required
 def notifications(v):
@@ -71,10 +72,10 @@ def notifications(v):
 			Comment.is_banned == False,
 			Comment.deleted_utc == 0,
 			Comment.author_id != AUTOJANNY_ID,
-		).order_by(Notification.id.desc()).offset(25 * (page - 1)).limit(26).all()
+		).order_by(Notification.id.desc()).offset(50 * (page - 1)).limit(51).all()
 
-		next_exists = (len(notifications) > 25)
-		notifications = notifications[:25]
+		next_exists = (len(notifications) > 50)
+		notifications = notifications[:50]
 		cids = [x.comment_id for x in notifications]
 		comments = get_comments(cids, v=v, load_parent=True)
 
@@ -90,50 +91,29 @@ def notifications(v):
 		
 	if not posts:
 		listing = []
-		all = set()
 		for c in comments:
-			c.is_blocked = False
-			c.is_blocking = False
-			if c.parent_submission and c.parent_comment and c.parent_comment.author_id == v.id:
-				replies = []
-				for x in c.replies:
-					if x.id not in all and x.author_id == v.id:
+			if c.parent_submission:
+				
+				if c.replies2 == None: c.replies2 = []
+				for x in c.child_comments:
+					if x.author_id == v.id:
 						x.voted = 1
-						replies.append(x)
-						all.add(x.id)
-				c.replies = replies
+						if x not in c.replies2: c.replies2.append(x)
+
 				while c.parent_comment and (c.parent_comment.author_id == v.id or c.parent_comment in comments):
 					parent = c.parent_comment
-					if c not in parent.replies2:
-						parent.replies2 = parent.replies2 + [c]
-						parent.replies = parent.replies2
+					if parent.replies2 == None: parent.replies2 = [c]
+					elif c not in parent.replies2: parent.replies2.append(c)
 					c = parent
-				if c.id not in all and c not in listing:
-					all.add(c.id)
-					listing.append(c)
-					c.replies = c.replies2
-			elif c.parent_submission:
-				replies = []
-				for x in c.replies:
-					if x.id not in all and x.author_id == v.id:
-						x.voted = 1
-						replies.append(x)
-						all.add(x.id)
-				c.replies = replies
-				if x.id not in all and c not in listing:
-					all.add(c.id)
-					listing.append(c)
+
+				if c.replies2 == None: c.replies2 = []
 			else:
-				if c.parent_comment:
-					while c.level > 1:
-						all.add(c.id)
-						c = c.parent_comment
+				while c.parent_comment:
+					c = c.parent_comment
 
-				if c.id not in all and c not in listing:
-					all.add(c.id)
-					listing.append(c)
+			if c not in listing: listing.append(c)
 
-	listing = listing
+
 	if request.headers.get("Authorization"): return {"data":[x.json for x in listing]}
 
 	return render_template("notifications.html",
@@ -146,13 +126,18 @@ def notifications(v):
 						   )
 
 
-
 @app.get("/")
 @app.get("/logged_out")
+@app.get("/s/<sub>")
+@app.get("/logged_out/s/<sub>")
 @limiter.limit("3/second;30/minute;400/hour;2000/day")
 @auth_desired
-def front_all(v):
-	if not session.get("session_id"):
+def front_all(v, sub=None):
+	if sub: sub = g.db.query(Sub).filter_by(name=sub).one_or_none()
+	
+	if request.path.startswith('/s/') and not sub: abort(404)
+
+	if g.webview and not session.get("session_id"):
 		session.permanent = True
 		session["session_id"] = secrets.token_hex(49)
 
@@ -173,19 +158,25 @@ def front_all(v):
 
 	sort=request.values.get("sort", defaultsorting)
 	t=request.values.get('t', defaulttime)
+	ccmode=request.values.get('ccmode', "false")
 
 	ids, next_exists = frontlist(sort=sort,
 					page=page,
 					t=t,
 					v=v,
+					ccmode=ccmode,
 					filter_words=v.filter_words if v else [],
 					gt=int(request.values.get("utc_greater_than", 0)),
 					lt=int(request.values.get("utc_less_than", 0)),
+					sub=sub
 					)
 
 	posts = get_posts(ids, v=v)
-
+	
 	if v:
+		if v.hidevotedon: posts = [x for x in posts if not hasattr(x, 'voted') or not x.voted]
+
+	
 		if v.patron_utc and v.patron_utc < time.time():
 			v.patron = 0
 			v.patron_utc = 0
@@ -200,8 +191,6 @@ def front_all(v):
 			send_repeatable_notification(v.id, "You have been unbanned!")
 			g.db.add(v)
 			g.db.commit()
-
-		if v.hidevotedon: posts = [x for x in posts if not hasattr(x, 'voted') or not x.voted]
 
 		if v.agendaposter_expires_utc and v.agendaposter_expires_utc < time.time():
 			v.agendaposter_expires_utc = 0
@@ -261,14 +250,16 @@ def front_all(v):
 			g.db.commit()
 
 	if request.headers.get("Authorization"): return {"data": [x.json for x in posts], "next_exists": next_exists}
-	return render_template("home.html", v=v, listing=posts, next_exists=next_exists, sort=sort, t=t, page=page)
+	return render_template("home.html", v=v, listing=posts, next_exists=next_exists, sort=sort, t=t, page=page, ccmode=ccmode, sub=sub)
 
 
 
 @cache.memoize(timeout=86400)
-def frontlist(v=None, sort="hot", page=1, t="all", ids_only=True, filter_words='', gt=None, lt=None):
+def frontlist(v=None, sort="hot", page=1, t="all", ids_only=True, ccmode="false", filter_words='', gt=None, lt=None, sub=None):
 
 	posts = g.db.query(Submission)
+
+	if sub: posts = posts.filter_by(sub=sub.name)
 
 	if t == 'all': cutoff = 0
 	else:
@@ -279,6 +270,9 @@ def frontlist(v=None, sort="hot", page=1, t="all", ids_only=True, filter_words='
 		elif t == 'year': cutoff = now - 31536000
 		else: cutoff = now - 86400
 		posts = posts.filter(Submission.created_utc >= cutoff)
+
+	if (ccmode == "true"):
+		posts = posts.filter(Submission.club == True)
 
 	if sort == "hot" or (v and v.id == Q_ID): posts = posts.filter_by(is_banned=False, stickied=None, private=False, deleted_utc = 0)
 	else: posts = posts.filter_by(is_banned=False, private=False, deleted_utc = 0)
@@ -310,7 +304,7 @@ def frontlist(v=None, sort="hot", page=1, t="all", ids_only=True, filter_words='
 
 	if sort == "hot":
 		ti = int(time.time()) + 3600
-		posts = posts.order_by(-1000000*(Submission.realupvotes + 1 + Submission.comment_count/5)/(func.power(((ti - Submission.created_utc)/1000), 1.23)))
+		posts = posts.order_by(-1000000*(Submission.realupvotes + 1 + Submission.comment_count/5 + (func.length(Submission.body_html)-func.length(func.replace(Submission.body_html,'</a>',''))))/(func.power(((ti - Submission.created_utc)/1000), 1.23)))
 	elif sort == "new":
 		posts = posts.order_by(Submission.created_utc.desc())
 	elif sort == "old":
@@ -333,8 +327,9 @@ def frontlist(v=None, sort="hot", page=1, t="all", ids_only=True, filter_words='
 
 	posts = posts[:size]
 
-	if (sort == "hot" or (v and v.id == Q_ID)) and page == 1:
+	if (sort == "hot" or (v and v.id == Q_ID)) and page == 1 and ccmode == "false":
 		pins = g.db.query(Submission).filter(Submission.stickied != None, Submission.is_banned == False)
+		if sub: pins = pins.filter_by(sub=sub.name)
 		if v and v.admin_level == 0:
 			blocking = [x[0] for x in g.db.query(UserBlock.target_id).filter_by(user_id=v.id).all()]
 			blocked = [x[0] for x in g.db.query(UserBlock.user_id).filter_by(target_id=v.id).all()]
@@ -401,7 +396,7 @@ def changeloglist(v=None, sort="new", page=1 ,t="all"):
 			Submission.author_id.notin_(blocked)
 		)
 
-	admins = [x[0] for x in g.db.query(User.id).filter(User.admin_level > 1).all()]
+	admins = [x[0] for x in g.db.query(User.id).filter(User.admin_level > 0).all()]
 	posts = posts.filter(Submission.title.ilike('_changelog%'), Submission.author_id.in_(admins))
 
 	if t != 'all':
@@ -453,7 +448,7 @@ def comment_idlist(page=1, v=None, nsfw=False, sort="new", t="all"):
 
 	cc_idlist = [x[0] for x in g.db.query(Submission.id).filter(Submission.club == True).all()]
 
-	comments = g.db.query(Comment.id).filter(Comment.parent_submission.notin_(cc_idlist))
+	comments = g.db.query(Comment.id).filter(Comment.parent_submission != None, Comment.parent_submission.notin_(cc_idlist))
 
 	if v and v.admin_level <= 3:
 		blocking = [x[0] for x in g.db.query(
