@@ -185,6 +185,7 @@
 	{% set dealer_hand = split_result[1].split('/')[0] if blackjack_status == 'active' else split_result[1] %}
 	{% set dealer_hand = dealer_hand.replace('X', '10') %}
 	{% set wager = split_result[4] %}
+	{% set kind = split_result[5] %}
 {% endif %}
 
 <div id="comment-{{c.id}}" class="anchor {% if c.unread %}unread{% endif %} comment {% if standalone and level==1 %} mt-0{% endif %} {% if c.collapse_for_user(v, request.path) and (standalone and c.over_18 and not (v and v.over_18)) %}collapsed{% endif %}" style="{% if isreply %}padding-left:0!important;{% elif not c.unread %}border-left: 2px solid {% if c.ghost %}var(--primary){% else %}#{{c.author.namecolor}};{% endif %}{% endif %} {% if c.unread %}padding: 10px 10px 10px !important;{% endif %}">
@@ -255,20 +256,21 @@
 				{% endif %}
 
 				{% if c.blackjack_result %}
+				{% set currency_kind = "Coins" if kind == "coins" else "Marseybucks" %}
 				<em>{{player_hand}} vs. {{dealer_hand}}</em>
 					{% if blackjack_status == 'active' and v.id == c.author_id %}
 					<button class="btn btn-success small" style="text-transform: uppercase; padding: 2px;" onclick="handle_blackjack_action('{{c.id}}', 'hit')">Hit</button>
 					<button class="btn btn-danger small" style="text-transform: uppercase; padding: 2px;" onclick="handle_blackjack_action('{{c.id}}', 'stay')">Stay</button>
 					{% elif blackjack_status == 'push' %}
-					<strong>Pushed. Refunded {{wager}} Coins.</strong>
+					<strong>Pushed. Refunded {{wager}} {{currency_kind}}.</strong>
 					{% elif blackjack_status == 'bust' %}
-					<strong>Bust. Lost {{wager}} Coins.</strong>
+					<strong>Bust. Lost {{wager}} {{currency_kind}}.</strong>
 					{% elif blackjack_status == 'lost' %}
-					<strong>Lost {{wager}} Coins.</strong>
+					<strong>Lost {{wager}} {{currency_kind}}.</strong>
 					{% elif blackjack_status == 'won' %}
-					<strong>Won {{wager|int * 2}} Coins.</strong>
+					<strong>Won {{wager|int * 2}} {{currency_kind}}.</strong>
 					{% elif blackjack_status == 'blackjack' %}
-					<strong>Blackjack! Won {{(wager|int * 3/2)|round(0, 'floor')|int}} Coins.</strong>
+					<strong>Blackjack! Won {{(wager|int * 3/2)|round(0, 'floor')|int}} {{currency_kind}}.</strong>
 					{% endif %}
 				{% endif %}
 			</div>

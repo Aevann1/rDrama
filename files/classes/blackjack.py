@@ -1,5 +1,6 @@
 from functools import reduce
 from json.encoder import INFINITY
+from locale import currency
 import random
 from math import floor
 
@@ -9,153 +10,169 @@ suits = ["♠️", "♥️", "♣️", "♦️"]
 
 
 def shuffle(x):
-	random.shuffle(x)
-	return x
+    random.shuffle(x)
+    return x
 
 
 def get_shuffled_deck():
-	return shuffle([rank + suit for rank in ranks for suit in suits for _ in range(deck_count)])
+    return shuffle([rank + suit for rank in ranks for suit in suits for _ in range(deck_count)])
 
 
 def deal_initial_cards():
-	deck = get_shuffled_deck()
-	p1, d1, p2, d2, *rest_of_deck = deck
-	return [p1, p2], [d1, d2], rest_of_deck
+    deck = get_shuffled_deck()
+    p1, d1, p2, d2, *rest_of_deck = deck
+    return [p1, p2], [d1, d2], rest_of_deck
 
 
 def get_card_value(card):
-	rank = card[0]
-	return 0 if rank == "A" else min(ranks.index(rank) + 2, 10)
+    rank = card[0]
+    return 0 if rank == "A" else min(ranks.index(rank) + 2, 10)
 
 
 def get_hand_value(hand):
-	without_aces = sum(map(get_card_value, hand))
-	ace_count = sum("A" in c for c in hand)
-	possibilities = []
+    without_aces = sum(map(get_card_value, hand))
+    ace_count = sum("A" in c for c in hand)
+    possibilities = []
 
-	for i in range(ace_count + 1):
-		value = without_aces + (ace_count - i) + i * 11
-		possibilities.append(-1 if value > 21 else value)
+    for i in range(ace_count + 1):
+        value = without_aces + (ace_count - i) + i * 11
+        possibilities.append(-1 if value > 21 else value)
 
-	return max(possibilities)
+    return max(possibilities)
 
 
 def format_cards(hand):
-	return map(lambda x: "".join(x), hand)
+    return map(lambda x: "".join(x), hand)
 
 
-def format_all(player_hand, dealer_hand, deck, status, wager):
-	formatted_player_hand = format_cards(player_hand)
-	formatted_dealer_hand = format_cards(dealer_hand)
-	formatted_deck = format_cards(deck)
+def format_all(player_hand, dealer_hand, deck, status, wager, kind):
+    formatted_player_hand = format_cards(player_hand)
+    formatted_dealer_hand = format_cards(dealer_hand)
+    formatted_deck = format_cards(deck)
 
-	return f'{"/".join(formatted_player_hand)}_{"/".join(formatted_dealer_hand)}_{"/".join(formatted_deck)}_{status}_{wager}'
+    return f'{"/".join(formatted_player_hand)}_{"/".join(formatted_dealer_hand)}_{"/".join(formatted_deck)}_{status}_{wager}_{kind}'
 
 
 class Blackjack:
-	command_word = "!blackjack"
-	casino_word = "!blackjackmb"
-	minimum_bet = 100
-	maximum_bet = INFINITY
+    coins_command_word = "!blackjack"
+    marseybucks_command_word = "!blackjackmb"
 
-	def __init__(self, g):
-		self.db = g.db
+    minimum_bet = 100
+    maximum_bet = INFINITY
 
-	def check_for_blackjack_command(self, in_text, from_user, from_comment):
-		if self.command_word in in_text:
-			for word in in_text.split():
-				if self.command_word in word:
-					try:
-						wager = word[len(self.command_word):]
-						wager_value = int(wager)
-					except: break
+    def __init__(self, g):
+        self.db = g.db
 
-					if (wager_value < self.minimum_bet): break
-					elif (wager_value > self.maximum_bet): break
-					elif (wager_value > from_user.coins): break
+    def check_for_blackjack_commands(self, in_text, from_user, from_comment):
+        for command_word in (self.coins_command_word, self.marseybucks_command_word):
+            currency_prop = "coins" if command_word == self.coins_command_word else "procoins"
+            currency_value = getattr(from_user, currency_prop, 0)
 
-					from_user.coins -= wager_value
-					from_user.winnings -= wager_value
+            if command_word in in_text:
+                for word in in_text.split():
+                    if command_word in word:
+                        try:
+                            wager = word[len(command_word):]
+                            wager_value = int(wager)
+                        except:
+                            break
 
-					player_hand, dealer_hand, rest_of_deck = deal_initial_cards()
-					status = 'active'
-					player_value = get_hand_value(player_hand)
-					dealer_value = get_hand_value(dealer_hand)
+                        if (wager_value < self.minimum_bet):
+                            break
+                        elif (wager_value > self.maximum_bet):
+                            break
+                        elif (wager_value <= currency_value):
+                            setattr(from_user, currency_prop,
+                                    currency_value - wager_value)
 
-					if player_value == 21 and dealer_value == 21:
-						status = 'push'
-						self.apply_game_result(from_comment, wager, status)
-					elif player_value == 21:
-						status = 'blackjack'
-						self.apply_game_result(from_comment, wager, status)
-					elif dealer_value == 21:
-						status = 'lost'
-						self.apply_game_result(from_comment, wager, status)
+                            if currency_prop == "coins":
+                                from_user.winnings -= wager_value
 
-					from_comment.blackjack_result = format_all(
-						player_hand, dealer_hand, rest_of_deck, status, wager)
+                            player_hand, dealer_hand, rest_of_deck = deal_initial_cards()
+                            status = 'active'
+                            player_value = get_hand_value(player_hand)
+                            dealer_value = get_hand_value(dealer_hand)
 
-	def player_hit(self, from_comment):
-		player_hand, dealer_hand, deck, status, wager = from_comment.blackjack_result.split(
-			"_")
-		player_hand = player_hand.split("/")
-		dealer_hand = dealer_hand.split("/")
-		deck = deck.split("/")
-		player_hand.append(deck.pop(0))
-		player_value = get_hand_value(player_hand)
+                            if player_value == 21 and dealer_value == 21:
+                                status = 'push'
+                                self.apply_game_result(
+                                    from_comment, wager, status, currency_prop)
+                            elif player_value == 21:
+                                status = 'blackjack'
+                                self.apply_game_result(
+                                    from_comment, wager, status, currency_prop)
+                            elif dealer_value == 21:
+                                status = 'lost'
+                                self.apply_game_result(
+                                    from_comment, wager, status, currency_prop)
 
-		if player_value == -1:
-			status = 'bust'
-			self.apply_game_result(from_comment, wager, status)
+                            from_comment.blackjack_result = format_all(
+                                player_hand, dealer_hand, rest_of_deck, status, wager, currency_prop)
 
-		from_comment.blackjack_result = format_all(
-			player_hand, dealer_hand, deck, status, wager)
+    def player_hit(self, from_comment):
+        player_hand, dealer_hand, deck, status, wager = from_comment.blackjack_result.split(
+            "_")
+        player_hand = player_hand.split("/")
+        dealer_hand = dealer_hand.split("/")
+        deck = deck.split("/")
+        player_hand.append(deck.pop(0))
+        player_value = get_hand_value(player_hand)
 
-		if (player_value == 21):
-			self.player_stayed(from_comment)
+        if player_value == -1:
+            status = 'bust'
+            self.apply_game_result(from_comment, wager, status)
 
-	def player_stayed(self, from_comment):
-		player_hand, dealer_hand, deck, status, wager = from_comment.blackjack_result.split(
-			"_")
-		player_hand = player_hand.split("/")
-		player_value = get_hand_value(player_hand)
-		dealer_hand = dealer_hand.split("/")
-		dealer_value = get_hand_value(dealer_hand)
-		deck = deck.split("/")
+        from_comment.blackjack_result = format_all(
+            player_hand, dealer_hand, deck, status, wager)
 
-		while dealer_value < 17 and dealer_value != -1:
-			next = deck.pop(0)
-			dealer_hand.append(next)
-			dealer_value = get_hand_value(dealer_hand)
+        if (player_value == 21):
+            self.player_stayed(from_comment)
 
-		if player_value > dealer_value or dealer_value == -1:
-			status = 'won'
-		elif dealer_value > player_value:
-			status = 'lost'
-		else:
-			status = 'push'
+    def player_stayed(self, from_comment):
+        player_hand, dealer_hand, deck, status, wager, kind = from_comment.blackjack_result.split(
+            "_")
+        player_hand = player_hand.split("/")
+        player_value = get_hand_value(player_hand)
+        dealer_hand = dealer_hand.split("/")
+        dealer_value = get_hand_value(dealer_hand)
+        deck = deck.split("/")
 
-		from_comment.blackjack_result = format_all(
-			player_hand, dealer_hand, deck, status, wager)
+        while dealer_value < 17 and dealer_value != -1:
+            next = deck.pop(0)
+            dealer_hand.append(next)
+            dealer_value = get_hand_value(dealer_hand)
 
-		self.apply_game_result(from_comment, wager, status)
+        if player_value > dealer_value or dealer_value == -1:
+            status = 'won'
+        elif dealer_value > player_value:
+            status = 'lost'
+        else:
+            status = 'push'
 
-	def apply_game_result(self, from_comment, wager, result):
-		reward = 0
-		wager_value = int(wager)
-		user = from_comment.author
-		reward = -1
+        from_comment.blackjack_result = format_all(
+            player_hand, dealer_hand, deck, status, wager, kind)
 
-		if result == 'push':
-			reward = 0
-		elif result == 'won':
-			reward = wager
-		elif result == 'blackjack':
-			reward = floor(wager_value * 3/2)
+        self.apply_game_result(from_comment, wager, status, kind)
 
-		if (reward > -1):
-			user.coins += wager + reward # Include refund
-			user.winnings += reward
-			
-			self.db.add(user)
-			self.db.commit()
+    def apply_game_result(self, from_comment, wager, result, kind):
+        wager_value = int(wager)
+        user = from_comment.author
+        reward = -1
+
+        if result == 'push':
+            reward = 0
+        elif result == 'won':
+            reward = wager_value
+        elif result == 'blackjack':
+            reward = floor(wager_value * 3/2)
+
+        if (reward > -1):
+            currency_value = int(getattr(user, kind, 0))
+
+            setattr(user, kind, currency_value + wager_value + reward)
+
+            if kind == 'coins':
+                user.winnings += reward
+
+            self.db.add(user)
+            self.db.commit()
