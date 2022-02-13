@@ -14,7 +14,7 @@
 		<span>
 			{{error}}
 		</span>
-		<button role="button" class="close" data-bs-dismiss="alert" aria-label="Close">
+		<button class="close" data-bs-dismiss="alert" aria-label="Close">
 			<span aria-hidden="true"><i class="far fa-times"></i></span>
 		</button>
 	</div>
@@ -25,7 +25,7 @@
 		<span>
 			{{msg}}
 		</span>
-		<button role="button" class="close" data-bs-dismiss="alert" aria-label="Close">
+		<button class="close" data-bs-dismiss="alert" aria-label="Close">
 			<span aria-hidden="true"><i class="far fa-times"></i></span>
 		</button>
 	</div>
@@ -63,7 +63,7 @@
 	</form>
 
 	<pre></pre>
-	{% if request.host != 'rdrama.net' or v.id == AEVANN_ID %}
-		<div><a class="btn btn-danger" role="button" onclick="post_toast('/admin/monthly')">Grant Monthly Marseybux</a></div>
+	{% if SITE_NAME != 'Drama' or v.id == AEVANN_ID %}
+		<div><a class="btn btn-danger" role="button" onclick="post_toast(this,'/admin/monthly')">Grant Monthly Marseybux</a></div>
 	{% endif %}
 {% endblock %}

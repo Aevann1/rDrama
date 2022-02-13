@@ -4,7 +4,7 @@
 
 {% block content %}
 
-<script src="/static/assets/js/settings_blocks.js?a=220"></script>
+<script src="/static/assets/js/settings_blocks.js?a=240"></script>
 
 <div class="row">
 
@@ -16,7 +16,7 @@
 			<span>
 				{{error}}
 			</span>
-			<button role="button" class="close" data-bs-dismiss="alert" aria-label="Close">
+			<button class="close" data-bs-dismiss="alert" aria-label="Close">
 				<span aria-hidden="true"><i class="far fa-times"></i></span>
 			</button>
 		</div>
@@ -70,7 +70,7 @@
 									<i class="fas fa-ellipsis-h text-muted"></i>
 								</a>
 								<div class="dropdown-menu border-0 shadow dropdown-menu-right mt-2" aria-labelledby="dropdownMoreLink" x-placement="bottom-end" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(21px, 18px, 0px);">
-									<a class="dropdown-item" role="button" onclick="post_toast('/settings/unblock?username={{block.target.username}}&formkey={{v.formkey}}')"><i class="fas fa-check"></i>Unblock</a>
+									<a class="dropdown-item" role="button" onclick="post_toast(this,'/settings/unblock?username={{block.target.username}}&formkey={{v.formkey}}')"><i class="fas fa-check"></i>Unblock</a>
 								</div>
 							</div>
 						</td>
@@ -98,17 +98,17 @@
 			<div class="modal-content">
 				<div class="modal-header">
 					<h5 class="modal-title">Block users</h5>
-					<button role="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+					<button class="close" data-bs-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true"><i class="far fa-times"></i></span>
 					</button>
 				</div>
 				<div class="modal-body">
 					<input autocomplete="off" type="hidden" name="formkey" value="{{v.formkey}}">
-					<input autocomplete="off" type="text" name="username" placeholder="enter username" id="exile-username" class="form-control" maxlength=25 required>
+					<input autocomplete="off" type="text" name="username" placeholder="Enter username..." id="exile-username" class="form-control" maxlength=25 required>
 				</div>
 				<div class="modal-footer">
-					<button role="button" class="btn btn-link text-muted" data-bs-dismiss="modal">Cancel</button>
-					<button role="button" class="btn btn-primary" id="exileUserButton" onclick="block_user()">Block user</button>
+					<button class="btn btn-link text-muted" data-bs-dismiss="modal">Cancel</button>
+					<button class="btn btn-primary" id="exileUserButton" onclick="block_user()">Block user</button>
 				</div>
 			</div>
 		</form>

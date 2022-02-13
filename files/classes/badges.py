@@ -23,11 +23,11 @@ class Badge(Base):
 	__tablename__ = "badges"
 
 	id = Column(Integer, primary_key=True)
-
 	user_id = Column(Integer, ForeignKey('users.id'))
-	badge_id = Column(Integer)
+	badge_id = Column(Integer,  ForeignKey('badge_defs.id'))
 	description = Column(String)
 	url = Column(String)
+
 	user = relationship("User", viewonly=True)
 	badge = relationship("BadgeDef", primaryjoin="foreign(Badge.badge_id) == remote(BadgeDef.id)", viewonly=True)
 
@@ -38,7 +38,7 @@ class Badge(Base):
 	@lazy
 	def text(self):
 		if self.name == "Chud":
-			ti = self.user.agendaposter_expires_utc
+			ti = self.user.agendaposter
 			if ti: text = self.badge.description + " until " + datetime.utcfromtimestamp(ti).strftime('%Y-%m-%d %H:%M:%S')
 			else: text = self.badge.description + " permanently"
 		elif self.badge_id in (94,95,96,97,98,109):
@@ -51,7 +51,7 @@ class Badge(Base):
 			text = self.badge.description + " until " + datetime.utcfromtimestamp(ti).strftime('%Y-%m-%d %H:%M:%S')
 		elif self.description: text = self.description
 		elif self.badge.description: text = self.badge.description
-		else: return ''
+		else: return self.name
 		return f'{self.name} - {text}'
 
 	@property
@@ -62,7 +62,7 @@ class Badge(Base):
 	@property
 	@lazy
 	def path(self):
-		return f"{SITE_FULL}/static/assets/images/badges/{self.badge_id}.webp?a=1008"
+		return f"{SITE_FULL}/static/assets/images/badges/{self.badge_id}.webp"
 
 	@property
 	@lazy

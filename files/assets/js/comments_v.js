@@ -1,15 +1,17 @@
 function post(url) {
 	const xhr = new XMLHttpRequest();
-	xhr.open("POST", url, true);
+	xhr.open("POST", url);
 	xhr.setRequestHeader('xhr', 'xhr');
 	var form = new FormData()
 	form.append("formkey", formkey());
 	xhr.send(form);
 };
 
-function post_toast3(url, button1, button2) {
+function post_toast3(t, url, button1, button2) {
+	t.disabled=true;
+	t.classList.add("disabled");
 	const xhr = new XMLHttpRequest();
-	xhr.open("POST", url, true);
+	xhr.open("POST", url);
 	xhr.setRequestHeader('xhr', 'xhr');
 	var form = new FormData()
 	form.append("formkey", formkey());
@@ -29,7 +31,7 @@ function post_toast3(url, button1, button2) {
 		catch(e) {console.log(e)}
 		if (xhr.status >= 200 && xhr.status < 300 && data && data["message"]) {
 			document.getElementById('toast-post-success-text').innerText = data["message"];
-			new bootstrap.Toast(document.getElementById('toast-post-success')).show();
+			bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-post-success')).show();
 
 			document.getElementById(button1).classList.toggle("d-md-inline-block");
 			document.getElementById(button2).classList.toggle("d-md-inline-block");
@@ -37,8 +39,12 @@ function post_toast3(url, button1, button2) {
 		} else {
 			document.getElementById('toast-post-error-text').innerText = "Error, please try again later."
 			if (data && data["error"]) document.getElementById('toast-post-error-text').innerText = data["error"];
-			new bootstrap.Toast(document.getElementById('toast-post-error')).show();
+			bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-post-error')).show();
 		}
+		setTimeout(() => {
+			t.disabled = false;
+			t.classList.remove("disabled");
+		}, 500);
 	};
 
 	xhr.send(form);
@@ -48,25 +54,34 @@ function report_commentModal(id, author) {
 
 	document.getElementById("comment-author").textContent = author;
 
-	document.getElementById("reportCommentButton").onclick = function() {
+	document.getElementById("reportCommentFormBefore").classList.remove('d-none');
+	document.getElementById("reportCommentFormAfter").classList.add('d-none');
 
-	this.innerHTML='Reporting comment';
-	this.disabled = true;
-	const xhr = new XMLHttpRequest();
-	xhr.open("POST", '/report/comment/'+id, true);
-	xhr.setRequestHeader('xhr', 'xhr');
-	var form = new FormData()
-	form.append("formkey", formkey());
-	form.append("reason", document.getElementById("reason-comment").value);
+	btn = document.getElementById("reportCommentButton")
+	btn.innerHTML='Report comment';
+	btn.disabled = false;
 
-	xhr.onload=function() {
-		document.getElementById("reportCommentFormBefore").classList.add('d-none');
-		document.getElementById("reportCommentFormAfter").classList.remove('d-none');
-	};
+	reason = document.getElementById("reason-comment")
+	reason.value = ""
+	
+	btn.onclick = function() {
+		this.innerHTML='Reporting comment';
+		this.disabled = true;
+		const xhr = new XMLHttpRequest();
+		xhr.open("POST", '/report/comment/'+id);
+		xhr.setRequestHeader('xhr', 'xhr');
+		var form = new FormData()
+		form.append("formkey", formkey());
+		form.append("reason", reason.value);
 
-	xhr.onerror=function(){alert(errortext)};
-	xhr.send(form);
-}
+		xhr.onload=function() {
+			document.getElementById("reportCommentFormBefore").classList.add('d-none');
+			document.getElementById("reportCommentFormAfter").classList.remove('d-none');
+		};
+
+		xhr.onerror=function(){alert(errortext)};
+		xhr.send(form);
+	}
 
 };
 
@@ -106,7 +121,7 @@ function delete_commentModal(id) {
 
 		var url = '/delete/comment/' + id
 		const xhr = new XMLHttpRequest();
-		xhr.open("POST", url, true);
+		xhr.open("POST", url);
 		xhr.setRequestHeader('xhr', 'xhr');
 		var form = new FormData()
 		form.append("formkey", formkey());
@@ -118,6 +133,7 @@ function delete_commentModal(id) {
 
 function post_reply(id){
 	const btn = document.getElementById(`save-reply-to-${id}`)
+	btn.disabled = true;
 	btn.classList.add('disabled');
 
 	var form = new FormData();
@@ -139,15 +155,19 @@ function post_reply(id){
 				document.getElementById('toast-post-error-text').innerText = data["error"];
 			}
 			catch(e) {console.log(e)}
-			new bootstrap.Toast(document.getElementById('toast-post-error')).show();
+			bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-post-error')).show();
 		}
-		btn.classList.remove('disabled');
+		setTimeout(() => {
+			btn.disabled = false;
+			btn.classList.remove('disabled');
+		}, 500);
 	}
 	xhr.send(form)
 }
 
 function comment_edit(id){
 	const btn = document.getElementById(`edit-btn-${id}`)
+	btn.disabled = true
 	btn.classList.add('disabled');
 
 	var form = new FormData();
@@ -172,15 +192,19 @@ function comment_edit(id){
 				document.getElementById('toast-post-error-text').innerText = data["error"];
 			}
 			catch(e) {console.log(e)}
-			new bootstrap.Toast(document.getElementById('toast-post-error')).show();
+			bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-post-error')).show();
 		}
-		btn.classList.remove('disabled');
+		setTimeout(() => {
+			btn.disabled = false;
+			btn.classList.remove('disabled');
+		}, 500);
 	}
 	xhr.send(form)
 }
 
 function post_comment(fullname){
 	const btn = document.getElementById('save-reply-to-'+fullname)
+	btn.disabled = true
 	btn.classList.add('disabled');
 
 	var form = new FormData();
@@ -206,9 +230,12 @@ function post_comment(fullname){
 				document.getElementById('toast-post-error-text').innerText = data["error"];
 			}
 			catch(e) {console.log(e)}
-			new bootstrap.Toast(document.getElementById('toast-post-error')).show();
+			bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-post-error')).show();
 		}
-		btn.classList.remove('disabled');
+		setTimeout(() => {
+			btn.disabled = false;
+			btn.classList.remove('disabled');
+		}, 500);
 	}
 	xhr.send(form)
 }
@@ -257,15 +284,32 @@ function poll_vote(cid, parentid) {
 	for(let el of document.getElementsByClassName('presult-'+parentid)) {
 		el.classList.remove('d-none');
 	}
-	for(let el of document.getElementsByClassName('presult')) {
-		el.classList.remove('d-none');
-	}
 	var type = document.getElementById(cid).checked;
 	var scoretext = document.getElementById('poll-' + cid);
 	var score = Number(scoretext.textContent);
 	if (type == true) scoretext.textContent = score + 1;
 	else scoretext.textContent = score - 1;
 	post('/vote/poll/' + cid + '?vote=' + type);
+}
+
+function choice_vote(cid, parentid) {
+	for(let el of document.getElementsByClassName('presult-'+parentid)) {
+		el.classList.remove('d-none');
+	}
+	
+	let curr = document.getElementById(`current-${parentid}`)
+	if (curr && curr.value)
+	{
+		var scoretext = document.getElementById('choice-' + curr.value);
+		var score = Number(scoretext.textContent);
+		scoretext.textContent = score - 1;
+	}
+
+	var scoretext = document.getElementById('choice-' + cid);
+	var score = Number(scoretext.textContent);
+	scoretext.textContent = score + 1;
+	post('/vote/choice/' + cid);
+	curr.value = cid
 }
 
 function handle_blackjack_action(cid, action) {
@@ -279,12 +323,7 @@ function handle_blackjack_action(cid, action) {
 	xhr.setRequestHeader('xhr', 'xhr');
 
 	xhr.onload = function() {
-		if (xhr.status == 200) {
-			window.location.reload();
-		} else {
-			// Handle error.
-		}
+		if (xhr.status == 200) location.reload();
 	}
-
 	xhr.send(form);
 }

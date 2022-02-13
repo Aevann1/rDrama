@@ -1,24 +1,13 @@
 from os import environ
 import requests
 import threading
+from .const import *
 
 SERVER_ID = environ.get("DISCORD_SERVER_ID",'').strip()
 CLIENT_ID = environ.get("DISCORD_CLIENT_ID",'').strip()
 CLIENT_SECRET = environ.get("DISCORD_CLIENT_SECRET",'').strip()
 BOT_TOKEN = environ.get("DISCORD_BOT_TOKEN",'').strip()
 AUTH = environ.get("DISCORD_AUTH",'').strip()
-
-ROLES={
-	"owner": "864612849199480914",
-	"admin": "879459632656048180" if environ.get("DOMAIN") == "pcmemes.net" else "846509661288267776",
-	"linked": "890342909390520382",
-	"1": "868129042346414132",
-	"2": "875569477671067688",
-	"3": "869434199575236649",
-	"4": "868140288013664296",
-	"5": "880445545771044884",
-	"8": "886781932430565418",
-	}
 
 def discord_wrap(f):
 

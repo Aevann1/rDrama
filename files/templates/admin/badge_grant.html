@@ -14,7 +14,7 @@
 			<span>
 				{{error}}
 			</span>
-			<button role="button" class="close" data-bs-dismiss="alert" aria-label="Close">
+			<button class="close" data-bs-dismiss="alert" aria-label="Close">
 				<span aria-hidden="true"><i class="far fa-times"></i></span>
 			</button>
 		</div>
@@ -25,7 +25,7 @@
 			<span>
 				{{msg}}
 			</span>
-			<button role="button" class="close" data-bs-dismiss="alert" aria-label="Close">
+			<button class="close" data-bs-dismiss="alert" aria-label="Close">
 				<span aria-hidden="true"><i class="far fa-times"></i></span>
 			</button>
 		</div>
@@ -56,11 +56,11 @@
 <tr>
 	<td>
 		<div class="custom-control">
-			<input autocomplete="off" checked="" class="custom-control-input" type="radio" id="{{badge.id}}" name="badge_id" value="{{badge.id}}">
+			<input autocomplete="off" class="custom-control-input" type="radio" id="{{badge.id}}" name="badge_id" value="{{badge.id}}">
 			<label class="custom-control-label" for="{{badge.id}}"></label>
 		</div>		
 	</td>
-	<td><label for="badge-{{badge.id}}"><img alt="{{badge.name}}" loading="lazy" src="/static/assets/images/badges/{{badge.id}}.webp?a=1008" width=64.16 height=70></label></td>
+	<td><label for="badge-{{badge.id}}"><img alt="{{badge.name}}" loading="lazy" src="/static/assets/images/badges/{{badge.id}}.webp?a=1011" width=64.16 height=70></label></td>
 	<td>{{badge.name}}</td>
 	<td>{{badge.description}}</td>
 </tr>

@@ -67,7 +67,7 @@ function vote(type, id, dir) {
 	}
 
 	const xhr = new XMLHttpRequest();
-	xhr.open("POST", "/vote/" + type.replace('-mobile','') + "/" + id + "/" + votedirection, true);
+	xhr.open("POST", "/vote/" + type.replace('-mobile','') + "/" + id + "/" + votedirection);
 	xhr.setRequestHeader('xhr', 'xhr');
 	var form = new FormData()
 	form.append("formkey", formkey());
@@ -79,13 +79,13 @@ function awardModal(link) {
 	target.action = link;
 }
 
-function pick(kind) {
+function pick(kind, canbuy1, canbuy2) {
 	let buy1 = document.getElementById('buy1')
-	if (kind == "grass") buy1.disabled=true;
-	else buy1.disabled=false;
+	if (canbuy1 && kind != "grass") buy1.disabled=false;
+	else buy1.disabled=true;
 	let buy2 = document.getElementById('buy2')
-	if (kind == "benefactor") buy2.disabled=true;
-	else buy2.disabled=false;
+	if (canbuy2 && kind != "benefactor") buy2.disabled=false;
+	else buy2.disabled=true;
 	let ownednum = Number(document.getElementById(`${kind}-owned`).textContent);
 	document.getElementById('giveaward').disabled = (ownednum == 0);
 	document.getElementById('kind').value=kind;
@@ -106,7 +106,7 @@ function buy(mb) {
 	const xhr = new XMLHttpRequest();
 	url = `/buy/${kind}`
 	if (mb) url += "?mb=true"
-	xhr.open("POST", url, true);
+	xhr.open("POST", url);
 	xhr.setRequestHeader('xhr', 'xhr');
 	var form = new FormData()
 	form.append("formkey", formkey());
@@ -125,7 +125,7 @@ function buy(mb) {
 		catch(e) {console.log(e)}
 		if (xhr.status >= 200 && xhr.status < 300 && data && data["message"]) {
 			document.getElementById('toast-post-success-text2').innerText = data["message"];
-			new bootstrap.Toast(document.getElementById('toast-post-success2')).show();
+			bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-post-success2')).show();
 			document.getElementById('giveaward').disabled=false;
 			let owned = document.getElementById(`${kind}-owned`)
 			let ownednum = Number(owned.textContent);
@@ -133,7 +133,7 @@ function buy(mb) {
 		} else {
 			document.getElementById('toast-post-error-text').innerText = "Error, please try again later."
 			if (data && data["error"]) document.getElementById('toast-post-error-text2').innerText = data["error"];
-			new bootstrap.Toast(document.getElementById('toast-post-error2')).show();
+			bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-post-error2')).show();
 		}
 	};
 

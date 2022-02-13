@@ -10,3 +10,4 @@ venv/
 .sass-cache/
 flask_session/
 .DS_Store
+disable_signups

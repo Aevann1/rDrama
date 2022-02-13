@@ -32,9 +32,7 @@ def get_user(username, v=None, graceful=False):
 		if not graceful: abort(404)
 		else: return None
 
-	username = username.replace('\\', '')
-	username = username.replace('_', '\_')
-	username = username.replace('%', '')
+	username = username.replace('\\', '').replace('_', '\_').replace('%', '').strip()
 
 	user = g.db.query(
 		User
@@ -71,11 +69,7 @@ def get_account(id, v=None):
 
 	user = g.db.query(User).filter_by(id = id).one_or_none()
 				
-	if not user:
-		try: id = int(str(id), 36)
-		except: abort(404)
-		user = g.db.query(User).filter_by(id = id).one_or_none()
-		if not user: abort(404)
+	if not user: abort(404)
 
 	if v:
 		block = g.db.query(UserBlock).filter(

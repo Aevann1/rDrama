@@ -35,6 +35,14 @@ def make_admin(v, username):
 	if not user: abort(404)
 	user.admin_level = 2
 	g.db.add(user)
+
+	ma = ModAction(
+		kind="make_admin",
+		user_id=v.id,
+		target_user_id=user.id
+	)
+	g.db.add(ma)
+
 	g.db.commit()
 	return {"message": "User has been made admin!"}
 
@@ -47,6 +55,14 @@ def remove_admin(v, username):
 	if not user: abort(404)
 	user.admin_level = 0
 	g.db.add(user)
+
+	ma = ModAction(
+		kind="remove_admin",
+		user_id=v.id,
+		target_user_id=user.id
+	)
+	g.db.add(ma)
+
 	g.db.commit()
 	return {"message": "Admin removed!"}
 
@@ -88,6 +104,13 @@ def distribute(v, comment):
 	post.body += '\n\nclosed'
 	g.db.add(post)
 	
+	ma = ModAction(
+		kind="distribute",
+		user_id=v.id,
+		target_comment_id=cid
+	)
+	g.db.add(ma)
+
 	g.db.commit()
 	return {"message": f"Each winner has received {coinsperperson} coins!"}
 
@@ -98,6 +121,13 @@ def revert_actions(v, username):
 	user = get_user(username)
 	if not user: abort(404)
 	
+	ma = ModAction(
+		kind="revert",
+		user_id=v.id,
+		target_user_id=user.id
+	)
+	g.db.add(ma)
+
 	cutoff = int(time.time()) - 86400
 
 	posts = [x[0] for x in g.db.query(ModAction.target_submission_id).filter(ModAction.user_id == user.id, ModAction.created_utc > cutoff, ModAction.kind == 'ban_post').all()]
@@ -149,6 +179,13 @@ def club_allow(v, username):
 		x.club_allowed = True
 		g.db.add(x)
 
+	ma = ModAction(
+		kind="club_allow",
+		user_id=v.id,
+		target_user_id=u.id
+	)
+	g.db.add(ma)
+
 	g.db.commit()
 	return {"message": f"@{username} has been allowed into the {CC_TITLE}!"}
 
@@ -169,33 +206,54 @@ def club_ban(v, username):
 		u.club_allowed = False
 		g.db.add(x)
 
+	ma = ModAction(
+		kind="club_ban",
+		user_id=v.id,
+		target_user_id=u.id
+	)
+	g.db.add(ma)
+
 	g.db.commit()
 	return {"message": f"@{username} has been kicked from the {CC_TITLE}. Deserved."}
 
 
 @app.post("/@<username>/make_meme_admin")
 @limiter.limit("1/second;30/minute;200/hour;1000/day")
-@admin_level_required(2)
+@admin_level_required(3)
 def make_meme_admin(v, username):
-	if request.host == 'pcmemes.net' or (SITE_NAME == 'Drama' and v.admin_level > 2) or (request.host != 'rdrama.net' and request.host != 'pcmemes.net'):
-		user = get_user(username)
-		if not user: abort(404)
-		user.admin_level = 1
-		g.db.add(user)
-		g.db.commit()
+	user = get_user(username)
+	if not user: abort(404)
+	user.admin_level = 1
+	g.db.add(user)
+
+	ma = ModAction(
+		kind="make_meme_admin",
+		user_id=v.id,
+		target_user_id=user.id
+	)
+	g.db.add(ma)
+
+	g.db.commit()
 	return {"message": "User has been made meme admin!"}
 
 
 @app.post("/@<username>/remove_meme_admin")
 @limiter.limit("1/second;30/minute;200/hour;1000/day")
-@admin_level_required(2)
+@admin_level_required(3)
 def remove_meme_admin(v, username):
-	if request.host == 'pcmemes.net' or (SITE_NAME == 'Drama' and v.admin_level > 2) or (request.host != 'rdrama.net' and request.host != 'pcmemes.net'):
-		user = get_user(username)
-		if not user: abort(404)
-		user.admin_level = 0
-		g.db.add(user)
-		g.db.commit()
+	user = get_user(username)
+	if not user: abort(404)
+	user.admin_level = 0
+	g.db.add(user)
+
+	ma = ModAction(
+		kind="remove_meme_admin",
+		user_id=v.id,
+		target_user_id=user.id
+	)
+	g.db.add(ma)
+
+	g.db.commit()
 	return {"message": "Meme admin removed!"}
 
 
@@ -203,7 +261,7 @@ def remove_meme_admin(v, username):
 @limiter.limit("1/day")
 @admin_level_required(3)
 def monthly(v):
-	if request.host == 'rdrama.net' and v.id != AEVANN_ID: abort (403)
+	if SITE_NAME == 'Drama' and v.id != AEVANN_ID: abort (403)
 
 	thing = g.db.query(AwardRelationship).order_by(AwardRelationship.id.desc()).first().id
 
@@ -238,6 +296,12 @@ def monthly(v):
 		u.procoins += 50000
 		g.db.add(u)
 
+	ma = ModAction(
+		kind="monthly",
+		user_id=v.id
+	)
+	g.db.add(ma)
+
 	g.db.commit()
 	
 	return {"message": "Monthly coins granted"}
@@ -248,7 +312,7 @@ def monthly(v):
 def get_sidebar(v):
 
 	try:
-		with open(f'files/templates/sidebar_{SITE_NAME}.html', 'r') as f: sidebar = f.read()
+		with open(f'files/templates/sidebar_{SITE_NAME}.html', 'r', encoding="utf-8") as f: sidebar = f.read()
 	except:
 		sidebar = None
 
@@ -262,9 +326,9 @@ def post_sidebar(v):
 
 	text = request.values.get('sidebar', '').strip()
 
-	with open(f'files/templates/sidebar_{SITE_NAME}.html', 'w+') as f: f.write(text)
+	with open(f'files/templates/sidebar_{SITE_NAME}.html', 'w+', encoding="utf-8") as f: f.write(text)
 
-	with open(f'files/templates/sidebar_{SITE_NAME}.html', 'r') as f: sidebar = f.read()
+	with open(f'files/templates/sidebar_{SITE_NAME}.html', 'r', encoding="utf-8") as f: sidebar = f.read()
 
 	ma = ModAction(
 		kind="change_sidebar",
@@ -275,7 +339,6 @@ def post_sidebar(v):
 	g.db.commit()
 
 	return render_template('admin/sidebar.html', v=v, sidebar=sidebar, msg='Sidebar edited successfully!')
-
 
 @app.get("/admin/shadowbanned")
 @auth_required
@@ -352,29 +415,37 @@ def reported_comments(v):
 @app.get("/admin")
 @admin_level_required(2)
 def admin_home(v):
-	return render_template("admin/admin_home.html", v=v)
+	with open('disable_signups', 'r') as f: x = f.read()
+
+	response = requests.get(f'https://api.cloudflare.com/client/v4/zones/{CF_ZONE}/settings/security_level', headers=CF_HEADERS).json()['result']['value']
+	x2 = response == 'under_attack'
+
+	return render_template("admin/admin_home.html", v=v, x=x, x2=x2)
 
 @app.post("/admin/disable_signups")
 @admin_level_required(3)
 def disable_signups(v):
-	if environ.get('disable_signups'):
-		environ["disable_signups"] = ""
-		ma = ModAction(
-			kind="enable_signups",
-			user_id=v.id,
-		)
-		g.db.add(ma)
-		g.db.commit()
-		return {"message": "Signups enabled!"}
-	else:
-		environ["disable_signups"] = "1"
-		ma = ModAction(
-			kind="disable_signups",
-			user_id=v.id,
-		)
-		g.db.add(ma)
-		g.db.commit()
-		return {"message": "Signups disabled!"}
+	with open('disable_signups', 'r') as f: content = f.read()
+
+	with open('disable_signups', 'w') as f:
+		if content == "yes":
+			f.write("no")
+			ma = ModAction(
+				kind="enable_signups",
+				user_id=v.id,
+			)
+			g.db.add(ma)
+			g.db.commit()
+			return {"message": "Signups enabled!"}
+		else:
+			f.write("yes")
+			ma = ModAction(
+				kind="disable_signups",
+				user_id=v.id,
+			)
+			g.db.add(ma)
+			g.db.commit()
+			return {"message": "Signups disabled!"}
 
 
 @app.post("/admin/purge_cache")
@@ -382,15 +453,23 @@ def disable_signups(v):
 def purge_cache(v):
 	cache.clear()
 	response = str(requests.post(f'https://api.cloudflare.com/client/v4/zones/{CF_ZONE}/purge_cache', headers=CF_HEADERS, data='{"purge_everything":true}'))
+
+	ma = ModAction(
+		kind="purge_cache",
+		user_id=v.id
+	)
+	g.db.add(ma)
+
 	if response == "<Response [200]>": return {"message": "Cache purged!"}
 	return {"error": "Failed to purge cache."}
 
 
 @app.post("/admin/under_attack")
-@admin_level_required(2)
+@admin_level_required(3)
 def under_attack(v):
-	if environ.get('under_attack'):
-		environ["under_attack"] = ""
+	response = requests.get(f'https://api.cloudflare.com/client/v4/zones/{CF_ZONE}/settings/security_level', headers=CF_HEADERS).json()['result']['value']
+
+	if response == 'under_attack':
 		ma = ModAction(
 			kind="disable_under_attack",
 			user_id=v.id,
@@ -402,7 +481,6 @@ def under_attack(v):
 		if response == "<Response [200]>": return {"message": "Under attack mode disabled!"}
 		return {"error": "Failed to disable under attack mode."}
 	else:
-		environ["under_attack"] = "1"
 		ma = ModAction(
 			kind="enable_under_attack",
 			user_id=v.id,
@@ -434,6 +512,8 @@ def badge_grant_post(v):
 	try: badge_id = int(request.values.get("badge_id"))
 	except: abort(400)
 
+	if badge_id in (94,95,96,97,98,109): abort(403)
+
 	if user.has_badge(badge_id):
 		return render_template("admin/badge_grant.html", v=v, badge_types=badges, error="User already has that badge.")
 	
@@ -452,6 +532,14 @@ def badge_grant_post(v):
 		text = f"@{v.username} has given you the following profile badge:\n\n![]({new_badge.path})\n\n{new_badge.name}"
 		send_notification(user.id, text)
 	
+	ma = ModAction(
+		kind="badge_grant",
+		user_id=v.id,
+		target_user_id=user.id,
+		_note=new_badge.name
+	)
+	g.db.add(ma)
+
 	g.db.commit()
 	return render_template("admin/badge_grant.html", v=v, badge_types=badges, msg="Badge granted!")
 
@@ -481,6 +569,15 @@ def badge_remove_post(v):
 	badge = user.has_badge(badge_id)
 	if badge:
 		g.db.delete(badge)
+
+		ma = ModAction(
+			kind="badge_remove",
+			user_id=v.id,
+			target_user_id=user.id,
+			_note=badge.name
+		)
+		g.db.add(ma)
+
 		g.db.commit()
 	
 	return render_template("admin/badge_remove.html", v=v, badge_types=badges, msg="Badge removed!")
@@ -630,6 +727,14 @@ def admin_link_accounts(v):
 
 	g.db.add(new_alt)
 
+	ma = ModAction(
+		kind="link_accounts",
+		user_id=v.id,
+		target_user_id=u1,
+		_note=f'with {u2}'
+	)
+	g.db.add(ma)
+
 	g.db.commit()
 	return redirect(f"{SITE_FULL}/admin/alt_votes?u1={g.db.query(User).get(u1).username}&u2={g.db.query(User).get(u2).username}")
 
@@ -689,54 +794,71 @@ def admin_removed_comments(v):
 def agendaposter(user_id, v):
 	user = g.db.query(User).filter_by(id=user_id).one_or_none()
 
-	if user.username == '911roofer': abort(403)
-
 	expiry = request.values.get("days", 0)
 	if expiry:
 		expiry = float(expiry)
 		expiry = g.timestamp + expiry*60*60*24
-	else: expiry = 0
+	else: expiry = g.timestamp + 2629746
 
-	user.agendaposter = not user.agendaposter
-	user.agendaposter_expires_utc = expiry
+	user.agendaposter = expiry
 	g.db.add(user)
+
 	for alt in user.alts:
-		if alt.admin_level: break
-		alt.agendaposter = user.agendaposter
-		alt.agendaposter_expires_utc = expiry
+		if alt.admin_level: return {"error": "User is an admin!"}
+		alt.agendaposter = expiry
 		g.db.add(alt)
 
-	note = None
-
-	if not user.agendaposter: kind = "unagendaposter"
-	else:
-		kind = "agendaposter"
-		note = f"for {request.values.get('days')} days" if expiry else "never expires"
+	note = f"for {request.values.get('days')} days" if expiry else "never expires"
 
 	ma = ModAction(
-		kind=kind,
+		kind="agendaposter",
 		user_id=v.id,
 		target_user_id=user.id,
 		note = note
 	)
 	g.db.add(ma)
 
-	if user.agendaposter:
-		if not user.has_badge(26):
-			badge = Badge(user_id=user.id, badge_id=26)
-			g.db.add(badge)
-			g.db.flush()
-			send_notification(user.id, f"@AutoJanny has given you the following profile badge:\n\n![]({badge.path})\n\n{badge.name}")
+	if not user.has_badge(26):
+		badge = Badge(user_id=user.id, badge_id=26)
+		g.db.add(badge)
+		g.db.flush()
+		send_notification(user.id, f"@AutoJanny has given you the following profile badge:\n\n![]({badge.path})\n\n{badge.name}")
 
-	else:
-		badge = user.has_badge(26)
-		if badge: g.db.delete(badge)
 
-	if user.agendaposter: send_repeatable_notification(user.id, f"You have been marked by an admin as an agendaposter ({note}).")
-	else: send_repeatable_notification(user.id, "You have been unmarked by an admin as an agendaposter.")
+	send_repeatable_notification(user.id, f"You have been marked by an admin as an agendaposter ({note}).")
 
 	g.db.commit()
-	if user.agendaposter: return redirect(user.url)
+	
+	return redirect(user.url)
+
+
+
+@app.post("/unagendaposter/<user_id>")
+@admin_level_required(2)
+def unagendaposter(user_id, v):
+	user = g.db.query(User).filter_by(id=user_id).one_or_none()
+
+	user.agendaposter = 0
+	g.db.add(user)
+
+	for alt in user.alts:
+		alt.agendaposter = 0
+		g.db.add(alt)
+
+	ma = ModAction(
+		kind="unagendaposter",
+		user_id=v.id,
+		target_user_id=user.id
+	)
+
+	g.db.add(ma)
+
+	badge = user.has_badge(26)
+	if badge: g.db.delete(badge)
+
+	send_repeatable_notification(user.id, "You have been unmarked by an admin as an agendaposter.")
+
+	g.db.commit()
 	return {"message": "Chud theme disabled!"}
 
 
@@ -760,6 +882,12 @@ def shadowban(user_id, v):
 	g.db.add(ma)
 	
 	cache.delete_memoized(frontlist)
+
+	body = f"@{v.username} has shadowbanned @{user.username}"
+
+	body_html = sanitize(body)
+
+	send_admin(NOTIFICATIONS_ID, body_html, v.id)
 
 	g.db.commit()
 	return {"message": "User shadowbanned!"}
@@ -793,7 +921,7 @@ def unshadowban(user_id, v):
 
 @app.post("/admin/verify/<user_id>")
 @limiter.limit("1/second;30/minute;200/hour;1000/day")
-@admin_level_required(2)
+@admin_level_required(3)
 def verify(user_id, v):
 	user = g.db.query(User).filter_by(id=user_id).one_or_none()
 	user.verified = "Verified"
@@ -811,7 +939,7 @@ def verify(user_id, v):
 
 @app.post("/admin/unverify/<user_id>")
 @limiter.limit("1/second;30/minute;200/hour;1000/day")
-@admin_level_required(2)
+@admin_level_required(3)
 def unverify(user_id, v):
 	user = g.db.query(User).filter_by(id=user_id).one_or_none()
 	user.verified = None
@@ -843,7 +971,11 @@ def admin_title_change(user_id, v):
 	user=g.db.query(User).filter_by(id=user.id).one_or_none()
 	user.customtitle=new_name
 	if request.values.get("locked"): user.flairchanged = int(time.time()) + 2629746
-	else: user.flairchanged = None
+	else:
+		user.flairchanged = None
+		badge = user.has_badge(96)
+		if badge: g.db.delete(badge)
+
 	g.db.add(user)
 
 	if user.flairchanged: kind = "set_flair_locked"
@@ -897,11 +1029,13 @@ def ban_user(user_id, v):
 	if days == 0: duration = "permanent"
 	elif days == 1: duration = "1 day"
 	else: duration = f"{days} days"
+
+	note = f'reason: "{reason}", duration: {duration}'
 	ma=ModAction(
 		kind="ban_user",
 		user_id=v.id,
 		target_user_id=user.id,
-		_note=f'reason: "{reason}", duration: {duration}'
+		_note=note
 		)
 	g.db.add(ma)
 
@@ -916,6 +1050,14 @@ def ban_user(user_id, v):
 			comment = get_comment(comment)
 			comment.bannedfor = True
 			g.db.add(comment)
+
+
+	body = f"@{v.username} has banned @{user.username} ({note})"
+
+	body_html = sanitize(body)
+
+	send_admin(NOTIFICATIONS_ID, body_html, v.id)
+
 	g.db.commit()
 
 	if 'redir' in request.values: return redirect(user.url)
@@ -929,8 +1071,7 @@ def unban_user(user_id, v):
 
 	user = g.db.query(User).filter_by(id=user_id).one_or_none()
 
-	if not user:
-		abort(400)
+	if not user: abort(400)
 
 	user.is_banned = 0
 	user.unban_utc = 0
@@ -1039,10 +1180,21 @@ def api_distinguish_post(post_id, v):
 
 	if post.author_id != v.id and v.admin_level < 2 : abort(403)
 
-	if post.distinguish_level: post.distinguish_level = 0
-	else: post.distinguish_level = v.admin_level
+	if post.distinguish_level:
+		post.distinguish_level = 0
+		kind = 'undistinguish_post'
+	else:
+		post.distinguish_level = v.admin_level
+		kind = 'distinguish_post'
 
 	g.db.add(post)
+
+	ma = ModAction(
+		kind=kind,
+		user_id=v.id,
+		target_submission_id=post.id
+	)
+	g.db.add(ma)
 
 	g.db.commit()
 
@@ -1064,6 +1216,13 @@ def sticky_post(post_id, v):
 			else: return {"error": "Can't exceed 3 pinned posts limit!"}, 403
 		else: post.stickied = v.username
 		g.db.add(post)
+
+		ma=ModAction(
+			kind="pin_post",
+			user_id=v.id,
+			target_submission_id=post.id
+		)
+		g.db.add(ma)
 
 		if v.id != post.author_id:
 			send_repeatable_notification(post.author_id, f"@{v.username} has pinned your [post](/post/{post_id})!")
@@ -1103,14 +1262,23 @@ def unsticky_post(post_id, v):
 def sticky_comment(cid, v):
 	
 	comment = get_comment(cid, v=v)
-	comment.is_pinned = v.username
-	g.db.add(comment)
 
-	if v.id != comment.author_id:
-		message = f"@{v.username} has pinned your [comment]({comment.permalink})!"
-		send_repeatable_notification(comment.author_id, message)
+	if not comment.is_pinned:
+		comment.is_pinned = v.username
+		g.db.add(comment)
 
-	g.db.commit()
+		ma=ModAction(
+			kind="pin_comment",
+			user_id=v.id,
+			target_comment_id=comment.id
+		)
+		g.db.add(ma)
+
+		if v.id != comment.author_id:
+			message = f"@{v.username} has pinned your [comment]({comment.permalink})!"
+			send_repeatable_notification(comment.author_id, message)
+
+		g.db.commit()
 	return {"message": "Comment pinned!"}
 	
 
@@ -1120,23 +1288,24 @@ def unsticky_comment(cid, v):
 	
 	comment = get_comment(cid, v=v)
 	
-	if comment.is_pinned.endswith("(pin award)"): return {"error": "Can't unpin award pins!"}, 403
+	if comment.is_pinned:
+		if comment.is_pinned.endswith("(pin award)"): return {"error": "Can't unpin award pins!"}, 403
 
-	comment.is_pinned = None
-	g.db.add(comment)
+		comment.is_pinned = None
+		g.db.add(comment)
 
-	ma=ModAction(
-		kind="unpin_comment",
-		user_id=v.id,
-		target_comment_id=comment.id
-	)
-	g.db.add(ma)
+		ma=ModAction(
+			kind="unpin_comment",
+			user_id=v.id,
+			target_comment_id=comment.id
+		)
+		g.db.add(ma)
 
-	if v.id != comment.author_id:
-		message = f"@{v.username} has unpinned your [comment]({comment.permalink})!"
-		send_repeatable_notification(comment.author_id, message)
+		if v.id != comment.author_id:
+			message = f"@{v.username} has unpinned your [comment]({comment.permalink})!"
+			send_repeatable_notification(comment.author_id, message)
 
-	g.db.commit()
+		g.db.commit()
 	return {"message": "Comment unpinned!"}
 
 
@@ -1201,9 +1370,22 @@ def admin_distinguish_comment(c_id, v):
 
 	if comment.author_id != v.id: abort(403)
 
-	comment.distinguish_level = 0 if comment.distinguish_level else v.admin_level
+	if comment.distinguish_level:
+		comment.distinguish_level = 0
+		kind = 'distinguish_comment'
+	else:
+		comment.distinguish_level = v.admin_level
+		kind = 'undistinguish_comment'
 
 	g.db.add(comment)
+
+	ma = ModAction(
+		kind=kind,
+		user_id=v.id,
+		target_comment_id=comment.id
+	)
+	g.db.add(ma)
+
 	g.db.commit()
 
 	if comment.distinguish_level: return {"message": "Comment distinguished!"}
@@ -1213,11 +1395,18 @@ def admin_distinguish_comment(c_id, v):
 @admin_level_required(2)
 def admin_dump_cache(v):
 	cache.clear()
+
+	ma = ModAction(
+		kind="dump_cache",
+		user_id=v.id
+	)
+	g.db.add(ma)
+
 	return {"message": "Internal cache cleared."}
 
 
 @app.get("/admin/banned_domains/")
-@admin_level_required(2)
+@admin_level_required(3)
 def admin_banned_domains(v):
 
 	banned_domains = g.db.query(BannedDomain).all()
@@ -1225,7 +1414,7 @@ def admin_banned_domains(v):
 
 @app.post("/admin/banned_domains")
 @limiter.limit("1/second;30/minute;200/hour;1000/day")
-@admin_level_required(2)
+@admin_level_required(3)
 def admin_toggle_ban_domain(v):
 
 	domain=request.values.get("domain", "").strip()

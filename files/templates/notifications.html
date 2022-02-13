@@ -30,7 +30,7 @@
 		Messages
 		</a>
 	</li>
-	{% if v.admin_level > 2 %}
+	{% if v.admin_level > 1 %}
 		<li class="nav-item">
 			<a class="nav-link py-3{% if '/notifications?modmail=true' in request.full_path %} active{% endif %}" href="/notifications?modmail=true">
 			Modmail
@@ -42,7 +42,7 @@
 </div>
 
 
-<a class="btn btn-primary mt-3 ml-3" role="button" onclick="post_toast('/clear', '1')">Clear all notifications</a>
+<a class="btn btn-primary mt-3 ml-3" role="button" onclick="post_toast(this,'/clear', '1')">Clear all notifications</a>
 
 <div class="notifs p-3 p-md-0">
 

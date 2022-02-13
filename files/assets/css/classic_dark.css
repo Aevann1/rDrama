@@ -1,4 +1,4 @@
-@import 'classic.css?a=15';
+@import 'classic.css?a=21';
 
 /*navbar*/
 .navbar-light, .navbar .container-fluid, #mobile-bottom-navigation-bar {
@@ -188,6 +188,6 @@ a.nav-link:hover {
     border-left: 2px solid var(--black1)!important;
 }
 
-#srd {
+.srd {
     background-color: var(--black3) !important
 }

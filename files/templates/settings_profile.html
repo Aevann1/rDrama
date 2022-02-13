@@ -24,7 +24,7 @@
 						<div class="body w-lg-100">
 							<p>Choose your quadrant.</p>
 							<div class="input-group mb2">
-								<select autocomplete="off" id='quadrant' class="form-control" form="profile-settings" name="quadrant" onchange="post_toast('/settings/profile?quadrant='+document.getElementById('quadrant').value, '1')">
+								<select autocomplete="off" id='quadrant' class="form-control" form="profile-settings" name="quadrant" onchange="post_toast(this,'/settings/profile?quadrant='+document.getElementById('quadrant').value, '1')">
 								{% for entry in ["Centrist", "LibLeft", "LibRight", "AuthLeft", "AuthRight", "LibCenter", "AuthCenter", "Left", "Right"] %}
 									<option value="{{entry}}" {% if v.quadrant==entry %} selected {% endif %}>
 										{{entry}}
@@ -52,7 +52,7 @@
 						<div class="body w-lg-100">
 
 							<div class="custom-control custom-switch">
-								<input autocomplete="off" type="checkbox" class="custom-control-input" id="cardview" name="cardview"{% if v.cardview %} checked{% endif %} onchange="post_toast('/settings/profile?cardview='+document.getElementById('cardview').checked);">
+								<input autocomplete="off" type="checkbox" class="custom-control-input" id="cardview" name="cardview"{% if v.cardview %} checked{% endif %} onchange="post_toast(this,'/settings/profile?cardview='+document.getElementById('cardview').checked);">
 								<label class="custom-control-label" for="cardview"></label>
 							</div>
 
@@ -72,7 +72,7 @@
 						<div class="body w-lg-100">
 
 							<div class="custom-control custom-switch">
-								<input autocomplete="off" type="checkbox" class="custom-control-input" id="highlightcomments" name="highlightcomments"{% if v.highlightcomments %} checked{% endif %} onchange="post_toast('/settings/profile?highlightcomments='+document.getElementById('highlightcomments').checked);">
+								<input autocomplete="off" type="checkbox" class="custom-control-input" id="highlightcomments" name="highlightcomments"{% if v.highlightcomments %} checked{% endif %} onchange="post_toast(this,'/settings/profile?highlightcomments='+document.getElementById('highlightcomments').checked);">
 								<label class="custom-control-label" for="highlightcomments"></label>
 							</div>
 
@@ -91,7 +91,7 @@
 						<div class="body w-lg-100">
 							<p>Change the theme for the website.</p>
 							<div class="input-group mb2">
-								<select autocomplete="off" id='theme' class="form-control" form="profile-settings" name="theme" onchange="post_toast('/settings/profile?theme='+document.getElementById('theme').value, '1')">
+								<select autocomplete="off" id='theme' class="form-control" form="profile-settings" name="theme" onchange="post_toast(this,'/settings/profile?theme='+document.getElementById('theme').value, '1')">
 								{% for entry in  ["dramblr","classic","classic_dark","transparent", "win98", "dark", "light", "coffee", "tron", "4chan", "midnight"] %}
 									<option value="{{entry}}" {% if v.theme==entry %} selected {% endif %}>
 										{{entry}}
@@ -112,7 +112,7 @@
 					<form action="/settings/themecolor" id="themecolor-form" method="post" class="color-picker" style="line-height: 0">
 							<input autocomplete="off" type="hidden" name="formkey" value="{{v.formkey}}">
 
-							{% for themecolor in ['ff66ac','805ad5','62ca56','38a169','80ffff','2a96f3','eb4963','ff0000','f39731','30409f','3e98a7','e4432d','7b9ae4','ec72de','7f8fa6', 'f8db58'] %}
+							{% for themecolor in COLORS %}
 							<input autocomplete="off" type="radio" name="themecolor" id="themecolor-{{themecolor}}" value="{{themecolor}}" {% if v.themecolor == themecolor %}checked{% endif %} onclick="document.getElementById('themecolor-form').submit()">
 							<label class="color-radio" for="themecolor-{{themecolor}}">
 								<span style="background-color: #{{themecolor}}">
@@ -127,6 +127,16 @@
 
 					</form>
 
+				</div>
+
+				<p class="text-small mb-2">Or type a color code:</p>
+				<div class="d-flex">
+					<form action="/settings/themecolor" id="color-code-form" method="post">
+						<input type="hidden" name="formkey" value="{{v.formkey}}">
+	
+						<input class="form-control" type="text" name="themecolor" id="color-code" value="{% if v.themecolor %}{{v.themecolor}}{% endif %}">
+						<label class="btn btn-secondary text-capitalize mr-2 mt-2 mb-0">Update<input type="text" for="color-code" onclick="form.submit()" hidden=""></label>
+					</form>
 				</div>
 
 			</div>
@@ -147,7 +157,7 @@
 					</div>
 					{% if v.background %}
 						<div class="d-flex mt-2">
-							<a class="btn btn-primary ml-auto" role="button" onclick="post_toast('/settings/removebackground','1')">Remove Background</a>
+							<a class="btn btn-primary ml-auto" role="button" onclick="post_toast(this,'/settings/removebackground','1')">Remove Background</a>
 							<pre></pre>
 						</div>
 					{% endif %}
@@ -382,7 +392,7 @@
 									<form action="/settings/namecolor" id="color-form" method="post" class="color-picker" style="line-height: 0">
 											<input autocomplete="off" type="hidden" name="formkey" value="{{v.formkey}}">
 
-											{% for color in ['ff66ac','805ad5','62ca56','38a169','80ffff','2a96f3','eb4963','ff0000','f39731','30409f','3e98a7','e4432d','7b9ae4','ec72de','7f8fa6', 'f8db58'] %}
+											{% for color in COLORS %}
 											<input autocomplete="off" type="radio" name="color" id="color-{{color}}" value="{{color}}" {% if v.namecolor == color %}checked{% endif %} onclick="document.getElementById('color-form').submit()">
 											<label class="color-radio" for="color-{{color}}">
 												<span style="background-color: #{{color}}">
@@ -438,7 +448,7 @@
 									<form action="/settings/titlecolor" id="titlecolor-form" method="post" class="color-picker" style="line-height: 0">
 											<input autocomplete="off" type="hidden" name="formkey" value="{{v.formkey}}">
 
-											{% for titlecolor in ['ff66ac','805ad5','62ca56','38a169','80ffff','2a96f3','eb4963','ff0000','f39731','30409f','3e98a7','e4432d','7b9ae4','ec72de','7f8fa6', 'f8db58'] %}
+											{% for titlecolor in COLORS %}
 											<input autocomplete="off" type="radio" name="titlecolor" id="titlecolor-{{titlecolor}}" value="{{titlecolor}}" {% if v.titlecolor == titlecolor %}checked{% endif %} onclick="document.getElementById('titlecolor-form').submit()">
 											<label class="color-radio" for="titlecolor-{{titlecolor}}">
 												<span style="background-color: #{{titlecolor}}">
@@ -483,7 +493,7 @@
 										<form action="/settings/verifiedcolor" id="verifiedcolor-form" method="post" class="color-picker" style="line-height: 0">
 												<input autocomplete="off" type="hidden" name="formkey" value="{{v.formkey}}">
 		
-											{% for verifiedcolor in ['ff66ac','805ad5','62ca56','38a169','80ffff','2a96f3','eb4963','ff0000','f39731','30409f','3e98a7','e4432d','7b9ae4','ec72de','7f8fa6', 'f8db58'] %}
+											{% for verifiedcolor in COLORS %}
 												<input autocomplete="off" type="radio" name="verifiedcolor" id="verifiedcolor-{{verifiedcolor}}" value="{{verifiedcolor}}" {% if v.verifiedcolor == verifiedcolor %}checked{% endif %} onclick="document.getElementById('verifiedcolor-form').submit()">
 												<label class="color-radio" for="verifiedcolor-{{verifiedcolor}}">
 													<span style="background-color: #{{verifiedcolor}}">
@@ -537,7 +547,7 @@
 											&nbsp;
 											<label class="btn btn-secondary format d-inline-block m-0">
 												<div id="filename-show"><i class="far fa-image"></i></div>
-												<input autocomplete="off" id="file-upload" type="file" name="file" {% if request.headers.get('cf-ipcountry')=="T1" %}disabled{% endif %} accept="image/*, video/*" onchange="document.getElementById('filename-show').innerHTML='image/video';" hidden>
+												<input autocomplete="off" id="file-upload" type="file" name="file" {% if request.headers.get('cf-ipcountry')=="T1" %}disabled{% endif %} accept="image/*, video/*" onchange="changename('filename-show','file-upload')" hidden>
 											</label>
 										</div>
 										<pre></pre>
@@ -634,7 +644,7 @@
 							<div class="body w-lg-100">
 
 								<div class="custom-control custom-switch">
-									<input autocomplete="off" type="checkbox" class="custom-control-input" id="privateswitch" name="private"{% if v.is_private%} checked{% endif %} onchange="post_toast('/settings/profile?private='+document.getElementById('privateswitch').checked)">
+									<input autocomplete="off" type="checkbox" class="custom-control-input" id="privateswitch" name="private"{% if v.is_private%} checked{% endif %} onchange="post_toast(this,'/settings/profile?private='+document.getElementById('privateswitch').checked)">
 									<label class="custom-control-label" for="privateswitch"></label>
 								</div>
 
@@ -652,7 +662,7 @@
 							<div class="body w-lg-100">
 
 								<div class="custom-control custom-switch">
-									<input autocomplete="off" type="checkbox" class="custom-control-input" id="nofollowswitch" name="nofollow"{% if v.is_nofollow%} checked{% endif %} onchange="post_toast('/settings/profile?nofollow='+document.getElementById('nofollowswitch').checked)">
+									<input autocomplete="off" type="checkbox" class="custom-control-input" id="nofollowswitch" name="nofollow"{% if v.is_nofollow%} checked{% endif %} onchange="post_toast(this,'/settings/profile?nofollow='+document.getElementById('nofollowswitch').checked)">
 									<label class="custom-control-label" for="nofollowswitch"></label>
 								</div>
 
@@ -675,7 +685,7 @@
 </div>
 
 
-<script src="/static/assets/js/settings_profile.js?a=220"></script>
+<script src="/static/assets/js/settings_profile.js?a=241"></script>
 
 {% include "emoji_modal.html" %}
 {% include "gif_modal.html" %}

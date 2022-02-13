@@ -1,6 +1,8 @@
-function post_toast2(url, button1, button2) {
+function post_toast2(t, url, button1, button2) {
+	t.disabled=true;
+	t.classList.add("disabled");
 	const xhr = new XMLHttpRequest();
-	xhr.open("POST", url, true);
+	xhr.open("POST", url);
 	xhr.setRequestHeader('xhr', 'xhr');
 	var form = new FormData()
 	form.append("formkey", formkey());
@@ -20,7 +22,7 @@ function post_toast2(url, button1, button2) {
 		catch(e) {console.log(e)}
 		if (xhr.status >= 200 && xhr.status < 300 && data && data["message"]) {
 			document.getElementById('toast-post-success-text').innerText = data["message"];
-			new bootstrap.Toast(document.getElementById('toast-post-success')).show();
+			bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-post-success')).show();
 
 			document.getElementById(button1).classList.toggle("d-none");
 			document.getElementById(button2).classList.toggle("d-none");
@@ -28,8 +30,12 @@ function post_toast2(url, button1, button2) {
 		} else {
 			document.getElementById('toast-post-error-text').innerText = "Error, please try again later."
 			if (data && data["error"]) document.getElementById('toast-post-error-text').innerText = data["error"];
-			new bootstrap.Toast(document.getElementById('toast-post-error')).show();
+			bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-post-error')).show();
 		}
+		setTimeout(() => {
+			t.disabled = false;
+			t.classList.remove("disabled");
+		}, 500);
 	};
 
 	xhr.send(form);

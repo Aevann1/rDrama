@@ -5,7 +5,7 @@ from flask import *
 from files.__main__ import app
 
 
-query_regex=re.compile("(\w+):(\S+)", flags=re.A)
+query_regex=re.compile("(\w+):(\S+)", re.A)
 valid_params=[
 	'author',
 	'domain',
@@ -64,8 +64,9 @@ def searchposts(v):
 	
 
 	if 'author' in criteria:
+		posts = posts.filter(Submission.ghost == None)
 		author = get_user(criteria['author'])
-		if not author: return {"error": f"User not found"}
+		if not author: return {"error": "User not found"}
 		if author.is_private and author.id != v.id and v.admin_level < 2 and not v.eye:
 			if request.headers.get("Authorization"):
 				return {"error": f"@{author.username}'s profile is private; You can't use the 'author' syntax on them"}
@@ -148,7 +149,7 @@ def searchposts(v):
 	elif sort == "old":
 		posts = posts.order_by(Submission.created_utc.asc())
 	elif sort == "controversial":
-		posts = posts.order_by(-1 * Submission.upvotes * Submission.downvotes * Submission.downvotes)
+		posts = posts.order_by((Submission.upvotes+1)/(Submission.downvotes+1) + (Submission.downvotes+1)/(Submission.upvotes+1), Submission.downvotes.desc())
 	elif sort == "top":
 		posts = posts.order_by(Submission.downvotes - Submission.upvotes)
 	elif sort == "bottom":
@@ -210,8 +211,9 @@ def searchcomments(v):
 	comments = g.db.query(Comment.id).filter(Comment.parent_submission != None)
 
 	if 'author' in criteria:
+		comments = comments.filter(Comment.ghost == None)
 		author = get_user(criteria['author'])
-		if not author: return {"error": f"User not found"}
+		if not author: return {"error": "User not found"}
 		if author.is_private and author.id != v.id and v.admin_level < 2 and not v.eye:
 			if request.headers.get("Authorization"):
 				return {"error": f"@{author.username}'s profile is private; You can't use the 'author' syntax on them"}
@@ -253,7 +255,7 @@ def searchcomments(v):
 	elif sort == "old":
 		comments = comments.order_by(Comment.created_utc.asc())
 	elif sort == "controversial":
-		comments = comments.order_by(-1 * Comment.upvotes * Comment.downvotes * Comment.downvotes)
+		comments = comments.order_by((Comment.upvotes+1)/(Comment.downvotes+1) + (Comment.downvotes+1)/(Comment.upvotes+1), Comment.downvotes.desc())
 	elif sort == "top":
 		comments = comments.order_by(Comment.downvotes - Comment.upvotes)
 	elif sort == "bottom":

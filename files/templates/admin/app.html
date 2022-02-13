@@ -34,12 +34,12 @@
 		<div class="d-flex">
 			{% if not app.client_id%}
 
-				<a role="button" class="btn btn-primary ml-auto" onclick="post_toast('/admin/app/approve/{{app.id}}')">Approve</a>
-				<a role="button" class="btn btn-secondary mr-0" onclick="post_toast('/admin/app/reject/{{app.id}}')">Reject</a> 
+				<a role="button" class="btn btn-primary ml-auto" onclick="post_toast(this,'/admin/app/approve/{{app.id}}')">Approve</a>
+				<a role="button" class="btn btn-secondary mr-0" onclick="post_toast(this,'/admin/app/reject/{{app.id}}')">Reject</a> 
 
 			{% else %}
 
-				<a role="button" class="btn btn-primary ml-auto" onclick="post_toast('/admin/app/revoke/{{app.id}}')">Revoke</a>
+				<a role="button" class="btn btn-primary ml-auto" onclick="post_toast(this,'/admin/app/revoke/{{app.id}}')">Revoke</a>
 			{% endif %}
 		</div>
 	</div>

@@ -30,13 +30,13 @@
 
 	headers={"Authorization": "access_token_goes_here"}
 
-	url="https://rdrama.net/@carpathianflorist"
+	url="{{SITE_FULL}}/?sort=comments"
 
 	r=requests.get(url, headers=headers)
 
 	print(r.json())
 </pre>
-<p>The expected result of this would be a large JSON representation of the posts posted by @carpathianflorist</p>
+<p>The expected result of this would be a large JSON representation of the posts on the frontpage sorted by the number of comments</p>
 <pre>
 
 
@@ -61,7 +61,7 @@
 <p>Drama administrators will review and approve or deny your request for API keys. You'll know when your request has been approved when you get a private message with an access token tied to your account.</p>
 <p>DO NOT reveal your Client ID or Access Token. Anyone with these information will be able to pretend to be you. You are responsible for keeping them a secret!</p>
 <h2>Step 2: Prompt Your User for Authorization</h2>
-<p>Send your user to <code>https://rdrama.net/authorize/?client_id=YOUR_CLIENT_ID</code></p>
+<p>Send your user to <code>{{SITE_FULL}}/authorize/?client_id=YOUR_CLIENT_ID</code></p>
 <p>If done correctly, the user will see that your application wants to access their Drama account, and be prompted to approve or deny the request.</p>
 <h2>Step 3: Catch the redirect</h2>
 <p>The user clicks "Authorize". Drama will redirect the user's browser to GET the designated redirect URI. The access token URL parameter will be included in the redirect, which your server should process.</p>
@@ -72,11 +72,11 @@
 
 	headers={"Authorization": "access_token_goes_here"}
 
-	url="https://rdrama.net/@carpathianflorist"
+	url="{{SITE_FULL}}/?sort=comments"
 
 	r=requests.get(url, headers=headers)
 
 	print(r.json())
 </pre>
-<p>The expected result of this would be a large JSON representation of the submissions submitted by @carpathianflorist</p>
+<p>The expected result of this would be a large JSON representation of the posts on the frontpage sorted by the number of comments</p>
 {% endblock %}

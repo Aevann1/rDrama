@@ -1,63 +1,82 @@
-<div class="col sidebar text-left d-none d-lg-block pt-3 bg-white" style="max-width:300px">
+<div class="col sidebar text-left d-none d-lg-block pt-3 pb-5 bg-white" style="max-width:300px">
 
-    {% set path = "assets/images/" + SITE_NAME + "/sidebar" %}
-    {% set image = "/static/" + path + "/" + listdir('files/' + path)|random() + '?a=31' %}
+    {% if sub %}
+        {% set image=sub.sidebar_url %}
+    {% else %}
+        {% set path = "assets/images/" + SITE_NAME + "/sidebar" %}
+        {% set image = "/static/" + path + "/" + listdir('files/' + path)|random() + '?a=32' %}
+    {% endif %}
 
     <a role="button" data-bs-toggle="modal" data-bs-target="#expandImageModal" data-bs-url="{{image}}" onclick="expandDesktopImage('{{image}}')">
         <img loading="lazy" src="{{image}}" width=100%>
     </a>
  
-    <a class="btn btn-primary btn-block mt-4" href="/post/16583">EMOJI MEGATHREAD</a>
-    <a class="btn btn-primary btn-block" href="/post/18459">BUGS/SUGGESTIONS MEGATHREAD</a>
-    <a class="btn btn-primary btn-block" href="/post/32341">SIDEBAR ARTWORK MEGATHREAD</a>
-    <a class="btn btn-primary btn-block" href="/post/33652">SNAPPY QUOTES MEGATHREAD</a>
-    <a class="btn btn-primary btn-block" href="/post/35835">BANNER ARTWORK MEGATHREAD</a>
-    <a class="btn btn-primary btn-block" href="/post/37677">MARSEY REQUESTS MEGATHREAD</a>
-    <a class="btn btn-primary btn-block" href="/post/39413">GAMBLING MEGATHREAD</a>
+    {% if sub %}
+        {% if sub.sidebar_html %}
+            <div class="mt-4">{{sub.sidebar_html|safe}}</div>
+        {% endif %}
+        <a class="btn btn-primary btn-block mt-4" href="/s/{{sub.name}}/mods">MODS</a>
+        {% if v and v.mods(sub.name) %}
+          <a class="btn btn-primary btn-block" href="/s/{{sub.name}}/settings">SUB SETTINGS</a>
+        {% endif %}
+    {% else %}
+        <a class="btn btn-primary btn-block mt-4" href="/post/16583">EMOJI MEGATHREAD</a>
+        <a class="btn btn-primary btn-block" href="/post/18459">BUGS/SUGGESTIONS MEGATHREAD</a>
+        <a class="btn btn-primary btn-block" href="/post/32341">SIDEBAR ARTWORK MEGATHREAD</a>
+        <a class="btn btn-primary btn-block" href="/post/33652">SNAPPY QUOTES MEGATHREAD</a>
+        <a class="btn btn-primary btn-block" href="/post/35835">BANNER ARTWORK MEGATHREAD</a>
+        <a class="btn btn-primary btn-block" href="/post/37677">MARSEY REQUESTS MEGATHREAD</a>
+        <a class="btn btn-primary btn-block" href="/post/39413">GAMBLING MEGATHREAD</a>
 
-    <div class="rules">
-        <p class="mt-4">Drama: any incident, scene, gaffe, rumor, opinion, or disagreement that is blown entirely out of proportion.</p>
+        <div class="rules">
+            <p class="mt-4">Drama: any incident, scene, gaffe, rumor, opinion, or disagreement that is blown entirely out of proportion.</p>
 
-        <p>Do your part to keep our community healthy by blowing everything out of proportion and making literally everything as dramatic as possible.</p>
+            <p>Do your part to keep our community healthy by blowing everything out of proportion and making literally everything as dramatic as possible.</p>
 
-        <p>rdrama.net caters to drama in all forms such as: Real life, videos, photos, gossip, rumors, news sites, Reddit, and Beyond™. There isn't drama we won't touch, and we want it all.</p>
+            <p>{{SITE}} caters to drama in all forms such as: Real life, videos, photos, gossip, rumors, news sites, Reddit, and Beyond™. There isn't drama we won't touch, and we want it all.</p>
 
-        What we want
+            What we want
 
-        <ul>
-            <li>Arguments.</li>
-            <li>Gossip.</li>
-            <li>Scandals.</li>
-            <li>Lolcows.</li>
-            <li>Assholes.</li>
-            <li>Trainwrecks.</li>
-            <li>Meltdowns.</li>
-            <li>Dramatic news articles.</li>
-            <li>Dramatic rumours (with context).</li>
-            <li>Dramatic everything from anywhere</li>
-        </ul>
+            <ul>
+                <li>Arguments.</li>
+                <li>Gossip.</li>
+                <li>Scandals.</li>
+                <li>Lolcows.</li>
+                <li>Assholes.</li>
+                <li>Trainwrecks.</li>
+                <li>Meltdowns.</li>
+                <li>Dramatic news articles.</li>
+                <li>Dramatic rumours (with context).</li>
+                <li>Dramatic everything from anywhere</li>
+            </ul>
 
-        <h5>Rule 1</h5>Don't post anything illegal.<br><br>
-        
-        <h5>RULE 2</h5>No sexualizing minors even as a “joke.”<br><br>
+            <h5>Rule 1</h5>Don't post anything illegal.<br><br>
+            
+            <h5>RULE 2</h5>No sexualizing minors even as a “joke.”<br><br>
 
-        <h5>RULE 3 </h5>No doxxing.<br><br>
+            <h5>RULE 3 </h5>No doxxing.<br><br>
 
-        <h5>RULE 4 </h5>Using alts to game dramacoin will get you banned. <br><br>
+            <h5>RULE 4 </h5>Using alts to game dramacoin will get you banned. <br><br>
 
-        <h5>RULE 5 </h5>Supporting free speech is an immediate ban.<br><br>
+            <h5>RULE 5 </h5>Supporting free speech is an immediate ban.<br><br>
 
-        <h5>RULE 6 </h5>Absolutely NO anti-CCP sentiment.<br><br>
+            <h5>RULE 6 </h5>Absolutely NO anti-CCP sentiment.<br><br>
 
-All rules can and likely will be ignored at the discretion of the custodial staff. Be funny, or at least compelling, and pretty much anything legal is fine.<br><br>
+            All rules can and likely will be ignored at the discretion of the custodial staff. Be funny, or at least compelling, and pretty much anything legal is fine.<br><br>
 
-<font color="hotpink">𝐜𝐚𝐫𝐩 𝐰𝐨𝐳 𝐞𝐫𝐞</font><BR><BR>
-    </div>
-    <pre>
-
-
+            <font color="hotpink">𝐜𝐚𝐫𝐩 𝐰𝐨𝐳 𝐞𝐫𝐞</font><BR><BR>
+                </div>
+                <pre>
 
 
-    
-    </pre>
+
+
+
+
+
+
+
+                
+                </pre>
+        {% endif %}
 </div>

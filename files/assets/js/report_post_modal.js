@@ -1,6 +1,13 @@
 function report_postModal(id) {
 
 	submitbutton=document.getElementById("reportPostButton");
+	document.getElementById("reportPostFormBefore").classList.remove('d-none');
+	document.getElementById("reportPostFormAfter").classList.add('d-none');
+	submitbutton.disabled = false;
+	submitbutton.innerHTML='Report post';
+
+	reason = document.getElementById("reason")
+	reason.value = ""
 
 	submitbutton.onclick = function() {
 
@@ -8,16 +15,15 @@ function report_postModal(id) {
 		this.disabled = true;
 
 		const xhr = new XMLHttpRequest();
-		xhr.open("POST", '/report/post/'+id, true);
+		xhr.open("POST", '/report/post/'+id);
 		xhr.setRequestHeader('xhr', 'xhr');
 		var form = new FormData()
 		form.append("formkey", formkey());
-		form.append("reason", document.getElementById("reason").value);
+		form.append("reason", reason.value);
 
 		xhr.onload=function() {
 			document.getElementById("reportPostFormBefore").classList.add('d-none');
 			document.getElementById("reportPostFormAfter").classList.remove('d-none');
-			this.disabled = false;
 		};
 
 		xhr.onerror=function(){alert(errortext)};

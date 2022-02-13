@@ -6,45 +6,10 @@ services:
       context: .
     volumes:
       - "./:/service"
+    env_file: env
     environment:
       - DATABASE_URL=postgresql://postgres@postgres:5432
-      - MASTER_KEY=3435tdfsdudebussylmaoxxt43
       - REDIS_URL=redis://redis
-      - DOMAIN=localhost
-      - SITE_NAME=Drama
-      - GIPHY_KEY=3435tdfsdudebussylmaoxxt43
-      - DISCORD_SERVER_ID=3435tdfsdudebussylmaoxxt43
-      - DISCORD_CLIENT_ID=3435tdfsdudebussylmaoxxt43
-      - DISCORD_CLIENT_SECRET=3435tdfsdudebussylmaoxxt43
-      - DISCORD_BOT_TOKEN=3435tdfsdudebussylmaoxxt43
-      #- HCAPTCHA_SITEKEY=3435tdfsdudebussylmaoxxt43
-      - HCAPTCHA_SECRET=3435tdfsdudebussylmaoxxt43
-      - YOUTUBE_KEY=3435tdfsdudebussylmaoxxt43
-      #- PUSHER_ID=3435tdfsdudebussylmaoxxt43
-      - PUSHER_KEY=3435tdfsdudebussylmaoxxt43
-      - IMGUR_KEY=3435tdfsdudebussylmaoxxt43
-      - SPAM_SIMILARITY_THRESHOLD=0.5
-      - SPAM_URL_SIMILARITY_THRESHOLD=0.1
-      - SPAM_SIMILAR_COUNT_THRESHOLD=10
-      - COMMENT_SPAM_SIMILAR_THRESHOLD=0.5
-      - COMMENT_SPAM_COUNT_THRESHOLD=10
-      - READ_ONLY=0
-      - BOT_DISABLE=0
-      - DEFAULT_TIME_FILTER=all
-      - DEFAULT_THEME=midnight
-      - DEFAULT_COLOR=ff66ac #YOU HAVE TO PICK ONE OF THOSE COLORS OR SHIT WILL BREAK: ff66ac, 805ad5, 62ca56, 38a169, 80ffff, 2a96f3, eb4963, ff0000, f39731, 30409f, 3e98a7, e4432d, 7b9ae4, ec72de, 7f8fa6, f8db58
-      - SLOGAN=Dude bussy lmao
-      - GUMROAD_TOKEN=3435tdfsdudebussylmaoxxt43
-      - GUMROAD_LINK=https://marsey1.gumroad.com/l/tfcvri
-      - GUMROAD_ID=tfcvri
-      - CARD_VIEW=1
-      - DISABLE_DOWNVOTES=0
-      - DUES=0
-      - MAIL_USERNAME=blahblahblah@gmail.com
-      - MAIL_PASSWORD=3435tdfsdudebussylmaoxxt43
-      - DESCRIPTION=rdrama.net caters to drama in all forms such as Real life, videos, photos, gossip, rumors, news sites, Reddit, and Beyond™. There isn't drama we won't touch, and we want it all!
-      - CF_KEY=3435tdfsdudebussylmaoxxt43
-      - CF_ZONE=3435tdfsdudebussylmaoxxt43
     links:
       - "redis"
       - "postgres"

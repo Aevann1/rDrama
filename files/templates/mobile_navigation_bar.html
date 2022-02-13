@@ -3,7 +3,7 @@
 		<div class="row fixed-bottom bg-white border-top p-2" id="mobile-bottom-navigation-bar"
 		style="z-index: 100; bottom: 0px; transition: bottom cubic-bezier(0, 0, 0.2, 1) 220ms;">
 
-				<button role="button" class="col px-0 ml-3 btn btn-dead m-0" style="background: None !important; border: None;">
+				<button class="col px-0 ml-3 btn btn-dead m-0" style="background: None !important; border: None;">
 						<a href="/" class="text-decoration-none" role="button">
 								<div class="text-center {% if request.path=='/' and request.full_path!='/?sort=hot&t=all' and request.full_path!='/?sort=new&t=all' %}text-primary{% else %}text-muted{% endif %}">
 										<i class="fas fa-home-alt text-lg"></i>
@@ -12,7 +12,7 @@
 						</a>
 				</button>
 {% if v and v.defaultsorting == 'new' %}
-				<button role="button" class="col px-0 btn btn-dead m-0" style="background: None !important; border: None;">
+				<button class="col px-0 btn btn-dead m-0" style="background: None !important; border: None;">
 						<a href="/?sort=hot&t=all" class="text-decoration-none" role="button">
 								<div class="text-center {% if request.full_path=='/?sort=hot&t=all' %}text-primary{% else %}text-muted{% endif %}">
 										<i class="fas fa-fire text-lg"></i>
@@ -21,7 +21,7 @@
 						</a>
 				</button>
 {% else %}
-				<button role="button" class="col px-0 btn btn-dead m-0" style="background: None !important; border: None;">
+				<button class="col px-0 btn btn-dead m-0" style="background: None !important; border: None;">
 						<a href="/?sort=new&t=all" class="text-decoration-none" role="button">
 								<div class="text-center {% if request.full_path=='/?sort=new&t=all' %}text-primary{% else %}text-muted{% endif %}">
 										<i class="fas fa-sparkles text-lg"></i>
@@ -30,7 +30,7 @@
 						</a>
 				</button>
 {% endif %}
-				<button role="button" class="col px-2 btn btn-dead m-0" style="background: None !important; border: None;">
+				<button class="col px-2 btn btn-dead m-0" style="background: None !important; border: None;">
 						<a href="/comments" class="text-decoration-none" role="button">
 								<div class="text-center {% if request.path=='/comments' %}text-primary{% else %}text-muted{% endif %}">
 										<i class="fas fa-comment-dots text-lg"></i>
@@ -38,7 +38,7 @@
 								</div>
 						</a>
 				</button>
-				<button role="button" class="col px-0 btn btn-dead m-0" style="background: None !important; border: None;">
+				<button class="col px-0 btn btn-dead m-0" style="background: None !important; border: None;">
 						<a href="/leaderboard" class="text-decoration-none" role="button">
 								<div class="text-center {% if request.path=='/leaderboard' %}text-primary{% else %}text-muted{% endif %}">
 										<i class="fas fa-trophy text-lg"></i>
@@ -47,7 +47,7 @@
 						</a>
 				</button>
 {% if v %}
-				<button role="button" class="col px-0 mr-3 btn btn-dead m-0" style="background: None !important; border: None;">
+				<button class="col px-0 mr-3 btn btn-dead m-0" style="background: None !important; border: None;">
 						<a href="/shop" class="text-decoration-none" role="button">
 								<div class="text-center {% if request.path=='/shop' %}text-primary{% else %}text-muted{% endif %}">
 										<i class="fas fa-store text-lg"></i>
@@ -56,7 +56,7 @@
 						</a>
 				</button>
 {% else %}
-				<button role="button" class="col px-0 mr-3 btn btn-dead m-0" style="background: None !important; border: None;">
+				<button class="col px-0 mr-3 btn btn-dead m-0" style="background: None !important; border: None;">
 						<a href="/signup" class="text-decoration-none" role="button">
 								<div class="text-center text-muted">
 										<i class="fas fa-user-plus text-lg"></i>
@@ -68,7 +68,7 @@
 		</div>
 </div>
 
-<script src="/static/assets/js/mobile_navigation_bar.js?a=220"></script>
+<script src="/static/assets/js/mobile_navigation_bar.js?a=240"></script>
 
 <style>
 	.btn-dead:hover, .active.btn-dead:hover, .active.btn-dead {

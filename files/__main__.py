@@ -1,6 +1,6 @@
 import gevent.monkey
 gevent.monkey.patch_all()
-from os import environ
+from os import environ, path
 import secrets
 from flask import *
 from flask_caching import Cache
@@ -17,6 +17,10 @@ from sys import stdout
 import faulthandler
 from json import loads
 
+for f in (f'files/templates/sidebar_{environ.get("SITE_NAME").strip()}.html', 'disable_signups'):
+	if not path.exists(f):
+		with open(f, 'w', encoding="utf-8"): pass
+
 app = Flask(__name__, template_folder='templates')
 app.url_map.strict_slashes = False
 app.jinja_env.cache = {}
@@ -26,7 +30,7 @@ faulthandler.enable()
 app.config["SITE_NAME"]=environ.get("SITE_NAME").strip()
 app.config["GUMROAD_LINK"]=environ.get("GUMROAD_LINK", "https://marsey1.gumroad.com/l/tfcvri").strip()
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['DATABASE_URL'] = environ.get("DATABASE_URL")
+app.config['DATABASE_URL'] = environ.get("DATABASE_URL", "postgresql://postgres@localhost:5432")
 app.config['SECRET_KEY'] = environ.get('MASTER_KEY')
 app.config["SERVER_NAME"] = environ.get("DOMAIN").strip()
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 2628000
@@ -36,7 +40,6 @@ app.config['MAX_CONTENT_LENGTH'] = 8 * 1024 * 1024
 app.config["SESSION_COOKIE_SECURE"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 app.config["PERMANENT_SESSION_LIFETIME"] = 60 * 60 * 24 * 365
-app.config["SLOGAN"] = environ.get("SLOGAN", "").strip()
 app.config["DEFAULT_COLOR"] = environ.get("DEFAULT_COLOR", "ff0000").strip()
 app.config["DEFAULT_THEME"] = environ.get("DEFAULT_THEME", "midnight").strip()
 app.config["FORCE_HTTPS"] = 1

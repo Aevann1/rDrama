@@ -5,9 +5,9 @@ from files.__main__ import Base
 
 class Subscription(Base):
 	__tablename__ = "subscriptions"
-	id = Column(BigInteger, primary_key=True)
-	user_id = Column(BigInteger, ForeignKey("users.id"))
-	submission_id = Column(BigInteger, default=0)
+	id = Column(Integer, primary_key=True)
+	user_id = Column(Integer, ForeignKey("users.id"))
+	submission_id = Column(Integer, ForeignKey("submissions.id"))
 	
 	user = relationship("User", uselist=False, viewonly=True)
 
@@ -20,9 +20,9 @@ class Subscription(Base):
 
 class Follow(Base):
 	__tablename__ = "follows"
-	id = Column(BigInteger, primary_key=True)
-	user_id = Column(BigInteger, ForeignKey("users.id"))
-	target_id = Column(BigInteger, ForeignKey("users.id"))
+	id = Column(Integer, primary_key=True)
+	user_id = Column(Integer, ForeignKey("users.id"))
+	target_id = Column(Integer, ForeignKey("users.id"))
 
 	user = relationship("User", uselist=False, primaryjoin="User.id==Follow.user_id", viewonly=True)
 	target = relationship("User", primaryjoin="User.id==Follow.target_id", viewonly=True)

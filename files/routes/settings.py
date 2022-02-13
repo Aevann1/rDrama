@@ -142,7 +142,7 @@ def settings_profile_post(v):
 	elif (v.patron or v.id == MOOSE_ID) and request.values.get("sig"):
 		sig = request.values.get("sig")[:200]
 
-		for i in re.finditer('^(https:\/\/.*\.(png|jpg|jpeg|gif|webp|PNG|JPG|JPEG|GIF|WEBP|9999))', sig, re.MULTILINE):
+		for i in re.finditer('^(https:\/\/.*\.(png|jpg|jpeg|gif|webp|PNG|JPG|JPEG|GIF|WEBP|9999)($|\s|\n))', sig, re.M|re.A):
 			if "wikipedia" not in i.group(1): sig = sig.replace(i.group(1), f'![]({i.group(1)})')
 
 		sig_html = sanitize(sig)
@@ -176,7 +176,7 @@ def settings_profile_post(v):
 	elif request.values.get("friends"):
 		friends = request.values.get("friends")[:500]
 
-		for i in re.finditer('^(https:\/\/.*\.(png|jpg|jpeg|gif|webp|PNG|JPG|JPEG|GIF|WEBP|9999))', friends, re.MULTILINE):
+		for i in re.finditer('^(https:\/\/.*\.(png|jpg|jpeg|gif|webp|PNG|JPG|JPEG|GIF|WEBP|9999)($|\s|\n))', friends, re.M|re.A):
 			if "wikipedia" not in i.group(1): friends = friends.replace(i.group(1), f'![]({i.group(1)})')
 
 		friends_html = sanitize(friends)
@@ -213,7 +213,7 @@ def settings_profile_post(v):
 	elif request.values.get("enemies"):
 		enemies = request.values.get("enemies")[:500]
 
-		for i in re.finditer('^(https:\/\/.*\.(png|jpg|jpeg|gif|webp|PNG|JPG|JPEG|GIF|WEBP|9999))', enemies, re.MULTILINE):
+		for i in re.finditer('^(https:\/\/.*\.(png|jpg|jpeg|gif|webp|PNG|JPG|JPEG|GIF|WEBP|9999)($|\s|\n))', enemies, re.M|re.A):
 			if "wikipedia" not in i.group(1): enemies = enemies.replace(i.group(1), f'![]({i.group(1)})')
 
 		enemies_html = sanitize(enemies)
@@ -250,7 +250,7 @@ def settings_profile_post(v):
 	elif request.values.get("bio") or request.files.get('file') and request.headers.get("cf-ipcountry") != "T1":
 		bio = request.values.get("bio")[:1500]
 
-		for i in re.finditer('^(https:\/\/.*\.(png|jpg|jpeg|gif|webp|PNG|JPG|JPEG|GIF|WEBP|9999))', bio, re.MULTILINE):
+		for i in re.finditer('^(https:\/\/.*\.(png|jpg|jpeg|gif|webp|PNG|JPG|JPEG|GIF|WEBP|9999)($|\s|\n))', bio, re.M|re.A):
 			if "wikipedia" not in i.group(1): bio = bio.replace(i.group(1), f'![]({i.group(1)})')
 
 		if request.files.get('file'):
@@ -436,9 +436,6 @@ def themecolor(v):
 @limiter.limit("1/second;30/minute;200/hour;1000/day")
 @auth_required
 def gumroad(v):
-	if SITE_NAME == 'Drama': patron = 'Paypig'
-	else: patron = 'Patron'
-
 	if not (v.email and v.is_activated):
 		return {"error": f"You must have a verified email to verify {patron} status and claim your rewards"}, 400
 
@@ -638,8 +635,12 @@ def settings_images_profile(v):
 
 	if not imageurl: abort(400)
 
-	if v.highres and '/images/' in v.highres : os.remove('/images/' + v.highres.split('/images/')[1])
-	if v.profileurl and '/images/' in v.profileurl : os.remove('/images/' + v.profileurl.split('/images/')[1])
+	if v.highres and '/images/' in v.highres:
+		fpath = '/images/' + v.highres.split('/images/')[1]
+		if path.isfile(fpath): os.remove(fpath)
+	if v.profileurl and '/images/' in v.profileurl:
+		fpath = '/images/' + v.profileurl.split('/images/')[1]
+		if path.isfile(fpath): os.remove(fpath)
 	v.highres = highres
 	v.profileurl = imageurl
 	g.db.add(v)
@@ -666,7 +667,9 @@ def settings_images_banner(v):
 	bannerurl = process_image(name)
 
 	if bannerurl:
-		if v.bannerurl and '/images/' in v.bannerurl : os.remove('/images/' + v.bannerurl.split('/images/')[1])
+		if v.bannerurl and '/images/' in v.bannerurl:
+			fpath = '/images/' + v.bannerurl.split('/images/')[1]
+			if path.isfile(fpath): os.remove(fpath)
 		v.bannerurl = bannerurl
 		g.db.add(v)
 		g.db.commit()
@@ -729,14 +732,14 @@ def settings_css(v):
 @auth_required
 def settings_profilecss_get(v):
 
-	if not v.patron : return f"You must be a paypig to set profile css."
+	if not v.patron : return f"You must be a {patron} to set profile css."
 	return render_template("settings_profilecss.html", v=v)
 
 @app.post("/settings/profilecss")
 @limiter.limit("1/second;30/minute;200/hour;1000/day")
 @auth_required
 def settings_profilecss(v):
-	if not v.patron: return f"You must be a paypig to set profile css."
+	if not v.patron: return f"You must be a {patron} to set profile css."
 	profilecss = request.values.get("profilecss").strip().replace('\\', '').strip()[:4000]
 	v.profilecss = profilecss
 	g.db.add(v)
@@ -745,7 +748,7 @@ def settings_profilecss(v):
 	return render_template("settings_profilecss.html", v=v)
 
 @app.post("/settings/block")
-@limiter.limit("1/second;30/minute;200/hour;1000/day")
+@limiter.limit("1/second;10/day")
 @auth_required
 def settings_block_user(v):
 

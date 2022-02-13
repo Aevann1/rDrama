@@ -13,13 +13,13 @@ from .userblock import *
 from .badges import *
 from .clients import *
 from .mod_logs import *
+from .mod import *
 from files.__main__ import Base, cache
 from files.helpers.security import *
 import random
 from os import environ, remove, path
 
 defaulttheme = environ.get("DEFAULT_THEME", "midnight").strip()
-defaultcolor = environ.get("DEFAULT_COLOR", "fff").strip()
 defaulttimefilter = environ.get("DEFAULT_TIME_FILTER", "all").strip()
 cardview = bool(int(environ.get("CARD_VIEW", 1)))
 
@@ -33,18 +33,19 @@ class User(Base):
 
 	id = Column(Integer, primary_key=True)
 	username = Column(String)
-	namecolor = Column(String, default=defaultcolor)
+	namecolor = Column(String, default=DEFAULT_COLOR)
 	background = Column(String)
 	customtitle = Column(String)
 	customtitleplain = deferred(Column(String))
-	titlecolor = Column(String, default=defaultcolor)
+	titlecolor = Column(String, default=DEFAULT_COLOR)
 	theme = Column(String, default=defaulttheme)
-	themecolor = Column(String, default=defaultcolor)
+	themecolor = Column(String, default=DEFAULT_COLOR)
 	cardview = Column(Boolean, default=cardview)
 	song = Column(String)
 	highres = Column(String)
 	profileurl = Column(String)
 	bannerurl = Column(String)
+	house = Column(String)
 	patron = Column(Integer, default=0)
 	patron_utc = Column(Integer, default=0)
 	verified = Column(String)
@@ -62,7 +63,7 @@ class User(Base):
 	post_count = Column(Integer, default=0)
 	comment_count = Column(Integer, default=0)
 	received_award_count = Column(Integer, default=0)
-	created_utc = Column(Integer, default=0)
+	created_utc = Column(Integer)
 	suicide_utc = Column(Integer, default=0)
 	rent_utc = Column(Integer, default=0)
 	steal_utc = Column(Integer, default=0)
@@ -71,8 +72,7 @@ class User(Base):
 	admin_level = Column(Integer, default=0)
 	coins_spent = Column(Integer, default=0)
 	lootboxes_bought = Column(Integer, default=0)
-	agendaposter = Column(Boolean, default=False)
-	agendaposter_expires_utc = Column(Integer, default=0)
+	agendaposter = Column(Integer, default=0)
 	changelogsub = Column(Boolean, default=False)
 	is_activated = Column(Boolean, default=False)
 	shadowbanned = Column(String)
@@ -107,7 +107,7 @@ class User(Base):
 	is_banned = Column(Integer, default=0)
 	unban_utc = Column(Integer, default=0)
 	ban_reason = deferred(Column(String))
-	club_allowed = Column(Boolean, default=False)
+	club_allowed = Column(Boolean)
 	login_nonce = Column(Integer, default=0)
 	reserved = deferred(Column(String))
 	coins = Column(Integer, default=0)
@@ -125,6 +125,8 @@ class User(Base):
 	ban_evade = Column(Integer, default=0)
 	original_username = deferred(Column(String))
 	referred_by = Column(Integer, ForeignKey("users.id"))
+	nwordpass = Column(Boolean)
+	subs_created = Column(Integer, default=0)
 
 	badges = relationship("Badge", viewonly=True)
 	subscriptions = relationship("Subscription", viewonly=True)
@@ -147,6 +149,17 @@ class User(Base):
 
 		super().__init__(**kwargs)
 
+
+	@lazy
+	def mods(self, sub):
+		return self.id == AEVANN_ID or g.db.query(Mod.user_id).filter_by(user_id=self.id, sub=sub).one_or_none()
+
+	@lazy
+	def mod_date(self, sub):
+		if self.id == AEVANN_ID: return 1
+		mod = g.db.query(Mod).filter_by(user_id=self.id, sub=sub).one_or_none()
+		if not mod: return None
+		return mod.created_utc
 
 	@property
 	@lazy
@@ -256,7 +269,7 @@ class User(Base):
 		elif sort == "old":
 			posts = posts.order_by(Submission.created_utc.asc())
 		elif sort == "controversial":
-			posts = posts.order_by(-1 * Submission.upvotes * Submission.downvotes * Submission.downvotes)
+			posts = posts.order_by((Submission.upvotes+1)/(Submission.downvotes+1) + (Submission.downvotes+1)/(Submission.upvotes+1), Submission.downvotes.desc())
 		elif sort == "top":
 			posts = posts.order_by(Submission.downvotes - Submission.upvotes)
 		elif sort == "bottom":
@@ -421,6 +434,12 @@ class User(Base):
 
 		return output
 
+	@property
+	@lazy
+	def moderated_subs(self):
+		modded_subs = g.db.query(Mod.sub).filter_by(user_id=self.id).all()
+		return modded_subs
+
 	def has_follower(self, user):
 
 		return g.db.query(Follow).filter_by(target_id=self.id, user_id=user.id).one_or_none()
@@ -429,7 +448,7 @@ class User(Base):
 	@lazy
 	def banner_url(self):
 		if self.bannerurl: return self.bannerurl
-		else: return f"{SITE_FULL}/static/assets/images/{SITE_NAME}/site_preview.webp?a=1008"
+		else: return f"{SITE_FULL}/static/assets/images/{SITE_NAME}/site_preview.webp?a=1012"
 
 	@property
 	@lazy
@@ -438,7 +457,7 @@ class User(Base):
 		if self.profileurl: 
 			if self.profileurl.startswith('/'): return SITE_FULL + self.profileurl
 			return self.profileurl
-		if SITE_NAME == 'Drama': return f"{SITE_FULL}/static/assets/images/defaultpictures/{random.randint(1, 150)}.webp?a=1008"
+		if SITE_NAME == 'Drama': return f"{SITE_FULL}/static/assets/images/defaultpictures/bhm/{random.randint(1, 25)}.webp?a=1008"
 		return f"{SITE_FULL}/static/assets/images/default-profile-pic.webp?a=1008"
 
 	@lazy

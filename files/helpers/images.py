@@ -12,7 +12,7 @@ def process_image(filename=None, resize=0):
 			del exif[k]
 	i.info["exif"] = exif.tobytes()
 
-	if resize:
+	if resize and i.width > resize:
 		size = resize, resize
 		frames = ImageSequence.Iterator(i)
 

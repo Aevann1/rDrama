@@ -11,6 +11,7 @@ from files.helpers.const import *
 from files.helpers.lazy import lazy
 from .flags import CommentFlag
 from random import randint
+from .votes import CommentVote
 
 class Comment(Base):
 
@@ -19,7 +20,7 @@ class Comment(Base):
 	id = Column(Integer, primary_key=True)
 	author_id = Column(Integer, ForeignKey("users.id"))
 	parent_submission = Column(Integer, ForeignKey("submissions.id"))
-	created_utc = Column(Integer, default=0)
+	created_utc = Column(Integer)
 	edited_utc = Column(Integer, default=0)
 	is_banned = Column(Boolean, default=False)
 	ghost = Column(Boolean)
@@ -34,9 +35,8 @@ class Comment(Base):
 	is_bot = Column(Boolean, default=False)
 	is_pinned = Column(String)
 	is_pinned_utc = Column(Integer)
-	sentto=Column(Integer, ForeignKey("users.id"))
+	sentto = Column(Integer, ForeignKey("users.id"))
 	app_id = Column(Integer, ForeignKey("oauth_apps.id"))
-	oauth_app = relationship("OauthApp", viewonly=True)
 	upvotes = Column(Integer, default=1)
 	downvotes = Column(Integer, default=0)
 	realupvotes = Column(Integer, default=1)
@@ -47,6 +47,7 @@ class Comment(Base):
 	blackjack_result = Column(String)
 	treasure_amount = Column(String)
 
+	oauth_app = relationship("OauthApp", viewonly=True)
 	post = relationship("Submission", viewonly=True)
 	author = relationship("User", primaryjoin="User.id==Comment.author_id")
 	senttouser = relationship("User", primaryjoin="User.id==Comment.sentto", viewonly=True)
@@ -79,20 +80,29 @@ class Comment(Base):
 	@lazy
 	def poll_voted(self, v):
 		if v:
-			vote = g.db.query(CommentVote).filter_by(user_id=v.id, comment_id=self.id).one_or_none()
-			if vote: return vote.vote_type
-			else: return None
-		else: return None
+			vote = g.db.query(CommentVote.vote_type).filter_by(user_id=v.id, comment_id=self.id).one_or_none()
+			if vote: return vote[0]
+		return None
 
 	@property
 	@lazy
 	def options(self):
-		return [x for x in self.child_comments if x.author_id == AUTOPOLLER_ID]
+		return tuple(x for x in self.child_comments if x.author_id == AUTOPOLLER_ID)
+
+	@property
+	@lazy
+	def choices(self):
+		return tuple(x for x in self.child_comments if x.author_id == AUTOCHOICE_ID)
 
 	def total_poll_voted(self, v):
 		if v:
 			for option in self.options:
 				if option.poll_voted(v): return True
+		return False
+
+	def total_choice_voted(self, v):
+		if v:
+			return g.db.query(CommentVote).filter(CommentVote.user_id == v.id, CommentVote.comment_id.in_(tuple(x.id for x in self.choices))).all()
 		return False
 
 	@property
@@ -197,33 +207,26 @@ class Comment(Base):
 
 	@property
 	def replies(self):
-		r = self.__dict__.get("replies", None)
-		if r: r = [x for x in r if not x.author.shadowbanned]
-		if not r and r != []: r = sorted((x for x in self.child_comments if not x.author.shadowbanned and x.author_id not in (AUTOPOLLER_ID, AUTOBETTER_ID)), key=lambda x: x.realupvotes, reverse=True)
-		return r
+		if self.replies2 != None:  return [x for x in self.replies2 if not x.author.shadowbanned]
+		return sorted((x for x in self.child_comments if x.author and not x.author.shadowbanned and x.author_id not in (AUTOPOLLER_ID, AUTOBETTER_ID, AUTOCHOICE_ID)), key=lambda x: x.realupvotes, reverse=True)
 
-	@replies.setter
-	def replies(self, value):
-		self.__dict__["replies"] = value
+	@property
+	def replies3(self):
+		if self.replies2 != None: return self.replies2
+		return sorted((x for x in self.child_comments if x.author_id not in (AUTOPOLLER_ID, AUTOBETTER_ID, AUTOCHOICE_ID)), key=lambda x: x.realupvotes, reverse=True)
 
 	@property
 	def replies2(self):
-		return self.__dict__.get("replies2", [])
+		return self.__dict__.get("replies2", None)
 
 	@replies2.setter
 	def replies2(self, value):
 		self.__dict__["replies2"] = value
 
 	@property
-	def replies3(self):
-		r = self.__dict__.get("replies", None)
-		if not r and r != []: r = sorted((x for x in self.child_comments if x.author_id not in (AUTOPOLLER_ID, AUTOBETTER_ID)), key=lambda x: x.realupvotes, reverse=True)
-		return r
-
-	@property
 	@lazy
 	def shortlink(self):
-		return f"/comment/{self.id}#context"
+		return f"{SITE_FULL}/comment/{self.id}#context"
 
 	@property
 	@lazy
@@ -239,10 +242,7 @@ class Comment(Base):
 	@property
 	@lazy
 	def permalink(self):
-		if self.post and self.post.club: return f"{SITE_FULL}/comment/{self.id}?context=8#context"
-
-		if self.post: return f"{self.post.permalink}/{self.id}?context=8#context"
-		else: return f"{SITE_FULL}/comment/{self.id}?context=8#context"
+		return f"{SITE_FULL}/comment/{self.id}?context=8#context"
 
 	@property
 	@lazy
@@ -331,50 +331,58 @@ class Comment(Base):
 	def realbody(self, v):
 		if self.post and self.post.club and not (v and (v.paid_dues or v.id in [self.author_id, self.post.author_id])): return f"<p>{CC} ONLY</p>"
 
-		body = self.body_html
+		body = self.body_html or ""
 
-		if not body: return ""
+		if body:
+			body = censor_slurs(body, v)
 
-		body = censor_slurs(body, v)
+			if v:
+				if v.teddit: body = body.replace("old.reddit.com", "teddit.net")
+				elif not v.oldreddit: body = body.replace("old.reddit.com", "reddit.com")
 
-		if v:
-			if v.teddit: body = body.replace("old.reddit.com", "teddit.net")
-			elif not v.oldreddit: body = body.replace("old.reddit.com", "reddit.com")
+				if v.nitter and not '/i/' in body: body = body.replace("www.twitter.com", "nitter.net").replace("twitter.com", "nitter.net")
 
-			if v.nitter: body = body.replace("www.twitter.com", "nitter.net").replace("twitter.com", "nitter.net")
+			if v and v.controversial:
+				for i in re.finditer('(/comments/.*?)"', body):
+					url = i.group(1)
+					p = urlparse(url).query
+					p = parse_qs(p)
 
-		if v and v.controversial:
-			for i in re.finditer('(/comments/.*?)"', body):
-				url = i.group(1)
-				p = urlparse(url).query
-				p = parse_qs(p)
+					if 'sort' not in p: p['sort'] = ['controversial']
 
-				if 'sort' not in p: p['sort'] = ['controversial']
+					url_noquery = url.split('?')[0]
+					body = body.replace(url, f"{url_noquery}?{urlencode(p, True)}")
 
-				url_noquery = url.split('?')[0]
-				body = body.replace(url, f"{url_noquery}?{urlencode(p, True)}")
+			if v and v.shadowbanned and v.id == self.author_id and 86400 > time.time() - self.created_utc > 60:
+				ti = max(int((time.time() - self.created_utc)/60), 1)
+				maxupvotes = min(ti, 31)
+				rand = randint(0, maxupvotes)
+				if self.upvotes < rand:
+					amount = randint(0, 3)
+					self.upvotes += amount
+					g.db.add(self)
+					g.db.commit()
 
-		if v and v.shadowbanned and v.id == self.author_id and 86400 > time.time() - self.created_utc > 60:
-			ti = max(int((time.time() - self.created_utc)/60), 1)
-			maxupvotes = min(ti, 31)
-			rand = randint(0, maxupvotes)
-			if self.upvotes < rand:
-				amount = randint(0, 3)
-				self.upvotes += amount
-				g.db.add(self)
-				self.author.coins += amount
-				g.db.add(self.author)
-				g.db.commit()
-
-		for o in self.options:
-			body += f'<div class="custom-control"><input type="checkbox" class="custom-control-input" id="{o.id}" name="option"'
-			if o.poll_voted(v): body += " checked"
-			if v: body += f''' onchange="poll_vote('{o.id}', '{self.id}')"'''
-			else: body += f''' onchange="poll_vote_no_v('{o.id}', '{self.id}')"'''
-			body += f'''><label class="custom-control-label" for="{o.id}">{o.body_html}<span class="presult-{self.id}'''
+		for c in self.options:
+			body += f'<div class="custom-control"><input type="checkbox" class="custom-control-input" id="{c.id}" name="option"'
+			if c.poll_voted(v): body += " checked"
+			if v: body += f''' onchange="poll_vote('{c.id}', '{self.id}')"'''
+			else: body += f''' onchange="poll_vote_no_v('{c.id}', '{self.id}')"'''
+			body += f'''><label class="custom-control-label" for="{c.id}">{c.body_html}<span class="presult-{self.id}'''
 			if not self.total_poll_voted(v): body += ' d-none'	
-			body += f'"> - <a href="/votes?link=t3_{o.id}"><span id="poll-{o.id}">{o.upvotes}</span> votes</a></span></label></div>'
+			body += f'"> - <a href="/votes?link=t3_{c.id}"><span id="poll-{c.id}">{c.upvotes}</span> votes</a></span></label></div>'
 
+		curr = self.total_choice_voted(v)
+		if curr: curr = " value=" + str(curr[0].comment_id)
+		else: curr = ''
+		body += f'<input class="d-none" id="current-{self.id}"{curr}>'
+
+		for c in self.choices:
+			body += f'''<div class="custom-control"><input name="choice-{self.id}" autocomplete="off" class="custom-control-input" type="radio" id="{c.id}" onchange="choice_vote('{c.id}','{self.id}')"'''
+			if c.poll_voted(v): body += " checked "
+			body += f'''><label class="custom-control-label" for="{c.id}">{c.body_html}<span class="presult-{self.id}'''
+			if not self.total_choice_voted(v): body += ' d-none'	
+			body += f'"> - <a href="/votes?link=t3_{c.id}"><span id="choice-{c.id}">{c.upvotes}</span> votes</a></span></label></div>'
 
 		if self.author.sig_html and not self.ghost and (self.author_id == MOOSE_ID or not (v and v.sigs_disabled)):
 			body += f"<hr>{self.author.sig_html}"
@@ -392,7 +400,7 @@ class Comment(Base):
 
 		if v and not v.oldreddit: body = body.replace("old.reddit.com", "reddit.com")
 
-		if v and v.nitter: body = body.replace("www.twitter.com", "nitter.net").replace("twitter.com", "nitter.net")
+		if v and v.nitter and not '/i/' in body: body = body.replace("www.twitter.com", "nitter.net").replace("twitter.com", "nitter.net")
 
 		if v and v.controversial:
 			for i in re.finditer('(/comments/.*?)"', body):
@@ -407,6 +415,10 @@ class Comment(Base):
 
 		return body
 
+	def print(self):
+		print(f'post: {self.id}, comment: {self.author_id}', flush=True)
+		return ''
+
 	@lazy
 	def collapse_for_user(self, v, path):
 		if v and self.author_id == v.id: return False
@@ -415,13 +427,11 @@ class Comment(Base):
 
 		if self.over_18 and not (v and v.over_18) and not (self.post and self.post.over_18): return True
 
-		if not v: return False
-			
-		if v.filter_words and self.body and any(x in self.body for x in v.filter_words): return True
-		
 		if self.is_banned: return True
-		
-		if path.startswith('/post') and (self.slots_result or self.blackjack_result) and len(self.body) <= 20 and self.level > 1: return True
+
+		if path.startswith('/post') and (self.slots_result or self.blackjack_result) and (not self.body or len(self.body) <= 50) and self.level > 1: return True
+			
+		if v and v.filter_words and self.body and any(x in self.body for x in v.filter_words): return True
 		
 		return False
 
@@ -441,6 +451,7 @@ class Notification(Base):
 	user_id = Column(Integer, ForeignKey("users.id"))
 	comment_id = Column(Integer, ForeignKey("comments.id"))
 	read = Column(Boolean, default=False)
+
 	comment = relationship("Comment", viewonly=True)
 	user = relationship("User", viewonly=True)
 

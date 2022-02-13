@@ -8,14 +8,16 @@ function loadEmojis(form) {
 	if (emojis == 1)
 	{
 		const xhr = new XMLHttpRequest();
-		xhr.open("GET", '/marsey_list', true);
+		xhr.open("GET", '/marsey_list');
 		xhr.setRequestHeader('xhr', 'xhr');
 		var f = new FormData();
 		xhr.onload = function() {
 			emojis = {
 				'marsey': JSON.parse(xhr.response),
+
+				'marseyalphabet': ['marseyalphaa','marseyalphab','marseyalphac','marseyalphad','marseyalphae','marseyalphaf','marseyalphag','marseyalphah','marseyalphai','marseyalphaj','marseyalphak','marseyalphal','marseyalpham','marseyalphan','marseyalphao','marseyalphap','marseyalphaq','marseyalphar','marseyalphas','marseyalphat','marseyalphau','marseyalphav','marseyalphaw','marseyalphax','marseyalphay','marseyalphaz','marseyalphanumeric0','marseyalphanumeric1','marseyalphanumeric2','marseyalphanumeric3','marseyalphanumeric4','marseyalphanumeric5','marseyalphanumeric6','marseyalphanumeric7','marseyalphanumeric8','marseyalphanumeric9','marseyalphazexclamationpoint','marseyalphazperiod','marseyalphazquestionmark'],
 		
-				'platy': ['plarsy','platyabused','platyblizzard','platyboxer','platydevil','platyfear','platygirlmagic','platygolong','platyhaes','platyking','platylove','platyneet','platyold','platypatience','platypopcorn','platyrich','platysarcasm','platysilly','platysleeping','platythink','platytired','platytuxedomask','platyblush','platybruh','platycaveman','platycheer','platydown','platyeyes','platyheart','platylol','platymicdrop','platynooo','platysalute','platyseethe','platythumbsup','platywave'],
+				'platy': ['platytrans','platyfuckyou','plarsy','platyabused','platyblizzard','platyboxer','platydevil','platyfear','platygirlmagic','platygolong','platyhaes','platyking','platylove','platyneet','platyold','platypatience','platypopcorn','platyrich','platysarcasm','platysilly','platysleeping','platythink','platytired','platytuxedomask','platyblush','platybruh','platycaveman','platycheer','platydown','platyeyes','platyheart','platylol','platymicdrop','platynooo','platysalute','platyseethe','platythumbsup','platywave'],
 		
 				'tay': ['taylove','tayaaa','tayadmire','taycat','taycelebrate','taychefkiss','taychristmas','tayclap','taycold','taycrown','tayflex','tayflirt','taygrimacing','tayhappy','tayheart','tayhmm','tayhuh','tayhyperdab','tayjammin','taylaugh','taymindblown','tayno','taynod','taypeace','taypray','tayrun','tayscrunch','tayshake','tayshrug','taysilly','tayslide','taysmart','taystop','taytantrum','taytea','taythink','tayvibin','taywhat','taywine','taywine2','taywink','tayyes'],
 		
@@ -29,8 +31,13 @@ function loadEmojis(form) {
 					
 				'wolf': ['wolfcumjar','wolflgbt','wolfmarseyhead','wolfnoir','wolfsherifssmoking','wolftrans','wolfvaporwave','wolfangry','wolfbrains','wolfcry','wolfdead','wolfdevilish','wolffacepalm','wolfhappy','wolfidea','wolfkoala','wolflaugh','wolflove','wolfmeditate','wolfphone','wolfrainbow','wolfroses','wolfsad','wolfsfear','wolfsleep','wolftear','wolfthink','wolfthumbsup','wolfupsidedown','wolfvictory','wolfwave','wolfwink'],
 		
-				'misc': ['sigmatalking','zoroarkconfused','zoroarkhappy','zoroarkpout','zoroarksleepy','casanovanova','deuxwaifu','flairlessmong','hardislife','redditgigachad','rfybear','etika','sneed','retardedchildren','bruh','autism','doot','kylieface','queenyes','wholesomeseal','chadyescapy','gigachadglow','gigachadorthodox','gigachad','gigachad2','gigachad3']
+				'misc': ['yotsubafish','yotsubalol','sigmatalking','zoroarkconfused','zoroarkhappy','zoroarkpout','zoroarksleepy','casanovanova','deuxwaifu','flairlessmong','hardislife','redditgigachad','rfybear','etika','sneed','retardedchildren','bruh','autism','doot','kylieface','queenyes','wholesomeseal','chadyescapy','gigachadglow','gigachadorthodox','gigachad','gigachad2','gigachad3']
 			}
+
+			ruqq = document.getElementById('EMOJIS_ruqqie')
+			if (ruqq)
+				emojis['ruqqie'] = ['ruqqiecowboy','ruqqielove','ruqqiepensive','ruqqiesip','ruqqiesmile','ruqqieupvote','ruqqiewizard']
+			
 			loadEmojis(form);
 		}
 		xhr.send(f);

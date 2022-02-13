@@ -82,8 +82,25 @@ def NOTIFY_USERS2(text, v):
 		if id == 0: continue
 		if word in text.lower() and id not in notify_users and v.id != id: notify_users.add(id)
 
-	for i in re.finditer("(^|\s|\n)@((\w|-){1,25})", text, flags=re.A):
+	for i in re.finditer("(^|\s|\n)@((\w|-){1,25})", text, re.A):
 		user = get_user(i.group(2), graceful=True)
 		if user and not v.any_block_exists(user): notify_users.add(user.id)
 
 	return notify_users
+
+def send_admin(id, body_html, vid=None):
+
+	new_comment = Comment(author_id=id,
+						  parent_submission=None,
+						  level=1,
+						  sentto=0,
+						  body_html=body_html,
+						  )
+	g.db.add(new_comment)
+	g.db.flush()
+
+	if vid: admins = g.db.query(User).filter(User.admin_level > 2, User.id != vid).all()
+	else: admins = g.db.query(User).filter(User.admin_level > 2).all()
+	for admin in admins:
+		notif = Notification(comment_id=new_comment.id, user_id=admin.id)
+		g.db.add(notif)

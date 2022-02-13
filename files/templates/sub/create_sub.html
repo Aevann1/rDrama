@@ -1,0 +1,62 @@
+{% extends "submit.html" %}
+
+{% block title %}
+<title>Create a Sub</title>
+{% endblock %}
+
+{% block form %}
+
+<pre>
+
+
+    
+</pre>
+<form id="submitform" action="/create_sub" method="post">
+
+    <div class="container">
+
+        <div class="row justify-content-center mb-4 pb-7">
+
+            <div class="col col-md-6 p-3 py-md-0">
+
+                <h1 class="d-none d-md-block">Create a sub</h1>
+
+                <h2 class="h3 d-md-none">Create a sub</h2>
+
+                <div class="body">
+
+                    <input type="hidden" name="formkey" value="{{v.formkey}}">
+
+                    <label for="title">Sub Name</label>
+
+                    <input class="form-control" id="title-register" aria-describedby="titleHelpRegister" type="text" name="name" required>
+                    <small class="form-text text-muted">Names must be 3-25 characters</small>
+
+                </div>
+
+                <div class="footer">
+
+                    <div class="d-flex">
+
+                        {% if error %}
+                        <p class="mb-0">
+                            <span class="text-danger text-small" style="vertical-align: sub;">{{ error }}</span>
+                        </p>
+                        {% endif %}
+                        
+                        <button class="btn btn-primary ml-auto" id="create_button" {% if v.subs_created * 25 > v.coins %}disabled{% endif %}>Create Sub</button>
+
+                    </div>
+
+                    <p class="mt-2 mr-1" style="float: right"><b>Cost</b>: {{v.subs_created * 25}} coins</p>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</form>
+
+{% endblock %}

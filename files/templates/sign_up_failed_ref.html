@@ -6,7 +6,7 @@
 	<meta name="description" content="{{config('DESCRIPTION')}}">
 		<meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline'; connect-src 'self'; object-src 'none';">
 
-		<script src="/static/assets/js/bootstrap.js?a=220"></script>
+		<script src="/static/assets/js/bootstrap.js?a=240"></script>
 
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -15,9 +15,9 @@
 		<meta property="og:type" content="article" >
 		<meta property="og:title" content="{{SITE_NAME}}" >
 		<meta property="og:site_name" content="{{request.host}}" >
-		<meta property="og:image" content="{{SITE_NAME}}/static/assets/images/{{SITE_NAME}}/site_preview.webp?a=1008" >
+		<meta property="og:image" content="/static/assets/images/{{SITE_NAME}}/site_preview.webp?a=1012" >
 		<meta property="og:url" content="{{request.host}}">
-		<meta property="og:description" name="description" content="{{SITE_NAME}} - {{config('SLOGAN')}}">
+		<meta property="og:description" name="description" content="{{SITE_NAME}} - {{config('DESCRIPTION')}}">
 		<meta property="og:author" name="author" content="{{SITE_FULL}}/" >
 		<meta property="og:site_name" content="{{request.host}}" >
 
@@ -25,14 +25,14 @@
 		<meta name="twitter:site" content="{{SITE_FULL}}/">
 		<meta name="twitter:title" content="{{SITE_NAME}}" >
 		<meta name="twitter:creator" content="{{SITE_FULL}}/">
-		<meta name="twitter:description" content="{{SITE_NAME}} - {{config('SLOGAN')}}" >
-		<meta name="twitter:image" content="{{SITE_NAME}}/static/assets/images/{{SITE_NAME}}/site_preview.webp?a=1008" >
+		<meta name="twitter:description" content="{{SITE_NAME}} - {{config('DESCRIPTION')}}" >
+		<meta name="twitter:image" content="/static/assets/images/{{SITE_NAME}}/site_preview.webp?a=1012" >
 		<meta name="twitter:url" content="{{request.host}}" >
 
 		<title>{% if ref_user %}{{ref_user.username}} invites you to {{SITE_NAME}}{% else %}{{SITE_NAME}}{% endif %}</title>
 
 		<style>:root{--primary:#{{config('DEFAULT_COLOR')}}</style>
-		<link rel="stylesheet" href="/static/assets/css/main.css?a=102"><link rel="stylesheet" href="/static/assets/css/{{config('DEFAULT_THEME')}}.css?a=14">
+		<link rel="stylesheet" href="/static/assets/css/main.css?a=123"><link rel="stylesheet" href="/static/assets/css/{{config('DEFAULT_THEME')}}.css?a=21">
 
 </head>
 
@@ -84,7 +84,7 @@
 
 										<div class="splash-overlay"></div>
 
-										<img alt="cover" loading="lazy" class="splash-img" src="/static/assets/images/{{SITE_NAME}}/cover.webp?a=1008"></img>
+										<img alt="cover" loading="lazy" class="splash-img" src="/static/assets/images/{{SITE_NAME}}/cover.webp?a=1010"></img>
 								</div>
 
 						</div>

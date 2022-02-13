@@ -1,19 +1,19 @@
-<script src="/static/assets/js/award_modal.js?a=220"></script>
+<script src="/static/assets/js/award_modal.js?a=240"></script>
 <div class="modal fade" id="awardModal" tabindex="-1" role="dialog" aria-labelledby="awardModalTitle" aria-hidden="true">
-	<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered awardmodal" role="document">
-		<div class="modal-content pb-4">
+	<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered awardmodal my-5" role="document">
+		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title">Give Award</h5>
-				<button role="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+				<button class="close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true"><i class="far fa-times"></i></span>
 				</button>
 			</div>
-			<div id="awardModalBody" class="modal-body">
+			<div id="awardModalBody" class="modal-body mb-3">
 				<form id="awardTarget" class="pt-3 pb-0" action="" method="post">
 					<input autocomplete="off" type="hidden" name="formkey", value="{{v.formkey}}">
 					<div class="card-columns award-columns awards-wrapper">
 						{% for award in v.user_awards %}
-							<a role="button" id="{{award.kind}}" class="card" onclick="pick('{{award.kind}}')">
+							<a role="button" id="{{award.kind}}" class="card" onclick="pick('{{award.kind}}', {{award.price}} < {{v.procoins}}, {{award.price}} < {{v.coins}})">
 								<i class="{{award.icon}} {{award.color}}"></i>
 								<div class="pt-2" style="font-weight: bold; font-size: 14px; color:#E1E1E1">{{award.title}}</div>
 								<div class="text-muted"><span id="{{award.kind}}-owned">{{award.owned}}</span> owned</div>
@@ -77,21 +77,18 @@
 		column-count: 1;
 	}
 
-	@media (min-width: 767.98px) {
-		.award-columns {
-			column-count: 7 !important;
-		}
-	}
-
 	.awardmodal {
 		max-width: 90% !important;
+		min-height: 90% !important;
+		max-height: 90% !important;
+		height: 90% !important;
 	}
 
 	toast {
 		z-index: 7000 !important;
 	}
 
-	@media (max-width: 400px) {
+	@media (max-width: 464px) {
 		.awardbtn {
 			display:block;
 			margin-right:0 !important;

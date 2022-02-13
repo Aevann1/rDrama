@@ -22,7 +22,7 @@
 					<div class="body w-lg-100">
 						<p>Change how many posts appear on every page.</p>
 						<div class="input-group mb2">
-							<select autocomplete="off" id='frontsize' class="form-control" form="profile-settings" name="frontsize" onchange="post_toast('/settings/profile?frontsize='+document.getElementById('frontsize').value)">
+							<select autocomplete="off" id='frontsize' class="form-control" form="profile-settings" name="frontsize" onchange="post_toast(this,'/settings/profile?frontsize='+document.getElementById('frontsize').value)">
 							{% for entry in [25, 50, 100] %}
 								<option value="{{entry}}"{{' selected' if v.frontsize==entry}}>{{entry}}</option>
 							{% endfor %}
@@ -47,7 +47,7 @@
 						<div class="body w-lg-100">
 							<p>Change the default sorting for comments.</p>
 							<div class="input-group mb2">
-								<select autocomplete="off" id='defaultsortingcomments' class="form-control" form="profile-settings" name="defaultsortingcomments" onchange="post_toast('/settings/profile?defaultsortingcomments='+document.getElementById('defaultsortingcomments').value)">
+								<select autocomplete="off" id='defaultsortingcomments' class="form-control" form="profile-settings" name="defaultsortingcomments" onchange="post_toast(this,'/settings/profile?defaultsortingcomments='+document.getElementById('defaultsortingcomments').value)">
 								{% for entry in ["new", "old", "top", "bottom", "controversial"] %}
 									<option value="{{entry}}"{{' selected' if v.defaultsortingcomments==entry}}>{{entry}}</option>
 								{% endfor %}
@@ -66,7 +66,7 @@
 						<div class="body w-lg-100">
 							<p>Change the default sorting for posts.</p>
 							<div class="input-group mb2">
-								<select autocomplete="off" id='defaultsorting' class="form-control" form="profile-settings" name="defaultsorting" onchange="post_toast('/settings/profile?defaultsorting='+document.getElementById('defaultsorting').value)">
+								<select autocomplete="off" id='defaultsorting' class="form-control" form="profile-settings" name="defaultsorting" onchange="post_toast(this,'/settings/profile?defaultsorting='+document.getElementById('defaultsorting').value)">
 								{% for entry in ["hot", "new", "old", "top", "bottom", "controversial", "comments"] %}
 								<option value="{{entry}}"{{' selected' if v.defaultsorting==entry}}>{{entry}}</option>
 								{% endfor %}
@@ -85,7 +85,7 @@
 						<div class="body w-lg-100">
 							<p>Change the default time filter for posts.</p>
 							<div class="input-group mb2">
-								<select autocomplete="off" id='defaulttime' class="form-control" form="profile-settings" name="defaulttime" onchange="post_toast('/settings/profile?defaulttime='+document.getElementById('defaulttime').value)">
+								<select autocomplete="off" id='defaulttime' class="form-control" form="profile-settings" name="defaulttime" onchange="post_toast(this,'/settings/profile?defaulttime='+document.getElementById('defaulttime').value)">
 								{% for entry in ["hour", "day", "week", "month", "year", "all"] %}
 									<option value="{{entry}}"{{' selected' if v.defaulttime==entry}}>{{entry}}</option>
 								{% endfor %}
@@ -111,7 +111,7 @@
 					<div class="body w-lg-100">
 
 						<div class="custom-control custom-switch">
-							<input autocomplete="off" type="checkbox" class="custom-control-input" id="newtab" name="newtab"{% if v.newtab %} checked{% endif %} onchange="post_toast('/settings/profile?newtab='+document.getElementById('newtab').checked);">
+							<input autocomplete="off" type="checkbox" class="custom-control-input" id="newtab" name="newtab"{% if v.newtab %} checked{% endif %} onchange="post_toast(this,'/settings/profile?newtab='+document.getElementById('newtab').checked);">
 							<label class="custom-control-label" for="newtab"></label>
 						</div>
 
@@ -131,7 +131,7 @@
 					<div class="body w-lg-100">
 
 						<div class="custom-control custom-switch">
-							<input autocomplete="off" type="checkbox" class="custom-control-input" id="newtabexternal" name="newtabexternal"{% if v.newtabexternal %} checked{% endif %} onchange="post_toast('/settings/profile?newtabexternal='+document.getElementById('newtabexternal').checked);">
+							<input autocomplete="off" type="checkbox" class="custom-control-input" id="newtabexternal" name="newtabexternal"{% if v.newtabexternal %} checked{% endif %} onchange="post_toast(this,'/settings/profile?newtabexternal='+document.getElementById('newtabexternal').checked);">
 							<label class="custom-control-label" for="newtabexternal"></label>
 						</div>
 
@@ -159,7 +159,7 @@
 					<div class="body w-lg-100">
 
 						<div class="custom-control custom-switch">
-							<input autocomplete="off" type="checkbox" class="custom-control-input" id="nitter" name="nitter"{% if v.nitter %} checked{% endif %} onchange="post_toast('/settings/profile?nitter='+document.getElementById('nitter').checked);">
+							<input autocomplete="off" type="checkbox" class="custom-control-input" id="nitter" name="nitter"{% if v.nitter %} checked{% endif %} onchange="post_toast(this,'/settings/profile?nitter='+document.getElementById('nitter').checked);">
 							<label class="custom-control-label" for="nitter"></label>
 						</div>
 
@@ -185,7 +185,7 @@
 					<div class="body w-lg-100">
 
 						<div class="custom-control custom-switch">
-							<input autocomplete="off" type="checkbox" class="custom-control-input" id="teddit" name="teddit"{% if v.teddit %} checked{% endif %} onchange="post_toast('/settings/profile?teddit='+document.getElementById('teddit').checked);">
+							<input autocomplete="off" type="checkbox" class="custom-control-input" id="teddit" name="teddit"{% if v.teddit %} checked{% endif %} onchange="post_toast(this,'/settings/profile?teddit='+document.getElementById('teddit').checked);">
 							<label class="custom-control-label" for="teddit"></label>
 						</div>
 
@@ -204,7 +204,7 @@
 					<div class="body w-lg-100">
 
 						<div class="custom-control custom-switch">
-							<input autocomplete="off" type="checkbox" class="custom-control-input" id="oldreddit" name="oldreddit"{% if v.oldreddit %} checked{% endif %} onchange="post_toast('/settings/profile?oldreddit='+document.getElementById('oldreddit').checked);">
+							<input autocomplete="off" type="checkbox" class="custom-control-input" id="oldreddit" name="oldreddit"{% if v.oldreddit %} checked{% endif %} onchange="post_toast(this,'/settings/profile?oldreddit='+document.getElementById('oldreddit').checked);">
 							<label class="custom-control-label" for="oldreddit"></label>
 						</div>
 
@@ -223,7 +223,7 @@
 					<div class="body w-lg-100">
 
 						<div class="custom-control custom-switch">
-							<input autocomplete="off" type="checkbox" class="custom-control-input" id="controversial" name="controversial"{% if v.controversial %} checked{% endif %} onchange="post_toast('/settings/profile?controversial='+document.getElementById('controversial').checked);">
+							<input autocomplete="off" type="checkbox" class="custom-control-input" id="controversial" name="controversial"{% if v.controversial %} checked{% endif %} onchange="post_toast(this,'/settings/profile?controversial='+document.getElementById('controversial').checked);">
 							<label class="custom-control-label" for="controversial"></label>
 						</div>
 
@@ -248,7 +248,7 @@
 						<div class="body w-lg-100">
 
 							<div class="custom-control custom-switch">
-								<input autocomplete="off" type="checkbox" class="custom-control-input" id="sigs_disabled" name="sigs_disabled"{% if v.sigs_disabled %} checked{% endif %} onchange="post_toast('/settings/profile?sigs_disabled='+document.getElementById('sigs_disabled').checked);">
+								<input autocomplete="off" type="checkbox" class="custom-control-input" id="sigs_disabled" name="sigs_disabled"{% if v.sigs_disabled %} checked{% endif %} onchange="post_toast(this,'/settings/profile?sigs_disabled='+document.getElementById('sigs_disabled').checked);">
 								<label class="custom-control-label" for="sigs_disabled"></label>
 							</div>
 
@@ -269,7 +269,7 @@
 						<div class="body w-lg-100">
 
 							<div class="custom-control custom-switch">
-								<input autocomplete="off" type="checkbox" class="custom-control-input" id="over18" name="over18"{% if v.over_18 %} checked{% endif %} onchange="post_toast('/settings/profile?over18='+document.getElementById('over18').checked);">
+								<input autocomplete="off" type="checkbox" class="custom-control-input" id="over18" name="over18"{% if v.over_18 %} checked{% endif %} onchange="post_toast(this,'/settings/profile?over18='+document.getElementById('over18').checked);">
 								<label class="custom-control-label" for="over18"></label>
 							</div>
 
@@ -290,7 +290,7 @@
 						<div class="body w-lg-100">
 
 							<div class="custom-control custom-switch">
-								<input autocomplete="off" type="checkbox" class="custom-control-input" id="slurreplacer" name="slurreplacer"{% if v.slurreplacer %} checked{% endif %} onchange="post_toast('/settings/profile?slurreplacer='+document.getElementById('slurreplacer').checked);">
+								<input autocomplete="off" type="checkbox" class="custom-control-input" id="slurreplacer" name="slurreplacer"{% if v.slurreplacer %} checked{% endif %} onchange="post_toast(this,'/settings/profile?slurreplacer='+document.getElementById('slurreplacer').checked);">
 								<label class="custom-control-label" for="slurreplacer"></label>
 							</div>
 
@@ -310,7 +310,7 @@
 						<div class="body w-lg-100">
 
 							<div class="custom-control custom-switch">
-								<input autocomplete="off" type="checkbox" class="custom-control-input" id="hidevotedon" name="hidevotedon"{% if v.hidevotedon %} checked{% endif %} onchange="post_toast('/settings/profile?hidevotedon='+document.getElementById('hidevotedon').checked);">
+								<input autocomplete="off" type="checkbox" class="custom-control-input" id="hidevotedon" name="hidevotedon"{% if v.hidevotedon %} checked{% endif %} onchange="post_toast(this,'/settings/profile?hidevotedon='+document.getElementById('hidevotedon').checked);">
 								<label class="custom-control-label" for="hidevotedon"></label>
 							</div>
 

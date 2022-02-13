@@ -1,11 +1,11 @@
-<script src="/static/assets/js/delete_post_modal.js?a=220"></script>
+<script src="/static/assets/js/delete_post_modal.js?a=240"></script>
 
 <div class="modal fade" id="deletePostModal" tabindex="-1" role="dialog" aria-labelledby="deletePostModalTitle" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered" role="document">
 		<div class="modal-content">
 			<div class="modal-header d-none d-md-flex">
 				<h5 class="modal-title">Delete post?</h5>
-				<button role="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+				<button class="close" data-bs-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true"><i class="far fa-times"></i></span>
 				</button>
 			</div>
@@ -20,19 +20,10 @@
 				<p class="d-none d-md-block">Your post will be removed everywhere on {{SITE_NAME}}. This action can be undone.</p>
 
 				<p class="text-muted d-md-none">Your post will be removed everywhere on {{SITE_NAME}}. This action can be undone.</p>
+		
+				<button id="deletePostButton" class="btn btn-danger btn-block mt-5" data-bs-dismiss="modal">Delete post</button>
 
-				<div class="d-md-none">
-
-					<button role="button" id="deletePostButton-mobile" class="btn btn-danger btn-block">Delete post</button>
-
-					<button role="button" class="btn btn-secondary btn-block" data-bs-dismiss="modal">Cancel</button>
-
-				</div>
-
-			</div>
-			<div class="modal-footer d-none d-md-flex">
-				<button role="button" class="btn btn-link text-muted" data-bs-dismiss="modal">Cancel</button>
-				<button role="button" id="deletePostButton" class="btn btn-danger">Delete post</button>
+				<button class="btn btn-secondary btn-block" data-bs-dismiss="modal">Cancel</button>
 			</div>
 		</div>
 	</div>

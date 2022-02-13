@@ -1,6 +1,6 @@
 function post_toast_callback(url, data, callback) {
 	const xhr = new XMLHttpRequest();
-	xhr.open("POST", url, true);
+	xhr.open("POST", url);
 	xhr.setRequestHeader('xhr', 'xhr');
 	var form = new FormData()
 	form.append("formkey", formkey());
@@ -15,10 +15,10 @@ function post_toast_callback(url, data, callback) {
 	xhr.onload = function() {
 		let result = callback(xhr);
 		if (xhr.status >= 200 && xhr.status < 300) {
-			var myToast = new bootstrap.Toast(document.getElementById('toast-post-error'));
+			var myToast = bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-post-error'));
 			myToast.hide();
 
-			var myToast = new bootstrap.Toast(document.getElementById('toast-post-success'));
+			var myToast = bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-post-success'));
 			myToast.show();
 
 			try {
@@ -32,10 +32,10 @@ function post_toast_callback(url, data, callback) {
 
 			return true;
 		} else {
-			var myToast = new bootstrap.Toast(document.getElementById('toast-post-success'));
+			var myToast = bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-post-success'));
 			myToast.hide();
 
-			var myToast = new bootstrap.Toast(document.getElementById('toast-post-error'));
+			var myToast = bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-post-error'));
 			myToast.show();
 
 			try {
@@ -81,8 +81,11 @@ function updateBux(mobile=false) {
 }
 
 function transferCoins(mobile=false) {
-	let t = event.target;
-	t.disabled = true;
+	for(let el of document.getElementsByClassName('profile-toggleable')) {
+		el.classList.add('d-none');
+	}
+
+	this.disabled = true;
 
 	let amount = parseInt(document.getElementById("coin-transfer-amount").value);
 	let transferred = amount - Math.ceil(amount*TRANSFER_TAX);
@@ -99,12 +102,15 @@ function transferCoins(mobile=false) {
 		}
 	);
 
-	setTimeout(_ => t.disabled = false, 2000);
+	setTimeout(_ => this.disabled = false, 2000);
 }
 
 function transferBux(mobile=false) {
-	let t = event.target;
-	t.disabled = true;
+	for(let el of document.getElementsByClassName('profile-toggleable')) {
+		el.classList.add('d-none');
+	}
+
+	this.disabled = true;
 
 	let amount = parseInt(document.getElementById("bux-transfer-amount").value);
 	let username = document.getElementById('username').innerHTML
@@ -120,7 +126,7 @@ function transferBux(mobile=false) {
 		}
 	);
 
-	setTimeout(_ => t.disabled = false, 2000);
+	setTimeout(_ => this.disabled = false, 2000);
 }
 
 function submitFormAjax(e) {
@@ -143,7 +149,7 @@ function submitFormAjax(e) {
 	}
 	actionPath = form.getAttribute("action");
 
-	xhr.open("POST", actionPath, true);
+	xhr.open("POST", actionPath);
 	xhr.setRequestHeader('xhr', 'xhr');
 
 	xhr.onload = function() {
@@ -154,7 +160,7 @@ function submitFormAjax(e) {
 			} catch(e) {
 				document.getElementById('toast-post-success-text').innerText = "Action successful!";
 			}
-			var myToast = new bootstrap.Toast(document.getElementById('toast-post-success'));
+			var myToast = bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-post-success'));
 			myToast.show();
 			return true
 		} else if (xhr.status >= 300 && xhr.status < 400) {
@@ -163,13 +169,13 @@ function submitFormAjax(e) {
 			document.getElementById('toast-post-error-text').innerText = "Error, please try again later."
 			try {
 				let data=JSON.parse(xhr.response);
-				var myToast = new bootstrap.Toast(document.getElementById('toast-post-error'));
+				var myToast = bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-post-error'));
 				myToast.show();
 				document.getElementById('toast-post-error-text').innerText = data["error"];
 			} catch(e) {
-				var myToast = new bootstrap.Toast(document.getElementById('toast-post-success'));
+				var myToast = bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-post-success'));
 				myToast.hide();
-				var myToast = new bootstrap.Toast(document.getElementById('toast-post-error'));
+				var myToast = bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-post-error'));
 				myToast.show();
 			}
 		}

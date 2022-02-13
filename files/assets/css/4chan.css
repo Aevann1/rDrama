@@ -2,10 +2,10 @@
 
 :root {
 	--dark: #3E2C18;
-	--secondary: #F0E0D6;
+	--secondary: #FFE;
 	--white: #F1E7D0;
 	--black: #433434;
-	--light: #F0E0D6;
+	--light: #FFE;
 	--muted: #AA9881;
 	--gray: #AA9881;
 	--gray-100: #817261;
@@ -13,16 +13,10 @@
 	--gray-300: #433434;
 	--gray-400: #AA9881;
 	--gray-500: #F0E0D6;
-	--gray-600: #F0E0D6;
+	--gray-600: #FFE;
 	--gray-700: #F0E0D6;
 	--gray-800: #F0E0D6;
 	--gray-900: #F0E0D6;
-
-}
-
-
-blockquote {
-	background-color: #c0c0c0;
 }
 
 .text-muted {
@@ -59,7 +53,7 @@ body, #main-content-col {
 	border-color: #D9BFB7 !important
 	}
 .post-title a {
-	color: #800000 !important;
+	color: #cc1105 !important;
 	}
 .comment, .card {
 	background-color: var(--secondary) !important;
@@ -72,11 +66,11 @@ body, #main-content-col {
 	color: #F00 !important
 	}
 a {
-	color: var(--primary);
+	color: #00e;
 }
 
 blockquote p {
-	color: green !important;
+	color: #789922 !important;
 }
 
 .transparent {
@@ -93,4 +87,60 @@ blockquote p {
 
 #profilestuff > * {
 	color: #cfcfcf !important;
+}
+
+.comment {
+    background-color: var(--gray-700) !important;
+}
+
+.navbar-light, .navbar .container-fluid, #mobile-bottom-navigation-bar {
+    background:#ffe url(https://i.imgur.com/kAfDGxF.png);
+    background-size: contain;
+}
+
+blockquote {
+	background-color: transparent;
+    border-color: #789922 !important;
+    border-width: 1px !important;
+}
+
+blockquote a {
+    color: navy;
+}
+
+.comment-collapse-desktop {
+    border-color: maroon !important;
+    border-width: 1px !important;
+}
+
+.score-up, .active.arrow-up::before, .arrow-up::after, .arrow-up:hover::before {
+    color: maroon !important;
+}
+
+.score-down, .active.arrow-down::before, .arrow-down::after, .arrow-down:hover::before {
+    color: maroon !important;
+}
+
+.arrow-up::before, .arrow-down::before, .score {
+    color: var(--gray-400);
+}
+
+.srd {
+    background-color: var(--gray-700) !important;
+}
+
+.srd a {
+    color: maroon !important;
+}
+
+:root {
+    --primary: maroon;
+}
+
+.caction {
+    color: var(--gray-400) !important;
+}
+
+.user-name span {
+    color: #117743 !important;
 }

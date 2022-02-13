@@ -8,8 +8,18 @@
 						<li class="nav-item">
 							<a class="nav-link active emojitab" data-bs-toggle="tab" href="#emoji-tab-favorite">Favorite</a>
 						</li>
+
+						{% if SITE_NAME == 'Ruqqus' %}
+							<li class="nav-item">
+								<a class="nav-link emojitab" data-bs-toggle="tab" href="#emoji-tab-ruqqie">Ruqqie</a>
+							</li>
+						{% endif %}
+
 						<li class="nav-item">
 							<a class="nav-link emojitab" data-bs-toggle="tab" href="#emoji-tab-marsey">Marsey</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link emojitab" data-bs-toggle="tab" href="#emoji-tab-marseyalphabet">Marsey Alphabet</a>
 						</li>
 						<li class="nav-item">
 							<a class="nav-link emojitab" data-bs-toggle="tab" href="#emoji-tab-platy">Platy</a>
@@ -37,7 +47,7 @@
 						</li>
 					</ul>
 				</div>
-				<button role="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+				<button class="close" data-bs-dismiss="modal" aria-label="Close">
 					<i class="fal fa-times text-muted"></i>
 				</button>
 			</div>
@@ -52,8 +62,18 @@
 						<div class="tab-pane fade show active" id="emoji-tab-favorite">
 							<div class="d-flex flex-wrap py-3 pl-2" id="EMOJIS_favorite"></div>
 						</div>
+
+						{% if SITE_NAME == 'Ruqqus' %}
+							<div class="tab-pane fade" id="emoji-tab-ruqqie">
+								<div class="d-flex flex-wrap py-3 pl-2" id="EMOJIS_ruqqie"></div>
+							</div>
+						{% endif %}
+
 						<div class="tab-pane fade" id="emoji-tab-marsey">
 							<div class="d-flex flex-wrap py-3 pl-2" id="EMOJIS_marsey"></div>
+						</div>
+						<div class="tab-pane fade" id="emoji-tab-marseyalphabet">
+							<div class="d-flex flex-wrap py-3 pl-2" id="EMOJIS_marseyalphabet"></div>
 						</div>
 						<div class="tab-pane fade" id="emoji-tab-platy">
 							<div class="d-flex flex-wrap py-3 pl-2" id="EMOJIS_platy"></div>
@@ -86,7 +106,7 @@
 	</div>
 </div>
 
-<script data-cfasync="false" src="/static/assets/js/emoji_modal.js?a=238"></script>
+<script data-cfasync="false" src="/static/assets/js/emoji_modal.js?a=244"></script>
 
 <style>
 	a.emojitab {

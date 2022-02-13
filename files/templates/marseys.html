@@ -11,11 +11,11 @@
 		<th style="font-weight: bold">Name</th>
 		<th style="font-weight: bold">Marsey</th>
 		<th style="font-weight: bold">Usage</th>
-		{% if request.host == 'rdrama.net' %}<th style="font-weight: bold">Author</th>{% endif %}
+		{% if SITE_NAME == 'Drama' %}<th style="font-weight: bold">Author</th>{% endif %}
 	</tr>
 </thead>
 <tbody id="followers-table">
-{% if request.host == 'rdrama.net' %}
+{% if SITE_NAME == 'Drama' %}
 	{% for marsey, author in marseys %}
 		<tr>
 			<td style="font-weight: bold">{{loop.index}}</td>

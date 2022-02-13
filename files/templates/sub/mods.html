@@ -1,0 +1,45 @@
+{% extends "default.html" %}
+{% block content %}
+<pre>
+
+	
+</pre>
+<h5>/s/{{sub.name}} Mods</h5>
+<pre></pre>
+<div class="overflow-x-auto"><table class="table table-striped mb-5">
+<thead class="bg-primary text-white">
+	<tr>
+		<th style="font-weight: bold">#</th>
+		<th style="font-weight: bold">Name</th>
+		<th style="font-weight: bold">Mod since</th>
+		<th style="font-weight: bold"></th>
+	</tr>
+</thead>
+{% for user, mod in users %}
+	<tr>
+		<td style="font-weight: bold">{{loop.index}}</td>
+		<td><a style="color:#{{user.namecolor}};  font-weight:bold;" href="/@{{user.username}}"><img alt="@{{user.username}}'s profile picture" loading="lazy" src="{{user.profile_url}}" class="pp20"><span {% if user.patron %}class="patron" style="background-color:#{{user.namecolor}}"{% endif %}>{{user.username}}</span></a></td>
+		<td style="font-weight: bold">{{mod.created_datetime}}</td>
+		<td>
+			{% if v.id == user.id or v.mod_date(sub.name) and v.mod_date(sub.name) < mod.created_utc %}
+				<form action="/s/{{sub.name}}/remove_mod" method="post">
+					<input autocomplete="off" type="hidden" name="formkey" value="{{v.formkey}}" >
+					<input autocomplete="off" type="hidden" name="uid" value="{{user.id}}">
+					<input class="btn btn-primary" style="margin-top:-5px" autocomplete="off" class="btn btn-primary ml-auto" type="submit" value="{% if v.id == user.id %}Resign{% else %}Remove Mod{% endif %}">
+				</form>
+			{% endif %}
+		</td>
+	</tr>
+{% endfor %}
+
+</table>
+
+{% if v.mods(sub.name) %}
+	<form action="/s/{{sub.name}}/add_mod" method="post">
+		<input autocomplete="off" type="hidden" name="formkey" value="{{v.formkey}}" >
+		<input class="form-control" style="display:inline;width:25%" autocomplete="off" type="text" name="user" class="form-control" placeholder="Enter username..">
+		<input class="btn btn-primary" style="margin-top:-5px" autocomplete="off" class="btn btn-primary ml-auto" type="submit" value="Add Mod">
+	</form>
+{% endif %}
+
+{% endblock %}

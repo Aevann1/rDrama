@@ -1,6 +1,5 @@
 from sqlalchemy import *
 from files.__main__ import Base
-from files.helpers.lazy import lazy
 
 class Marsey(Base):
 	__tablename__ = "marseys"

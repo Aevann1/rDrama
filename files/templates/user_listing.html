@@ -13,9 +13,9 @@
 
 					{% if v %}
 						{% if v.id!=u.id and not u.is_private and not u.is_nofollow %}
-						<div id="button-sub-{{u.id}}" style="z-index: 2" class="{% if u.has_follower(v) %}d-none{% endif %}"><a class="btn btn-primary " role="button" onclick="post_toast2('/follow/{{u.username}}','button-sub-{{u.id}}','button-unsub-{{u.id}}')">Follow</a></div>
+						<div id="button-sub-{{u.id}}" style="z-index: 2" class="{% if u.has_follower(v) %}d-none{% endif %}"><a class="btn btn-primary " role="button" onclick="post_toast2(this,'/follow/{{u.username}}','button-sub-{{u.id}}','button-unsub-{{u.id}}')">Follow</a></div>
 
-						{% if not u.fish %}<div id="button-unsub-{{u.id}}" style="z-index: 2" class="{% if not u.has_follower(v) %} d-none{% endif %}"><a class="btn btn-secondary " role="button" onclick="post_toast2('/unfollow/{{u.username}}','button-sub-{{u.id}}','button-unsub-{{u.id}}')">Unfollow</a></div>{% endif %}
+						{% if not u.fish %}<div id="button-unsub-{{u.id}}" style="z-index: 2" class="{% if not u.has_follower(v) %} d-none{% endif %}"><a class="btn btn-secondary " role="button" onclick="post_toast2(this,'/unfollow/{{u.username}}','button-sub-{{u.id}}','button-unsub-{{u.id}}')">Unfollow</a></div>{% endif %}
 						{% endif %}
 					{% else %}
 					<div id="button-sub-{{u.id}}" style="z-index: 2" "><a class="btn btn-primary " href="/signup?redirect={{request.path}}">Follow</a></div>

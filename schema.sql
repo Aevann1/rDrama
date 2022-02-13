@@ -70,7 +70,7 @@ CREATE TABLE public.alts (
     id integer NOT NULL,
     user1 integer NOT NULL,
     user2 integer NOT NULL,
-    is_manual boolean DEFAULT false,
+    is_manual boolean DEFAULT false NOT NULL,
     CONSTRAINT alts_cant_be_equal CHECK ((user1 <> user2))
 );
 
@@ -101,10 +101,10 @@ ALTER SEQUENCE public.alts_id_seq OWNED BY public.alts.id;
 
 CREATE TABLE public.award_relationships (
     id integer NOT NULL,
-    user_id integer,
+    user_id integer NOT NULL,
     submission_id integer,
     comment_id integer,
-    kind character varying(20)
+    kind character varying(20) NOT NULL
 );
 
 
@@ -165,8 +165,8 @@ ALTER SEQUENCE public.badge_defs_id_seq OWNED BY public.badge_defs.id;
 
 CREATE TABLE public.badges (
     id integer NOT NULL,
-    badge_id integer,
-    user_id integer,
+    badge_id integer NOT NULL,
+    user_id integer NOT NULL,
     description character varying(256),
     url character varying(256)
 );
@@ -198,8 +198,8 @@ ALTER SEQUENCE public.badges_id_seq OWNED BY public.badges.id;
 
 CREATE TABLE public.banneddomains (
     id integer NOT NULL,
-    domain character varying(100),
-    reason character varying(100)
+    domain character varying(100) NOT NULL,
+    reason character varying(100) NOT NULL
 );
 
 
@@ -209,9 +209,9 @@ CREATE TABLE public.banneddomains (
 
 CREATE TABLE public.client_auths (
     id integer NOT NULL,
-    user_id integer,
-    oauth_client integer,
-    access_token character(128)
+    user_id integer NOT NULL,
+    oauth_client integer NOT NULL,
+    access_token character(128) NOT NULL
 );
 
 
@@ -241,8 +241,8 @@ ALTER SEQUENCE public.client_auths_id_seq OWNED BY public.client_auths.id;
 
 CREATE TABLE public.commentflags (
     id integer NOT NULL,
-    user_id integer,
-    comment_id integer,
+    user_id integer NOT NULL,
+    comment_id integer NOT NULL,
     reason character varying(350)
 );
 
@@ -273,22 +273,20 @@ ALTER SEQUENCE public.commentflags_id_seq OWNED BY public.commentflags.id;
 
 CREATE TABLE public.comments (
     id integer NOT NULL,
-    author_id integer,
+    author_id integer NOT NULL,
     created_utc integer NOT NULL,
     parent_submission integer,
-    is_banned boolean,
-    distinguish_level integer,
-    edited_utc integer,
-    deleted_utc integer NOT NULL,
-    is_approved integer NOT NULL,
-    author_name character varying(64),
-    approved_utc integer,
-    level integer,
+    is_banned boolean DEFAULT false NOT NULL,
+    distinguish_level integer DEFAULT 0 NOT NULL,
+    edited_utc integer DEFAULT 0 NOT NULL,
+    deleted_utc integer DEFAULT 0 NOT NULL,
+    is_approved integer DEFAULT 0 NOT NULL,
+    level integer DEFAULT 0 NOT NULL,
     parent_comment_id integer,
-    over_18 boolean,
-    upvotes integer,
-    downvotes integer,
-    is_bot boolean DEFAULT false,
+    over_18 boolean DEFAULT false NOT NULL,
+    upvotes integer DEFAULT 1 NOT NULL,
+    downvotes integer DEFAULT 0 NOT NULL,
+    is_bot boolean DEFAULT false NOT NULL,
     app_id integer,
     sentto integer,
     bannedfor boolean,
@@ -296,7 +294,7 @@ CREATE TABLE public.comments (
     body character varying(10000),
     body_html character varying(40000),
     ban_reason character varying(25),
-    realupvotes integer,
+    realupvotes integer DEFAULT 1 NOT NULL,
     top_comment_id integer,
     is_pinned_utc integer,
     ghost boolean,
@@ -332,12 +330,11 @@ ALTER SEQUENCE public.comments_id_seq OWNED BY public.comments.id;
 
 CREATE TABLE public.commentvotes (
     id integer NOT NULL,
-    comment_id integer,
-    vote_type integer,
-    user_id integer,
-    creation_ip character(64),
+    comment_id integer NOT NULL,
+    vote_type integer NOT NULL,
+    user_id integer NOT NULL,
     app_id integer,
-    "real" boolean
+    "real" boolean DEFAULT true NOT NULL
 );
 
 
@@ -387,8 +384,8 @@ ALTER SEQUENCE public.domains_id_seq OWNED BY public.banneddomains.id;
 
 CREATE TABLE public.flags (
     id integer NOT NULL,
-    user_id integer,
-    post_id integer,
+    user_id integer NOT NULL,
+    post_id integer NOT NULL,
     reason character varying(350)
 );
 
@@ -419,8 +416,8 @@ ALTER SEQUENCE public.flags_id_seq OWNED BY public.flags.id;
 
 CREATE TABLE public.follows (
     id integer NOT NULL,
-    user_id integer,
-    target_id integer
+    user_id integer NOT NULL,
+    target_id integer NOT NULL
 );
 
 
@@ -466,7 +463,7 @@ CREATE TABLE public.modactions (
     target_user_id integer,
     target_submission_id integer,
     target_comment_id integer,
-    created_utc integer DEFAULT 0,
+    created_utc integer NOT NULL,
     kind character varying(32) DEFAULT NULL::character varying,
     _note character varying(256) DEFAULT NULL::character varying
 );
@@ -493,13 +490,24 @@ ALTER SEQUENCE public.modactions_id_seq OWNED BY public.modactions.id;
 
 
 --
+-- Name: mods; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.mods (
+    user_id integer NOT NULL,
+    sub character varying(20) NOT NULL,
+    created_utc integer
+);
+
+
+--
 -- Name: notifications; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.notifications (
     id integer NOT NULL,
-    user_id integer,
-    comment_id integer,
+    user_id integer NOT NULL,
+    comment_id integer NOT NULL,
     read boolean NOT NULL
 );
 
@@ -530,11 +538,11 @@ ALTER SEQUENCE public.notifications_id_seq OWNED BY public.notifications.id;
 
 CREATE TABLE public.oauth_apps (
     id integer NOT NULL,
-    client_id character(64),
-    app_name character varying(50),
-    redirect_uri character varying(4096),
-    author_id integer,
-    description character varying(256)
+    client_id character(64) NOT NULL,
+    app_name character varying(50) NOT NULL,
+    redirect_uri character varying(4096) NOT NULL,
+    author_id integer NOT NULL,
+    description character varying(256) NOT NULL
 );
 
 
@@ -565,7 +573,7 @@ ALTER SEQUENCE public.oauth_apps_id_seq OWNED BY public.oauth_apps.id;
 CREATE TABLE public.save_relationship (
     id integer NOT NULL,
     submission_id integer,
-    user_id integer,
+    user_id integer NOT NULL,
     comment_id integer
 );
 
@@ -596,38 +604,38 @@ ALTER SEQUENCE public.save_relationship_id_seq OWNED BY public.save_relationship
 
 CREATE TABLE public.submissions (
     id integer NOT NULL,
-    author_id integer,
+    author_id integer NOT NULL,
     created_utc integer NOT NULL,
-    is_banned boolean,
-    over_18 boolean,
-    distinguish_level integer,
-    deleted_utc integer NOT NULL,
-    domain_ref integer,
-    is_approved integer NOT NULL,
-    edited_utc integer,
-    is_pinned boolean,
-    upvotes integer,
-    downvotes integer,
+    is_banned boolean DEFAULT false NOT NULL,
+    over_18 boolean DEFAULT false NOT NULL,
+    distinguish_level integer DEFAULT 0 NOT NULL,
+    deleted_utc integer DEFAULT 0 NOT NULL,
+    is_approved integer DEFAULT 0 NOT NULL,
+    edited_utc integer DEFAULT 0 NOT NULL,
+    is_pinned boolean DEFAULT false NOT NULL,
+    upvotes integer DEFAULT 1 NOT NULL,
+    downvotes integer DEFAULT 0 NOT NULL,
     app_id integer,
     thumburl character varying(60),
-    private boolean,
-    views integer,
-    is_bot boolean,
+    private boolean DEFAULT false NOT NULL,
+    views integer DEFAULT 0 NOT NULL,
+    is_bot boolean DEFAULT false NOT NULL,
     bannedfor boolean,
-    comment_count integer DEFAULT 0,
-    club boolean,
+    comment_count integer DEFAULT 0 NOT NULL,
+    club boolean DEFAULT false NOT NULL,
     stickied character varying(40),
-    title character varying(500),
+    title character varying(500) NOT NULL,
     url character varying(2083),
     body character varying(20000),
     body_html character varying(40000),
     embed_url character varying(1500),
     ban_reason character varying(25),
-    title_html character varying(1500),
+    title_html character varying(1500) NOT NULL,
     realupvotes integer,
     flair character varying(350),
     stickied_utc integer,
-    ghost boolean
+    ghost boolean,
+    sub character varying(20)
 );
 
 
@@ -652,14 +660,27 @@ ALTER SEQUENCE public.submissions_id_seq OWNED BY public.submissions.id;
 
 
 --
+-- Name: subs; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.subs (
+    name character varying(20) NOT NULL,
+    sidebar character varying(500),
+    sidebar_html character varying(1000),
+    sidebarurl character varying(60),
+    bannerurl character varying(60),
+    css character varying(4000)
+);
+
+
+--
 -- Name: subscriptions; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.subscriptions (
     id integer NOT NULL,
-    user_id integer,
-    board_id integer,
-    submission_id integer
+    user_id integer NOT NULL,
+    submission_id integer NOT NULL
 );
 
 
@@ -689,8 +710,8 @@ ALTER SEQUENCE public.subscriptions_id_seq OWNED BY public.subscriptions.id;
 
 CREATE TABLE public.userblocks (
     id integer NOT NULL,
-    user_id integer,
-    target_id integer
+    user_id integer NOT NULL,
+    target_id integer NOT NULL
 );
 
 
@@ -724,71 +745,70 @@ CREATE TABLE public.users (
     email character varying(255),
     passhash character varying(255) NOT NULL,
     created_utc integer NOT NULL,
-    admin_level integer,
-    over_18 boolean,
-    is_activated boolean,
+    admin_level integer DEFAULT 0 NOT NULL,
+    over_18 boolean DEFAULT false NOT NULL,
+    is_activated boolean DEFAULT false NOT NULL,
     bio character varying(1500),
     bio_html character varying(10000),
     referred_by integer,
-    is_banned integer,
+    is_banned integer DEFAULT 0 NOT NULL,
     ban_reason character varying(256),
-    login_nonce integer,
+    login_nonce integer DEFAULT 0 NOT NULL,
     reserved character varying(256),
     mfa_secret character varying(32),
-    is_private boolean,
-    unban_utc integer,
-    is_nofollow boolean DEFAULT false,
+    is_private boolean DEFAULT false NOT NULL,
+    unban_utc integer DEFAULT 0 NOT NULL,
+    is_nofollow boolean DEFAULT false NOT NULL,
     custom_filter_list character varying(1000) DEFAULT ''::character varying,
     discord_id character varying(64),
-    stored_subscriber_count integer DEFAULT 0,
-    ban_evade integer DEFAULT 0,
+    stored_subscriber_count integer DEFAULT 0 NOT NULL,
+    ban_evade integer DEFAULT 0 NOT NULL,
     original_username character varying(255),
     customtitle character varying(1000),
-    defaultsorting character varying(15),
-    defaulttime character varying(5),
-    namecolor character varying(6),
-    titlecolor character varying(6),
+    defaultsorting character varying(15) DEFAULT 'hot'::character varying NOT NULL,
+    defaulttime character varying(5) NOT NULL,
+    namecolor character varying(6) NOT NULL,
+    titlecolor character varying(6) NOT NULL,
     profileurl character varying(65),
     bannerurl character varying(65),
-    hidevotedon boolean,
-    newtab boolean,
+    hidevotedon boolean DEFAULT false NOT NULL,
+    newtab boolean DEFAULT false NOT NULL,
     flairchanged integer,
-    defaultsortingcomments character varying(15),
-    theme character varying(15),
+    defaultsortingcomments character varying(15) DEFAULT 'top'::character varying NOT NULL,
+    theme character varying(15) NOT NULL,
     song character varying(50),
-    slurreplacer boolean,
+    slurreplacer boolean DEFAULT true NOT NULL,
     shadowbanned character varying(25),
-    newtabexternal boolean,
+    newtabexternal boolean DEFAULT true NOT NULL,
     customtitleplain character varying(100),
-    themecolor character varying(6),
-    changelogsub boolean,
-    oldreddit boolean,
+    themecolor character varying(6) NOT NULL,
+    changelogsub boolean DEFAULT false NOT NULL,
+    oldreddit boolean DEFAULT true NOT NULL,
     css character varying(4000),
     profilecss character varying(4000),
-    coins integer,
-    agendaposter boolean,
-    agendaposter_expires_utc integer DEFAULT 0,
-    suicide_utc integer,
-    post_count integer,
-    comment_count integer,
+    coins integer DEFAULT 0 NOT NULL,
+    agendaposter integer DEFAULT 0 NOT NULL,
+    suicide_utc integer DEFAULT 0 NOT NULL,
+    post_count integer DEFAULT 0 NOT NULL,
+    comment_count integer DEFAULT 0 NOT NULL,
     highres character varying(60),
-    rent_utc integer,
-    patron integer,
-    controversial boolean,
+    rent_utc integer DEFAULT 0 NOT NULL,
+    patron integer DEFAULT 0 NOT NULL,
+    controversial boolean DEFAULT false NOT NULL,
     background character varying(20),
     verified character varying(20),
-    fail_utc integer,
-    steal_utc integer,
-    fail2_utc integer,
-    cardview boolean,
-    received_award_count integer,
-    highlightcomments boolean,
+    fail_utc integer DEFAULT 0 NOT NULL,
+    steal_utc integer DEFAULT 0 NOT NULL,
+    fail2_utc integer DEFAULT 0 NOT NULL,
+    cardview boolean NOT NULL,
+    received_award_count integer DEFAULT 0 NOT NULL,
+    highlightcomments boolean DEFAULT true NOT NULL,
     nitter boolean,
-    truecoins integer,
-    club_allowed boolean DEFAULT false,
-    frontsize integer,
-    coins_spent integer,
-    procoins integer,
+    truecoins integer DEFAULT 0 NOT NULL,
+    club_allowed boolean,
+    frontsize integer DEFAULT 25 NOT NULL,
+    coins_spent integer DEFAULT 0 NOT NULL,
+    procoins integer DEFAULT 0 NOT NULL,
     mute boolean,
     unmutable boolean,
     verifiedcolor character varying(6),
@@ -808,11 +828,14 @@ CREATE TABLE public.users (
     teddit boolean,
     bird integer,
     fish boolean,
-    lootboxes_bought integer,
+    lootboxes_bought integer DEFAULT 0 NOT NULL,
     progressivestack integer,
-    winnings integer,
-    patron_utc integer,
-    rehab integer
+    winnings integer DEFAULT 0 NOT NULL,
+    patron_utc integer DEFAULT 0 NOT NULL,
+    rehab integer,
+    nwordpass boolean,
+    house character varying(8),
+    subs_created integer DEFAULT 0 NOT NULL
 );
 
 
@@ -842,9 +865,9 @@ ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
 
 CREATE TABLE public.viewers (
     id integer NOT NULL,
-    user_id integer,
-    viewer_id integer,
-    last_view_utc integer
+    user_id integer NOT NULL,
+    viewer_id integer NOT NULL,
+    last_view_utc integer NOT NULL
 );
 
 
@@ -875,11 +898,10 @@ ALTER SEQUENCE public.viewers_id_seq OWNED BY public.viewers.id;
 CREATE TABLE public.votes (
     id integer NOT NULL,
     user_id integer NOT NULL,
-    submission_id integer,
-    vote_type integer,
-    creation_ip character(64),
+    submission_id integer NOT NULL,
+    vote_type integer NOT NULL,
     app_id integer,
-    "real" boolean
+    "real" boolean DEFAULT true NOT NULL
 );
 
 
@@ -1075,6 +1097,14 @@ ALTER TABLE ONLY public.award_relationships
 
 
 --
+-- Name: badge_defs badge_def_name_unique; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.badge_defs
+    ADD CONSTRAINT badge_def_name_unique UNIQUE (name);
+
+
+--
 -- Name: badge_defs badge_defs_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1179,6 +1209,14 @@ ALTER TABLE ONLY public.modactions
 
 
 --
+-- Name: mods mods_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.mods
+    ADD CONSTRAINT mods_pkey PRIMARY KEY (user_id, sub);
+
+
+--
 -- Name: notifications notifications_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1195,6 +1233,46 @@ ALTER TABLE ONLY public.oauth_apps
 
 
 --
+-- Name: client_auths one_auth; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.client_auths
+    ADD CONSTRAINT one_auth UNIQUE (user_id, oauth_client);
+
+
+--
+-- Name: users one_banner; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT one_banner UNIQUE (bannerurl);
+
+
+--
+-- Name: userblocks one_block; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.userblocks
+    ADD CONSTRAINT one_block UNIQUE (user_id, target_id);
+
+
+--
+-- Name: commentflags one_comment_flag; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.commentflags
+    ADD CONSTRAINT one_comment_flag UNIQUE (user_id, comment_id);
+
+
+--
+-- Name: save_relationship one_comment_save; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.save_relationship
+    ADD CONSTRAINT one_comment_save UNIQUE (comment_id, user_id);
+
+
+--
 -- Name: users one_discord_account; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1203,11 +1281,59 @@ ALTER TABLE ONLY public.users
 
 
 --
+-- Name: flags one_flag; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.flags
+    ADD CONSTRAINT one_flag UNIQUE (user_id, post_id);
+
+
+--
+-- Name: follows one_follow; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.follows
+    ADD CONSTRAINT one_follow UNIQUE (user_id, target_id);
+
+
+--
 -- Name: notifications one_notif; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.notifications
     ADD CONSTRAINT one_notif UNIQUE (user_id, comment_id);
+
+
+--
+-- Name: users one_profile_url; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT one_profile_url UNIQUE (profileurl);
+
+
+--
+-- Name: save_relationship one_save; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.save_relationship
+    ADD CONSTRAINT one_save UNIQUE (submission_id, user_id);
+
+
+--
+-- Name: subscriptions one_subscription; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.subscriptions
+    ADD CONSTRAINT one_subscription UNIQUE (user_id, submission_id);
+
+
+--
+-- Name: viewers one_view; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.viewers
+    ADD CONSTRAINT one_view UNIQUE (user_id, viewer_id);
 
 
 --
@@ -1227,14 +1353,6 @@ ALTER TABLE ONLY public.votes
 
 
 --
--- Name: save_relationship save_constraint; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.save_relationship
-    ADD CONSTRAINT save_constraint UNIQUE (submission_id, user_id);
-
-
---
 -- Name: save_relationship save_relationship_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1251,11 +1369,27 @@ ALTER TABLE ONLY public.submissions
 
 
 --
+-- Name: subs subs_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.subs
+    ADD CONSTRAINT subs_pkey PRIMARY KEY (name);
+
+
+--
 -- Name: subscriptions subscriptions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.subscriptions
     ADD CONSTRAINT subscriptions_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: users uid_unique; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT uid_unique UNIQUE (id);
 
 
 --
@@ -1487,17 +1621,17 @@ CREATE INDEX discord_id_idx ON public.users USING btree (discord_id);
 
 
 --
--- Name: domain_ref_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX domain_ref_idx ON public.submissions USING btree (domain_ref);
-
-
---
 -- Name: domains_domain_trgm_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX domains_domain_trgm_idx ON public.banneddomains USING gin (domain public.gin_trgm_ops);
+
+
+--
+-- Name: fki_comments_author_id_fkey; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX fki_comments_author_id_fkey ON public.comments USING btree (author_id);
 
 
 --
@@ -1578,6 +1712,13 @@ CREATE INDEX modaction_pid_idx ON public.modactions USING btree (target_submissi
 
 
 --
+-- Name: mods_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX mods_idx ON public.mods USING btree (user_id);
+
+
+--
 -- Name: notification_read_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1641,13 +1782,6 @@ CREATE INDEX subimssion_binary_group_idx ON public.submissions USING btree (is_b
 
 
 --
--- Name: submission_domainref_index; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX submission_domainref_index ON public.submissions USING btree (domain_ref);
-
-
---
 -- Name: submission_isbanned_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1697,10 +1831,10 @@ CREATE INDEX submissions_over18_index ON public.submissions USING btree (over_18
 
 
 --
--- Name: subscription_board_index; Type: INDEX; Schema: public; Owner: -
+-- Name: subs_idx; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX subscription_board_index ON public.subscriptions USING btree (board_id);
+CREATE INDEX subs_idx ON public.subs USING btree (name);
 
 
 --
@@ -1795,6 +1929,54 @@ CREATE INDEX votes_type_index ON public.votes USING btree (vote_type);
 
 
 --
+-- Name: alts alt_user1_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.alts
+    ADD CONSTRAINT alt_user1_fkey FOREIGN KEY (user1) REFERENCES public.users(id);
+
+
+--
+-- Name: alts alt_user2_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.alts
+    ADD CONSTRAINT alt_user2_fkey FOREIGN KEY (user2) REFERENCES public.users(id);
+
+
+--
+-- Name: oauth_apps app_author_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.oauth_apps
+    ADD CONSTRAINT app_author_id_fkey FOREIGN KEY (author_id) REFERENCES public.users(id);
+
+
+--
+-- Name: award_relationships award_comment_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.award_relationships
+    ADD CONSTRAINT award_comment_fkey FOREIGN KEY (comment_id) REFERENCES public.comments(id);
+
+
+--
+-- Name: award_relationships award_submission_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.award_relationships
+    ADD CONSTRAINT award_submission_fkey FOREIGN KEY (submission_id) REFERENCES public.submissions(id);
+
+
+--
+-- Name: award_relationships award_user_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.award_relationships
+    ADD CONSTRAINT award_user_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
 -- Name: badges badges_badge_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1803,11 +1985,35 @@ ALTER TABLE ONLY public.badges
 
 
 --
+-- Name: badges badges_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.badges
+    ADD CONSTRAINT badges_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- Name: client_auths client_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.client_auths
+    ADD CONSTRAINT client_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
 -- Name: commentflags commentflags_comment_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.commentflags
     ADD CONSTRAINT commentflags_comment_id_fkey FOREIGN KEY (comment_id) REFERENCES public.comments(id);
+
+
+--
+-- Name: comments comments_author_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.comments
+    ADD CONSTRAINT comments_author_id_fkey FOREIGN KEY (author_id) REFERENCES public.users(id);
 
 
 --
@@ -1824,4 +2030,28 @@ ALTER TABLE ONLY public.flags
 
 ALTER TABLE ONLY public.notifications
     ADD CONSTRAINT notifications_comment_id_fkey FOREIGN KEY (comment_id) REFERENCES public.comments(id);
+
+
+--
+-- Name: client_auths oauth_client_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.client_auths
+    ADD CONSTRAINT oauth_client_fkey FOREIGN KEY (oauth_client) REFERENCES public.oauth_apps(id);
+
+
+--
+-- Name: submissions sub_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.submissions
+    ADD CONSTRAINT sub_fkey FOREIGN KEY (sub) REFERENCES public.subs(name);
+
+
+--
+-- Name: mods user_mod_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.mods
+    ADD CONSTRAINT user_mod_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
 

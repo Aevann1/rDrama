@@ -13,11 +13,11 @@
 			<p class="text-muted">This user has enabled private mode to cloak their posting history.</p>
 			{% if u.id == LLM_ID %}
 				{% if v and v.coins > 500 and not v.is_suspended %}
-					<a class="btn btn-primary" role="button", onclick="post_toast('/pay_rent', '1')">Pay rent to view profile (500 coins)</a>
+					<a class="btn btn-primary" role="button", onclick="post_toast(this,'/pay_rent', '1')">Pay rent to view profile (500 coins)</a>
 				{% endif %}
 				<pre></pre>
 				{% if v and v.coins > 5000 and time - v.created_utc > 604800 and not v.is_suspended %}
-					<a class="btn btn-primary" role="button", onclick="post_toast('/steal', '1')">Attempt to steal coins</a>
+					<a class="btn btn-primary" role="button", onclick="post_toast(this,'/steal', '1')">Attempt to steal coins</a>
 					<div class="text-small-extra text-muted mt-1">Landlords, like all other men, love to reap where they never sowed.</div>
 				{% endif %}
 				<pre>
@@ -48,9 +48,9 @@
 
 {% if v %}
 <div id='tax' class="d-none">{% if v.patron or u.patron %}0{% else %}0.03{% endif %}</div>
-<script src="/static/assets/js/userpage_v.js?a=222"></script>
+<script src="/static/assets/js/userpage_v.js?a=242"></script>
 <div id="username" class="d-none">{{u.username}}</div>
 {% endif %}
 
-<script src="/static/assets/js/userpage.js?a=222"></script>
+<script src="/static/assets/js/userpage.js?a=240"></script>
 {% endblock %}

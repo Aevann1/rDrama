@@ -4,10 +4,7 @@ from files.helpers.const import *
 from files.classes import *
 from flask import *
 from files.__main__ import app, limiter, cache
-from sqlalchemy.orm import joinedload
 from os import environ
-
-defaultcolor = environ.get("DEFAULT_COLOR").strip()
 
 @app.get("/votes")
 @limiter.limit("5/second;60/minute;200/hour;1000/day")
@@ -24,35 +21,25 @@ def admin_vote_info_get(v):
 
 	if thing.ghost: abort(403)
 
+	if not thing.author:
+		print(thing.id, flush=True)
 	if isinstance(thing, Submission):
 		if thing.author.shadowbanned and not (v and v.admin_level):
 			thing_id = g.db.query(Submission.id).filter_by(upvotes=thing.upvotes, downvotes=thing.downvotes).order_by(Submission.id).first()[0]
 		else: thing_id = thing.id
 
-		ups = g.db.query(Vote
-						 ).options(joinedload(Vote.user)
-								   ).filter_by(submission_id=thing_id, vote_type=1
-											   ).order_by(Vote.id).all()
+		ups = g.db.query(Vote).filter_by(submission_id=thing_id, vote_type=1).order_by(Vote.id).all()
 
-		downs = g.db.query(Vote
-						   ).options(joinedload(Vote.user)
-									 ).filter_by(submission_id=thing_id, vote_type=-1
-												 ).order_by(Vote.id).all()
+		downs = g.db.query(Vote).filter_by(submission_id=thing_id, vote_type=-1).order_by(Vote.id).all()
 
 	elif isinstance(thing, Comment):
 		if thing.author.shadowbanned and not (v and v.admin_level):
 			thing_id = g.db.query(Comment.id).filter_by(upvotes=thing.upvotes, downvotes=thing.downvotes).order_by(Comment.id).first()[0]
 		else: thing_id = thing.id
 
-		ups = g.db.query(CommentVote
-						 ).options(joinedload(CommentVote.user)
-								   ).filter_by(comment_id=thing_id, vote_type=1
-											   ).order_by(CommentVote.id).all()
+		ups = g.db.query(CommentVote).filter_by(comment_id=thing_id, vote_type=1).order_by(CommentVote.id).all()
 
-		downs = g.db.query(CommentVote
-						   ).options(joinedload(CommentVote.user)
-									 ).filter_by(comment_id=thing_id, vote_type=-1
-												 ).order_by(CommentVote.id).all()
+		downs = g.db.query(CommentVote).filter_by(comment_id=thing_id, vote_type=-1 ).order_by(CommentVote.id).all()
 
 	else: abort(400)
 
@@ -60,7 +47,7 @@ def admin_vote_info_get(v):
 						   v=v,
 						   thing=thing,
 						   ups=ups,
-						   downs=downs,)
+						   downs=downs)
 
 
 
@@ -102,7 +89,7 @@ def api_vote_post(post_id, new, v):
 		post.author.coins += 1
 		post.author.truecoins += 1
 		g.db.add(post.author)
-		real = new == -1 or (not v.agendaposter and not v.shadowbanned and (bool(v.profileurl) or bool(v.customtitle) or v.namecolor != defaultcolor))
+		real = new == -1 or (not v.agendaposter and not v.shadowbanned and (bool(v.profileurl) or bool(v.customtitle) or v.namecolor != DEFAULT_COLOR))
 		vote = Vote(user_id=v.id,
 					vote_type=new,
 					submission_id=post_id,
@@ -136,13 +123,11 @@ def api_vote_comment(comment_id, new, v):
 	new = int(new)
 
 	try: comment_id = int(comment_id)
-	except:
-		try: comment_id = int(comment_id, 36)
-		except: abort(404)
+	except: abort(404)
 
 	comment = get_comment(comment_id)
 
-	if comment.author_id == AUTOBETTER_ID: return {"error": "forbidden."}, 403
+	if comment.author_id in (AUTOPOLLER_ID,AUTOBETTER_ID,AUTOCHOICE_ID): return {"error": "forbidden."}, 403
 	
 	existing = g.db.query(CommentVote).filter_by(user_id=v.id, comment_id=comment.id).one_or_none()
 
@@ -167,7 +152,7 @@ def api_vote_comment(comment_id, new, v):
 		comment.author.coins += 1
 		comment.author.truecoins += 1
 		g.db.add(comment.author)
-		real = new == -1 or (not v.agendaposter and not v.shadowbanned and (bool(v.profileurl) or bool(v.customtitle) or v.namecolor != defaultcolor))
+		real = new == -1 or (not v.agendaposter and not v.shadowbanned and (bool(v.profileurl) or bool(v.customtitle) or v.namecolor != DEFAULT_COLOR))
 		vote = CommentVote(user_id=v.id,
 						vote_type=new,
 						comment_id=comment_id,
@@ -250,4 +235,38 @@ def bet(comment_id, v):
 	g.db.add(autobetter)
 
 	g.db.commit()
+	return "", 204
+
+@app.post("/vote/choice/<comment_id>")
+@auth_required
+def api_vote_choice(comment_id, v):
+
+	comment_id = int(comment_id)
+	comment = get_comment(comment_id)
+
+	existing = g.db.query(CommentVote).filter_by(user_id=v.id, comment_id=comment.id).one_or_none()
+
+	if existing and existing.vote_type == 1: return "", 204
+
+	if existing:
+		existing.vote_type = 1
+		g.db.add(existing)
+	else:
+		vote = CommentVote(user_id=v.id, vote_type=1, comment_id=comment.id)
+		g.db.add(vote)
+
+	if comment.parent_comment: parent = comment.parent_comment
+	else: parent = comment.post
+
+	for vote in parent.total_choice_voted(v):
+		vote.comment.upvotes = g.db.query(CommentVote.id).filter_by(comment_id=vote.comment.id, vote_type=1).count() - 1
+		g.db.add(vote.comment)
+		g.db.delete(vote)
+
+	try:
+		g.db.flush()
+		comment.upvotes = g.db.query(CommentVote.id).filter_by(comment_id=comment.id, vote_type=1).count()
+		g.db.add(comment)
+		g.db.commit()
+	except: g.db.rollback()
 	return "", 204
