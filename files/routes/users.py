@@ -888,6 +888,18 @@ def u_username_info(username, v=None):
 
 	return user.json
 
+@app.get("/<id>/info")
+@auth_required
+def u_user_id_info(id, v=None):
+
+	user=get_account(id, v=v)
+
+	if hasattr(user, 'is_blocking') and user.is_blocking:
+		return {"error": "You're blocking this user."}, 401
+	elif hasattr(user, 'is_blocked') and user.is_blocked:
+		return {"error": "This user is blocking you."}, 403
+
+	return user.json
 
 @app.post("/follow/<username>")
 @limiter.limit("1/second;30/minute;200/hour;1000/day")
