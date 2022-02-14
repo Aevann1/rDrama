@@ -9,10 +9,9 @@ class Vote(Base):
 
 	__tablename__ = "votes"
 
-	id = Column(Integer, primary_key=True)
-	user_id = Column(Integer, ForeignKey("users.id"))
+	user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
+	submission_id = Column(Integer, ForeignKey("submissions.id"), primary_key=True)
 	vote_type = Column(Integer)
-	submission_id = Column(Integer, ForeignKey("submissions.id"))
 	app_id = Column(Integer, ForeignKey("oauth_apps.id"))
 	real = Column(Boolean, default=True)
 	created_utc = Column(Integer)
@@ -51,10 +50,9 @@ class CommentVote(Base):
 
 	__tablename__ = "commentvotes"
 
-	id = Column(Integer, primary_key=True)
-	user_id = Column(Integer, ForeignKey("users.id"))
+	user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
+	comment_id = Column(Integer, ForeignKey("comments.id"), primary_key=True)
 	vote_type = Column(Integer)
-	comment_id = Column(Integer, ForeignKey("comments.id"))
 	app_id = Column(Integer, ForeignKey("oauth_apps.id"))
 	real = Column(Boolean, default=True)
 	created_utc = Column(Integer)
