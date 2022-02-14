@@ -5,9 +5,8 @@ from files.__main__ import Base
 class Alt(Base):
 	__tablename__ = "alts"
 
-	id = Column(Integer, primary_key=True)
-	user1 = Column(Integer, ForeignKey("users.id"))
-	user2 = Column(Integer, ForeignKey("users.id"))
+	user1 = Column(Integer, ForeignKey("users.id"), primary_key=True)
+	user2 = Column(Integer, ForeignKey("users.id"), primary_key=True)
 	is_manual = Column(Boolean, default=False)
 
 	def __repr__(self):

@@ -642,9 +642,8 @@ class ViewerRelationship(Base):
 
 	__tablename__ = "viewers"
 
-	id = Column(Integer, Sequence('viewers_id_seq'), primary_key=True)
-	user_id = Column(Integer, ForeignKey('users.id'))
-	viewer_id = Column(Integer, ForeignKey('users.id'))
+	user_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
+	viewer_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
 	last_view_utc = Column(Integer)
 
 	viewer = relationship("User", primaryjoin="ViewerRelationship.viewer_id == User.id", viewonly=True)

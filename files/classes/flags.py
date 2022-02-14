@@ -9,9 +9,8 @@ class Flag(Base):
 
 	__tablename__ = "flags"
 
-	id = Column(Integer, primary_key=True)
-	post_id = Column(Integer, ForeignKey("submissions.id"))
-	user_id = Column(Integer, ForeignKey("users.id"))
+	post_id = Column(Integer, ForeignKey("submissions.id"), primary_key=True)
+	user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
 	reason = Column(String)
 	
 	user = relationship("User", primaryjoin = "Flag.user_id == User.id", uselist = False, viewonly=True)
@@ -39,9 +38,8 @@ class CommentFlag(Base):
 
 	__tablename__ = "commentflags"
 
-	id = Column(Integer, primary_key=True)
-	user_id = Column(Integer, ForeignKey("users.id"))
-	comment_id = Column(Integer, ForeignKey("comments.id"))
+	user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
+	comment_id = Column(Integer, ForeignKey("comments.id"), primary_key=True)
 	reason = Column(String)
 	
 	user = relationship("User", primaryjoin = "CommentFlag.user_id == User.id", uselist = False, viewonly=True)
