@@ -233,7 +233,7 @@
 					👻
 				{% else %}
 					{% if SITE_NAME=='Drama' and c.author.house %}
-						<img src="/assets/images/{{SITE_NAME}}/houses/{{c.author.house}}.webp?a=7" height="20" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="House {{c.author.house}}">
+						<img src="/assets/images/{{SITE_NAME}}/houses/{{c.author.house}}.webp?a=7" height="20" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="House {{c.author.house}}" alt="House {{c.author.house}}">
 					{% endif %}
 
 					{% if c.author.verified %}<i class="fas fa-badge-check align-middle ml-1" style="color:{% if c.author.verifiedcolor %}#{{c.author.verifiedcolor}}{% else %}#1DA1F2{% endif %}" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{c.author.verified}}"></i>
@@ -500,11 +500,9 @@
 							{% if v and c.author_id == v.id %}
 								<button class="btn caction py-0 nobackground px-1 text-muted" onclick="toggleEdit('{{c.id}}')"><i class="fas fa-edit fa-fw"></i>Edit</button>
 								
-								{% if c.deleted_utc %}
-									<button class="btn caction py-0 nobackground px-1 text-muted" onclick="post_toast(this,'/undelete/comment/{{c.id}}')"><i class="fas fa-trash-alt fa-fw"></i>Undelete</button>
-								{% else %}
-									<button class="btn caction py-0 nobackground px-1 text-muted" data-bs-toggle="modal" data-bs-target="#deleteCommentModal" onclick="delete_commentModal('{{c.id}}')"><i class="fas fa-trash-alt fa-fw"></i>Delete</button>
-								{% endif %}
+								<button id="undelete-{{c.id}}" class="btn caction py-0 nobackground px-1 text-muted {% if not c.deleted_utc %}d-none{% endif %}" onclick="post_toast2(this,'/undelete/comment/{{c.id}}','delete-{{c.id}}','undelete-{{c.id}}');document.getElementById('comment-{{c.id}}').classList.remove('deleted')"><i class="fas fa-trash-alt fa-fw"></i>Undelete</button>
+
+								<button id="delete-{{c.id}}" class="btn caction py-0 nobackground px-1 text-muted {% if c.deleted_utc %}d-none{% endif %}" data-bs-toggle="modal" data-bs-target="#deleteCommentModal" onclick="delete_commentModal('{{c.id}}')"><i class="fas fa-trash-alt fa-fw"></i>Delete</button>
 							{% elif c.body %}
 								<button class="btn caction py-0 nobackground px-1 text-muted" onclick="expandMarkdown('{{c.id}}')"><i class="fas text-expand-icon-{{c.id}} fa-expand-alt"></i>View source</button>
 							{% endif %}
@@ -722,9 +720,9 @@
 								<a id="undistinguish2-{{c.id}}" class="list-group-item {% if not c.distinguish_level %}d-none{% endif %} text-info" role="button" onclick="post_toast2(this,'/distinguish_comment/{{c.id}}','distinguish2-{{c.id}}','undistinguish2-{{c.id}}')" data-bs-dismiss="modal"><i class="fas fa-id-badge text-info"></i>Undistinguish</a>
 							{% endif %}
 							
-							<button id="undelete-{{c.id}}" class="{% if not c.deleted_utc %}d-none{% endif %} nobackground btn btn-link btn-block btn-lg text-left text-success" role="button" onclick="post_toast2(this,'/undelete_comment/{{c.id}}', 'delete-{{c.id}}', 'undelete-{{c.id}}');document.getElementById('comment-{{c.id}}').classList.remove('deleted')" data-bs-dismiss="modal"><i class="far fa-trash-alt text-center mr-3"></i>Undelete</button>
+							<a id="undelete2-{{c.id}}" class="{% if not c.deleted_utc %}d-none{% endif %} list-group-item text-success" role="button" onclick="post_toast2(this,'/undelete/comment/{{c.id}}', 'delete2-{{c.id}}', 'undelete2-{{c.id}}');document.getElementById('comment-{{c.id}}').classList.remove('deleted')" data-bs-dismiss="modal"><i class="far fa-trash-alt text-success"></i>Undelete</a>
 
-							<button id="delete-{{c.id}}" class="{% if c.deleted_utc %}d-none{% endif %}  nobackground btn btn-link btn-block btn-lg text-left text-danger" data-bs-toggle="modal" data-bs-dismiss="modal" data-bs-target="#deleteCommentModal" onclick="delete_commentModal('{{c.id}}')"><i class="far fa-trash-alt mr-3"></i>Delete</button>
+							<a id="delete2-{{c.id}}" class="{% if c.deleted_utc %}d-none{% endif %} list-group-item text-danger" role="button" data-bs-toggle="modal" data-bs-dismiss="modal" data-bs-target="#deleteCommentModal" onclick="delete_commentModal('{{c.id}}')"><i class="far fa-trash-alt text-danger"></i>Delete</a>
 
 							<a id="mark2-{{c.id}}" class="{% if c.over_18 %}d-none{% endif %} list-group-item text-danger" role="button" onclick="post_toast2(this,'/toggle_comment_nsfw/{{c.id}}','mark2-{{c.id}}','unmark2-{{c.id}}')" data-bs-dismiss="modal"><i class="fas fa-eye-evil text-danger"></i>Mark +18</a>
 							<a id="unmark2-{{c.id}}" class="{% if not c.over_18 %}d-none{% endif %} list-group-item text-danger" role="button" onclick="post_toast2(this,'/toggle_comment_nsfw/{{c.id}}','mark2-{{c.id}}','unmark2-{{c.id}}')" data-bs-dismiss="modal"><i class="fas fa-eye-evil text-danger"></i>Unmark +18</a>
@@ -995,7 +993,7 @@
 
 	{% if v %}
 		<script src="/static/assets/js/marked.js?a=242"></script>
-		<script src="/static/assets/js/comments_v.js?a=249"></script>
+		<script src="/static/assets/js/comments_v.js?a=252"></script>
 	{% endif %}
 
 	<script src="/static/assets/js/clipboard.js?a=250"></script>

@@ -25,12 +25,15 @@ def login_get(v):
 
 
 def check_for_alts(current_id):
+	ids = tuple(x[0] for x in g.db.query(User.id).all())
 	past_accs = set(session.get("history", []))
-	past_accs.add(current_id)
-	session["history"] = list(past_accs)
 
-	for past_id in session["history"]:
+	for past_id in past_accs:
 		
+		if past_id not in ids:
+			past_accs.remove(past_id)
+			continue
+
 		if past_id == MOM_ID or current_id == MOM_ID: break
 		if past_id == current_id: continue
 
@@ -75,6 +78,9 @@ def check_for_alts(current_id):
 					new_alt = Alt(user1=a.user2, user2=current_id)
 					g.db.add(new_alt)
 					g.db.flush()
+	
+	past_accs.add(current_id)
+	session["history"] = list(past_accs)
 
 
 @app.post("/login")

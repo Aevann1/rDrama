@@ -190,7 +190,7 @@
 					👻
 				{% else %}
 					{% if SITE_NAME=='Drama' and p.author.house %}
-						<img src="/assets/images/{{SITE_NAME}}/houses/{{p.author.house}}.webp?a=7" height="20" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="House {{p.author.house}}">
+						<img src="/assets/images/{{SITE_NAME}}/houses/{{p.author.house}}.webp?a=7" height="20" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="House {{p.author.house}}" alt="House {{p.author.house}}">
 					{% endif %}
 
 					{% if p.author.verified %}<i class="fas fa-badge-check align-middle ml-1" style="color:{% if p.author.verifiedcolor %}#{{p.author.verifiedcolor}}{% else %}#1DA1F2{% endif %}" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{p.author.verified}}"></i>

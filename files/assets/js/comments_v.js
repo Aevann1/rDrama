@@ -117,7 +117,7 @@ function toggleEdit(id){
 function delete_commentModal(id) {
     document.getElementById("deleteCommentButton").onclick =  function() {
         const xhr = new XMLHttpRequest();
-        xhr.open("POST", `/delete_comment/${id}`);
+        xhr.open("POST", `/delete/comment/${id}`);
         xhr.setRequestHeader('xhr', 'xhr');
         var form = new FormData()
         form.append("formkey", formkey());
@@ -131,12 +131,12 @@ function delete_commentModal(id) {
                 document.getElementById(`undelete-${id}`).classList.remove('d-none');
                 document.getElementById(`delete2-${id}`).classList.add('d-none');
                 document.getElementById(`undelete2-${id}`).classList.remove('d-none');
-                document.getElementById('toast-comment-success-text').innerText = data["message"];
-                bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-comment-success')).show();
+                document.getElementById('toast-post-success-text').innerText = data["message"];
+                bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-post-success')).show();
             } else {
-                document.getElementById('toast-comment-error-text').innerText = "Error, please try again later."
-                if (data && data["error"]) document.getElementById('toast-comment-error-text').innerText = data["error"];
-                bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-comment-error')).show();
+                document.getElementById('toast-post-error-text').innerText = "Error, please try again later."
+                if (data && data["error"]) document.getElementById('toast-post-error-text').innerText = data["error"];
+                bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-post-error')).show();
             }
         };
         xhr.send(form);

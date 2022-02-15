@@ -4755,3 +4755,8 @@ img.golden {
     font-weight: bold;
     white-space: nowrap;
 }
+@media (max-width: 768px) {
+    .toast {
+        bottom: 5rem !important;
+    }
+}
