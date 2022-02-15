@@ -287,7 +287,7 @@ def sanitize(sanitized, noimages=False, alert=False, comment=False, edit=False):
 
 
 
-def filter_emojis_only(title, edit=False):
+def filter_emojis_only(title, edit=False, graceful=False):
 
 	title = title.replace('<','&lt;').replace('>','&gt;').replace("\n", "").replace("\r", "").replace("\t", "").strip()
 
@@ -321,5 +321,5 @@ def filter_emojis_only(title, edit=False):
 			if path.isfile(f'files/assets/images/emojis/{emoji}.webp'):
 				title = re.sub(f'(?<!"):{old}:', f'<img loading="lazy" data-bs-toggle="tooltip" alt=":{old}:" title=":{old}:" delay="0" class="{classes}" src="/static/assets/images/emojis/{emoji}.webp">', title, re.I)
 
-	if len(title) > 1500: abort(400)
+	if len(title) > 1500 and not graceful: abort(400)
 	else: return title

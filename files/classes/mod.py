@@ -2,7 +2,7 @@ from sqlalchemy import *
 from sqlalchemy.orm import relationship
 from files.__main__ import Base
 from files.helpers.lazy import *
-from time import strftime, gmtime
+import time
 
 class Mod(Base):
 
@@ -11,10 +11,14 @@ class Mod(Base):
 	sub = Column(String, ForeignKey("subs.name"), primary_key=True)
 	created_utc = Column(Integer)
 
+	def __init__(self, *args, **kwargs):
+		if "created_utc" not in kwargs: kwargs["created_utc"] = int(time.time())
+		super().__init__(*args, **kwargs)
+
 	def __repr__(self):
 		return f"<Mod(user_id={self.user_id}, sub={self.sub})>"
 
 	@property
 	@lazy
 	def created_datetime(self):
-		return str(strftime("%d/%B/%Y %H:%M:%S UTC", gmtime(self.created_utc)))
+		return str(time.strftime("%d/%B/%Y %H:%M:%S UTC", time.gmtime(self.created_utc)))

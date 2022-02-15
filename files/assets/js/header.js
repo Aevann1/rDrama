@@ -40,7 +40,7 @@ function post_toast(t, url, reload, data) {
 		setTimeout(() => {
 			t.disabled = false;
 			t.classList.remove("disabled");
-		}, 500);
+		}, 2000);
 	};
 
 	xhr.send(form);

@@ -4,7 +4,44 @@ from files.helpers.wrappers import *
 from files.classes import *
 from .front import frontlist
 
-valid_sub_regex = re.compile("^[a-zA-Z0-9_\-]{3,25}$")
+valid_sub_regex = re.compile("^[a-zA-Z0-9_\-]{3,20}$")
+
+
+@app.post("/s/<sub>/block")
+@auth_required
+def block_sub(v, sub):
+	sub = g.db.query(Sub).filter_by(name=sub.strip().lower()).one_or_none()
+	if not sub: abort(404)
+	sub = sub.name
+
+	# if v.mods(sub): return {"error": "You can't block subs you mod!"}
+
+	existing = g.db.query(SubBlock).filter_by(user_id=v.id, sub=sub).one_or_none()
+
+	if not existing:
+		block = SubBlock(user_id=v.id, sub=sub)
+		g.db.add(block)
+		g.db.commit()
+		cache.delete_memoized(frontlist)
+
+	return {"message": "Sub blocked successfully!"}
+
+
+@app.post("/s/<sub>/unblock")
+@auth_required
+def unblock_sub(v, sub):
+	sub = g.db.query(Sub).filter_by(name=sub.strip().lower()).one_or_none()
+	if not sub: abort(404)
+	sub = sub.name
+
+	block = g.db.query(SubBlock).filter_by(user_id=v.id, sub=sub).one_or_none()
+
+	if block:
+		g.db.delete(block)
+		g.db.commit()
+		cache.delete_memoized(frontlist)
+
+	return {"message": "Sub unblocked successfully!"}
 
 @app.get("/s/<sub>/mods")
 @is_not_permabanned
@@ -36,7 +73,7 @@ def add_mod(v, sub):
 	existing = g.db.query(Mod).filter_by(user_id=user.id, sub=sub).one_or_none()
 
 	if not existing:
-		mod = Mod(user_id=user.id, sub=sub, created_utc=int(time.time()))
+		mod = Mod(user_id=user.id, sub=sub)
 		g.db.add(mod)
 
 		send_repeatable_notification(user.id, f"You have been added as a mod to /s/{sub}")
@@ -98,7 +135,7 @@ def create_sub2(v):
 
 	sub = g.db.query(Sub).filter_by(name=name).one_or_none()
 	if not sub:
-		cost = v.subs_created * 25
+		cost = v.subs_created * 50
 		if v.coins < cost:
 			return render_template("sub/create_sub.html", v=v, error="You don't have enough coins!"), 403
 
@@ -108,7 +145,8 @@ def create_sub2(v):
 
 		sub = Sub(name=name)
 		g.db.add(sub)
-		mod = Mod(user_id=v.id, sub=sub.name, created_utc=int(time.time()))
+		g.db.flush()
+		mod = Mod(user_id=v.id, sub=sub.name)
 		g.db.add(mod)
 		g.db.commit()
 

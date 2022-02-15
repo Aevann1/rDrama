@@ -263,8 +263,6 @@ def remove_meme_admin(v, username):
 def monthly(v):
 	if SITE_NAME == 'Drama' and v.id != AEVANN_ID: abort (403)
 
-	thing = g.db.query(AwardRelationship).order_by(AwardRelationship.id.desc()).first().id
-
 	data = {'access_token': GUMROAD_TOKEN}
 
 	emails = [x['email'] for x in requests.get(f'https://api.gumroad.com/v2/products/{GUMROAD_ID}/subscribers', data=data, timeout=5).json()["subscribers"]]
@@ -307,39 +305,6 @@ def monthly(v):
 	return {"message": "Monthly coins granted"}
 
 
-@app.get('/admin/sidebar')
-@admin_level_required(3)
-def get_sidebar(v):
-
-	try:
-		with open(f'files/templates/sidebar_{SITE_NAME}.html', 'r', encoding="utf-8") as f: sidebar = f.read()
-	except:
-		sidebar = None
-
-	return render_template('admin/sidebar.html', v=v, sidebar=sidebar)
-
-
-@app.post('/admin/sidebar')
-@limiter.limit("1/second;30/minute;200/hour;1000/day")
-@admin_level_required(3)
-def post_sidebar(v):
-
-	text = request.values.get('sidebar', '').strip()
-
-	with open(f'files/templates/sidebar_{SITE_NAME}.html', 'w+', encoding="utf-8") as f: f.write(text)
-
-	with open(f'files/templates/sidebar_{SITE_NAME}.html', 'r', encoding="utf-8") as f: sidebar = f.read()
-
-	ma = ModAction(
-		kind="change_sidebar",
-		user_id=v.id,
-	)
-	g.db.add(ma)
-
-	g.db.commit()
-
-	return render_template('admin/sidebar.html', v=v, sidebar=sidebar, msg='Sidebar edited successfully!')
-
 @app.get("/admin/shadowbanned")
 @auth_required
 def shadowbanned(v):
@@ -373,7 +338,7 @@ def reported_posts(v):
 	page = max(1, int(request.values.get("page", 1)))
 
 	listing = g.db.query(Submission).filter_by(
-		is_approved=0,
+		is_approved=None,
 		is_banned=False
 	).join(Submission.reports).order_by(Submission.id.desc()).offset(25 * (page - 1)).limit(26)
 
@@ -395,7 +360,7 @@ def reported_comments(v):
 
 	listing = g.db.query(Comment
 					   ).filter_by(
-		is_approved=0,
+		is_approved=None,
 		is_banned=False
 	).join(Comment.reports).order_by(Comment.id.desc()).offset(25 * (page - 1)).limit(26).all()
 
@@ -417,7 +382,9 @@ def reported_comments(v):
 def admin_home(v):
 	with open('disable_signups', 'r') as f: x = f.read()
 
-	response = requests.get(f'https://api.cloudflare.com/client/v4/zones/{CF_ZONE}/settings/security_level', headers=CF_HEADERS).json()['result']['value']
+	if CF_ZONE == '3435tdfsdudebussylmaoxxt43': response = 'high'
+	else: response = requests.get(f'https://api.cloudflare.com/client/v4/zones/{CF_ZONE}/settings/security_level', headers=CF_HEADERS).json()['result']['value']
+	
 	x2 = response == 'under_attack'
 
 	return render_template("admin/admin_home.html", v=v, x=x, x2=x2)
@@ -526,9 +493,9 @@ def badge_grant_post(v):
 	if url: new_badge.url = url
 
 	g.db.add(new_badge)
-	
+	g.db.flush()
+
 	if v.id != user.id:
-		g.db.flush()
 		text = f"@{v.username} has given you the following profile badge:\n\n![]({new_badge.path})\n\n{new_badge.name}"
 		send_notification(user.id, text)
 	
@@ -568,8 +535,6 @@ def badge_remove_post(v):
 
 	badge = user.has_badge(badge_id)
 	if badge:
-		g.db.delete(badge)
-
 		ma = ModAction(
 			kind="badge_remove",
 			user_id=v.id,
@@ -577,6 +542,8 @@ def badge_remove_post(v):
 			_note=badge.name
 		)
 		g.db.add(ma)
+
+		g.db.delete(badge)
 
 		g.db.commit()
 	
@@ -1112,7 +1079,7 @@ def ban_post(post_id, v):
 		abort(400)
 
 	post.is_banned = True
-	post.is_approved = 0
+	post.is_approved = None
 	post.stickied = None
 	post.is_pinned = False
 	post.ban_reason = v.username
@@ -1319,7 +1286,7 @@ def api_ban_comment(c_id, v):
 		abort(404)
 
 	comment.is_banned = True
-	comment.is_approved = 0
+	comment.is_approved = None
 	comment.ban_reason = v.username
 	g.db.add(comment)
 	ma=ModAction(

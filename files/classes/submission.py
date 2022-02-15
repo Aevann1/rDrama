@@ -31,12 +31,12 @@ class Submission(Base):
 	distinguish_level = Column(Integer, default=0)
 	stickied = Column(String)
 	stickied_utc = Column(Integer)
-	sub = Column(String)
+	sub = Column(String, ForeignKey("subs.name"))
 	is_pinned = Column(Boolean, default=False)
 	private = Column(Boolean, default=False)
 	club = Column(Boolean, default=False)
 	comment_count = Column(Integer, default=0)
-	is_approved = Column(Integer, ForeignKey("users.id"), default=0)
+	is_approved = Column(Integer, ForeignKey("users.id"))
 	over_18 = Column(Boolean, default=False)
 	is_bot = Column(Boolean, default=False)
 	upvotes = Column(Integer, default=1)
@@ -61,6 +61,7 @@ class Submission(Base):
 	subr = relationship("Sub", primaryjoin="foreign(Submission.sub)==remote(Sub.name)", viewonly=True)
 
 	def __init__(self, *args, **kwargs):
+		if "created_utc" not in kwargs: kwargs["created_utc"] = int(time.time())
 		super().__init__(*args, **kwargs)
 
 	def __repr__(self):
@@ -248,13 +249,13 @@ class Submission(Base):
 	@property
 	@lazy
 	def thumb_url(self):
-		if self.over_18: return f"{SITE_FULL}/static/assets/images/nsfw.webp"
-		elif not self.url: return f"{SITE_FULL}/static/assets/images/{SITE_NAME}/default_text.webp"
+		if self.over_18: return f"{SITE_FULL}/static/assets/images/nsfw.webp?a=1"
+		elif not self.url: return f"{SITE_FULL}/static/assets/images/{SITE_NAME}/default_text.webp?a=1"
 		elif self.thumburl: 
 			if self.thumburl.startswith('/'): return SITE_FULL + self.thumburl
 			return self.thumburl
-		elif self.is_youtube or self.is_video: return f"{SITE_FULL}/static/assets/images/default_thumb_yt.webp"
-		else: return f"{SITE_FULL}/static/assets/images/default_thumb_link.webp"
+		elif self.is_youtube or self.is_video: return f"{SITE_FULL}/static/assets/images/default_thumb_yt.webp?a=1"
+		else: return f"{SITE_FULL}/static/assets/images/default_thumb_link.webp?a=1"
 
 	@property
 	@lazy
@@ -373,14 +374,15 @@ class Submission(Base):
 
 		if v and v.shadowbanned and v.id == self.author_id and 86400 > time.time() - self.created_utc > 20:
 			ti = max(int((time.time() - self.created_utc)/60), 1)
-			maxupvotes = min(ti, 27)
+			maxupvotes = min(ti, 7)
 			rand = random.randint(0, maxupvotes)
 			if self.upvotes < rand:
-				amount = random.randint(0, 3)
-				self.views += amount*random.randint(3, 5)
-				self.upvotes += amount
-				g.db.add(self)
-				g.db.commit()
+				amount = random.randint(0, 1)
+				if amount == 1:
+					self.views += amount*random.randint(3, 5)
+					self.upvotes += amount
+					g.db.add(self)
+					g.db.commit()
 
 		for c in self.options:
 			body += f'<div class="custom-control"><input type="checkbox" class="custom-control-input" id="{c.id}" name="option"'
@@ -479,13 +481,3 @@ class Submission(Base):
 	@property
 	@lazy
 	def active_flags(self): return self.flags.count()
-
-
-class SaveRelationship(Base):
-
-	__tablename__="save_relationship"
-
-	id=Column(Integer, primary_key=True)
-	user_id=Column(Integer)
-	submission_id=Column(Integer)
-	comment_id=Column(Integer)

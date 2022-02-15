@@ -100,7 +100,7 @@ def get_post(i, v=None, graceful=False):
 		items = g.db.query(
 			Submission,
 			vt.c.vote_type,
-			blocking.c.id,
+			blocking.c.target_id,
 		)
 
 		items=items.filter(Submission.id == i
@@ -154,8 +154,8 @@ def get_posts(pids, v=None):
 		query = g.db.query(
 			Submission,
 			vt.c.vote_type,
-			blocking.c.id,
-			blocked.c.id,
+			blocking.c.target_id,
+			blocked.c.target_id,
 		).filter(
 			Submission.id.in_(pids)
 		).join(
@@ -229,8 +229,8 @@ def get_comments(cids, v=None, load_parent=False):
 		comments = g.db.query(
 			Comment,
 			votes.c.vote_type,
-			blocking.c.id,
-			blocked.c.id,
+			blocking.c.target_id,
+			blocked.c.target_id,
 		).filter(Comment.id.in_(cids))
  
 		if not (v and (v.shadowbanned or v.admin_level > 1)):

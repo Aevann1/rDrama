@@ -14,17 +14,17 @@
 <pre></pre>
 <p>This page explains how to obtain and use an access token. </p>
 <h2>Step 1: Create your Application</h2>
-<p>In the <a href="/settings/apps">apps tab of Drama settings</a>, fill in and submit the form to request an access token. You will need:</p>
+<p>In the <a href="/settings/apps">apps tab of {{SITE_NAME}} settings</a>, fill in and submit the form to request an access token. You will need:</p>
 <ul>
 <li>an application name</li>
 <li>a Redirect URI. May not use HTTP unless using localhost (use HTTPS instead).</li>
 <li>a brief description of what your bot is intended to do</li>
 </ul>
 <p>Don't worry too much about accuracy; you will be able to change all of these later.</p>
-<p>Drama administrators will review and approve or deny your request for an access token. You'll know when your request has been approved when you get a private message with an access token tied to your account.</p>
+<p>{{SITE_NAME}} administrators will review and approve or deny your request for an access token. You'll know when your request has been approved when you get a private message with an access token tied to your account.</p>
 <p>DO NOT reveal your Client ID or Access Token. Anyone with these information will be able to pretend to be you. You are responsible for keeping them a secret!</p>
 <h2>Step 2: Using the Access Token</h2>
-<p>To use the access token, include the following header in subsequent API requests to Drama: <code>Authorization: access_token_goes_here</code></p>
+<p>To use the access token, include the following header in subsequent API requests to {{SITE_NAME}}: <code>Authorization: access_token_goes_here</code></p>
 <p>Python example:</p>
 <pre>	import requests
 
@@ -48,25 +48,25 @@
 </pre>
 <h1>API Guide for Applications</h1>
 <pre></pre>
-<p>The OAuth2 authorization flow is used to enable users to authorize third-party applications to access their Drama account without having to provide their login information to the application.</p>
+<p>The OAuth2 authorization flow is used to enable users to authorize third-party applications to access their {{SITE_NAME}} account without having to provide their login information to the application.</p>
 <p>This page explains how to obtain API application keys, how to prompt a user for authorization, and how to obtain and use access tokens. </p>
 <h2>Step 1: Create your Application</h2>
-<p>In the <a href="/settings/apps">apps tab of Drama settings</a>, fill in and submit the form to request new API keys. You will need:</p>
+<p>In the <a href="/settings/apps">apps tab of {{SITE_NAME}} settings</a>, fill in and submit the form to request new API keys. You will need:</p>
 <ul>
 <li>an application name</li>
 <li>a Redirect URI. May not use HTTP unless using localhost (use HTTPS instead).</li>
 <li>a brief description of what your application is intended to do</li>
 </ul>
 <p>Don't worry too much about accuracy; you will be able to change all of these later.</p>
-<p>Drama administrators will review and approve or deny your request for API keys. You'll know when your request has been approved when you get a private message with an access token tied to your account.</p>
+<p>{{SITE_NAME}} administrators will review and approve or deny your request for API keys. You'll know when your request has been approved when you get a private message with an access token tied to your account.</p>
 <p>DO NOT reveal your Client ID or Access Token. Anyone with these information will be able to pretend to be you. You are responsible for keeping them a secret!</p>
 <h2>Step 2: Prompt Your User for Authorization</h2>
 <p>Send your user to <code>{{SITE_FULL}}/authorize/?client_id=YOUR_CLIENT_ID</code></p>
-<p>If done correctly, the user will see that your application wants to access their Drama account, and be prompted to approve or deny the request.</p>
+<p>If done correctly, the user will see that your application wants to access their {{SITE_NAME}} account, and be prompted to approve or deny the request.</p>
 <h2>Step 3: Catch the redirect</h2>
-<p>The user clicks "Authorize". Drama will redirect the user's browser to GET the designated redirect URI. The access token URL parameter will be included in the redirect, which your server should process.</p>
+<p>The user clicks "Authorize". {{SITE_NAME}} will redirect the user's browser to GET the designated redirect URI. The access token URL parameter will be included in the redirect, which your server should process.</p>
 <h2>Step 4: Using the Access Token</h2>
-<p>To use the access token, include the following header in subsequent API requests to Drama: <code>Authorization: access_token_goes_here</code></p>
+<p>To use the access token, include the following header in subsequent API requests to {{SITE_NAME}}: <code>Authorization: access_token_goes_here</code></p>
 <p>Python example:</p>
 <pre>	import requests
 

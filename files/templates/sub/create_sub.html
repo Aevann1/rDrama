@@ -30,7 +30,7 @@
                     <label for="title">Sub Name</label>
 
                     <input class="form-control" id="title-register" aria-describedby="titleHelpRegister" type="text" name="name" required>
-                    <small class="form-text text-muted">Names must be 3-25 characters</small>
+                    <small class="form-text text-muted">Names must be 3-20 characters</small>
 
                 </div>
 
@@ -44,11 +44,11 @@
                         </p>
                         {% endif %}
                         
-                        <button class="btn btn-primary ml-auto" id="create_button" {% if v.subs_created * 25 > v.coins %}disabled{% endif %}>Create Sub</button>
+                        <button class="btn btn-primary ml-auto" id="create_button" {% if v.subs_created * 50 > v.coins %}disabled{% endif %}>Create Sub</button>
 
                     </div>
 
-                    <p class="mt-2 mr-1" style="float: right"><b>Cost</b>: {{v.subs_created * 25}} coins</p>
+                    <p class="mt-2 mr-1" style="float: right"><b>Cost</b>: {{v.subs_created * 50}} coins</p>
 
                 </div>
 

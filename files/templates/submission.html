@@ -227,25 +227,25 @@
 			}
 		}
 	</style>
-	<marquee class="train train1" direction="left" scrollamount=10 width="100%">
+	<marquee class="train train3" direction="right" scrollamount=10 width="100%">
 		<img alt=":#marseyscooter:" class="scooterimg" src="/static/assets/images/emojis/marseyscooter.webp?a=1008">
 	</marquee>
 {% endif %}
 
 {% if p.award_count("scooter") > 1 %}
-	<marquee class="train train2" direction="right" scrollamount=10 width="100%">
+	<marquee class="train train4" direction="left" scrollamount=10 width="100%">
 		<img alt=":#marseyscooter:" class="scooterimg mirrored" src="/static/assets/images/emojis/marseyscooter.webp?a=1008">
 	</marquee>
 {% endif %}
 
 {% if p.award_count("scooter") > 2 %}
-	<marquee class="train train3" direction="left" scrollamount=10 width="100%">
+	<marquee class="train train1" direction="right" scrollamount=10 width="100%">
 		<img alt=":#marseyscooter:" class="scooterimg" src="/static/assets/images/emojis/marseyscooter.webp?a=1008">
 	</marquee>
 {% endif %}
 
 {% if p.award_count("scooter") > 3 %}
-	<marquee class="train train4" direction="right" scrollamount=10 width="100%">
+	<marquee class="train train2" direction="left" scrollamount=10 width="100%">
 		<img alt=":#marseyscooter:" class="scooterimg mirrored" src="/static/assets/images/emojis/marseyscooter.webp?a=1008">
 	</marquee>
 {% endif %}
@@ -282,7 +282,7 @@
 <meta property="og:description" name="description" content="{{comment_info.plainbody(v)}}" >
 <meta property="og:author" name="author" content="{{'@'+comment_info.author_name}}" >
 <meta property="og:title" content="{{'@'+comment_info.author_name}} comments on {{p.plaintitle(v)}} - {{SITE_NAME}}" >
-<meta property="og:image" content="{% if p.is_image %}{{p.realurl(v)}}{% elif p.has_thumb%}{{p.thumb_url}}{% else %}{{SITE_NAME}}/static/assets/images/{{SITE_NAME}}/site_preview.webp?a=1012{% endif %}" >
+<meta property="og:image" content="{% if p.is_image %}{{p.realurl(v)}}{% elif p.has_thumb%}{{p.thumb_url}}{% else %}{{SITE_NAME}}/static/assets/images/{{SITE_NAME}}/site_preview.webp?a=1013{% endif %}" >
 {% if p.is_video %}
 	<meta property="og:video" content="{{p.realurl(v)}}" >
 {% endif %}
@@ -294,7 +294,7 @@
 <meta name="twitter:title" content="{{'@'+comment_info.author_name}} comments on {{p.plaintitle(v)}} - {{SITE_NAME}}" >
 <meta name="twitter:creator" content="{{'@'+comment_info.author_name}}">
 <meta name="twitter:description" content="{{comment_info.plainbody(v)}}" >
-<meta name="twitter:image" content="{% if p.is_image %}{{p.realurl(v)}}{% elif p.has_thumb%}{{p.thumb_url}}{% else %}{{SITE_NAME}}/static/assets/images/{{SITE_NAME}}/site_preview.webp?a=1012{% endif %}" >
+<meta name="twitter:image" content="{% if p.is_image %}{{p.realurl(v)}}{% elif p.has_thumb%}{{p.thumb_url}}{% else %}{{SITE_NAME}}/static/assets/images/{{SITE_NAME}}/site_preview.webp?a=1013{% endif %}" >
 <meta name="twitter:url" content="{{p.permalink}}" >
 
 {% else %}
@@ -307,7 +307,7 @@
 <meta property="og:description" name="description" content="{{p.plainbody(v)}}" >
 {% if p.author %}<meta property="og:author" name="author" content="{{'@'+p.author_name}}" >{% endif %}
 <meta property="og:title" content="{{p.plaintitle(v)}} - {{SITE_NAME}}" >
-<meta property="og:image" content="{% if p.is_image %}{{p.realurl(v)}}{% elif p.has_thumb%}{{p.thumb_url}}{% else %}{{SITE_NAME}}/static/assets/images/{{SITE_NAME}}/site_preview.webp?a=1012{% endif %}" >
+<meta property="og:image" content="{% if p.is_image %}{{p.realurl(v)}}{% elif p.has_thumb%}{{p.thumb_url}}{% else %}{{SITE_NAME}}/static/assets/images/{{SITE_NAME}}/site_preview.webp?a=1013{% endif %}" >
 {% if p.url and p.is_video %}
 <meta property="og:video" content="{{p.realurl(v)}}" >
 {% endif %}
@@ -319,7 +319,7 @@
 <meta name="twitter:title" content="{{p.plaintitle(v)}} - {{SITE_NAME}}" >
 {% if p.author %}<meta name="twitter:creator" content="{{'@'+p.author_name}}">{% endif %}
 <meta name="twitter:description" content="{{p.plainbody(v)}}" >
-<meta name="twitter:image" content="{% if p.is_image %}{{p.realurl(v)}}{% elif p.has_thumb %}{{p.thumb_url}}{% else %}{{SITE_NAME}}/static/assets/images/{{SITE_NAME}}/site_preview.webp?a=1012{% endif %}" >
+<meta name="twitter:image" content="{% if p.is_image %}{{p.realurl(v)}}{% elif p.has_thumb %}{{p.thumb_url}}{% else %}{{SITE_NAME}}/static/assets/images/{{SITE_NAME}}/site_preview.webp?a=1013{% endif %}" >
 <meta name="twitter:url" content="{{p.permalink}}" >
 
 {% endif %}
@@ -519,7 +519,7 @@
 							👻
 						{% else %}
 							{% if SITE_NAME=='Drama' and p.author.house %}
-								<img src="/assets/images/{{SITE_NAME}}/houses/{{p.author.house}}.webp?a=5" height="20" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="House {{p.author.house}}">
+								<img src="/assets/images/{{SITE_NAME}}/houses/{{p.author.house}}.webp?a=7" height="20" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="House {{p.author.house}}">
 							{% endif %}
 
 							{% if p.author.verified %}<i class="fas fa-badge-check align-middle ml-1" style="color:{% if p.author.verifiedcolor %}#{{p.author.verifiedcolor}}{% else %}#1DA1F2{% endif %}" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{p.author.verified}}"></i>
@@ -691,15 +691,17 @@
 							<a class="list-inline-item text-muted d-none d-md-inline-block" role="button" data-bs-toggle="modal" data-bs-target="#awardModal" onclick="awardModal('/post/{{p.id}}/awards')"><i class="fas fa-gift fa-fw"></i>Give Award</a>
 						{% endif %}
 
-						<a class="list-inline-item copy-link" role="button" role="button" data-clipboard-text="{% if SITE_NAME == 'Drama' %}https://rdrama.com{{p.shortlink}}{% else %}{{p.permalink}}{% endif %}"><i class="fas fa-copy"></i>Copy link</a>
+						<a class="list-inline-item copy-link" role="button" data-clipboard-text="{% if SITE_NAME == 'Drama' %}https://rdrama.com{{p.shortlink}}{% else %}{{p.permalink}}{% endif %}"><i class="fas fa-copy"></i>Copy link</a>
 
 						{% if v %}
 							<a id="subscribe-{{p.id}}" class="{% if p.id in v.subscribed_idlist() %}d-none{% endif %} list-inline-item" role="button" onclick="post_toast2(this,'/subscribe/{{p.id}}','subscribe-{{p.id}}','unsubscribe-{{p.id}}')"><i class="fas fa-eye"></i>Subscribe</a>
 							<a id="unsubscribe-{{p.id}}" class="{% if p.id not in v.subscribed_idlist() %}d-none{% endif %} list-inline-item" role="button" onclick="post_toast2(this,'/unsubscribe/{{p.id}}','subscribe-{{p.id}}','unsubscribe-{{p.id}}')"><i class="fas fa-eye-slash"></i>Unsubscribe</a>
+						{% endif %}
 
+						{% if v %}
 							<a id="save-{{p.id}}" class="{% if p.id in v.saved_idlist() %}d-none{% endif %} list-inline-item" role="button" onclick="post_toast2(this,'/save_post/{{p.id}}','save-{{p.id}}','unsave-{{p.id}}')"><i class="fas fa-save"></i>Save</a>
 							<a id="unsave-{{p.id}}" class="{% if not p.id in v.saved_idlist() %}d-none{% endif %} list-inline-item" role="button" onclick="post_toast2(this,'/unsave_post/{{p.id}}','save-{{p.id}}','unsave-{{p.id}}')"><i class="fas fa-save"></i>Unsave</a>
-
+							
 							<a class="list-inline-item" role="button" data-bs-toggle="modal" data-bs-dismiss="modal" data-bs-target="#reportPostModal" onclick="report_postModal('{{p.id}}')"><i class="fas fa-flag"></i>Report</a>
 						{% endif %}
 
@@ -708,66 +710,70 @@
 								<a id="pin-profile-{{p.id}}" class="{% if p.is_pinned %}d-none{% endif %} list-inline-item text-muted" role="button" onclick="post_toast2(this,'/pin/{{p.id}}','unpin-profile-{{p.id}}','pin-profile-{{p.id}}')"><i class="fas fa-thumbtack fa-rotate--45"></i>Pin to profile</a>
 								<a id="unpin-profile-{{p.id}}" class="{% if not p.is_pinned %}d-none{% endif %} list-inline-item text-muted" role="button" onclick="post_toast2(this,'/pin/{{p.id}}','unpin-profile-{{p.id}}','pin-profile-{{p.id}}')"><i class="fas fa-thumbtack fa-rotate--45"></i>Unpin from profile</a>
 							{% endif %}
-							
-							<a id="undelete2-{{p.id}}" class="{% if not p.deleted_utc %}d-none{% endif %} list-inline-item" role="button" onclick="post_toast2(this,'/undelete_post/{{p.id}}', 'delete2-{{p.id}}', 'undelete2-{{p.id}}');document.getElementById('post-{{p.id}}').classList.remove('deleted')"><i class="fas fa-trash-alt"></i>Undelete</a>
 
-							<a id="delete2-{{p.id}}" class="{% if p.deleted_utc %}d-none{% endif %} list-inline-item" role="button" data-bs-toggle="modal" data-bs-dismiss="modal" data-bs-target="#deletePostModal" onclick="delete_postModal('{{p.id}}')"><i class="fas fa-trash-alt"></i>Delete</a>
-						{% endif %}
+								<a id="undelete2-{{p.id}}" class="{% if not p.deleted_utc %}d-none{% endif %} list-inline-item" role="button" onclick="post_toast2(this,'/undelete_post/{{p.id}}', 'delete2-{{p.id}}', 'undelete2-{{p.id}}');document.getElementById('post-{{p.id}}').classList.remove('deleted')"><i class="fas fa-trash-alt"></i>Undelete</a>
 
-						{% if v %}
-							{% if v.admin_level %}
-								<a id="distinguish-{{p.id}}" class="{% if p.distinguish_level %}d-none{% endif %} list-inline-item text-info" role="button" onclick="post_toast2(this,'/distinguish/{{p.id}}','distinguish-{{p.id}}','undistinguish-{{p.id}}')"><i class="fas fa-crown"></i>Distinguish</a>
-								<a id="undistinguish-{{p.id}}" class="{% if not p.distinguish_level %}d-none{% endif %} list-inline-item text-info" role="button" onclick="post_toast2(this,'/distinguish/{{p.id}}','distinguish-{{p.id}}','undistinguish-{{p.id}}')"><i class="fas fa-crown"></i>Undistinguish</a>
+								<a id="delete2-{{p.id}}" class="{% if p.deleted_utc %}d-none{% endif %} list-inline-item" role="button" data-bs-toggle="modal" data-bs-dismiss="modal" data-bs-target="#deletePostModal" onclick="delete_postModal('{{p.id}}')"><i class="fas fa-trash-alt"></i>Delete</a>
 							{% endif %}
 
-							{% if v.admin_level > 1 %}
-								<a id="pin-{{p.id}}" class="{% if p.stickied %}d-none{% endif %} list-inline-item text-info" role="button" onclick="post_toast2(this,'/sticky/{{p.id}}','pin-{{p.id}}','unpin-{{p.id}}')"><i class="fas fa-thumbtack fa-rotate--45"></i>Pin</a>
-								<a id="unpin-{{p.id}}" class="{% if not p.stickied %}d-none{% endif %} list-inline-item text-info" role="button" onclick="post_toast2(this,'/unsticky/{{p.id}}','pin-{{p.id}}','unpin-{{p.id}}')"><i class="fas fa-thumbtack fa-rotate--45"></i>Unpin</a>
-							{% endif %}
-
-							{% if v.admin_level > 1 or v.id == p.author.id and v.club_allowed != False %}
-								<a id="club-{{p.id}}" class="{% if p.club %}d-none{% endif %} list-inline-item text-info" role="button" onclick="post_toast2(this,'/toggle_club/{{p.id}}','club-{{p.id}}','unclub-{{p.id}}')"><i class="fas fa-eye-slash"></i>Mark club</a>
-								<a id="unclub-{{p.id}}" class="{% if not p.club %}d-none{% endif %} list-inline-item text-info" role="button" onclick="post_toast2(this,'/toggle_club/{{p.id}}','club-{{p.id}}','unclub-{{p.id}}')"><i class="fas fa-eye"></i>Unmark club</a>
-							{% endif %}
-
-							{% if v.admin_level > 1 %}
-								{% if "/reported/" in request.path %}
-									{% if v.id != p.author.id %}<a class="list-inline-item text-danger" role="button" onclick="post_toast(this,'/ban_post/{{p.id}}')"><i class="fas fa-ban"></i>Remove</a>{% endif %}
-									<a class="list-inline-item text-success" role="button" onclick="post_toast(this,'/unban_post/{{p.id}}')"><i class="fas fa-check"></i>Approve</a>
-								{% else %}
-									{% if v.id != p.author.id %}<a id="remove-{{p.id}}" class="{% if p.is_banned %}d-none{% endif %} list-inline-item text-danger" role="button" onclick="post_toast2(this,'/ban_post/{{p.id}}','remove-{{p.id}}','approve-{{p.id}}')"><i class="fas fa-ban"></i>Remove</a>{% endif %}
-									<a id="approve-{{p.id}}" class="{% if not p.is_banned %}d-none{% endif %} list-inline-item text-success" role="button" onclick="post_toast2(this,'/unban_post/{{p.id}}','remove-{{p.id}}','approve-{{p.id}}')"><i class="fas fa-check"></i>Approve</a>
+							{% if v %}
+							<a class="list-inline-item" role="button" data-bs-toggle="dropdown" aria-expanded="false" ><i class="fas fa-ellipsis-h fa-fw"></i></a>
+							<ul class="dropdown-menu">
+								{% if v.admin_level %}
+									<a id="distinguish-{{p.id}}" class="dropdown-item {% if p.distinguish_level %}d-none{% endif %} list-inline-item text-info" role="button" onclick="post_toast2(this,'/distinguish/{{p.id}}','distinguish-{{p.id}}','undistinguish-{{p.id}}')"><i class="fas fa-crown"></i>Distinguish</a>
+									<a id="undistinguish-{{p.id}}" class="dropdown-item {% if not p.distinguish_level %}d-none{% endif %} list-inline-item text-info" role="button" onclick="post_toast2(this,'/distinguish/{{p.id}}','distinguish-{{p.id}}','undistinguish-{{p.id}}')"><i class="fas fa-crown"></i>Undistinguish</a>
 								{% endif %}
-							{% endif %}
 
-							{% if v.id == p.author_id or v.admin_level > 1 %}
-								<a id="mark-{{p.id}}" class="{% if p.over_18 %}d-none{% endif %} list-inline-item text-danger" role="button" onclick="post_toast2(this,'/toggle_post_nsfw/{{p.id}}','mark-{{p.id}}','unmark-{{p.id}}')"><i class="fas fa-eye-evil"></i>Mark +18</a>
-								<a id="unmark-{{p.id}}" class="{% if not p.over_18 %}d-none{% endif %} list-inline-item text-success" role="button" onclick="post_toast2(this,'/toggle_post_nsfw/{{p.id}}','mark-{{p.id}}','unmark-{{p.id}}')"><i class="fas fa-eye-evil"></i>Unmark +18</a>
-							{% endif %}
+								{% if v.admin_level > 1 %}
+									<a id="pin-{{p.id}}" class="dropdown-item {% if p.stickied %}d-none{% endif %} list-inline-item text-info" role="button" onclick="post_toast2(this,'/sticky/{{p.id}}','pin-{{p.id}}','unpin-{{p.id}}')"><i class="fas fa-thumbtack fa-rotate--45"></i>Pin</a>
+									<a id="unpin-{{p.id}}" class="dropdown-item {% if not p.stickied %}d-none{% endif %} list-inline-item text-info" role="button" onclick="post_toast2(this,'/unsticky/{{p.id}}','pin-{{p.id}}','unpin-{{p.id}}')"><i class="fas fa-thumbtack fa-rotate--45"></i>Unpin</a>
+								{% endif %}
 
-							{% if v.admin_level > 1 and p.oauth_app %}
-								<a class="list-inline-item" href="{{p.oauth_app.permalink}}" ><i class="fas fa-code"></i>API App</a>
-							{% endif %}
+								{% if v.admin_level > 1 or v.id == p.author.id and v.club_allowed != False %}
+									<a id="club-{{p.id}}" class="dropdown-item {% if p.club %}d-none{% endif %} list-inline-item text-info" role="button" onclick="post_toast2(this,'/toggle_club/{{p.id}}','club-{{p.id}}','unclub-{{p.id}}')"><i class="fas fa-eye-slash"></i>Mark club</a>
+									<a id="unclub-{{p.id}}" class="dropdown-item {% if not p.club %}d-none{% endif %} list-inline-item text-info" role="button" onclick="post_toast2(this,'/toggle_club/{{p.id}}','club-{{p.id}}','unclub-{{p.id}}')"><i class="fas fa-eye"></i>Unmark club</a>
+								{% endif %}
 
-							{% if v.id != p.author_id and not p.ghost %}
-								<a id="unblock-{{p.id}}" class="text-success list-inline-item {% if not p.is_blocking %} d-none{% endif %}" role="button" onclick="post_toast2(this,'/settings/unblock?username={{p.author_name}}','block-{{p.id}}','unblock-{{p.id}}')"><i class="fas fa-eye text-success"></i>Unblock user</a>
+								{% if v.admin_level > 1 %}
+									{% if "/reported/" in request.path %}
+										{% if v.id != p.author.id %}<a class="dropdown-item list-inline-item text-danger" role="button" onclick="post_toast(this,'/ban_post/{{p.id}}')"><i class="fas fa-ban"></i>Remove</a>{% endif %}
+										<a class="dropdown-item list-inline-item text-success" role="button" onclick="post_toast(this,'/unban_post/{{p.id}}')"><i class="fas fa-check"></i>Approve</a>
+									{% else %}
+										{% if v.id != p.author.id %}<a id="remove-{{p.id}}" class="dropdown-item {% if p.is_banned %}d-none{% endif %} list-inline-item text-danger" role="button" onclick="post_toast2(this,'/ban_post/{{p.id}}','remove-{{p.id}}','approve-{{p.id}}')"><i class="fas fa-ban"></i>Remove</a>{% endif %}
+										<a id="approve-{{p.id}}" class="dropdown-item {% if not p.is_banned %}d-none{% endif %} list-inline-item text-success" role="button" onclick="post_toast2(this,'/unban_post/{{p.id}}','remove-{{p.id}}','approve-{{p.id}}')"><i class="fas fa-check"></i>Approve</a>
+									{% endif %}
 
-								<a id="prompt-{{p.id}}" class="text-danger blockuser list-inline-item d-none" role="button" onclick="post_toast2(this,'/settings/block?username={{p.author_name}}','prompt-{{p.id}}','unblock-{{p.id}}')"><i class="fas fa-eye-slash text-danger"></i>Are you sure?</a>
+									{% if p.oauth_app %}
+										<a class="dropdown-item list-inline-item" href="{{p.oauth_app.permalink}}" ><i class="fas fa-code"></i>API App</a>
+									{% endif %}
+								{% endif %}
 
-								<a id="block-{{p.id}}" class="text-danger blockuser list-inline-item {% if p.is_blocking %} d-none{% endif %}" role="button" onclick="document.getElementById('block-{{p.id}}').classList.toggle('d-none');document.getElementById('prompt-{{p.id}}').classList.toggle('d-none');"><i class="fas fa-eye-slash text-danger"></i>Block user</a>
-							{% endif %}
 
-							{% if p.sub and v.mods(p.sub) %}
-								<a class="list-inline-item text-danger" role="button" onclick="post_toast(this,'/kick/{{p.id}}')"><i class="fas fa-sign-out text-danger"></i>Kick</a>
-							{% endif %}
 
-							{% if v.admin_level > 1 and v.id!=p.author_id %}
-								<a id="ban-{{p.id}}" class="{% if p.author.is_suspended %}d-none{% endif %} list-inline-item text-danger" role="button" data-bs-toggle="modal" data-bs-target="#banModal" onclick="banModal('/post/{{p.id}}', '{{p.author.id}}', '{{p.author_name}}')"><i class="fas fa-user-slash text-danger fa-fw"></i>Ban user</a>
-								<a id="unban-{{p.id}}" class="{% if not p.author.is_suspended %}d-none{% endif %} list-inline-item text-danger" id="unexile2-user-{{p.id}}" role="button" onclick="post_toast2(this,'/unban_user/{{p.author_id}}','ban-{{p.id}}','unban-{{p.id}}')"><i class="fas fa-user-slash"></i>Unban user</a>
-							{% endif %}
+								{% if v.id != p.author_id and not p.ghost %}
+									<a id="unblock-{{p.id}}" class="dropdown-item text-success list-inline-item {% if not p.is_blocking %}d-none{% endif %}" role="button" onclick="post_toast2(this,'/settings/unblock?username={{p.author_name}}','block-{{p.id}}','unblock-{{p.id}}')"><i class="fas fa-eye text-success"></i>Unblock user</a>
+
+									<a id="block-{{p.id}}" class="dropdown-item list-inline-item text-danger {% if p.is_blocking %}d-none{% endif %}" role="button" onclick="post_toast2(this,'/settings/block?username={{p.author_name}}','block-{{p.id}}','unblock-{{p.id}}')"><i class="fas fa-eye-slash text-danger"></i>Block user</a>
+								{% endif %}
+
+
+								{% if p.sub and v.mods(p.sub) %}
+									<a class="dropdown-item list-inline-item text-danger" role="button" onclick="post_toast(this,'/kick/{{p.id}}')"><i class="fas fa-sign-out text-danger"></i>Kick</a>
+								{% endif %}
+
+
+								{% if v.id==p.author_id or v.admin_level > 1 %}
+									<a id="mark-{{p.id}}" class="dropdown-item {% if p.over_18 %}d-none{% endif %} list-inline-item text-danger" role="button" onclick="post_toast2(this,'/toggle_post_nsfw/{{p.id}}','mark-{{p.id}}','unmark-{{p.id}}')"><i class="fas fa-eye-evil"></i>Mark +18</a>
+									<a id="unmark-{{p.id}}" class="dropdown-item {% if not p.over_18 %}d-none{% endif %} list-inline-item text-success" role="button" onclick="post_toast2(this,'/toggle_post_nsfw/{{p.id}}','mark-{{p.id}}','unmark-{{p.id}}')"><i class="fas fa-eye-evil"></i>Unmark +18</a>
+								{% endif %}
+
+								{% if v.admin_level > 1 and v.id != p.author_id %}
+									<a id="ban-{{p.id}}" class="dropdown-item {% if p.author.is_suspended %}d-none{% endif %} list-inline-item text-danger" id="exile-comment-{{p.id}}" role="button" data-bs-toggle="modal" data-bs-target="#banModal" onclick="banModal('/post/{{p.id}}', '{{p.author.id}}', '{{p.author_name}}')"><i class="fas fa-user-slash text-danger fa-fw"></i>Ban user</a>
+									<a id="unban-{{p.id}}" class="dropdown-item {% if not p.author.is_suspended %}d-none{% endif %} list-inline-item text-danger" id="unexile2-user-{{p.id}}" role="button" onclick="post_toast2(this,'/unban_user/{{p.author_id}}','ban-{{p.id}}','unban-{{p.id}}')"><i class="fas fa-user-slash"></i>Unban user</a>
+								{% endif %}
+							</ul>
 						{% endif %}
-								</ul>
-							</div>
+						</div>
 
 						</div>
 
@@ -957,7 +963,7 @@
  </div>
  
 {% if offset %}
-	<script src="/static/assets/js/viewmore.js?a=245"></script>
+	<script src="/static/assets/js/viewmore.js?a=246"></script>
 {% endif %}
 
 {% elif not p.replies and p.deleted_utc == 0 %}

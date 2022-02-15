@@ -7,6 +7,7 @@ from files.helpers.filters import *
 from files.helpers.alerts import *
 from files.helpers.discord import send_discord_message
 from files.helpers.const import *
+from files.helpers.slots import *
 from files.classes import *
 from flask import *
 from io import BytesIO
@@ -35,6 +36,26 @@ CF_KEY = environ.get("CF_KEY", "").strip()
 CF_ZONE = environ.get("CF_ZONE", "").strip()
 CF_HEADERS = {"Authorization": f"Bearer {CF_KEY}", "Content-Type": "application/json"}
 
+discounts = {
+	69: 0.02,
+	70: 0.04,
+	71: 0.06,
+	72: 0.08,
+	73: 0.10,
+}
+
+def ghost_price(v):
+	if v.patron == 1: discount = 0.90
+	elif v.patron == 2: discount = 0.85
+	elif v.patron == 3: discount = 0.80
+	elif v.patron == 4: discount = 0.75
+	elif v.patron == 5: discount = 0.70
+	else: discount = 1
+	for badge in [69,70,71,72,73]:
+		if v.has_badge(badge): discount -= discounts[badge]
+
+	return int(500*discount)
+
 @app.post("/toggle_club/<pid>")
 @auth_required
 def toggle_club(pid, v):
@@ -62,18 +83,18 @@ def publish(pid, v):
 	post.created_utc = int(time.time())
 	g.db.add(post)
 	
-	notify_users = NOTIFY_USERS(post.body_html, v) | NOTIFY_USERS2(post.title, v)
+	if not post.ghost:
+		notify_users = NOTIFY_USERS(post.body_html, v) | NOTIFY_USERS2(post.title, v)
 
-	cid = notif_comment(f"@{v.username} has mentioned you: [{post.title}]({post.permalink})")
-	for x in notify_users:
-		add_notif(cid, x)
+		cid = notif_comment(f"@{v.username} has mentioned you: [{post.title}]({post.permalink})")
+		for x in notify_users:
+			add_notif(cid, x)
 
-	
-	cid = notif_comment(f"@{v.username} has made a new post: [{post.title}]({post.permalink})", autojanny=True)
-	for follow in v.followers:
-		user = get_account(follow.user_id)
-		if post.club and not user.paid_dues: continue
-		add_notif(cid, user.id)
+		cid = notif_comment(f"@{v.username} has made a new post: [{post.title}]({post.permalink})", autojanny=True)
+		for follow in v.followers:
+			user = get_account(follow.user_id)
+			if post.club and not user.paid_dues: continue
+			add_notif(cid, user.id)
 
 
 	cache.delete_memoized(frontlist)
@@ -95,7 +116,7 @@ def submit_get(v, sub=None):
 	
 	if request.path.startswith('/s/') and not sub: abort(404)
 
-	return render_template("submit.html", SUBS=() if SITE_NAME == 'Drama' else tuple(x[0] for x in g.db.query(Sub.name).order_by(Sub.name).all()), v=v, sub=sub)
+	return render_template("submit.html", SUBS=() if SITE_NAME == 'Drama' else tuple(x[0] for x in g.db.query(Sub.name).order_by(Sub.name).all()), v=v, sub=sub, price=ghost_price(v))
 
 @app.get("/post/<pid>")
 @app.get("/post/<pid>/<anything>")
@@ -141,8 +162,8 @@ def post_id(pid, anything=None, v=None, sub=None):
 		comments = g.db.query(
 			Comment,
 			votes.c.vote_type,
-			blocking.c.id,
-			blocked.c.id,
+			blocking.c.target_id,
+			blocked.c.target_id,
 		)
 		
 		if not (v and v.shadowbanned) and not (v and v.admin_level > 1):
@@ -271,8 +292,8 @@ def viewmore(v, pid, sort, offset):
 		comments = g.db.query(
 			Comment,
 			votes.c.vote_type,
-			blocking.c.id,
-			blocked.c.id,
+			blocking.c.target_id,
+			blocked.c.target_id,
 		).filter(Comment.parent_submission == pid, Comment.author_id.notin_((AUTOPOLLER_ID, AUTOBETTER_ID, AUTOCHOICE_ID)), Comment.is_pinned == None, Comment.id.notin_(ids))
 		
 		if not (v and v.shadowbanned) and not (v and v.admin_level > 1):
@@ -374,8 +395,8 @@ def morecomments(v, cid):
 		comments = g.db.query(
 			Comment,
 			votes.c.vote_type,
-			blocking.c.id,
-			blocked.c.id,
+			blocking.c.target_id,
+			blocked.c.target_id,
 		).filter(Comment.top_comment_id == tcid, Comment.level > 9).join(
 			votes,
 			votes.c.comment_id == Comment.id,
@@ -570,13 +591,11 @@ def edit_post(pid, v):
 			g.db.add(n)
 
 
-		notify_users = NOTIFY_USERS(body_html, v) | NOTIFY_USERS2(title, v)
-		
-		soup = BeautifulSoup(body_html, features="html.parser")
-			
-		cid = notif_comment(f"@{v.username} has mentioned you: [{p.title}]({p.permalink})")
-		for x in notify_users:
-			add_notif(cid, x)
+		if not p.private and not p.ghost:
+			notify_users = NOTIFY_USERS(body_html, v) | NOTIFY_USERS2(title, v)
+			cid = notif_comment(f"@{v.username} has mentioned you: [{p.title}]({p.permalink})")
+			for x in notify_users:
+				add_notif(cid, x)
 
 
 
@@ -734,7 +753,7 @@ def thumbnail_thread(pid):
 
 				body_html = sanitize(f'New {word} mention: https://old.reddit.com{i["permalink"]}?context=89', noimages=True)
 
-				existing_comment = db.query(Comment.id).filter_by(author_id=NOTIFICATIONS_ID, parent_submission=None, distinguish_level=6, body_html=body_html, level=1, sentto=0).first()
+				existing_comment = db.query(Comment.id).filter_by(author_id=NOTIFICATIONS_ID, parent_submission=None, distinguish_level=6, body_html=body_html, level=1, sentto=0).one_or_none()
 
 				if existing_comment: break
 
@@ -757,7 +776,7 @@ def thumbnail_thread(pid):
 			for i in requests.get(f'https://api.pushshift.io/reddit/{t}/search?html_decode=true&q={k}&size=1').json()["data"]:
 				try: body_html = sanitize(f'New mention of you: https://old.reddit.com{i["permalink"]}?context=89', noimages=True)
 				except: continue
-				existing_comment = db.query(Comment.id).filter_by(author_id=NOTIFICATIONS_ID, parent_submission=None, distinguish_level=6, body_html=body_html).first()
+				existing_comment = db.query(Comment.id).filter_by(author_id=NOTIFICATIONS_ID, parent_submission=None, distinguish_level=6, body_html=body_html).one_or_none()
 				if existing_comment: break
 
 				new_comment = Comment(author_id=NOTIFICATIONS_ID,
@@ -785,7 +804,7 @@ def thumbnail_thread(pid):
 			for i in data:
 				body_html = sanitize(f'New pcmemes mention: https://old.reddit.com{i["permalink"]}?context=89', noimages=True)
 
-				existing_comment = db.query(Comment.id).filter_by(author_id=NOTIFICATIONS_ID, parent_submission=None, distinguish_level=6, body_html=body_html, level=1, sentto=0).first()
+				existing_comment = db.query(Comment.id).filter_by(author_id=NOTIFICATIONS_ID, parent_submission=None, distinguish_level=6, body_html=body_html, level=1, sentto=0).one_or_none()
 
 				if existing_comment: break
 
@@ -823,27 +842,34 @@ def submit_post(v, sub=None):
 		sub = sub[0]
 	else: sub = None
 
-	if v.is_suspended: return {"error": "You can't perform this action while banned."}, 403
-	
-	if v and v.patron:
-		if request.content_length > 8 * 1024 * 1024: return {"error": "Max file size is 8 MB."}, 413
-	elif request.content_length > 4 * 1024 * 1024: return {"error": "Max file size is 4 MB."}, 413
-
 	title = request.values.get("title", "").strip()[:500].replace('‎','')
 
 	url = request.values.get("url", "").strip()
+		
+	body = request.values.get("body", "").strip().replace('‎','')
+
+	def error(error):
+		print(sub, flush=True)
+		if request.headers.get("Authorization") or request.headers.get("xhr"): error(error)
+		return render_template("submit.html", SUBS=() if SITE_NAME == 'Drama' else tuple(x[0] for x in g.db.query(Sub.name).order_by(Sub.name).all()), v=v, error=error, title=title, url=url, body=body, price=ghost_price(v)), 400
+
+	if v.is_suspended: error( "You can't perform this action while banned.")
+	
+	if v and v.patron:
+		if request.content_length > 8 * 1024 * 1024: error( "Max file size is 8 MB.")
+	elif request.content_length > 4 * 1024 * 1024: error( "Max file size is 4 MB.")
 
 	if v.agendaposter and not v.marseyawarded: title = torture_ap(title, v.username)
 
-	title_html = filter_emojis_only(title)
-	body = request.values.get("body", "").strip().replace('‎','')
+	title_html = filter_emojis_only(title, graceful=True)
+	if len(title_html) > 1500: return error("Rendered title is too big!")
 
-	if v.marseyawarded and len(list(re.finditer('>[^<\s+]|[^>\s+]<', title_html, re.A))): return {"error":"You can only type marseys!"}, 40
+	if v.marseyawarded and len(list(re.finditer('>[^<\s+]|[^>\s+]<', title_html, re.A))): return error("You can only type marseys!")
 
 	if v.longpost:
-		if len(body) < 280 or ' [](' in body or body.startswith('[]('): return {"error":"You have to type more than 280 characters!"}, 403
+		if len(body) < 280 or ' [](' in body or body.startswith('[]('): return error("You have to type more than 280 characters!")
 	elif v.bird:
-		if len(body) > 140 : return {"error":"You have to type less than 140 characters!"}, 403
+		if len(body) > 140 : return error("You have to type less than 140 characters!")
 
 	if url:
 		if "/i.imgur.com/" in url: url = url.replace(".png", ".webp").replace(".jpg", ".webp").replace(".jpeg", ".webp")
@@ -893,8 +919,7 @@ def submit_post(v, sub=None):
 		if not domain_obj: domain_obj = get_domain(domain+parsed_url.path)
 		if domain_obj:
 			reason = f"Remove the {domain_obj.domain} link from your post and try again. {domain_obj.reason}"
-			if request.headers.get("Authorization") or request.headers.get("xhr"): return {"error":reason}, 400
-			return render_template("submit.html", SUBS=() if SITE_NAME == 'Drama' else tuple(x[0] for x in g.db.query(Sub.name).order_by(Sub.name).all()), v=v, error=reason, title=title, url=url, body=request.values.get("body", "")), 400
+			return error(reason)
 		elif "twitter.com" == domain:
 			try: embed = requests.get("https://publish.twitter.com/oembed", timeout=5, params={"url":url, "omit_script":"t"}).json()["html"]
 			except: embed = None
@@ -915,27 +940,24 @@ def submit_post(v, sub=None):
 	else: embed = None
 
 	if not url and not request.values.get("body") and not request.files.get("file", None):
-		if request.headers.get("Authorization") or request.headers.get("xhr"): return {"error": "`url` or `body` parameter required."}, 400
-		return render_template("submit.html", SUBS=() if SITE_NAME == 'Drama' else tuple(x[0] for x in g.db.query(Sub.name).order_by(Sub.name).all()), v=v, error="Please enter a url or some text.", title=title, url=url, body=request.values.get("body", "")), 400
+		return error("Please enter a url or some text.")
 
 	if not title:
-		if request.headers.get("Authorization") or request.headers.get("xhr"): return {"error": "Please enter a better title"}, 400
-		return render_template("submit.html", SUBS=() if SITE_NAME == 'Drama' else tuple(x[0] for x in g.db.query(Sub.name).order_by(Sub.name).all()), v=v, error="Please enter a better title.", title=title, url=url, body=request.values.get("body", "")), 400
+		return error("Please enter a better title.")
 
 
 	elif len(title) > 500:
-		if request.headers.get("Authorization") or request.headers.get("xhr"): return {"error": "500 character limit for titles"}, 400
-		else: render_template("submit.html", SUBS=() if SITE_NAME == 'Drama' else tuple(x[0] for x in g.db.query(Sub.name).order_by(Sub.name).all()), v=v, error="500 character limit for titles.", title=title[:500], url=url, body=request.values.get("body", "")), 400
+		return error("There's a 500 character limit for titles.")
 
 	if v.marseyawarded:
 		marregex = list(re.finditer("^(:[!#]{0,2}m\w+:\s*)+$", title, re.A))
-		if len(marregex) == 0: return {"error":"You can only type marseys!"}, 403
+		if len(marregex) == 0: return error("You can only type marseys!")
 		if body:
 			marregex = list(re.finditer("^(:[!#]{0,2}m\w+:\s*)+$", body, re.A))
-			if len(marregex) == 0: return {"error":"You can only type marseys!"}, 403
+			if len(marregex) == 0: return error("You can only type marseys!")
 
-	if v.longpost and len(body) < 280 or ' [](' in body or body.startswith('[]('): return {"error":"You have to type more than 280 characters!"}, 403
-	elif v.bird and len(body) > 140: return {"error":"You have to type less than 140 characters!"}, 403
+	if v.longpost and len(body) < 280 or ' [](' in body or body.startswith('[]('): return error("You have to type more than 280 characters!")
+	elif v.bird and len(body) > 140: return error("You have to type less than 140 characters!")
 
 	dup = g.db.query(Submission).filter(
 		Submission.author_id == v.id,
@@ -992,14 +1014,10 @@ def submit_post(v, sub=None):
 		return redirect(f"{SITE_FULL}/notifications")
 
 	if len(str(body)) > 20000:
-
-		if request.headers.get("Authorization") or request.headers.get("xhr"): return {"error":"There's a 20000 character limit for text body."}, 400
-		return render_template("submit.html", SUBS=() if SITE_NAME == 'Drama' else tuple(x[0] for x in g.db.query(Sub.name).order_by(Sub.name).all()), v=v, error="There's a 20000 character limit for text body.", title=title, url=url, body=request.values.get("body", "")), 400
+		return error("There's a 20000 character limit for text body.")
 
 	if len(url) > 2048:
-
-		if request.headers.get("Authorization") or request.headers.get("xhr"): return {"error":"2048 character limit for URLs."}, 400
-		return render_template("submit.html", SUBS=() if SITE_NAME == 'Drama' else tuple(x[0] for x in g.db.query(Sub.name).order_by(Sub.name).all()), v=v, error="2048 character limit for URLs.", title=title, url=url,body=request.values.get("body", "")), 400
+		return error("There's a 2048 character limit for URLs.")
 
 	for i in re.finditer('^(https:\/\/.*\.(png|jpg|jpeg|gif|webp|PNG|JPG|JPEG|GIF|WEBP|9999)($|\s|\n))', body, re.M|re.A):
 		if "wikipedia" not in i.group(1): body = body.replace(i.group(1), f'![]({i.group(1)})')
@@ -1032,12 +1050,11 @@ def submit_post(v, sub=None):
 			file.save("video.mp4")
 			with open("video.mp4", 'rb') as f:
 				try: url = requests.request("POST", "https://api.imgur.com/3/upload", headers={'Authorization': f'Client-ID {IMGUR_KEY}'}, files=[('video', f)]).json()['data']['link']
-				except: return {"error": "Imgur error"}, 400
+				except: error( "Imgur error")
 			if url.endswith('.'): url += 'mp4'
 			body += f"\n\n{url}"
 		else:
-			if request.headers.get("Authorization") or request.headers.get("xhr"): return {"error": "Image/Video files only"}, 400
-			return render_template("submit.html", SUBS=() if SITE_NAME == 'Drama' else tuple(x[0] for x in g.db.query(Sub.name).order_by(Sub.name).all()), v=v, error="Image/Video files only."), 400
+			return error("Image/Video files only.")
 
 	if '#fortune' in body:
 		body = body.replace('#fortune', '')
@@ -1045,27 +1062,39 @@ def submit_post(v, sub=None):
 
 	body_html = sanitize(body)
 
-	if v.marseyawarded and len(list(re.finditer('>[^<\s+]|[^>\s+]<', body_html, re.A))): return {"error":"You can only type marseys!"}, 400
+	if v.marseyawarded and len(list(re.finditer('>[^<\s+]|[^>\s+]<', body_html, re.A))): return error("You can only type marseys!")
 
 	if v.longpost:
-		if len(body) < 280 or ' [](' in body or body.startswith('[]('): return {"error":"You have to type more than 280 characters!"}, 403
+		if len(body) < 280 or ' [](' in body or body.startswith('[]('): return error("You have to type more than 280 characters!")
 	elif v.bird:
-		if len(body) > 140 : return {"error":"You have to type less than 140 characters!"}, 403
+		if len(body) > 140 : return error("You have to type less than 140 characters!")
 
-	if len(body_html) > 40000: return {"error":"Submission body too long!"}, 400
+	if len(body_html) > 40000: return error("Submission body too long!")
 
 	bans = filter_comment_html(body_html)
 	if bans:
 		ban = bans[0]
 		reason = f"Remove the {ban.domain} link from your post and try again."
 		if ban.reason: reason += f" {ban.reason}"
-		if request.headers.get("Authorization") or request.headers.get("xhr"): return {"error": reason}, 403
-		return render_template("submit.html", SUBS=() if SITE_NAME == 'Drama' else tuple(x[0] for x in g.db.query(Sub.name).order_by(Sub.name).all()), v=v, error=reason, title=title, url=url, body=request.values.get("body", "")), 403
+		return error(reason)
 
 	if v.club_allowed == False: club = False
 	else: club = bool(request.values.get("club",""))
 	
 	if embed and len(embed) > 1500: embed = None
+
+	ghost = False
+	if request.values.get('ghost'):
+
+		price = ghost_price(v)
+
+		if v.coins >= price:
+			v.coins -= price
+			ghost = True
+		elif v.procoins >= price:
+			v.procoins -= price
+			ghost = True
+
 
 	new_post = Submission(
 		private=bool(request.values.get("private","")),
@@ -1080,8 +1109,8 @@ def submit_post(v, sub=None):
 		embed_url=embed,
 		title=title[:500],
 		title_html=title_html,
-		created_utc=int(time.time()),
-		sub=sub
+		sub=sub,
+		ghost=ghost
 	)
 
 	g.db.add(new_post)
@@ -1141,13 +1170,11 @@ def submit_post(v, sub=None):
 			file.save("video.mp4")
 			with open("video.mp4", 'rb') as f:
 				try: url = requests.request("POST", "https://api.imgur.com/3/upload", headers={'Authorization': f'Client-ID {IMGUR_KEY}'}, files=[('video', f)]).json()['data']['link']
-				except: return {"error": "Imgur error"}, 400
+				except: error( "Imgur error")
 			if url.endswith('.'): url += 'mp4'
 			new_post.url = url
 		else:
-			if request.headers.get("Authorization") or request.headers.get("xhr"): return {"error": "File type not allowed"}, 400
-			return render_template("submit.html", SUBS=() if SITE_NAME == 'Drama' else tuple(x[0] for x in g.db.query(Sub.name).order_by(Sub.name).all()), v=v, error="File type not allowed.", title=title, body=request.values.get("body", "")), 400
-
+			return error("Image/Video files only.")
 		
 	if not new_post.thumburl and new_post.url:
 		if request.host in new_post.url or new_post.url.startswith('/') or new_post.domain == SITE:
@@ -1155,7 +1182,10 @@ def submit_post(v, sub=None):
 		elif request.headers.get('cf-ipcountry')!="T1":
 			gevent.spawn( thumbnail_thread, new_post.id)
 
-	if not new_post.private:
+
+
+
+	if not new_post.private and not new_post.ghost:
 
 		notify_users = NOTIFY_USERS(body_html, v) | NOTIFY_USERS2(title, v)
 
@@ -1168,6 +1198,10 @@ def submit_post(v, sub=None):
 			user = get_account(follow.user_id)
 			if new_post.club and not user.paid_dues: continue
 			add_notif(cid, user.id)
+
+
+
+
 
 	if v.agendaposter and not v.marseyawarded and AGENDAPOSTER_PHRASE not in f'{new_post.body}{new_post.title}'.lower():
 		new_post.is_banned = True
@@ -1284,8 +1318,7 @@ def submit_post(v, sub=None):
 			g.db.add(n)
 		
 		if body.startswith('!slots1000'):
-			slots = Slots(g)
-			slots.check_for_slots_command(body, snappy, c)
+			check_for_slots_command(body, snappy, c)
 
 		new_post.comment_count += 1
 

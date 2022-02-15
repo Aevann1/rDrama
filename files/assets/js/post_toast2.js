@@ -35,7 +35,7 @@ function post_toast2(t, url, button1, button2) {
 		setTimeout(() => {
 			t.disabled = false;
 			t.classList.remove("disabled");
-		}, 500);
+		}, 2000);
 	};
 
 	xhr.send(form);

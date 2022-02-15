@@ -44,7 +44,7 @@ function post_toast3(t, url, button1, button2) {
 		setTimeout(() => {
 			t.disabled = false;
 			t.classList.remove("disabled");
-		}, 500);
+		}, 2000);
 	};
 
 	xhr.send(form);
@@ -60,6 +60,7 @@ function report_commentModal(id, author) {
 	btn = document.getElementById("reportCommentButton")
 	btn.innerHTML='Report comment';
 	btn.disabled = false;
+	btn.classList.remove('disabled');
 
 	reason = document.getElementById("reason-comment")
 	reason.value = ""
@@ -67,6 +68,7 @@ function report_commentModal(id, author) {
 	btn.onclick = function() {
 		this.innerHTML='Reporting comment';
 		this.disabled = true;
+		this.classList.add('disabled');
 		const xhr = new XMLHttpRequest();
 		xhr.open("POST", '/report/comment/'+id);
 		xhr.setRequestHeader('xhr', 'xhr');
@@ -113,23 +115,33 @@ function toggleEdit(id){
 
 
 function delete_commentModal(id) {
-
-	document.getElementById("deleteCommentButton").onclick = function() {	
-
-		this.innerHTML='Deleting comment';	
-		this.disabled = true; 
-
-		var url = '/delete/comment/' + id
-		const xhr = new XMLHttpRequest();
-		xhr.open("POST", url);
-		xhr.setRequestHeader('xhr', 'xhr');
-		var form = new FormData()
-		form.append("formkey", formkey());
-		xhr.onload = function() {location.reload(true);};
-		xhr.send(form);
+    document.getElementById("deleteCommentButton").onclick =  function() {
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", `/delete_comment/${id}`);
+        xhr.setRequestHeader('xhr', 'xhr');
+        var form = new FormData()
+        form.append("formkey", formkey());
+        xhr.onload = function() {
+            let data
+            try {data = JSON.parse(xhr.response)}
+            catch(e) {console.log(e)}
+            if (xhr.status >= 200 && xhr.status < 300 && data && data['message']) {
+                document.getElementById(`comment-${id}`).classList.add('deleted');
+                document.getElementById(`delete-${id}`).classList.add('d-none');
+                document.getElementById(`undelete-${id}`).classList.remove('d-none');
+                document.getElementById(`delete2-${id}`).classList.add('d-none');
+                document.getElementById(`undelete2-${id}`).classList.remove('d-none');
+                document.getElementById('toast-comment-success-text').innerText = data["message"];
+                bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-comment-success')).show();
+            } else {
+                document.getElementById('toast-comment-error-text').innerText = "Error, please try again later."
+                if (data && data["error"]) document.getElementById('toast-comment-error-text').innerText = data["error"];
+                bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-comment-error')).show();
+            }
+        };
+        xhr.send(form);
+    };
 }
-
-};
 
 function post_reply(id){
 	const btn = document.getElementById(`save-reply-to-${id}`)
@@ -160,7 +172,7 @@ function post_reply(id){
 		setTimeout(() => {
 			btn.disabled = false;
 			btn.classList.remove('disabled');
-		}, 500);
+		}, 2000);
 	}
 	xhr.send(form)
 }
@@ -197,7 +209,7 @@ function comment_edit(id){
 		setTimeout(() => {
 			btn.disabled = false;
 			btn.classList.remove('disabled');
-		}, 500);
+		}, 2000);
 	}
 	xhr.send(form)
 }
@@ -235,7 +247,7 @@ function post_comment(fullname){
 		setTimeout(() => {
 			btn.disabled = false;
 			btn.classList.remove('disabled');
-		}, 500);
+		}, 2000);
 	}
 	xhr.send(form)
 }
@@ -320,6 +332,22 @@ function handle_blackjack_action(cid, action) {
 	
 	const xhr = new XMLHttpRequest();
 	xhr.open("post", `/blackjack/${cid}`);
+	xhr.setRequestHeader('xhr', 'xhr');
+
+	xhr.onload = function() {
+		if (xhr.status == 200) location.reload();
+	}
+	xhr.send(form);
+}
+
+function handle_wordle_action(cid, guess) {
+	const form = new FormData();
+	form.append('formkey', formkey());
+	form.append('comment_id', cid);
+	form.append('guess', guess);
+	
+	const xhr = new XMLHttpRequest();
+	xhr.open("post", `/wordle/${cid}`);
 	xhr.setRequestHeader('xhr', 'xhr');
 
 	xhr.onload = function() {

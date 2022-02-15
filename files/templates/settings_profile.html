@@ -39,6 +39,55 @@
 			</div>
 			{% endif %}
 
+
+
+
+
+			{% if SITE_NAME == 'Drama' %}
+				<h2 class="h5" name="referral">House</h2>
+
+				<div class="settings-section rounded">
+
+					<div class="d-lg-flex border-bottom">
+						<div class="title w-lg-25">
+							<label for="theme">House</label>
+						</div>
+
+						<div class="body w-lg-100">
+							<p>Change your house (cost: 2000 coins or marseybux).</p>
+							<div class="input-group mb2">
+								<select {% if v.coins < 2000 and v.procoins < 2000 %}disabled{% endif %} autocomplete="off" id='house' class="form-control" form="profile-settings" name="house" onchange="post_toast(this,'/settings/profile?house='+document.getElementById('house').value, '1')">
+								{% for entry in  ("None","Furry","Femboy","Vampire","Racist") %}
+									<option value="{{entry}}" {% if v.house==entry %} selected {% endif %}>
+										{{entry}}
+									</option>
+								{% endfor %}
+							</select>
+							</div>
+
+							</div>
+
+					</div>
+				</div>
+			{% endif %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 			<h2 class="h5" name="referral">Theme</h2>
 
 			<div class="settings-section rounded">

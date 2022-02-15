@@ -3,6 +3,9 @@ from files.helpers.filters import *
 from files.helpers.alerts import *
 from files.helpers.images import *
 from files.helpers.const import *
+from files.helpers.slots import *
+from files.helpers.blackjack import *
+from files.helpers.treasure import *
 from files.classes import *
 from files.routes.front import comment_idlist
 from files.routes.static import marsey_list
@@ -21,6 +24,7 @@ if PUSHER_ID: beams_client = PushNotifications(instance_id=PUSHER_ID, secret_key
 CF_KEY = environ.get("CF_KEY", "").strip()
 CF_ZONE = environ.get("CF_ZONE", "").strip()
 CF_HEADERS = {"Authorization": f"Bearer {CF_KEY}", "Content-Type": "application/json"}
+WORD_LIST = tuple(set(environ.get("WORDLE").split(" ")))
 
 @app.get("/comment/<cid>")
 @app.get("/post/<pid>/<anything>/<cid>")
@@ -93,8 +97,8 @@ def post_pid_comment_cid(cid, pid=None, anything=None, v=None, sub=None):
 		comments = g.db.query(
 			Comment,
 			votes.c.vote_type,
-			blocking.c.id,
-			blocked.c.id,
+			blocking.c.target_id,
+			blocked.c.target_id,
 		)
 
 		if not (v and v.shadowbanned) and not (v and v.admin_level > 1):
@@ -211,7 +215,7 @@ def api_comment(v):
 					try:
 						badge_def = loads(body)
 						name = badge_def["name"]
-						badge = g.db.query(BadgeDef).filter_by(name=name).first()
+						badge = g.db.query(BadgeDef).filter_by(name=name).one_or_none()
 						if not badge:
 							badge = BadgeDef(name=name, description=badge_def["description"])
 							g.db.add(badge)
@@ -229,7 +233,7 @@ def api_comment(v):
 						if "author" in marsey: author_id = get_user(marsey["author"]).id
 						elif "author_id" in marsey: author_id = marsey["author_id"]
 						else: abort(400)
-						if not g.db.query(Marsey.name).filter_by(name=name).first():
+						if not g.db.query(Marsey.name).filter_by(name=name).one_or_none():
 							marsey = Marsey(name=marsey["name"], author_id=author_id, tags=marsey["tags"], count=0)
 							g.db.add(marsey)
 						filename = f'files/assets/images/emojis/{name}.webp'
@@ -275,7 +279,7 @@ def api_comment(v):
 		if ban.reason: reason += f" {ban.reason}"
 		return {"error": reason}, 401
 
-	if parent_post.id not in (37696,37697,37749,37833,37838) and not body.startswith('!slots') and not body.startswith('!casino'):
+	if parent_post.id not in (37696,37697,37749,37833,37838) and '!slots' not in body.lower() and '!blackjack' not in body.lower() and '!wordle' not in body.lower() and AGENDAPOSTER_PHRASE not in body.lower():
 		existing = g.db.query(Comment.id).filter(Comment.author_id == v.id,
 																	Comment.deleted_utc == 0,
 																	Comment.parent_comment_id == parent_comment_id,
@@ -289,7 +293,7 @@ def api_comment(v):
 
 	is_bot = bool(request.headers.get("Authorization"))
 
-	if '!slots' not in body.lower() and '!blackjack' not in body.lower() and parent_post.id not in (37696,37697,37749,37833,37838) and not is_bot and not v.marseyawarded and AGENDAPOSTER_PHRASE not in body.lower() and len(body) > 10:
+	if '!slots' not in body.lower() and '!blackjack' not in body.lower() and '!wordle' not in body.lower() and parent_post.id not in (37696,37697,37749,37833,37838) and not is_bot and not v.marseyawarded and AGENDAPOSTER_PHRASE not in body.lower() and len(body) > 10:
 		now = int(time.time())
 		cutoff = now - 60 * 60 * 24
 
@@ -584,7 +588,7 @@ def api_comment(v):
 									'title': f'New reply by @{c.author_name}',
 									'body': notifbody,
 									'deep_link': f'{SITE_FULL}/comment/{c.id}?context=8&read=true#context',
-									'icon': f'{SITE_FULL}/assets/images/{SITE_NAME}/icon.webp?a=1010',
+									'icon': f'{SITE_FULL}/assets/images/{SITE_NAME}/icon.webp?a=1011',
 								}
 							},
 							'fcm': {
@@ -638,18 +642,19 @@ def api_comment(v):
 		g.db.add(c)
 
 	if not v.rehab:
-		slots = Slots(g)
-		slots.check_for_slots_command(body, v, c)
+		check_for_slots_command(body, v, c)
 
-		blackjack = Blackjack(g)
-		blackjack.check_for_blackjack_commands(body, v, c)
+		check_for_blackjack_commands(body, v, c)
 
-	treasure = Treasure(g)
-	treasure.check_for_treasure(body, c)
+	check_for_treasure(body, c)
 
-	if not c.slots_result and not c.blackjack_result:
+	if not c.slots_result and not c.blackjack_result and not c.wordle_result:
 		parent_post.comment_count += 1
 		g.db.add(parent_post)
+
+	if "!wordle" in body:
+		answer = random.choice(WORD_LIST)
+		c.wordle_result = f'_active_{answer}'
 
 	g.db.commit()
 
@@ -734,7 +739,7 @@ def edit_comment(cid, v):
 			if ban.reason: reason += f" {ban.reason}"	
 		
 			return {'error': reason}, 400
-		if '!slots' not in body.lower() and '!blackjack' not in body.lower() and AGENDAPOSTER_PHRASE not in body.lower():
+		if '!slots' not in body.lower() and '!blackjack' not in body.lower() and '!wordle' not in body.lower() and AGENDAPOSTER_PHRASE not in body.lower():
 			now = int(time.time())
 			cutoff = now - 60 * 60 * 24
 
@@ -1000,10 +1005,10 @@ def save_comment(cid, v):
 
 	comment=get_comment(cid)
 
-	save=g.db.query(SaveRelationship).filter_by(user_id=v.id, comment_id=comment.id).one_or_none()
+	save=g.db.query(CommentSaveRelationship).filter_by(user_id=v.id, comment_id=comment.id).one_or_none()
 
 	if not save:
-		new_save=SaveRelationship(user_id=v.id, comment_id=comment.id)
+		new_save=CommentSaveRelationship(user_id=v.id, comment_id=comment.id)
 		g.db.add(new_save)
 
 		try: g.db.commit()
@@ -1018,7 +1023,7 @@ def unsave_comment(cid, v):
 
 	comment=get_comment(cid)
 
-	save=g.db.query(SaveRelationship).filter_by(user_id=v.id, comment_id=comment.id).one_or_none()
+	save=g.db.query(CommentSaveRelationship).filter_by(user_id=v.id, comment_id=comment.id).one_or_none()
 
 	if save:
 		g.db.delete(save)
@@ -1032,12 +1037,50 @@ def unsave_comment(cid, v):
 def handle_blackjack_action(cid, v):
 	comment = get_comment(cid)
 	action = request.values.get("action", "")
-	blackjack = Blackjack(g)
 
-	if action == 'hit': blackjack.player_hit(comment)
-	elif action == 'stay': blackjack.player_stayed(comment)
+	if action == 'hit': player_hit(comment)
+	elif action == 'stay': player_stayed(comment)
 	
 	g.db.add(comment)
 	g.db.add(v)
 	g.db.commit()
+	return { "message" : "..." }
+
+@app.post("/wordle/<cid>")
+@limiter.limit("1/second;30/minute;200/hour;1000/day")
+@auth_required
+def handle_wordle_action(cid, v):
+	comment = get_comment(cid)
+
+	guesses, status, answer = comment.wordle_result.split("_")
+	count = len(guesses.split(" -> "))
+
+	try: guess = request.values.get("guess").strip().lower()
+	except: abort(400)
+
+	if (len(guess) == 5 and status == "active"):
+		result = ""
+		not_finished = [x for x in answer]
+		pos = 0
+		for i in guess:
+			result += i.upper()
+			if i == answer[pos]:
+				result += "🟩 "
+				not_finished[pos] = " "
+			elif i in not_finished: result += "🟨 "
+			else: result += "🟥 "
+			pos += 1
+
+		guesses += result[:-1]
+
+		if (guess == answer): status = "won"
+		elif (count == 6): status = "lost"
+		else: guesses += ' -> '
+
+		comment.wordle_result = f'{guesses}_{status}_{answer}'
+		
+
+		g.db.add(comment)
+		g.db.commit()
+	
 	return { "message" : "..." }

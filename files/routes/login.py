@@ -87,7 +87,9 @@ def login_post():
 	if not username: abort(400)
 	if username.startswith('@'): username = username[1:]
 
-	if "@" in username: account = g.db.query(User).filter(User.email.ilike(username)).one_or_none()
+	if "@" in username:
+		try: account = g.db.query(User).filter(User.email.ilike(username)).one_or_none()
+		except: return "Multiple users use this email!"
 	else: account = get_user(username, graceful=True)
 
 	if not account:
@@ -117,9 +119,7 @@ def login_post():
 			return redirect(f'{SITE_FULL}/login')
 
 		formhash = request.values.get("hash")
-		if not validate_hash(f"{account.id}+{request.values.get('time')}+2fachallenge",
-							 formhash
-							 ):
+		if not validate_hash(f"{account.id}+{request.values.get('time')}+2fachallenge", formhash):
 			return redirect(f"{SITE_FULL}/login")
 
 		if not account.validate_2fa(request.values.get("2fa_token", "").strip()):
@@ -252,10 +252,8 @@ def sign_up_post(v):
 
 		args = {"error": error}
 		if request.values.get("referred_by"):
-			user = g.db.query(User).filter_by(
-				id=request.values.get("referred_by")).one_or_none()
-			if user:
-				args["ref"] = user.username
+			user = g.db.query(User).filter_by(id=request.values.get("referred_by")).one_or_none()
+			if user: args["ref"] = user.username
 
 		return redirect(f"{SITE_FULL}/signup?{urlencode(args)}")
 
@@ -322,7 +320,9 @@ def sign_up_post(v):
 
 	id_1 = g.db.query(User.id).filter_by(id=9).count()
 	users_count = g.db.query(User.id).count()
-	if id_1 == 0 and users_count == 8: admin_level=3
+	if id_1 == 0 and users_count == 8:
+		admin_level=3
+		session["history"] = []
 	else: admin_level=0
 
 	new_user = User(
@@ -331,10 +331,8 @@ def sign_up_post(v):
 		admin_level = admin_level,
 		password=request.values.get("password"),
 		email=email,
-		created_utc=int(time.time()),
 		referred_by=ref_id or None,
-		ban_evade =  int(any((x.is_banned or x.shadowbanned) and not x.unban_utc for x in g.db.query(User).filter(User.id.in_(tuple(session.get("history", [])))).all() if x)),
-		agendaposter = any(x.agendaposter for x in g.db.query(User).filter(User.id.in_(tuple(session.get("history", [])))).all() if x)
+		ban_evade =  int(any((x.is_banned or x.shadowbanned) and not x.unban_utc for x in g.db.query(User).filter(User.id.in_(tuple(session.get("history", [])))).all() if x))
 		)
 
 	g.db.add(new_user)

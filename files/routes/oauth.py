@@ -139,7 +139,7 @@ def admin_app_approve(v, aid):
 def admin_app_revoke(v, aid):
 
 	app = g.db.query(OauthApp).filter_by(id=aid).one_or_none()
-	if app.id:
+	if app:
 		for auth in g.db.query(ClientAuth).filter_by(oauth_client=app.id).all(): g.db.delete(auth)
 
 		send_repeatable_notification(app.author.id, f"Your application `{app.app_name}` has been revoked.")
@@ -165,20 +165,21 @@ def admin_app_reject(v, aid):
 
 	app = g.db.query(OauthApp).filter_by(id=aid).one_or_none()
 
-	for auth in g.db.query(ClientAuth).filter_by(oauth_client=app.id).all(): g.db.delete(auth)
+	if app:
+		for auth in g.db.query(ClientAuth).filter_by(oauth_client=app.id).all(): g.db.delete(auth)
 
-	send_repeatable_notification(app.author.id, f"Your application `{app.app_name}` has been rejected.")
+		send_repeatable_notification(app.author.id, f"Your application `{app.app_name}` has been rejected.")
 
-	g.db.delete(app)
+		g.db.delete(app)
 
-	ma = ModAction(
-		kind="reject_app",
-		user_id=v.id,
-		target_user_id=app.author.id,
-	)
-	g.db.add(ma)
+		ma = ModAction(
+			kind="reject_app",
+			user_id=v.id,
+			target_user_id=app.author.id,
+		)
+		g.db.add(ma)
 
-	g.db.commit()
+		g.db.commit()
 
 	return {"message": "App rejected"}
 

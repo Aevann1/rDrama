@@ -470,7 +470,7 @@ def message2(v, username):
 	existing = g.db.query(Comment.id).filter(Comment.author_id == v.id,
 															Comment.sentto == user.id,
 															Comment.body_html == text_html,
-															).first()
+															).one_or_none()
 
 	if existing: return {"error": "Message already exists."}, 403
 
@@ -501,7 +501,7 @@ def message2(v, username):
 							'title': f'New message from @{v.username}',
 							'body': notifbody,
 							'deep_link': f'{SITE_FULL}/notifications?messages=true',
-							'icon': f'{SITE_FULL}/assets/images/{SITE_NAME}/icon.webp?a=1010',
+							'icon': f'{SITE_FULL}/assets/images/{SITE_NAME}/icon.webp?a=1011',
 						}
 					},
 					'fcm': {
@@ -554,7 +554,7 @@ def messagereply(v):
 	g.db.add(new_comment)
 	g.db.flush()
 
-	if user_id != v.id:
+	if user_id != v.id and user_id != 9:
 		notif = Notification(comment_id=new_comment.id, user_id=user_id)
 		g.db.add(notif)
 
@@ -571,7 +571,7 @@ def messagereply(v):
 								'title': f'New message from @{v.username}',
 								'body': notifbody,
 								'deep_link': f'{SITE_FULL}/notifications?messages=true',
-								'icon': f'{SITE_FULL}/assets/images/{SITE_NAME}/icon.webp"a=1008',
+								'icon': f'{SITE_FULL}/assets/images/{SITE_NAME}/icon.webp"a=1010',
 							}
 						},
 						'fcm': {
@@ -699,19 +699,11 @@ def u_username(username, v=None):
 		if request.headers.get("Authorization") or request.headers.get("xhr"): return {"error": f"That username is reserved for: {u.reserved}"}
 		return render_template("userpage_reserved.html", u=u, v=v)
 
-	if v and u.id != v.id:
-		view = g.db.query(ViewerRelationship).filter(
-			and_(
-				ViewerRelationship.viewer_id == v.id,
-				ViewerRelationship.user_id == u.id
-			)
-		).first()
+	if v and u.id != v.id and u.patron:
+		view = g.db.query(ViewerRelationship).filter_by(viewer_id=v.id, user_id=u.id).one_or_none()
 
-		if view:
-			view.last_view_utc = g.timestamp
-		else:
-			view = ViewerRelationship(user_id = u.id,
-									  viewer_id = v.id)
+		if view: view.last_view_utc = g.timestamp
+		else: view = ViewerRelationship(viewer_id=v.id, user_id=u.id)
 
 		g.db.add(view)
 		g.db.commit()
@@ -888,6 +880,18 @@ def u_username_info(username, v=None):
 
 	return user.json
 
+@app.get("/<id>/info")
+@auth_required
+def u_user_id_info(id, v=None):
+
+	user=get_account(id, v=v)
+
+	if hasattr(user, 'is_blocking') and user.is_blocking:
+		return {"error": "You're blocking this user."}, 401
+	elif hasattr(user, 'is_blocked') and user.is_blocked:
+		return {"error": "This user is blocking you."}, 403
+
+	return user.json
 
 @app.post("/follow/<username>")
 @limiter.limit("1/second;30/minute;200/hour;1000/day")
@@ -1042,7 +1046,7 @@ def fp(v, fp):
 			users += alts
 	for u in users:
 		li = [v.id, u.id]
-		existing = g.db.query(Alt).filter(Alt.user1.in_(li), Alt.user2.in_(li)).first()
+		existing = g.db.query(Alt).filter(Alt.user1.in_(li), Alt.user2.in_(li)).one_or_none()
 		if existing: continue
 		new_alt = Alt(user1=v.id, user2=u.id)
 		g.db.add(new_alt)

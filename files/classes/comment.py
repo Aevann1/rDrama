@@ -27,7 +27,7 @@ class Comment(Base):
 	bannedfor = Column(Boolean)
 	distinguish_level = Column(Integer, default=0)
 	deleted_utc = Column(Integer, default=0)
-	is_approved = Column(Integer, default=0)
+	is_approved = Column(Integer, ForeignKey("users.id"))
 	level = Column(Integer, default=0)
 	parent_comment_id = Column(Integer, ForeignKey("comments.id"))
 	top_comment_id = Column(Integer)
@@ -45,6 +45,7 @@ class Comment(Base):
 	ban_reason = Column(String)
 	slots_result = Column(String)
 	blackjack_result = Column(String)
+	wordle_result = Column(String)
 	treasure_amount = Column(String)
 
 	oauth_app = relationship("OauthApp", viewonly=True)
@@ -57,10 +58,7 @@ class Comment(Base):
 	reports = relationship("CommentFlag", viewonly=True)
 	
 	def __init__(self, *args, **kwargs):
-
-		if "created_utc" not in kwargs:
-			kwargs["created_utc"] = int(time.time())
-
+		if "created_utc" not in kwargs: kwargs["created_utc"] = int(time.time())
 		super().__init__(*args, **kwargs)
 
 	def __repr__(self):
@@ -70,7 +68,7 @@ class Comment(Base):
 	@property
 	@lazy
 	def top_comment(self):
-		return g.db.query(Comment).filter_by(id=self.top_comment_id).first()
+		return g.db.query(Comment).filter_by(id=self.top_comment_id).one_or_none()
 
 	@property
 	@lazy
@@ -355,13 +353,14 @@ class Comment(Base):
 
 			if v and v.shadowbanned and v.id == self.author_id and 86400 > time.time() - self.created_utc > 60:
 				ti = max(int((time.time() - self.created_utc)/60), 1)
-				maxupvotes = min(ti, 31)
+				maxupvotes = min(ti, 6)
 				rand = randint(0, maxupvotes)
 				if self.upvotes < rand:
-					amount = randint(0, 3)
-					self.upvotes += amount
-					g.db.add(self)
-					g.db.commit()
+					amount = randint(0, 1)
+					if amount == 1:
+						self.upvotes += amount
+						g.db.add(self)
+						g.db.commit()
 
 		for c in self.options:
 			body += f'<div class="custom-control"><input type="checkbox" class="custom-control-input" id="{c.id}" name="option"'

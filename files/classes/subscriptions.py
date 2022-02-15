@@ -5,9 +5,8 @@ from files.__main__ import Base
 
 class Subscription(Base):
 	__tablename__ = "subscriptions"
-	id = Column(Integer, primary_key=True)
-	user_id = Column(Integer, ForeignKey("users.id"))
-	submission_id = Column(Integer, ForeignKey("submissions.id"))
+	user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
+	submission_id = Column(Integer, ForeignKey("submissions.id"), primary_key=True)
 	
 	user = relationship("User", uselist=False, viewonly=True)
 

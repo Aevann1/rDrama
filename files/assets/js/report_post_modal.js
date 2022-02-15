@@ -4,6 +4,7 @@ function report_postModal(id) {
 	document.getElementById("reportPostFormBefore").classList.remove('d-none');
 	document.getElementById("reportPostFormAfter").classList.add('d-none');
 	submitbutton.disabled = false;
+	submitbutton.classList.remove('disabled');
 	submitbutton.innerHTML='Report post';
 
 	reason = document.getElementById("reason")
@@ -13,6 +14,7 @@ function report_postModal(id) {
 
 		this.innerHTML='Reporting post';
 		this.disabled = true;
+		this.classList.add('disabled');
 
 		const xhr = new XMLHttpRequest();
 		xhr.open("POST", '/report/post/'+id);

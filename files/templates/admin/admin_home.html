@@ -52,11 +52,6 @@
 	<li><a href="/chart">Stat Chart</a></li>
 </ul>
 
-<h4>Configuration</h4>
-<ul>
-	<li><a href="/admin/sidebar">Edit Sidebar</a></li>
-</ul>
-
 {% if v.admin_level > 2 %}
 	<div class="custom-control custom-switch">
 		<input autocomplete="off" type="checkbox" class="custom-control-input" id="disable_signups" name="disable_signups" {% if x == "yes" %}checked{% endif %} onchange="post_toast(this,'/admin/disable_signups');">

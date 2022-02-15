@@ -1052,9 +1052,9 @@ input[type=submit].btn-block, input[type=reset].btn-block, input[type=button].bt
     text-decoration: none;
 }
 .disabled {
-    color: #6c757d;
-    pointer-events: none;
-    cursor: default;
+    color: #6c757d !important;
+    pointer-events: none !important;
+    cursor: default !important;
 }
 .nav-pills .nav-link {
     border-radius: 0.35rem;
@@ -2027,6 +2027,9 @@ a.bg-light:hover, a.bg-light:focus, button.bg-light:hover, button.bg-light:focus
     }
     .d-md-flex {
         display: flex !important;
+    }
+    .d-md-inline {
+        display: inline !important;
     }
 }
 @media (min-width: 992px) {
@@ -4429,7 +4432,7 @@ textarea {
 }
 @media (min-width: 992px) {
     .card-columns {
-        column-count: 6 !important;
+        column-count: 7 !important;
 }
 }
 .container, .container-fluid {

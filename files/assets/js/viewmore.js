@@ -14,8 +14,8 @@ function viewmore(pid,sort,offset,ids) {
                 return bootstrap.Tooltip.getOrCreateInstance(element);
             });
             popovertrigger()
-            btn.disabled = false;
         }
+        btn.disabled = false;
     }
     xhr.send(form)
 }

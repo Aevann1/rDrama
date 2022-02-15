@@ -20,9 +20,11 @@ def get_logged_in_user():
 		if not lo_user: return None
 
 		nonce = session.get("login_nonce", 0)
-		v = g.db.query(User).filter_by(id=lo_user).one_or_none()
-
+		id = int(lo_user)
+		v = g.db.query(User).filter_by(id=id).one_or_none()
 		if not v or nonce < v.login_nonce: return None
+
+		if v.id != id: abort(400)
 		v.client = None
 
 		if request.method != "GET":

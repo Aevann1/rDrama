@@ -4,7 +4,7 @@
         {% set image=sub.sidebar_url %}
     {% else %}
         {% set path = "assets/images/" + SITE_NAME + "/sidebar" %}
-        {% set image = "/static/" + path + "/" + listdir('files/' + path)|random() + '?a=32' %}
+        {% set image = "/static/" + path + "/" + listdir('files/' + path)|random() + '?a=33' %}
     {% endif %}
 
     <a role="button" data-bs-toggle="modal" data-bs-target="#expandImageModal" data-bs-url="{{image}}" onclick="expandDesktopImage('{{image}}')">
@@ -18,6 +18,10 @@
         <a class="btn btn-primary btn-block mt-4" href="/s/{{sub.name}}/mods">MODS</a>
         {% if v and v.mods(sub.name) %}
           <a class="btn btn-primary btn-block" href="/s/{{sub.name}}/settings">SUB SETTINGS</a>
+        {% endif %}
+        {% if v %}
+            <a class="btn btn-primary btn-block {% if v.blocks(sub.name) %}d-none{% endif %}" onclick="post_toast(this,'/s/{{sub.name}}/block','block-sub','unblock-sub');this.classList.toggle('d-none');nextElementSibling.classList.toggle('d-none')">BLOCK SUB</a>
+            <a class="btn btn-primary btn-block {% if not v.blocks(sub.name) %}d-none{% endif %}" onclick="post_toast(this,'/s/{{sub.name}}/unblock','block-sub','unblock-sub');this.classList.toggle('d-none');previousElementSibling.classList.toggle('d-none')">UNBLOCK SUB</a>
         {% endif %}
     {% else %}
         <a class="btn btn-primary btn-block mt-4" href="/post/16583">EMOJI MEGATHREAD</a>
@@ -74,6 +78,10 @@
 
 
 
+
+
+
+                    
 
 
                 

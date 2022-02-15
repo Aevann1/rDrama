@@ -9,14 +9,6 @@ from flask import g, request
 from files.helpers.sanitize import filter_emojis_only
 from copy import deepcopy
 
-discounts = {
-	69: 0.02,
-	70: 0.04,
-	71: 0.06,
-	72: 0.08,
-	73: 0.10,
-}
-
 AWARDS3 = {
 	"fireflies": {
 		"kind": "fireflies",
@@ -169,10 +161,8 @@ def buy(v, award):
 	if award == "lootbox":
 		send_repeatable_notification(995, f"@{v.username} bought a lootbox!")
 		for i in [1,2,3,4,5]:
-			thing = g.db.query(AwardRelationship).order_by(AwardRelationship.id.desc()).first().id
-			thing += 1
 			award = random.choice(["snow", "gingerbread", "lights", "candycane", "fireplace"])
-			award = AwardRelationship(id=thing, user_id=v.id, kind=award)
+			award = AwardRelationship(user_id=v.id, kind=award)
 			g.db.add(award)
 			g.db.flush()
 		v.lootboxes_bought += 1
@@ -193,9 +183,7 @@ def buy(v, award):
 			send_notification(v.id, f"@AutoJanny has given you the following profile badge:\n\n![]({new_badge.path})\n\n{new_badge.name}")
 
 	else:
-		thing = g.db.query(AwardRelationship).order_by(AwardRelationship.id.desc()).first().id
-		thing += 1
-		award = AwardRelationship(id=thing, user_id=v.id, kind=award)
+		award = AwardRelationship(user_id=v.id, kind=award)
 		g.db.add(award)
 
 	g.db.add(v)
@@ -692,9 +680,6 @@ def admin_userawards_post(v):
 
 	notify_awards = {}
 
-	latest = g.db.query(AwardRelationship).order_by(AwardRelationship.id.desc()).first()
-	thing = latest.id
-
 	for key, value in request.values.items():
 		if key not in AWARDS: continue
 
@@ -705,10 +690,7 @@ def admin_userawards_post(v):
 			if int(value): notify_awards[key] = int(value)
 
 			for x in range(int(value)):
-				thing += 1
-
 				award = AwardRelationship(
-					id=thing,
 					user_id=u.id,
 					kind=key
 				)

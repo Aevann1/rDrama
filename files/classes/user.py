@@ -5,7 +5,7 @@ from files.helpers.discord import remove_user
 from files.helpers.images import *
 from files.helpers.const import *
 from .alts import Alt
-from .submission import SaveRelationship
+from .saves import *
 from .comment import Notification
 from .award import AwardRelationship
 from .subscriptions import *
@@ -14,6 +14,7 @@ from .badges import *
 from .clients import *
 from .mod_logs import *
 from .mod import *
+from .sub_block import *
 from files.__main__ import Base, cache
 from files.helpers.security import *
 import random
@@ -145,7 +146,7 @@ class User(Base):
 			kwargs["passhash"] = self.hash_password(kwargs["password"])
 			kwargs.pop("password")
 
-		kwargs["created_utc"] = int(time.time())
+		if "created_utc" not in kwargs: kwargs["created_utc"] = int(time.time())
 
 		super().__init__(**kwargs)
 
@@ -153,6 +154,15 @@ class User(Base):
 	@lazy
 	def mods(self, sub):
 		return self.id == AEVANN_ID or g.db.query(Mod.user_id).filter_by(user_id=self.id, sub=sub).one_or_none()
+
+	@property
+	@lazy
+	def all_blocks(self):
+		return tuple(x[0] for x in g.db.query(SubBlock.sub).filter_by(user_id=self.id).all())
+
+	@lazy
+	def blocks(self, sub):
+		return g.db.query(SubBlock).filter_by(user_id=self.id, sub=sub).one_or_none()
 
 	@lazy
 	def mod_date(self, sub):
@@ -205,7 +215,7 @@ class User(Base):
 
 		return g.db.query(UserBlock).filter(
 			or_(and_(UserBlock.user_id == self.id, UserBlock.target_id == other.id), and_(
-				UserBlock.user_id == other.id, UserBlock.target_id == self.id))).one_or_none()
+				UserBlock.user_id == other.id, UserBlock.target_id == self.id))).first()
 
 	def validate_2fa(self, token):
 
@@ -448,7 +458,7 @@ class User(Base):
 	@lazy
 	def banner_url(self):
 		if self.bannerurl: return self.bannerurl
-		else: return f"{SITE_FULL}/static/assets/images/{SITE_NAME}/site_preview.webp?a=1012"
+		else: return f"{SITE_FULL}/static/assets/images/{SITE_NAME}/site_preview.webp?a=1013"
 
 	@property
 	@lazy
@@ -571,7 +581,7 @@ class User(Base):
 	@lazy
 	def saved_idlist(self, page=1):
 
-		saved = [x[0] for x in g.db.query(SaveRelationship.submission_id).filter(SaveRelationship.user_id == self.id).all()]
+		saved = [x[0] for x in g.db.query(SaveRelationship.submission_id).filter_by(user_id=self.id).all()]
 		posts = g.db.query(Submission.id).filter(Submission.id.in_(saved), Submission.is_banned == False, Submission.deleted_utc == 0)
 
 		if self.admin_level == 0:
@@ -592,8 +602,7 @@ class User(Base):
 	@lazy
 	def saved_comment_idlist(self, page=1):
 
-		try: saved = [x[0] for x in g.db.query(SaveRelationship.comment_id).filter(SaveRelationship.user_id == self.id).all()]
-		except: return []
+		saved = [x[0] for x in g.db.query(CommentSaveRelationship.comment_id).filter_by(user_id=self.id).all()]
 		comments = g.db.query(Comment.id).filter(Comment.id.in_(saved), Comment.is_banned == False, Comment.deleted_utc == 0)
 
 		if self.admin_level == 0:
@@ -633,9 +642,8 @@ class ViewerRelationship(Base):
 
 	__tablename__ = "viewers"
 
-	id = Column(Integer, Sequence('viewers_id_seq'), primary_key=True)
-	user_id = Column(Integer, ForeignKey('users.id'))
-	viewer_id = Column(Integer, ForeignKey('users.id'))
+	user_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
+	viewer_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
 	last_view_utc = Column(Integer)
 
 	viewer = relationship("User", primaryjoin="ViewerRelationship.viewer_id == User.id", viewonly=True)
