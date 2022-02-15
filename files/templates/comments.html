@@ -511,7 +511,36 @@
 						{% endif %}
 
 						{% if v %}
-							<button style="margin-top:0.2rem" class="btn caction py-0 nobackground px-1 text-muted" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-ellipsis-h fa-fw"></i></button>
+							<button id="dropdown-button-{{c.id}}" style="margin-top:0.2rem" class="btn caction py-0 nobackground px-1 text-muted" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-ellipsis-h fa-fw"></i></button>
+
+							<script>
+								let open{{c.id}} = false;
+								const button{{c.id}} = document.getElementById("dropdown-button-{{c.id}}");
+
+								button{{c.id}}.addEventListener("click", () => {
+									let parent = button{{c.id}}.parentElement;
+
+									while (!parent.classList.contains("comment")) {
+										parent = parent.parentElement;
+									}
+
+									if (!open{{c.id}}) {
+										parent.style.overflow = 'visible';
+										open{{c.id}} = true;
+
+										const listener = () => {
+											parent.style.overflow = 'hidden';
+											open{{c.id}} = false;
+											document.removeEventListener("click", listener);
+										}
+
+										setTimeout(() => {
+											document.addEventListener("click", listener);
+										}, 0);
+									}
+								});
+							</script>
+
 							<ul class="dropdown-menu">
 {% if v.admin_level and v.id==c.author_id %}
 <button id="undistinguish-{{c.id}}" class="dropdown-item list-inline-item d-none {% if c.distinguish_level %}d-md-block{% endif %} text-info"  onclick="post_toast3(this,'/distinguish_comment/{{c.id}}','distinguish-{{c.id}}','undistinguish-{{c.id}}','no')"><i class="fas fa-id-badge text-info fa-fw"></i>Undistinguish</button>
