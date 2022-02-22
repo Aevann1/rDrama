@@ -6,7 +6,7 @@
 	<meta name="description" content="{{config('DESCRIPTION')}}">
 	<meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline'; connect-src 'self'; object-src 'none';">
 
-	<script src="/static/assets/js/bootstrap.js?a=240"></script>
+	<script src="/static/assets/js/bootstrap.js?a=245"></script>
 
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -39,10 +39,10 @@
 	
 	{% if v %}
 		<style>:root{--primary:#{{v.themecolor}}}</style>
-		<link rel="stylesheet" href="/static/assets/css/main.css?a=126"><link rel="stylesheet" href="/static/assets/css/{{v.theme}}.css?a=21">
+		<link rel="stylesheet" href="/static/assets/css/main.css?a=146"><link rel="stylesheet" href="/static/assets/css/{{v.theme}}.css?a=25">
 	{% else %}
 		<style>:root{--primary:#{{config('DEFAULT_COLOR')}}</style>
-		<link rel="stylesheet" href="/static/assets/css/main.css?a=126"><link rel="stylesheet" href="/static/assets/css/{{config('DEFAULT_THEME')}}.css?a=21">
+		<link rel="stylesheet" href="/static/assets/css/main.css?a=146"><link rel="stylesheet" href="/static/assets/css/{{config('DEFAULT_THEME')}}.css?a=25">
 	{% endif %}
 </head>
 

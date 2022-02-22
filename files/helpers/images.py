@@ -1,34 +1,24 @@
-from PIL import Image, ImageSequence, ImageOps
+from PIL import Image, ImageOps
+from PIL.ImageSequence import Iterator
 from webptools import gifwebp
+import subprocess
 
 def process_image(filename=None, resize=0):
 	
 	i = Image.open(filename)
 
-	exif = i.getexif()
-	for k in exif.keys():
-		if k != 0x0112:
-			exif[k] = None
-			del exif[k]
-	i.info["exif"] = exif.tobytes()
-
 	if resize and i.width > resize:
-		size = resize, resize
-		frames = ImageSequence.Iterator(i)
-
-		def thumbnails(frames):
-			for frame in frames:
-				thumbnail = frame.copy()
-				thumbnail.thumbnail(size)
-				yield thumbnail
-
-		frames = thumbnails(frames)
-
-		om = next(frames)
-		om.info = i.info
-		om = ImageOps.exif_transpose(om)
-		om.save(filename, format="WEBP", save_all=True, append_images=list(frames), loop=0, method=6, allow_mixed=True)
+		try: subprocess.call(["convert", filename, "-coalesce", "-resize", f"{resize}>", filename])
+		except: pass
 	elif i.format.lower() != "webp":
+
+		exif = i.getexif()
+		for k in exif.keys():
+			if k != 0x0112:
+				exif[k] = None
+				del exif[k]
+		i.info["exif"] = exif.tobytes()
+
 		if i.format.lower() == "gif":
 			gifwebp(input_image=filename, output_image=filename, option="-mixed -metadata none -f 100 -mt -m 6")
 		else:

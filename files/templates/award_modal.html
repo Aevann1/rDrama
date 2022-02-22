@@ -13,7 +13,7 @@
 					<input autocomplete="off" type="hidden" name="formkey", value="{{v.formkey}}">
 					<div class="card-columns award-columns awards-wrapper">
 						{% for award in v.user_awards %}
-							<a role="button" id="{{award.kind}}" class="card" onclick="pick('{{award.kind}}', {{award.price}} < {{v.procoins}}, {{award.price}} < {{v.coins}})">
+							<a role="button" id="{{award.kind}}" class="card" onclick="pick('{{award.kind}}', {{award.price}} <= {{v.procoins}}, {{award.price}} <= {{v.coins}})">
 								<i class="{{award.icon}} {{award.color}}"></i>
 								<div class="pt-2" style="font-weight: bold; font-size: 14px; color:#E1E1E1">{{award.title}}</div>
 								<div class="text-muted"><span id="{{award.kind}}-owned">{{award.owned}}</span> owned</div>
@@ -44,55 +44,3 @@
 		</div>
 	</div>	
 </div>
-
-<style>
-	.awards-wrapper input[type="radio"] {
-		display: none;
-	}
-
-	.awards-wrapper a {
-		cursor: pointer;
-		padding: 15px !important;
-		text-align: center;
-		text-transform: none!important;
-	}
-
-	.awards-wrapper a i {
-		font-size: 25px;
-	}
-
-	.awards-wrapper a.disabled {
-		opacity: 0.6;
-	}
-
-	.awards-wrapper a:hover:not(.disabled), .awards-wrapper .picked {
-		background-color: var(--primary)!important;
-	}
-
-	.awards-wrapper input[type="radio"]:checked+a {
-		background-color: var(--primary)!important;
-	}
-
-	.award-columns {
-		column-count: 1;
-	}
-
-	.awardmodal {
-		max-width: 90% !important;
-		min-height: 90% !important;
-		max-height: 90% !important;
-		height: 90% !important;
-	}
-
-	toast {
-		z-index: 7000 !important;
-	}
-
-	@media (max-width: 464px) {
-		.awardbtn {
-			display:block;
-			margin-right:0 !important;
-			clear:both !important;
-		}
-	}
-</style>

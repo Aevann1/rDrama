@@ -64,7 +64,7 @@ def searchposts(v):
 	
 
 	if 'author' in criteria:
-		posts = posts.filter(Submission.ghost == None)
+		posts = posts.filter(Submission.ghost == False)
 		author = get_user(criteria['author'])
 		if not author: return {"error": "User not found"}
 		if author.is_private and author.id != v.id and v.admin_level < 2 and not v.eye:
@@ -211,7 +211,7 @@ def searchcomments(v):
 	comments = g.db.query(Comment.id).filter(Comment.parent_submission != None)
 
 	if 'author' in criteria:
-		comments = comments.filter(Comment.ghost == None)
+		comments = comments.filter(Comment.ghost == False)
 		author = get_user(criteria['author'])
 		if not author: return {"error": "User not found"}
 		if author.is_private and author.id != v.id and v.admin_level < 2 and not v.eye:

@@ -3,11 +3,13 @@ function formkey() {
 	if (formkey) return formkey.innerHTML;
 	else return null;
 }
-	
-var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-tooltipTriggerList.map(function(element){
-	return bootstrap.Tooltip.getOrCreateInstance(element);
-});
+
+if (typeof bs_trigger === 'undefined') {
+	var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+	tooltipTriggerList.map(function(element){
+		return bootstrap.Tooltip.getOrCreateInstance(element);
+	});
+}
 
 function post_toast(t, url, reload, data) {
 	t.disabled = true;

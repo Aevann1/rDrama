@@ -1,0 +1,11 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.rdrama",
+      "sha256_cert_fingerprints":
+        ["D8:4E:90:05:BA:0A:9F:C0:0C:BE:21:42:CB:FC:D5:F9:E2:43:02:BD:90:39:67:B6:1D:A3:D9:50:F8:8E:17:8B"]
+    }
+  }
+]

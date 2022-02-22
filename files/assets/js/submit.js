@@ -1,6 +1,6 @@
 function hide_image() {
 	x=document.getElementById('image-upload-block');
-	url=document.getElementById('post-URL').value;
+	url=document.getElementById('post-url').value;
 	if (url.length>=1){
 		x.classList.add('d-none');
 	}
@@ -48,8 +48,38 @@ document.getElementById('file-upload').addEventListener('change', function(){
 })
 
 function savetext() {
-	let post_title = document.getElementById('post-title').value
-	let post_text = document.getElementById('post-text').value
-	localStorage.setItem("post_title", post_title)
-	localStorage.setItem("post_text", post_text)
+	localStorage.setItem("post_title", document.getElementById('post-title').value)
+	localStorage.setItem("post_text", document.getElementById('post-text').value)
+	localStorage.setItem("post_url", document.getElementById('post-url').value)
+	let sub = document.getElementById('sub')
+	if (sub) localStorage.setItem("sub", sub.value)
 }
+
+
+function autoSuggestTitle()	{
+
+    var urlField = document.getElementById("post-url");
+
+    var titleField = document.getElementById("post-title");
+
+    var isValidURL = urlField.checkValidity();
+
+    if (isValidURL && urlField.value.length > 0 && titleField.value === "") {
+
+        var x = new XMLHttpRequest();
+        x.withCredentials=true;
+        x.onreadystatechange = function() {
+            if (x.readyState == 4 && x.status == 200) {
+
+                title=JSON.parse(x.responseText)["title"];
+                titleField.value=title;
+
+                checkForRequired()
+            }
+        }
+        x.open('get','/submit/title?url=' + urlField.value);
+        x.send(null);
+
+    };
+
+};

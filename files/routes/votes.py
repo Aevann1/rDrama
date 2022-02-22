@@ -28,18 +28,18 @@ def admin_vote_info_get(v):
 			thing_id = g.db.query(Submission.id).filter_by(upvotes=thing.upvotes, downvotes=thing.downvotes).order_by(Submission.id).first()[0]
 		else: thing_id = thing.id
 
-		ups = g.db.query(Vote).filter_by(submission_id=thing_id, vote_type=1).order_by(Vote.id).all()
+		ups = g.db.query(Vote).filter_by(submission_id=thing_id, vote_type=1).order_by(Vote.created_utc).all()
 
-		downs = g.db.query(Vote).filter_by(submission_id=thing_id, vote_type=-1).order_by(Vote.id).all()
+		downs = g.db.query(Vote).filter_by(submission_id=thing_id, vote_type=-1).order_by(Vote.created_utc).all()
 
 	elif isinstance(thing, Comment):
 		if thing.author.shadowbanned and not (v and v.admin_level):
 			thing_id = g.db.query(Comment.id).filter_by(upvotes=thing.upvotes, downvotes=thing.downvotes).order_by(Comment.id).first()[0]
 		else: thing_id = thing.id
 
-		ups = g.db.query(CommentVote).filter_by(comment_id=thing_id, vote_type=1).order_by(CommentVote.id).all()
+		ups = g.db.query(CommentVote).filter_by(comment_id=thing_id, vote_type=1).order_by(CommentVote.created_utc).all()
 
-		downs = g.db.query(CommentVote).filter_by(comment_id=thing_id, vote_type=-1 ).order_by(CommentVote.id).all()
+		downs = g.db.query(CommentVote).filter_by(comment_id=thing_id, vote_type=-1 ).order_by(CommentVote.created_utc).all()
 
 	else: abort(400)
 
@@ -98,15 +98,13 @@ def api_vote_post(post_id, new, v):
 					)
 		g.db.add(vote)
 
-	try:
-		g.db.flush()
-		post.upvotes = g.db.query(Vote.id).filter_by(submission_id=post.id, vote_type=1).count()
-		post.downvotes = g.db.query(Vote.id).filter_by(submission_id=post.id, vote_type=-1).count()
-		post.realupvotes = g.db.query(Vote.id).filter_by(submission_id=post.id, real=True).count()
-		if post.author.progressivestack: post.realupvotes *= 2
-		g.db.add(post)
-		g.db.commit()
-	except: g.db.rollback()
+	g.db.flush()
+	post.upvotes = g.db.query(Vote.submission_id).filter_by(submission_id=post.id, vote_type=1).count()
+	post.downvotes = g.db.query(Vote.submission_id).filter_by(submission_id=post.id, vote_type=-1).count()
+	post.realupvotes = g.db.query(Vote.submission_id).filter_by(submission_id=post.id, real=True).count()
+	if post.author.progressivestack: post.realupvotes *= 2
+	g.db.add(post)
+	g.db.commit()
 	return "", 204
 
 @app.post("/vote/comment/<comment_id>/<new>")
@@ -162,15 +160,13 @@ def api_vote_comment(comment_id, new, v):
 
 		g.db.add(vote)
 
-	try:
-		g.db.flush()
-		comment.upvotes = g.db.query(CommentVote.id).filter_by(comment_id=comment.id, vote_type=1).count()
-		comment.downvotes = g.db.query(CommentVote.id).filter_by(comment_id=comment.id, vote_type=-1).count()
-		comment.realupvotes = g.db.query(CommentVote.id).filter_by(comment_id=comment.id, real=True).count()
-		if comment.author.progressivestack: comment.realupvotes *= 2
-		g.db.add(comment)
-		g.db.commit()
-	except: g.db.rollback()
+	g.db.flush()
+	comment.upvotes = g.db.query(CommentVote.comment_id).filter_by(comment_id=comment.id, vote_type=1).count()
+	comment.downvotes = g.db.query(CommentVote.comment_id).filter_by(comment_id=comment.id, vote_type=-1).count()
+	comment.realupvotes = g.db.query(CommentVote.comment_id).filter_by(comment_id=comment.id, real=True).count()
+	if comment.author.progressivestack: comment.realupvotes *= 2
+	g.db.add(comment)
+	g.db.commit()
 	return "", 204
 
 
@@ -199,12 +195,10 @@ def api_vote_poll(comment_id, v):
 		vote = CommentVote(user_id=v.id, vote_type=new, comment_id=comment.id)
 		g.db.add(vote)
 
-	try:
-		g.db.flush()
-		comment.upvotes = g.db.query(CommentVote.id).filter_by(comment_id=comment.id, vote_type=1).count()
-		g.db.add(comment)
-		g.db.commit()
-	except: g.db.rollback()
+	g.db.flush()
+	comment.upvotes = g.db.query(CommentVote.comment_id).filter_by(comment_id=comment.id, vote_type=1).count()
+	g.db.add(comment)
+	g.db.commit()
 	return "", 204
 
 
@@ -259,14 +253,12 @@ def api_vote_choice(comment_id, v):
 	else: parent = comment.post
 
 	for vote in parent.total_choice_voted(v):
-		vote.comment.upvotes = g.db.query(CommentVote.id).filter_by(comment_id=vote.comment.id, vote_type=1).count() - 1
+		vote.comment.upvotes = g.db.query(CommentVote.comment_id).filter_by(comment_id=vote.comment.id, vote_type=1).count() - 1
 		g.db.add(vote.comment)
 		g.db.delete(vote)
 
-	try:
-		g.db.flush()
-		comment.upvotes = g.db.query(CommentVote.id).filter_by(comment_id=comment.id, vote_type=1).count()
-		g.db.add(comment)
-		g.db.commit()
-	except: g.db.rollback()
+	g.db.flush()
+	comment.upvotes = g.db.query(CommentVote.comment_id).filter_by(comment_id=comment.id, vote_type=1).count()
+	g.db.add(comment)
+	g.db.commit()
 	return "", 204

@@ -7,6 +7,119 @@ from .front import frontlist
 valid_sub_regex = re.compile("^[a-zA-Z0-9_\-]{3,20}$")
 
 
+
+
+
+
+@app.post("/exile/post/<pid>")
+@is_not_permabanned
+def exile_post(v, pid):
+	try: pid = int(pid)
+	except: abort(400)
+
+	p = get_post(pid)
+	sub = p.sub
+	if not sub: abort(400)
+
+	if not v.mods(sub): abort(403)
+
+	u = p.author
+
+	if u.admin_level < 2 and not u.exiled_from(sub):
+		exile = Exile(user_id=u.id, sub=sub, exiler_id=v.id)
+		g.db.add(exile)
+
+		send_notification(u.id, f"@{v.username} has exiled you from /s/{sub} for [{p.title}]({p.sl})")
+
+		g.db.commit()
+	
+	return {"message": "User exiled successfully!"}
+
+
+
+@app.post("/unexile/post/<pid>")
+@is_not_permabanned
+def unexile_post(v, pid):
+	try: pid = int(pid)
+	except: abort(400)
+
+	p = get_post(pid)
+	sub = p.sub
+	if not sub: abort(400)
+
+	if not v.mods(sub): abort(403)
+
+	u = p.author
+
+	if u.exiled_from(sub):
+		exile = g.db.query(Exile).filter_by(user_id=u.id, sub=sub).one_or_none()
+		g.db.delete(exile)
+
+		send_notification(u.id, f"@{v.username} has revoked your exile from /s/{sub}")
+
+		g.db.commit()
+	
+	return {"message": "User unexiled successfully!"}
+
+
+
+
+@app.post("/exile/comment/<cid>")
+@is_not_permabanned
+def exile_comment(v, cid):
+	try: cid = int(cid)
+	except: abort(400)
+
+	c = get_comment(cid)
+	sub = c.post.sub
+	if not sub: abort(400)
+
+	if not v.mods(sub): abort(403)
+
+	u = c.author
+
+	if u.admin_level < 2 and not u.exiled_from(sub):
+		exile = Exile(user_id=u.id, sub=sub, exiler_id=v.id)
+		g.db.add(exile)
+
+		send_notification(u.id, f"@{v.username} has exiled you from /s/{sub} for [{c.permalink}]({c.sl})")
+
+		g.db.commit()
+	
+	return {"message": "User exiled successfully!"}
+
+
+
+
+@app.post("/unexile/comment/<cid>")
+@is_not_permabanned
+def unexile_comment(v, cid):
+	try: cid = int(cid)
+	except: abort(400)
+
+	c = get_comment(cid)
+	sub = c.post.sub
+	if not sub: abort(400)
+
+	if not v.mods(sub): abort(403)
+
+	u = c.author
+
+	if u.exiled_from(sub):
+		exile = g.db.query(Exile).filter_by(user_id=u.id, sub=sub).one_or_none()
+		g.db.delete(exile)
+
+		send_notification(u.id, f"@{v.username} has revoked your exile from /s/{sub}")
+
+		g.db.commit()
+	
+	return {"message": "User unexiled successfully!"}
+
+
+
+
+
+
 @app.post("/s/<sub>/block")
 @auth_required
 def block_sub(v, sub):
@@ -44,7 +157,7 @@ def unblock_sub(v, sub):
 	return {"message": "Sub unblocked successfully!"}
 
 @app.get("/s/<sub>/mods")
-@is_not_permabanned
+@auth_required
 def mods(v, sub):
 	sub = g.db.query(Sub).filter_by(name=sub.strip().lower()).one_or_none()
 	if not sub: abort(404)
@@ -52,6 +165,29 @@ def mods(v, sub):
 	users = g.db.query(User, Mod).join(Mod, Mod.user_id==User.id).filter_by(sub=sub.name).order_by(Mod.created_utc).all()
 
 	return render_template("sub/mods.html", v=v, sub=sub, users=users)
+
+
+@app.get("/s/<sub>/exilees")
+@auth_required
+def exilees(v, sub):
+	sub = g.db.query(Sub).filter_by(name=sub.strip().lower()).one_or_none()
+	if not sub: abort(404)
+
+	users = g.db.query(User, Exile).join(Exile, Exile.user_id==User.id).filter_by(sub=sub.name).all()
+
+	return render_template("sub/exilees.html", v=v, sub=sub, users=users)
+
+
+@app.get("/s/<sub>/blockers")
+@auth_required
+def blockers(v, sub):
+	sub = g.db.query(Sub).filter_by(name=sub.strip().lower()).one_or_none()
+	if not sub: abort(404)
+
+	users = g.db.query(User).join(SubBlock, SubBlock.user_id==User.id).filter_by(sub=sub.name).all()
+
+	return render_template("sub/blockers.html", v=v, sub=sub, users=users)
+
 
 
 @app.post("/s/<sub>/add_mod")
@@ -76,7 +212,7 @@ def add_mod(v, sub):
 		mod = Mod(user_id=user.id, sub=sub)
 		g.db.add(mod)
 
-		send_repeatable_notification(user.id, f"You have been added as a mod to /s/{sub}")
+		send_repeatable_notification(user.id, f"@{v.username} has added you as a mod to /s/{sub}")
 
 		g.db.commit()
 	
@@ -110,7 +246,7 @@ def remove_mod(v, sub):
 
 	g.db.delete(mod)
 
-	send_repeatable_notification(user.id, f"You have been removed as a mod from /s/{sub}")
+	send_repeatable_notification(user.id, f"@{v.username} has removed you as a mod from /s/{sub}")
 
 	g.db.commit()
 	
@@ -135,7 +271,8 @@ def create_sub2(v):
 
 	sub = g.db.query(Sub).filter_by(name=name).one_or_none()
 	if not sub:
-		cost = v.subs_created * 50
+		cost = v.subs_created * 150
+
 		if v.coins < cost:
 			return render_template("sub/create_sub.html", v=v, error="You don't have enough coins!"), 403
 
@@ -227,6 +364,7 @@ def get_sub_css(sub):
 	resp=make_response(sub.css or "")
 	resp.headers.add("Content-Type", "text/css")
 	return resp
+
 
 @app.post("/s/<sub>/banner")
 @limiter.limit("1/second;10/day")

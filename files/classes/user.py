@@ -14,6 +14,7 @@ from .badges import *
 from .clients import *
 from .mod_logs import *
 from .mod import *
+from .exiles import *
 from .sub_block import *
 from files.__main__ import Base, cache
 from files.helpers.security import *
@@ -153,7 +154,11 @@ class User(Base):
 
 	@lazy
 	def mods(self, sub):
-		return self.id == AEVANN_ID or g.db.query(Mod.user_id).filter_by(user_id=self.id, sub=sub).one_or_none()
+		return self.id == AEVANN_ID or bool(g.db.query(Mod.user_id).filter_by(user_id=self.id, sub=sub).one_or_none())
+
+	@lazy
+	def exiled_from(self, sub):
+		return self.admin_level < 2 and bool(g.db.query(Exile.user_id).filter_by(user_id=self.id, sub=sub).one_or_none())
 
 	@property
 	@lazy
@@ -257,7 +262,7 @@ class User(Base):
 		posts = g.db.query(Submission.id).filter_by(author_id=self.id, is_pinned=False)
 
 		if not (v and (v.admin_level > 1 or v.id == self.id)):
-			posts = posts.filter_by(deleted_utc=0, is_banned=False, private=False, ghost=None)
+			posts = posts.filter_by(deleted_utc=0, is_banned=False, private=False, ghost=False)
 
 		now = int(time.time())
 		if t == 'hour':
@@ -294,7 +299,7 @@ class User(Base):
 	@property
 	@lazy
 	def follow_count(self):
-		return g.db.query(Follow.id).filter_by(user_id=self.id).count()
+		return g.db.query(Follow.target_id).filter_by(user_id=self.id).count()
 
 	@property
 	@lazy
@@ -399,12 +404,12 @@ class User(Base):
 	@property
 	@lazy
 	def notifications_count(self):
-		return g.db.query(Notification.id).join(Comment).filter(Notification.user_id == self.id, Notification.read == False, Comment.is_banned == False, Comment.deleted_utc == 0).count()
+		return g.db.query(Notification.user_id).join(Comment).filter(Notification.user_id == self.id, Notification.read == False, Comment.is_banned == False, Comment.deleted_utc == 0).count()
 
 	@property
 	@lazy
 	def post_notifications_count(self):
-		return g.db.query(Notification.id).join(Comment).filter(Notification.user_id == self.id, Notification.read == False, Comment.author_id == AUTOJANNY_ID).count()
+		return g.db.query(Notification.user_id).join(Comment).filter(Notification.user_id == self.id, Notification.read == False, Comment.author_id == AUTOJANNY_ID).count()
 
 	@property
 	@lazy

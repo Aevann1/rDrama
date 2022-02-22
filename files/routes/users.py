@@ -13,7 +13,8 @@ from pusher_push_notifications import PushNotifications
 from collections import Counter
 import gevent
 
-if PUSHER_ID: beams_client = PushNotifications(instance_id=PUSHER_ID, secret_key=PUSHER_KEY)
+if PUSHER_ID != '3435tdfsdudebussylmaoxxt43':
+	beams_client = PushNotifications(instance_id=PUSHER_ID, secret_key=PUSHER_KEY)
 
 def leaderboard_thread():
 	global users9, users9_25, users13, users13_25
@@ -109,9 +110,9 @@ def downvoters(v, username):
 def upvoting(v, username):
 	id = get_user(username).id
 
-	votes = g.db.query(Submission.author_id, func.count(Submission.author_id)).join(Vote, Vote.submission_id==Submission.id).filter(Submission.ghost==None, Vote.vote_type==1, Vote.user_id==id).group_by(Submission.author_id).order_by(func.count(Submission.author_id).desc()).all()
+	votes = g.db.query(Submission.author_id, func.count(Submission.author_id)).join(Vote, Vote.submission_id==Submission.id).filter(Submission.ghost==False, Vote.vote_type==1, Vote.user_id==id).group_by(Submission.author_id).order_by(func.count(Submission.author_id).desc()).all()
 
-	votes2 = g.db.query(Comment.author_id, func.count(Comment.author_id)).join(CommentVote, CommentVote.comment_id==Comment.id).filter(Comment.ghost==None, CommentVote.vote_type==1, CommentVote.user_id==id).group_by(Comment.author_id).order_by(func.count(Comment.author_id).desc()).all()
+	votes2 = g.db.query(Comment.author_id, func.count(Comment.author_id)).join(CommentVote, CommentVote.comment_id==Comment.id).filter(Comment.ghost==False, CommentVote.vote_type==1, CommentVote.user_id==id).group_by(Comment.author_id).order_by(func.count(Comment.author_id).desc()).all()
 
 	votes = Counter(dict(votes)) + Counter(dict(votes2))
 
@@ -133,9 +134,9 @@ def upvoting(v, username):
 def downvoting(v, username):
 	id = get_user(username).id
 
-	votes = g.db.query(Submission.author_id, func.count(Submission.author_id)).join(Vote, Vote.submission_id==Submission.id).filter(Submission.ghost==None, Vote.vote_type==-1, Vote.user_id==id).group_by(Submission.author_id).order_by(func.count(Submission.author_id).desc()).all()
+	votes = g.db.query(Submission.author_id, func.count(Submission.author_id)).join(Vote, Vote.submission_id==Submission.id).filter(Submission.ghost==False, Vote.vote_type==-1, Vote.user_id==id).group_by(Submission.author_id).order_by(func.count(Submission.author_id).desc()).all()
 
-	votes2 = g.db.query(Comment.author_id, func.count(Comment.author_id)).join(CommentVote, CommentVote.comment_id==Comment.id).filter(Comment.ghost==None, CommentVote.vote_type==-1, CommentVote.user_id==id).group_by(Comment.author_id).order_by(func.count(Comment.author_id).desc()).all()
+	votes2 = g.db.query(Comment.author_id, func.count(Comment.author_id)).join(CommentVote, CommentVote.comment_id==Comment.id).filter(Comment.ghost==False, CommentVote.vote_type==-1, CommentVote.user_id==id).group_by(Comment.author_id).order_by(func.count(Comment.author_id).desc()).all()
 
 	votes = Counter(dict(votes)) + Counter(dict(votes2))
 
@@ -195,8 +196,8 @@ def steal(v):
 			v.ban(days=1, reason="Jailed thief")
 			v.fail_utc = int(time.time())
 		else:
-			send_repeatable_notification(u.id, f"You caught [this sniveling little renthog](/@{v.username}) trying to rob you. After beating him within an inch of his life, you showed mercy in exchange for a 500 dramacoin tip. This time.")
-			send_repeatable_notification(v.id, "The ever-vigilant landchad has caught you trying to steal his hard-earned rent money. You were able to convince him to spare your life with a 500 dramacoin tip. This time.")
+			send_repeatable_notification(u.id, f"You caught [this sniveling little renthog](/@{v.username}) trying to rob you. After beating him within an inch of his life, you showed mercy in exchange for a 500 coin tip. This time.")
+			send_repeatable_notification(v.id, "The ever-vigilant landchad has caught you trying to steal his hard-earned rent money. You were able to convince him to spare your life with a 500 coin tip. This time.")
 			v.fail2_utc = int(time.time())
 		v.coins -= 500
 		g.db.add(v)
@@ -363,6 +364,9 @@ def leaderboard(v):
 	else: pos11 = (users11.count()+1, 0)
 	users11 = users11.limit(25).all()
 
+	if pos11[1] < 25 and v not in (x[0] for x in users11):
+		pos11 = (26, pos11[1])
+
 	if SITE_NAME == 'Drama':
 		sq = g.db.query(Marsey.author_id, func.count(Marsey.author_id).label("count"), func.rank().over(order_by=func.count(Marsey.author_id).desc()).label("rank")).group_by(Marsey.author_id).subquery()
 		users12 = g.db.query(User, sq.c.count).join(sq, User.id==sq.c.author_id).order_by(sq.c.count.desc())
@@ -397,8 +401,7 @@ def get_css(username):
 	return resp
 
 @app.get("/@<username>/profilecss")
-@auth_required
-def get_profilecss(v, username):
+def get_profilecss(username):
 	user = get_user(username)
 	if user.profilecss: profilecss = user.profilecss
 	else: profilecss = ""
@@ -417,7 +420,7 @@ def usersong(username):
 def song(song):
 	resp = make_response(send_from_directory('/songs', song))
 	resp.headers.remove("Cache-Control")
-	resp.headers.add("Cache-Control", "public, max-age=2628000")
+	resp.headers.add("Cache-Control", "public, max-age=3153600")
 	return resp
 
 @app.post("/subscribe/<post_id>")
@@ -488,34 +491,32 @@ def message2(v, username):
 	notif = Notification(comment_id=new_comment.id, user_id=user.id)
 	g.db.add(notif)
 
-	if PUSHER_ID:
+	if PUSHER_ID != '3435tdfsdudebussylmaoxxt43':
 		if len(message) > 500: notifbody = message[:500] + '...'
 		else: notifbody = message
 
-		try:
-			beams_client.publish_to_interests(
-				interests=[f'{request.host}{user.id}'],
-				publish_body={
-					'web': {
-						'notification': {
-							'title': f'New message from @{v.username}',
-							'body': notifbody,
-							'deep_link': f'{SITE_FULL}/notifications?messages=true',
-							'icon': f'{SITE_FULL}/assets/images/{SITE_NAME}/icon.webp?a=1011',
-						}
-					},
-					'fcm': {
-						'notification': {
-							'title': f'New message from @{v.username}',
-							'body': notifbody,
-						},
-						'data': {
-							'url': '/notifications?messages=true',
-						}
+		beams_client.publish_to_interests(
+			interests=[f'{request.host}{user.id}'],
+			publish_body={
+				'web': {
+					'notification': {
+						'title': f'New message from @{v.username}',
+						'body': notifbody,
+						'deep_link': f'{SITE_FULL}/notifications?messages=true',
+						'icon': f'{SITE_FULL}/assets/images/{SITE_NAME}/icon.webp?a=1011',
 					}
 				},
-			)
-		except: pass
+				'fcm': {
+					'notification': {
+						'title': f'New message from @{v.username}',
+						'body': notifbody,
+					},
+					'data': {
+						'url': '/notifications?messages=true',
+					}
+				}
+			},
+		)
 
 	g.db.commit()
 
@@ -539,7 +540,8 @@ def messagereply(v):
 	parent = get_comment(id, v=v)
 	user_id = parent.author.id
 
-	if v.id == user_id: user_id = parent.sentto
+	if parent.sentto == 2: user_id = None
+	elif v.id == user_id: user_id = parent.sentto
 
 	text_html = sanitize(message, noimages=True)
 
@@ -554,42 +556,40 @@ def messagereply(v):
 	g.db.add(new_comment)
 	g.db.flush()
 
-	if user_id != v.id and user_id != 9:
+	if user_id and user_id != v.id and user_id != 2:
 		notif = Notification(comment_id=new_comment.id, user_id=user_id)
 		g.db.add(notif)
 
-		if PUSHER_ID:
+		if PUSHER_ID != '3435tdfsdudebussylmaoxxt43':
 			if len(message) > 500: notifbody = message[:500] + '...'
 			else: notifbody = message
 			
-			try:
-				beams_client.publish_to_interests(
-					interests=[f'{request.host}{user_id}'],
-					publish_body={
-						'web': {
-							'notification': {
-								'title': f'New message from @{v.username}',
-								'body': notifbody,
-								'deep_link': f'{SITE_FULL}/notifications?messages=true',
-								'icon': f'{SITE_FULL}/assets/images/{SITE_NAME}/icon.webp"a=1010',
-							}
-						},
-						'fcm': {
-							'notification': {
-								'title': f'New message from @{v.username}',
-								'body': notifbody,
-							},
-							'data': {
-								'url': '/notifications?messages=true',
-							}
+			beams_client.publish_to_interests(
+				interests=[f'{request.host}{user_id}'],
+				publish_body={
+					'web': {
+						'notification': {
+							'title': f'New message from @{v.username}',
+							'body': notifbody,
+							'deep_link': f'{SITE_FULL}/notifications?messages=true',
+							'icon': f'{SITE_FULL}/assets/images/{SITE_NAME}/icon.webp"a=1010',
 						}
 					},
-				)
-			except: pass
+					'fcm': {
+						'notification': {
+							'title': f'New message from @{v.username}',
+							'body': notifbody,
+						},
+						'data': {
+							'url': '/notifications?messages=true',
+						}
+					}
+				},
+			)
 
 
-	if new_comment.top_comment.sentto == 0:
-		admins = g.db.query(User).filter(User.admin_level > 2, User.id != v.id, User.id != user_id).all()
+	if new_comment.top_comment.sentto == 2:
+		admins = g.db.query(User).filter(User.admin_level > 2, User.id != v.id).all()
 		for admin in admins:
 			notif = Notification(comment_id=new_comment.id, user_id=admin.id)
 			g.db.add(notif)
@@ -659,20 +659,20 @@ def redditor_moment_redirect(username, v):
 @auth_required
 def followers(username, v):
 	u = get_user(username, v=v)
-	users = g.db.query(User).join(Follow, Follow.target_id == u.id).filter(Follow.user_id == User.id).order_by(Follow.id).all()
+	users = g.db.query(User).join(Follow, Follow.target_id == u.id).filter(Follow.user_id == User.id).order_by(Follow.created_utc).all()
 	return render_template("followers.html", v=v, u=u, users=users)
 
 @app.get("/@<username>/following")
 @auth_required
 def following(username, v):
 	u = get_user(username, v=v)
-	users = g.db.query(User).join(Follow, Follow.user_id == u.id).filter(Follow.target_id == User.id).order_by(Follow.id).all()
+	users = g.db.query(User).join(Follow, Follow.user_id == u.id).filter(Follow.target_id == User.id).order_by(Follow.created_utc).all()
 	return render_template("following.html", v=v, u=u, users=users)
 
 @app.get("/views")
 @auth_required
 def visitors(v):
-	if SITE_NAME == 'Drama' and v.admin_level < 1 and not v.patron: return render_template("errors/patron.html", v=v)
+	if v.admin_level < 1 and not v.patron: return render_template("errors/patron.html", v=v)
 	viewers=sorted(v.viewers, key = lambda x: x.last_view_utc, reverse=True)
 	return render_template("viewers.html", v=v, viewers=viewers)
 
@@ -702,7 +702,7 @@ def u_username(username, v=None):
 	if v and u.id != v.id and u.patron:
 		view = g.db.query(ViewerRelationship).filter_by(viewer_id=v.id, user_id=u.id).one_or_none()
 
-		if view: view.last_view_utc = g.timestamp
+		if view: view.last_view_utc = int(time.time())
 		else: view = ViewerRelationship(viewer_id=v.id, user_id=u.id)
 
 		g.db.add(view)
@@ -825,7 +825,7 @@ def u_username_comments(username, v=None):
 	comments = g.db.query(Comment.id).filter(Comment.author_id == u.id, Comment.parent_submission != None)
 
 	if not v or (v.id != u.id and v.admin_level == 0):
-		comments = comments.filter(Comment.deleted_utc == 0, Comment.is_banned == False, Comment.ghost == None)
+		comments = comments.filter(Comment.deleted_utc == 0, Comment.is_banned == False, Comment.ghost == False)
 
 	now = int(time.time())
 	if t == 'hour':
@@ -908,7 +908,7 @@ def follow_user(username, v):
 	g.db.add(new_follow)
 
 	g.db.flush()
-	target.stored_subscriber_count = g.db.query(Follow.id).filter_by(target_id=target.id).count()
+	target.stored_subscriber_count = g.db.query(Follow.target_id).filter_by(target_id=target.id).count()
 	g.db.add(target)
 
 	send_notification(target.id, f"@{v.username} has followed you!")
@@ -932,7 +932,7 @@ def unfollow_user(username, v):
 		g.db.delete(follow)
 		
 		g.db.flush()
-		target.stored_subscriber_count = g.db.query(Follow.id).filter_by(target_id=target.id).count()
+		target.stored_subscriber_count = g.db.query(Follow.target_id).filter_by(target_id=target.id).count()
 		g.db.add(target)
 
 		send_notification(target.id, f"@{v.username} has unfollowed you!")
@@ -954,7 +954,7 @@ def remove_follow(username, v):
 	g.db.delete(follow)
 	
 	g.db.flush()
-	v.stored_subscriber_count = g.db.query(Follow.id).filter_by(target_id=v.id).count()
+	v.stored_subscriber_count = g.db.query(Follow.target_id).filter_by(target_id=v.id).count()
 	g.db.add(v)
 
 	send_repeatable_notification(target.id, f"@{v.username} has removed your follow!")

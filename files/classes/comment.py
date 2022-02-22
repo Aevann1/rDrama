@@ -23,7 +23,7 @@ class Comment(Base):
 	created_utc = Column(Integer)
 	edited_utc = Column(Integer, default=0)
 	is_banned = Column(Boolean, default=False)
-	ghost = Column(Boolean)
+	ghost = Column(Boolean, default=False)
 	bannedfor = Column(Boolean)
 	distinguish_level = Column(Integer, default=0)
 	deleted_utc = Column(Integer, default=0)
@@ -73,7 +73,7 @@ class Comment(Base):
 	@property
 	@lazy
 	def flags(self):
-		return g.db.query(CommentFlag).filter_by(comment_id=self.id).order_by(CommentFlag.id)
+		return g.db.query(CommentFlag).filter_by(comment_id=self.id).order_by(CommentFlag.created_utc)
 
 	@lazy
 	def poll_voted(self, v):
@@ -205,7 +205,7 @@ class Comment(Base):
 
 	@property
 	def replies(self):
-		if self.replies2 != None:  return [x for x in self.replies2 if not x.author.shadowbanned]
+		if self.replies2 != None: return [x for x in self.replies2 if not x.author.shadowbanned]
 		return sorted((x for x in self.child_comments if x.author and not x.author.shadowbanned and x.author_id not in (AUTOPOLLER_ID, AUTOBETTER_ID, AUTOCHOICE_ID)), key=lambda x: x.realupvotes, reverse=True)
 
 	@property
@@ -228,19 +228,19 @@ class Comment(Base):
 
 	@property
 	@lazy
-	def shortlink_context(self):
+	def sl(self):
 		return f"/comment/{self.id}?context=8#context"
+
+	@property
+	@lazy
+	def permalink(self):
+		return f"{SITE_FULL}{self.sl}"
 
 	@property
 	@lazy
 	def author_name(self):
 		if self.ghost: return '👻'
 		else: return self.author.username
-
-	@property
-	@lazy
-	def permalink(self):
-		return f"{SITE_FULL}/comment/{self.id}?context=8#context"
 
 	@property
 	@lazy
@@ -428,7 +428,7 @@ class Comment(Base):
 
 		if self.is_banned: return True
 
-		if path.startswith('/post') and (self.slots_result or self.blackjack_result) and (not self.body or len(self.body) <= 50) and self.level > 1: return True
+		if path.startswith('/post') and (self.slots_result or self.blackjack_result or self.wordle_result) and (not self.body or len(self.body) <= 50) and self.level > 1: return True
 			
 		if v and v.filter_words and self.body and any(x in self.body for x in v.filter_words): return True
 		
@@ -446,14 +446,17 @@ class Notification(Base):
 
 	__tablename__ = "notifications"
 
-	id = Column(Integer, primary_key=True)
-	user_id = Column(Integer, ForeignKey("users.id"))
-	comment_id = Column(Integer, ForeignKey("comments.id"))
+	user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
+	comment_id = Column(Integer, ForeignKey("comments.id"), primary_key=True)
 	read = Column(Boolean, default=False)
+	created_utc = Column(Integer)
 
 	comment = relationship("Comment", viewonly=True)
 	user = relationship("User", viewonly=True)
 
-	def __repr__(self):
+	def __init__(self, *args, **kwargs):
+		if "created_utc" not in kwargs: kwargs["created_utc"] = int(time.time())
+		super().__init__(*args, **kwargs)
 
+	def __repr__(self):
 		return f"<Notification(id={self.id})>"

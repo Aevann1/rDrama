@@ -8,6 +8,8 @@ import re
 from mistletoe import markdown
 from json import loads, dump
 from random import random, choice
+import signal
+import time
 
 db = db_session()
 marseys = tuple(x[0] for x in db.query(Marsey.name).all())
@@ -95,15 +97,24 @@ def sanitize_marquee(tag, name, value):
 	return False
 
 allowed_attributes = {
-		'*': ['href', 'style', 'src', 'class', 'title'],
+		'*': ['href', 'style', 'src', 'class', 'title', 'alt', 'loading'],
 		'marquee': sanitize_marquee}
 
 allowed_protocols = ['http', 'https']
 
 allowed_styles = ['color', 'background-color', 'font-weight', 'text-align']
 
+
+def handler(signum, frame):
+	print("Forever is over!")
+	raise Exception("end of time")
+
+
 def sanitize(sanitized, noimages=False, alert=False, comment=False, edit=False):
 
+	signal.signal(signal.SIGALRM, handler)
+	signal.alarm(2)
+	
 	if sanitized.count(':') > 100: abort(418)
 	if sanitized.count('@') > 50: abort(418)
 
@@ -117,9 +128,9 @@ def sanitize(sanitized, noimages=False, alert=False, comment=False, edit=False):
 			if u:
 				sanitized = sanitized.replace(i.group(0), f'''<p><a href="/id/{u.id}"><img alt="@{u.username}'s profile picture" loading="lazy" src="/uid/{u.id}/pic" class="pp20">@{u.username}</a>''', 1)
 	else:
-		sanitized = re.sub('(^|\s|\n|<p>)\/?((r|u)\/(\w|-){3,25})', r'\1<a href="https://old.reddit.com/\2" rel="nofollow noopener noreferrer">\2</a>', sanitized, re.A)
+		sanitized = re.sub('(^|\s|\n|<p>)\/?((r|u)\/(\w|-){3,25})', r'\1<a href="https://old.reddit.com/\2" rel="nofollow noopener noreferrer">/\2</a>', sanitized, re.A)
 
-		sanitized = re.sub('(^|\s|\n|<p>)\/?(s\/(\w|-){3,25})', r'\1<a href="/\2" rel="nofollow noopener noreferrer">\2</a>', sanitized, re.A)
+		sanitized = re.sub('(^|\s|\n|<p>)\/?(s\/(\w|-){3,25})', r'\1<a href="/\2" rel="nofollow noopener noreferrer">/\2</a>', sanitized, re.A)
 
 		for i in re.finditer('(^|\s|\n|<p>)@((\w|-){1,25})', sanitized, re.A):
 			u = get_user(i.group(2), graceful=True)
@@ -246,7 +257,7 @@ def sanitize(sanitized, noimages=False, alert=False, comment=False, edit=False):
 				sanitized = re.sub(f'(?<!"):{i.group(1).lower()}:', f'<img loading="lazy" data-bs-toggle="tooltip" alt=":{old}:" title=":{old}:" delay="0" class="{classes}" src="/static/assets/images/emojis/{emoji}.webp">', sanitized, re.I)
 				if comment: marseys_used.add(emoji)
 
-	sanitized = sanitized.replace("https://youtu.be/", "https://youtube.com/watch?v=").replace("https://music.youtube.com/watch?v=", "https://youtube.com/watch?v=").replace("https://open.spotify.com/", "https://open.spotify.com/embed/").replace("https://streamable.com/", "https://streamable.com/e/").replace("https://youtube.com/shorts/", "https://youtube.com/watch?v=").replace("https://mobile.twitter", "https://twitter").replace("https://m.facebook", "https://facebook").replace("m.wikipedia.org", "wikipedia.org").replace("https://m.youtube", "https://youtube").replace("https://www.youtube", "https://youtube")
+	sanitized = sanitized.replace("https://youtu.be/", "https://youtube.com/watch?v=").replace("https://music.youtube.com/watch?v=", "https://youtube.com/watch?v=").replace("https://streamable.com/", "https://streamable.com/e/").replace("https://youtube.com/shorts/", "https://youtube.com/watch?v=").replace("https://mobile.twitter", "https://twitter").replace("https://m.facebook", "https://facebook").replace("m.wikipedia.org", "wikipedia.org").replace("https://m.youtube", "https://youtube").replace("https://www.youtube", "https://youtube")
 
 	if "https://youtube.com/watch?v=" in sanitized: sanitized = sanitized.replace("?t=", "&t=")
 
@@ -283,11 +294,21 @@ def sanitize(sanitized, noimages=False, alert=False, comment=False, edit=False):
 			marsey.count += 1
 			g.db.add(marsey)
 
+	signal.alarm(0)
+
 	return sanitized
 
-
+def handler2(signum, frame):
+	print("Forever is over!")
+	raise Exception("end of time")
 
 def filter_emojis_only(title, edit=False, graceful=False):
+
+	signal.signal(signal.SIGALRM, handler2)
+	signal.alarm(2)
+	
+	if title.count(':') > 100: abort(418)
+	if title.count('@') > 50: abort(418)
 
 	title = title.replace('<','&lt;').replace('>','&gt;').replace("\n", "").replace("\r", "").replace("\t", "").strip()
 
@@ -320,6 +341,10 @@ def filter_emojis_only(title, edit=False, graceful=False):
 
 			if path.isfile(f'files/assets/images/emojis/{emoji}.webp'):
 				title = re.sub(f'(?<!"):{old}:', f'<img loading="lazy" data-bs-toggle="tooltip" alt=":{old}:" title=":{old}:" delay="0" class="{classes}" src="/static/assets/images/emojis/{emoji}.webp">', title, re.I)
+
+	title = re.sub('~~(.*?)~~', r'<del>\1</del>', title)
+
+	signal.alarm(0)
 
 	if len(title) > 1500 and not graceful: abort(400)
 	else: return title

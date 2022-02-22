@@ -1,14 +1,16 @@
 FROM ubuntu:20.04
 
+ARG DEBIAN_FRONTEND=noninteractive
+
+RUN apt update && apt -y upgrade && apt install -y supervisor python3-pip libenchant1c2a ffmpeg
+
 COPY supervisord.conf /etc/supervisord.conf
 
-RUN apt update && apt install -y python3.8 python3-pip supervisor
+COPY requirements.txt /etc/requirements.txt
 
-RUN mkdir -p ./service
+RUN pip3 install -r /etc/requirements.txt
 
-COPY requirements.txt ./service/requirements.txt
-
-RUN cd ./service && pip3 install -r requirements.txt && mkdir /images && mkdir /songs
+RUN mkdir /images && mkdir /songs
 
 EXPOSE 80/tcp
 

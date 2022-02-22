@@ -9,10 +9,12 @@
 {% block Banner %}
 	<header class="container pb-1 text-center">
 		<img alt="shop banner" src="/static/assets/images/shop.webp" width="50%">
-		<h3 class="mt-4">Stir drama. Earn coins.</h3>
-		<h5 class="mt-4">Total sales: {{sales}} coins</h3>
-		<h5 class="mt-4">Coins spent by you: {{v.coins_spent}} coins</h3>
-		<h5 class="mt-4">Lootboxes bought by you: {{v.lootboxes_bought}} lootbox{{'es' if v.lootboxes_bought != 1}}</h3>
+		<h3 class="mt-4">Stir drama. Earn coins.</h5>
+		<h5 class="mt-4">Total sales: {{sales}} coins</h5>
+		<h5 class="mt-4">Coins spent by you: {{v.coins_spent}} coins</h5>
+		<h5 class="mt-4">Lootboxes bought by you: {{v.lootboxes_bought}} lootbox{{'es' if v.lootboxes_bought != 1}}</h5>
+		<h5 class="mt-4">Your current coins: {{v.coins}}</h5>
+		<h5 class="mt-4">Your current marseybux: {{v.procoins}}</h3>
 	</header>
 {% endblock %}
 
@@ -57,7 +59,7 @@
 			</thead>
 			<tbody>
 		{% for a in awards %}
-			<tr data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{a['description']}}">
+			<tr data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{a['description']}}" data-bs-original-title="{{a['description']}}">
 				<td><i class="{{a['icon']}} {{a['color']}}" style="font-size: 30px"></i></td>
 				<td style="font-weight: bold">{{a['title']}}</td>
 				{% if a['baseprice'] != a['price'] %}
@@ -82,26 +84,4 @@
 
 
 	</pre>
-
-	<style>
-		@media (max-width: 768px) {
-			.table th {
-				padding-left: 0.3rem !important;
-				padding-right: 0.3rem !important;
-			}
-			.table td {
-				padding-left: 0.3rem !important;
-				padding-right: 0.3rem !important;
-				font-size: 0.9rem;
-			}
-			.marseybux {
-				font-size: 0.7rem !important;
-			}
-		}
-
-		.tooltip-inner {
-			font-size: 1.5rem;
-			max-width: 300px;
-		}
-	</style>
 {% endblock %}

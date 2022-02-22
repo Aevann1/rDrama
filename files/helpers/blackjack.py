@@ -126,15 +126,14 @@ def player_stayed(from_comment):
 def apply_game_result(from_comment, wager, result, kind):
 	wager_value = int(wager)
 	user = from_comment.author
-	reward = -1
 
 	if result == 'push': reward = 0
 	elif result == 'won': reward = wager_value
 	elif result == 'blackjack': reward = floor(wager_value * 3/2)
+	else: reward = -wager_value
+
+	user.winnings += reward
 
 	if (reward > -1):
 		currency_value = int(getattr(user, kind, 0))
-
 		setattr(user, kind, currency_value + wager_value + reward)
-
-		user.winnings += reward

@@ -68,7 +68,10 @@ def stats():
 	active_users = set()
 	posters = g.db.query(Submission.author_id).distinct(Submission.author_id).filter(Submission.created_utc > week).all()
 	commenters = g.db.query(Comment.author_id).distinct(Comment.author_id).filter(Comment.created_utc > week).all()
-	active_users = set(posters) | set(commenters)
+	voters = g.db.query(Vote.user_id).distinct(Vote.user_id).filter(Vote.created_utc > week).all()
+	commentvoters = g.db.query(CommentVote.user_id).distinct(CommentVote.user_id).filter(CommentVote.created_utc > week).all()
+
+	active_users = set(posters) | set(commenters) | set(voters) | set(commentvoters)
 
 	return {"marseys": g.db.query(Marsey.name).count(),
 			"users": g.db.query(User.id).count(),
@@ -89,15 +92,15 @@ def stats():
 			"removed comments (by admins)": g.db.query(Comment.id).filter_by(is_banned=True).count(),
 			"deleted comments (by author)": g.db.query(Comment.id).filter(Comment.deleted_utc > 0).count(),
 			"comments last_24h": g.db.query(Comment.id).filter(Comment.created_utc > day, Comment.author_id.notin_((AUTOJANNY_ID,NOTIFICATIONS_ID))).count(),
-			"post votes": g.db.query(Vote.id).count(),
+			"post votes": g.db.query(Vote.submission_id).count(),
 			"post voting users": g.db.query(Vote.user_id).distinct().count(),
-			"comment votes": g.db.query(CommentVote.id).count(),
+			"comment votes": g.db.query(CommentVote.comment_id).count(),
 			"comment voting users": g.db.query(CommentVote.user_id).distinct().count(),
-			"total upvotes": g.db.query(Vote.id).filter_by(vote_type=1).count() + g.db.query(CommentVote.id).filter_by(vote_type=1).count(),
-			"total downvotes": g.db.query(Vote.id).filter_by(vote_type=-1).count() + g.db.query(CommentVote.id).filter_by(vote_type=-1).count(),
+			"total upvotes": g.db.query(Vote.submission_id).filter_by(vote_type=1).count() + g.db.query(CommentVote.comment_id).filter_by(vote_type=1).count(),
+			"total downvotes": g.db.query(Vote.submission_id).filter_by(vote_type=-1).count() + g.db.query(CommentVote.comment_id).filter_by(vote_type=-1).count(),
 			"total awards": g.db.query(AwardRelationship.id).count(),
 			"awards given": g.db.query(AwardRelationship.id).filter(or_(AwardRelationship.submission_id != None, AwardRelationship.comment_id != None)).count(),
-			"users who posted or commented in the past 7 days": len(active_users)
+			"users who posted, commented, or voted in the past 7 days": len(active_users)
 			}
 
 @app.get("/chart")
@@ -304,7 +307,21 @@ def submit_contact(v):
 			body_html += f"<p>{url}</p>"
 		else: return {"error": "Image/Video files only"}, 400
 
-	send_admin(v.id, body_html)
+
+
+	new_comment = Comment(author_id=v.id,
+						  parent_submission=None,
+						  level=1,
+						  body_html=body_html,
+						  sentto=2
+						  )
+	g.db.add(new_comment)
+	g.db.flush()
+	for admin in g.db.query(User).filter(User.admin_level > 1).all():
+		notif = Notification(comment_id=new_comment.id, user_id=admin.id)
+		g.db.add(notif)
+
+
 
 	g.db.commit()
 	return render_template("contact.html", v=v, msg="Your message has been sent.")
@@ -326,7 +343,7 @@ def static_service(path):
 	resp = make_response(send_from_directory('assets', path))
 	if request.path.endswith('.webp') or request.path.endswith('.gif') or request.path.endswith('.ttf') or request.path.endswith('.woff') or request.path.endswith('.woff2'):
 		resp.headers.remove("Cache-Control")
-		resp.headers.add("Cache-Control", "public, max-age=2628000")
+		resp.headers.add("Cache-Control", "public, max-age=3153600")
 
 	if request.path.endswith('.webp'):
 		resp.headers.remove("Content-Type")
@@ -341,7 +358,7 @@ def static_service(path):
 def images(path):
 	resp = make_response(send_from_directory('/images', path.replace('.WEBP','.webp')))
 	resp.headers.remove("Cache-Control")
-	resp.headers.add("Cache-Control", "public, max-age=2628000")
+	resp.headers.add("Cache-Control", "public, max-age=3153600")
 	if request.path.endswith('.webp'):
 		resp.headers.remove("Content-Type")
 		resp.headers.add("Content-Type", "image/webp")
@@ -358,7 +375,7 @@ def robots_txt():
 @app.get("/badges")
 @auth_required
 def badges(v):
-	badges = g.db.query(BadgeDef).all()
+	badges = g.db.query(BadgeDef).order_by(BadgeDef.id).all()
 
 	return render_template("badges.html", v=v, badges=badges)
 
@@ -401,3 +418,8 @@ def settings_security(v):
 						   v=v,
 						   mfa_secret=pyotp.random_base32() if not v.mfa_secret else None
 						   )
+
+@app.get("/.well-known/assetlinks.json")
+def googleplayapp():
+	with open("files/assets/assetlinks.json", "r") as f:
+		return Response(f.read(), mimetype='application/json')

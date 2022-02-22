@@ -33,7 +33,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['DATABASE_URL'] = environ.get("DATABASE_URL", "postgresql://postgres@localhost:5432")
 app.config['SECRET_KEY'] = environ.get('MASTER_KEY')
 app.config["SERVER_NAME"] = environ.get("DOMAIN").strip()
-app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 2628000
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 3153600
 app.config["SESSION_COOKIE_NAME"] = "session_" + environ.get("SITE_NAME").strip().lower()
 app.config["VERSION"] = "1.0.0"
 app.config['MAX_CONTENT_LENGTH'] = 8 * 1024 * 1024
@@ -95,15 +95,13 @@ def before_request():
 
 	g.db = db_session()
 
-	g.timestamp = int(time.time())
-
 	ua = request.headers.get("User-Agent","").lower()
 
 	if '; wv) ' in ua: g.webview = True
 	else: g.webview = False
 
-	if 'iphone' in ua or 'ipad' in ua or 'ipod' in ua or 'mac os' in ua or ' firefox/' in ua: g.seal = True
-	else: g.seal = False
+	if 'iphone' in ua or 'ipad' in ua or 'ipod' in ua or 'mac os' in ua or ' firefox/' in ua: g.inferior_browser = True
+	else: g.inferior_browser = False
 
 
 @app.teardown_appcontext

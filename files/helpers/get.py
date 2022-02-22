@@ -194,9 +194,10 @@ def get_comment(i, v=None, graceful=False):
 					UserBlock.user_id == v.id,
 					UserBlock.target_id == comment.author_id
 				),
-				and_(UserBlock.user_id == comment.author_id,
-					 UserBlock.target_id == v.id
-					 )
+				and_(
+					UserBlock.user_id == comment.author_id,
+					UserBlock.target_id == v.id
+				)
 			)
 		).one_or_none()
 

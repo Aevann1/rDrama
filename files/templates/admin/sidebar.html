@@ -1,0 +1,42 @@
+{% extends "default.html" %}
+
+{% block pagetitle %}Edit {{SITE_NAME}} sidebar{% endblock %}
+
+{% block content %}
+
+{% if msg %}
+	<div class="alert alert-success alert-dismissible fade show my-3" role="alert">
+		<i class="fas fa-check-circle my-auto" aria-hidden="true"></i>
+		<span>
+			{{msg}}
+		</span>
+		<button class="close" data-bs-dismiss="alert" aria-label="Close">
+			<span aria-hidden="true"><i class="far fa-times"></i></span>
+		</button>
+	</div>
+{% endif %}
+
+<div class="row my-5">
+	<div class="col col-md-8">
+		<div class="settings">
+			<div id="description">
+				<h2>Edit Sidebar</h2>
+				<br>
+			</div>
+			<div class="body d-lg-flex">
+				<div class="w-lg-100">
+					<form id="profile-settings" action="/admin/sidebar" method="post">
+						<input autocomplete="off" type="hidden" name="formkey" value="{{v.formkey}}">
+						<textarea autocomplete="off" maxlength="10000" class="form-control rounded" id="bio-text" aria-label="With textarea" placeholder="Enter sidebar here..." rows="50" name="sidebar" form="profile-settings">{% if sidebar %}{{sidebar}}{% endif %}</textarea>
+
+						<div class="d-flex mt-2">
+							<input autocomplete="off" class="btn btn-primary ml-auto" type="submit" value="Save">
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+{% endblock %}

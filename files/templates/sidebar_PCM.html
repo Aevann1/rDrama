@@ -1,19 +1,43 @@
-<div class="col sidebar text-left d-none d-lg-block pt-3  pb-5 bg-white" style="max-width:300px">
-    <img role="button" data-bs-toggle="modal" data-bs-target="#expandImageModal" onclick="expandDesktopImage('/static/assets/images/PCM/sidebar.webp?a=1041" loading="lazy" src="/static/assets/images/PCM/sidebar.webp?a=1041" width=100%>
+<div class="col sidebar text-left d-none d-lg-block pt-3 bg-white" style="max-width:300px">
 
+{% if sub %}
+	{% if sub.sidebar_html %}
+		<div class="mb-4">{{sub.sidebar_html|safe}}</div>
+	{% endif %}
+	{% if v and v.mods(sub.name) %}
+		<a class="btn btn-primary btn-block" href="/s/{{sub.name}}/settings">SUB SETTINGS</a>
+	{% endif %}
+	{% if v %}
+		<a class="btn btn-primary btn-block {% if v.blocks(sub.name) %}d-none{% endif %}" onclick="post_toast(this,'/s/{{sub.name}}/block','block-sub','unblock-sub');this.classList.toggle('d-none');nextElementSibling.classList.toggle('d-none')">BLOCK SUB</a>
+		<a class="btn btn-primary btn-block {% if not v.blocks(sub.name) %}d-none{% endif %}" onclick="post_toast(this,'/s/{{sub.name}}/unblock','block-sub','unblock-sub');this.classList.toggle('d-none');previousElementSibling.classList.toggle('d-none')">UNBLOCK SUB</a>
+	{% endif %}
+	<a class="btn btn-primary btn-block" href="/s/{{sub.name}}/mods">MODS</a>
+	<a class="btn btn-primary btn-block" href="/s/{{sub.name}}/exilees">EXILEES</a>
+	<a class="btn btn-primary btn-block" href="/s/{{sub.name}}/blockers">BLOCKERS</a>
+{% endif %}
 
-<a class="btn btn-primary btn-block mt-4" href="https://ip2.network">STREAM LIST</a>
+<a class="btn btn-primary btn-block" href="/create_sub">CREATE SUB</a>
+<a class="btn btn-primary btn-block mt-5" href="https://ip2.network">STREAM LIST</a>
 <a class="btn btn-primary btn-block" href="/post/4103">BUGS/SUGGESTIONS MEGATHREAD</a>
 <a class="btn btn-primary btn-block" href="/post/9694" >OFFICIAL CONSPIRACY THEORY THREAD</a>
 <a class="btn btn-primary btn-block" href="/post/10415">OFFICIAL GAMBLING THREAD</a>
-<p class="mt-4"> PNGs for Memes:</p>
-<a class="btn btn-primary btn-block mt-4" href="https://imgur.com/a/UFGJybS">PCM Watermark Collection</a>
-<a class="btn btn-primary btn-block mt-4" href="https://imgur.com/a/HxBfECG">TRS</a>
-<a class="btn btn-primary btn-block mt-4" href="https://imgur.com/a/Wkw11eX">Current RV Cutouts</a>
-<a class="btn btn-primary btn-block mt-4" href="https://imgur.com/a/B3XHKnD">PCM Shitposter Cutouts (1/?)</a>
-<a class="btn btn-primary btn-block mt-4" href="https://imgur.com/a/2wDZddF">PCM Shitposter Cutouts (2/?)</a>
+<a class="btn btn-primary btn-block" href="https://imgur.com/a/UFGJybS">PCM Watermark Collection</a>
+<a class="btn btn-primary btn-block" href="https://imgur.com/a/HxBfECG">TRS</a>
+<a class="btn btn-primary btn-block" href="https://imgur.com/a/Wkw11eX">Current RV Cutouts</a>
+<a class="btn btn-primary btn-block" href="https://imgur.com/a/B3XHKnD">PCM Shitposter Cutouts (1/?)</a>
+<a class="btn btn-primary btn-block" href="https://imgur.com/a/2wDZddF">PCM Shitposter Cutouts (2/?)</a>
 <p class="mt-4"> Rules: No doxxing, No CP or other clearly illegal shit. Thanks.</p>
 <p class="mt-4"> This website has nothing to do with Political Compass Memes.</p>
+
+{% if sub %}
+	{% set image=sub.sidebar_url %}
+{% else %}
+	{% set image='/static/assets/images/' + SITE_NAME + '/sidebar.webp?a=1041' %}
+{% endif %}
+
+<img class="mb-4" alt="sidebar image" role="button" data-bs-toggle="modal" data-bs-target="#expandImageModal" onclick="expandDesktopImage('{{image}}')" loading="lazy" src="{{image}}" width=100%>
+
+
 <pre>
 
 
@@ -25,9 +49,9 @@
 
 
 
-                    
+					
 
 
-                
+				
 </pre>
 </div>

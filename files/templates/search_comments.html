@@ -1,23 +1,23 @@
 {% extends "search.html" %}
 
 {% block listing_template %}
-    <div class="posts p-3 p-md-0">
-        {% include "comments.html" %}
-    </div>
+	<div class="posts p-3 p-md-0">
+		{% include "comments.html" %}
+	</div>
 
-    {% if error %}
-        <div class="row no-gutters">	
-            <div class="col">			
-                <div class="text-center px-3 my-3">
-                    <span class="fa-stack fa-2x text-muted mb-4">
-                        <i class="fas fa-square text-gray-500 opacity-25 fa-stack-2x"></i>
-                        <i class="fas text-gray-500 fa-ghost fa-stack-1x text-lg"></i>
-                    </span>
-                    <h2 class="h5">{{error}}</h2>
-                </div>			
-            </div>	
-        </div>
-    {% endif %}
+	{% if error %}
+		<div class="row no-gutters">	
+			<div class="col">			
+				<div class="text-center px-3 my-3">
+					<span class="fa-stack fa-2x text-muted mb-4">
+						<i class="fas fa-square text-gray-500 opacity-25 fa-stack-2x"></i>
+						<i class="fas text-gray-500 fa-ghost fa-stack-1x text-lg"></i>
+					</span>
+					<h2 class="h5">{{error}}</h2>
+				</div>			
+			</div>	
+		</div>
+	{% endif %}
 {% endblock %}
 
 {% block listinglength %}

@@ -25,7 +25,7 @@
 	box-shadow: none !important;
 	transition: none !important;
 	border-radius: 0 !important;
-	font-family: sans-serif !important;
+	font-family: sans-serif;
 	font-size: 12px;
 }
 

@@ -20,11 +20,41 @@ import requests
 GUMROAD_ID = environ.get("GUMROAD_ID", "tfcvri").strip()
 GUMROAD_TOKEN = environ.get("GUMROAD_TOKEN", "").strip()
 
-CF_KEY = environ.get("CF_KEY", "").strip()
-CF_ZONE = environ.get("CF_ZONE", "").strip()
-CF_HEADERS = {"Authorization": f"Bearer {CF_KEY}", "Content-Type": "application/json"}
-
 month = datetime.now().strftime('%B')
+
+if SITE_NAME == 'PCM':
+	@app.get('/admin/sidebar')
+	@admin_level_required(3)
+	def get_sidebar(v):
+
+		try:
+			with open(f'files/templates/sidebar_{SITE_NAME}.html', 'r', encoding="utf-8") as f: sidebar = f.read()
+		except:
+			sidebar = None
+
+		return render_template('admin/sidebar.html', v=v, sidebar=sidebar)
+
+
+	@app.post('/admin/sidebar')
+	@limiter.limit("1/second;30/minute;200/hour;1000/day")
+	@admin_level_required(3)
+	def post_sidebar(v):
+
+		text = request.values.get('sidebar', '').strip()
+
+		with open(f'files/templates/sidebar_{SITE_NAME}.html', 'w+', encoding="utf-8") as f: f.write(text)
+
+		with open(f'files/templates/sidebar_{SITE_NAME}.html', 'r', encoding="utf-8") as f: sidebar = f.read()
+
+		ma = ModAction(
+			kind="change_sidebar",
+			user_id=v.id,
+		)
+		g.db.add(ma)
+
+		g.db.commit()
+
+		return render_template('admin/sidebar.html', v=v, sidebar=sidebar, msg='Sidebar edited successfully!')
 
 
 @app.post("/@<username>/make_admin")
@@ -89,13 +119,13 @@ def distribute(v, comment):
 	votes = g.db.query(CommentVote).filter_by(comment_id=comment)
 	coinsperperson = int(pool / votes.count())
 
-	cid = notif_comment(f"You won {coinsperperson} coins betting on [{post.permalink}]({post.permalink}) :marseyparty:")
+	cid = notif_comment(f"You won {coinsperperson} coins betting on [{post.title}]({post.sl}) :marseyparty:")
 	for vote in votes:
 		u = vote.user
 		u.coins += coinsperperson
 		add_notif(cid, u.id)
 
-	cid = notif_comment(f"You lost the 200 coins you bet on [{post.permalink}]({post.permalink}) :marseylaugh:")
+	cid = notif_comment(f"You lost the 200 coins you bet on [{post.title}]({post.sl}) :marseylaugh:")
 	cids = [x.id for x in post.bet_options]
 	cids.remove(comment)
 	votes = g.db.query(CommentVote).filter(CommentVote.comment_id.in_(cids)).all()
@@ -148,14 +178,14 @@ def revert_actions(v, username):
 		user.is_banned = 0
 		user.unban_utc = 0
 		user.ban_evade = 0
-		send_repeatable_notification(user.id, "Your account has been unbanned!")
+		send_repeatable_notification(user.id, f"@{v.username} has unbanned you!")
 		g.db.add(user)
 		for u in user.alts:
 			u.shadowbanned = None
 			u.is_banned = 0
 			u.unban_utc = 0
 			u.ban_evade = 0
-			send_repeatable_notification(u.id, "Your account has been unbanned!")
+			send_repeatable_notification(u.id, f"@{v.username} has unbanned you!")
 			g.db.add(u)
 
 	g.db.commit()
@@ -274,19 +304,20 @@ def monthly(v):
 			elif u.patron == 3: procoins = 10000
 			elif u.patron == 4: procoins = 25000
 			elif u.patron == 5: procoins = 50000
+			elif u.patron == 6: procoins = 125000
 			u.procoins += procoins
 			g.db.add(u)
-			send_repeatable_notification(u.id, f"You were given {procoins} Marseybux for the month of {month}! You can use them to buy awards in the [shop](/shop).")
+			send_repeatable_notification(u.id, f"@{v.username} has given you {procoins} Marseybux for the month of {month}! You can use them to buy awards in the [shop](/shop).")
 		elif u.patron == 5:
 			procoins = 50000
 			u.procoins += procoins
 			g.db.add(u)
-			send_repeatable_notification(u.id, f"You were given {procoins} Marseybux for the month of {month}! You can use them to buy awards in the [shop](/shop).")
+			send_repeatable_notification(u.id, f"@{v.username} has given you {procoins} Marseybux for the month of {month}! You can use them to buy awards in the [shop](/shop).")
 		elif u.patron == 1 and u.admin_level > 0:
 			procoins = 2500
 			u.procoins += procoins
 			g.db.add(u)
-			send_repeatable_notification(u.id, f"You were given {procoins} Marseybux for the month of {month}! You can use them to buy awards in the [shop](/shop).")
+			send_repeatable_notification(u.id, f"@{v.username} has given you {procoins} Marseybux for the month of {month}! You can use them to buy awards in the [shop](/shop).")
 		else: print(u.username)
 
 	if request.host == 'pcmemes.net':
@@ -462,7 +493,7 @@ def under_attack(v):
 @app.get("/admin/badge_grant")
 @admin_level_required(2)
 def badge_grant_get(v):
-	badges = g.db.query(BadgeDef).all()
+	badges = g.db.query(BadgeDef).order_by(BadgeDef.id).all()
 	return render_template("admin/badge_grant.html", v=v, badge_types=badges)
 
 
@@ -470,7 +501,7 @@ def badge_grant_get(v):
 @limiter.limit("1/second;30/minute;200/hour;1000/day")
 @admin_level_required(2)
 def badge_grant_post(v):
-	badges = g.db.query(BadgeDef).all()
+	badges = g.db.query(BadgeDef).order_by(BadgeDef.id).all()
 
 	user = get_user(request.values.get("username").strip(), graceful=True)
 	if not user:
@@ -515,7 +546,7 @@ def badge_grant_post(v):
 @app.get("/admin/badge_remove")
 @admin_level_required(2)
 def badge_remove_get(v):
-	badges = g.db.query(BadgeDef).all()
+	badges = g.db.query(BadgeDef).order_by(BadgeDef.id).all()
 
 	return render_template("admin/badge_remove.html", v=v, badge_types=badges)
 
@@ -524,7 +555,7 @@ def badge_remove_get(v):
 @limiter.limit("1/second;30/minute;200/hour;1000/day")
 @admin_level_required(2)
 def badge_remove_post(v):
-	badges = g.db.query(BadgeDef).all()
+	badges = g.db.query(BadgeDef).order_by(BadgeDef.id).all()
 
 	user = get_user(request.values.get("username").strip(), graceful=True)
 	if not user:
@@ -761,11 +792,9 @@ def admin_removed_comments(v):
 def agendaposter(user_id, v):
 	user = g.db.query(User).filter_by(id=user_id).one_or_none()
 
-	expiry = request.values.get("days", 0)
-	if expiry:
-		expiry = float(expiry)
-		expiry = g.timestamp + expiry*60*60*24
-	else: expiry = g.timestamp + 2629746
+	days = request.values.get("days", 30)
+	expiry = float(days)
+	expiry = int(time.time() + expiry*60*60*24)
 
 	user.agendaposter = expiry
 	g.db.add(user)
@@ -775,7 +804,7 @@ def agendaposter(user_id, v):
 		alt.agendaposter = expiry
 		g.db.add(alt)
 
-	note = f"for {request.values.get('days')} days" if expiry else "never expires"
+	note = f"for {days} days"
 
 	ma = ModAction(
 		kind="agendaposter",
@@ -785,14 +814,14 @@ def agendaposter(user_id, v):
 	)
 	g.db.add(ma)
 
-	if not user.has_badge(26):
-		badge = Badge(user_id=user.id, badge_id=26)
+	if not user.has_badge(28):
+		badge = Badge(user_id=user.id, badge_id=28)
 		g.db.add(badge)
 		g.db.flush()
 		send_notification(user.id, f"@AutoJanny has given you the following profile badge:\n\n![]({badge.path})\n\n{badge.name}")
 
 
-	send_repeatable_notification(user.id, f"You have been marked by an admin as an agendaposter ({note}).")
+	send_repeatable_notification(user.id, f"@{v.username} has marked you as an agendaposter ({note}).")
 
 	g.db.commit()
 	
@@ -820,10 +849,10 @@ def unagendaposter(user_id, v):
 
 	g.db.add(ma)
 
-	badge = user.has_badge(26)
+	badge = user.has_badge(28)
 	if badge: g.db.delete(badge)
 
-	send_repeatable_notification(user.id, "You have been unmarked by an admin as an agendaposter.")
+	send_repeatable_notification(user.id, f"@{v.username} has unmarked you as an agendaposter.")
 
 	g.db.commit()
 	return {"message": "Chud theme disabled!"}
@@ -854,7 +883,19 @@ def shadowban(user_id, v):
 
 	body_html = sanitize(body)
 
-	send_admin(NOTIFICATIONS_ID, body_html, v.id)
+
+	new_comment = Comment(author_id=NOTIFICATIONS_ID,
+						  parent_submission=None,
+						  level=1,
+						  body_html=body_html,
+						  )
+	g.db.add(new_comment)
+	g.db.flush()
+	for admin in g.db.query(User).filter(User.admin_level > 2, User.id != v.id).all():
+		notif = Notification(comment_id=new_comment.id, user_id=admin.id)
+		g.db.add(notif)
+
+
 
 	g.db.commit()
 	return {"message": "User shadowbanned!"}
@@ -1023,7 +1064,18 @@ def ban_user(user_id, v):
 
 	body_html = sanitize(body)
 
-	send_admin(NOTIFICATIONS_ID, body_html, v.id)
+
+	new_comment = Comment(author_id=NOTIFICATIONS_ID,
+						  parent_submission=None,
+						  level=1,
+						  body_html=body_html,
+						  )
+	g.db.add(new_comment)
+	g.db.flush()
+	for admin in g.db.query(User).filter(User.admin_level > 2, User.id != v.id).all():
+		notif = Notification(comment_id=new_comment.id, user_id=admin.id)
+		g.db.add(notif)
+
 
 	g.db.commit()
 
@@ -1044,7 +1096,7 @@ def unban_user(user_id, v):
 	user.unban_utc = 0
 	user.ban_evade = 0
 	user.ban_reason = None
-	send_repeatable_notification(user.id, "Your account has been unbanned!")
+	send_repeatable_notification(user.id, f"@{v.username} has unbanned you!")
 	g.db.add(user)
 
 	for x in user.alts:
@@ -1052,7 +1104,7 @@ def unban_user(user_id, v):
 		x.unban_utc = 0
 		x.ban_evade = 0
 		x.ban_reason = None
-		send_repeatable_notification(x.id, "Your account has been unbanned!")
+		send_repeatable_notification(x.id, f"@{v.username} has unbanned you!")
 		g.db.add(x)
 
 	ma=ModAction(
@@ -1098,6 +1150,8 @@ def ban_post(post_id, v):
 
 	v.coins += 1
 	g.db.add(v)
+
+	requests.post(f'https://api.cloudflare.com/client/v4/zones/{CF_ZONE}/purge_cache', headers=CF_HEADERS, json={'files': [f"{SITE_FULL}/logged_out/"]})
 
 	g.db.commit()
 
@@ -1242,7 +1296,7 @@ def sticky_comment(cid, v):
 		g.db.add(ma)
 
 		if v.id != comment.author_id:
-			message = f"@{v.username} has pinned your [comment]({comment.permalink})!"
+			message = f"@{v.username} has pinned your [comment]({comment.sl})!"
 			send_repeatable_notification(comment.author_id, message)
 
 		g.db.commit()
@@ -1269,7 +1323,7 @@ def unsticky_comment(cid, v):
 		g.db.add(ma)
 
 		if v.id != comment.author_id:
-			message = f"@{v.username} has unpinned your [comment]({comment.permalink})!"
+			message = f"@{v.username} has unpinned your [comment]({comment.sl})!"
 			send_repeatable_notification(comment.author_id, message)
 
 		g.db.commit()

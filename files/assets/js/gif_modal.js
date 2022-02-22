@@ -48,7 +48,7 @@ async function getGif(searchTerm) {
 					var gifURL = [];
 
 		if (max <= 0) {
-			noGIFs.innerHTML = '<div class="text-center py-3 mt-3"><div class="mb-3"><i class="fad fa-frown text-gray-500" style="font-size: 3.5rem;"></i></div><p class="font-weight-bold text-gray-500 mb-0">Aw shucks. No GIFs found...</p></div>';
+			noGIFs.innerHTML = '<div class="text-center py-3 mt-3"><div class="mb-3"><i class="fas fa-frown text-gray-500" style="font-size: 3.5rem;"></i></div><p class="font-weight-bold text-gray-500 mb-0">Aw shucks. No GIFs found...</p></div>';
 			container.innerHTML = null;
 			loadGIFs.innerHTML = null;
 		}
@@ -62,7 +62,7 @@ async function getGif(searchTerm) {
 				container.innerHTML += ('<div class="card bg-white" style="overflow: hidden" data-bs-dismiss="modal" aria-label="Close" title="by '+data[i].username+' on GIPHY" onclick="insertGIF(\'' + 'https://media.giphy.com/media/' + data[i].id + '/giphy.webp' + '\',\'' + commentFormID + '\')"><img loading="lazy" class="img-fluid" src="' + gifURL[i] + '"></div>');
 			}
 			noGIFs.innerHTML = null;
-			loadGIFs.innerHTML = '<div class="text-center py-3"><div class="mb-3"><i class="fad fa-grin-beam-sweat text-gray-500" style="font-size: 3.5rem;"></i></div><p class="font-weight-bold text-gray-500 mb-0">Thou&#39;ve reached the end of the list!</p></div>';
+			loadGIFs.innerHTML = '<div class="text-center py-3"><div class="mb-3"><i class="fas fa-grin-beam-sweat text-gray-500" style="font-size: 3.5rem;"></i></div><p class="font-weight-bold text-gray-500 mb-0">Thou&#39;ve reached the end of the list!</p></div>';
 			}
 		}
 	}

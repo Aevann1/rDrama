@@ -58,37 +58,39 @@
 
 			{% if v %}
 				{% if v.notifications_count %}
-					<a class="mobile-nav-icon d-md-none" href="/notifications{% if not v.not_post_notifications_count %}?posts=true{% endif %}" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Notifications"><i class="fas fa-bell align-middle text-danger" {% if not v.not_post_notifications_count %}style="color:blue!important"{% endif %}></i><span class="notif-count ml-1" style="padding-left: 4.5px;{% if not v.not_post_notifications_count %}background:blue{% endif %}">{{v.notifications_count}}</span></a>
+					<a class="mobile-nav-icon d-md-none" href="/notifications{% if not v.not_post_notifications_count %}?posts=true{% endif %}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Notifications" data-bs-original-title="Notifications"><i class="fas fa-bell align-middle text-danger" {% if not v.not_post_notifications_count %}style="color:blue!important"{% endif %}></i><span class="notif-count ml-1" style="padding-left: 4.5px;{% if not v.not_post_notifications_count %}background:blue{% endif %}">{{v.notifications_count}}</span></a>
 				{% else %}
-					<a class="mobile-nav-icon d-md-none" href="/notifications" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Notifications"><i class="fas fa-bell  align-middle text-gray-500 black"></i></a>
+					<a class="mobile-nav-icon d-md-none" href="/notifications" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Notifications" data-bs-original-title="Notifications"><i class="fas fa-bell  align-middle text-gray-500 black"></i></a>
 				{% endif %}
 			{% endif %}
 			
 			{% if not err %}
-			<a class="mobile-nav-icon d-md-none" href="/random"><i class="fas fa-random align-middle text-gray-500 black"></i></a>
+				<a class="mobile-nav-icon d-md-none" href="/random"><i class="fas fa-random align-middle text-gray-500 black"></i></a>
 			{% if v and v.admin_level > 1 %}
-			<a class="mobile-nav-icon d-md-none" href="/admin"><i class="fas fa-crown align-middle text-gray-500 black"></i></a>
+				<a class="mobile-nav-icon d-md-none" href="/admin"><i class="fas fa-crown align-middle text-gray-500 black"></i></a>
 			{% endif %}
+
 			{% if v %}
-			<a class="mobile-nav-icon d-md-none" href="{% if sub %}/s/{{sub.name}}{% endif %}/submit"><i class="fas fa-feather-alt align-middle text-gray-500 black"></i></a>
+				<a class="mobile-nav-icon d-md-none" href="{% if sub %}/s/{{sub.name}}{% endif %}/submit"><i class="fas fa-feather-alt align-middle text-gray-500 black"></i></a>
 			{% else %}
-			<a class="mobile-nav-icon d-md-none" href="/login"><i class="fas fa-feather-alt align-middle text-gray-500 black"></i></a>
+				<a class="mobile-nav-icon d-md-none" href="/login"><i class="fas fa-feather-alt align-middle text-gray-500 black"></i></a>
 			{% endif %}
 			<button class="navbar-toggler" role="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive"
 			aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
 			<span class="navbar-toggler-icon {% if v and v.notifications_count %}position-relative{% endif %}"><i class="fal fa-bars text-gray-500 black"></i>
 			</span>
 		</button>
+
 		<div class="collapse navbar-collapse" id="navbarResponsive">
 			<ul class="navbar-nav ml-auto d-none d-md-flex">
 
 				<li class="nav-item d-flex align-items-center justify-content-center text-center mx-1">
-					<a class="nav-link" href="/random/" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Random post"><i class="fas fa-random"></i></a>
+					<a class="nav-link" href="/random/" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Random post" data-bs-original-title="Random post"><i class="fas fa-random"></i></a>
 				</li>
 
 				{% if v and v.admin_level > 1 %}
 				<li class="nav-item d-flex align-items-center justify-content-center text-center mx-1">
-					<a class="nav-link" href="/admin/" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Admin tools"><i class="fas fa-crown{% if v.has_report_queue %} text-success{% endif %}"></i></a>
+					<a class="nav-link" href="/admin/" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Admin tools" data-bs-original-title="Admin tools"><i class="fas fa-crown{% if v.has_report_queue %} text-success{% endif %}"></i></a>
 				</li>
 				{% endif %}
 
@@ -97,33 +99,33 @@
 				{% if v.notifications_count %}
 
 				<li class="nav-item d-flex align-items-center text-center justify-content-center mx-1">
-					<a class="nav-link position-relative" href="/notifications{% if not v.not_post_notifications_count %}?posts=true{% endif %}" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Notifications"><i class="fas fa-bell text-danger" {% if not v.not_post_notifications_count %}style="color:blue!important"{% endif %}></i><span class="notif-count ml-1" style="padding-left: 4.5px;{% if not v.not_post_notifications_count %}background:blue{% endif %}">{{v.notifications_count}}</span></a>
+					<a class="nav-link position-relative" href="/notifications{% if not v.not_post_notifications_count %}?posts=true{% endif %}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Notifications" data-bs-original-title="Notifications"><i class="fas fa-bell text-danger" {% if not v.not_post_notifications_count %}style="color:blue!important"{% endif %}></i><span class="notif-count ml-1" style="padding-left: 4.5px;{% if not v.not_post_notifications_count %}background:blue{% endif %}">{{v.notifications_count}}</span></a>
 				</li>
 
 				{% else %}
 
 				<li class="nav-item d-flex align-items-center text-center justify-content-center mx-1">
-					<a class="nav-link" href="/notifications" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Notifications"><i class="fas fa-bell"></i></a>
+					<a class="nav-link" href="/notifications" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Notifications" data-bs-original-title="Notifications"><i class="fas fa-bell"></i></a>
 				</li>
 
 				{% endif %}
 
 				<li class="nav-item d-flex align-items-center justify-content-center text-center mx-1">
-					<a class="nav-link" href="{% if sub %}/s/{{sub.name}}{% endif %}/submit" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Create post"><i class="fas fa-feather-alt"></i></a>
+					<a class="nav-link" href="{% if sub %}/s/{{sub.name}}{% endif %}/submit" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Create post" data-bs-original-title="Create post"><i class="fas fa-feather-alt"></i></a>
 				</li>
 
 				<li class="nav-item d-flex align-items-center justify-content-center text-center mx-1">
-					<a class="nav-link" href="/comments" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Comments"><i class="fas fa-comment-dots"></i></a>
+					<a class="nav-link" href="/comments" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Comments" data-bs-original-title="Comments"><i class="fas fa-comment-dots"></i></a>
 				</li>
 
 				<li class="nav-item d-flex align-items-center justify-content-center text-center mx-1">
-					<a class="nav-link" href="/leaderboard" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Users"><i class="fas fa-trophy"></i></a>
+					<a class="nav-link" href="/leaderboard" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Users" data-bs-original-title="Users"><i class="fas fa-trophy"></i></a>
 				</li>
 
 				<li class="nav-item d-flex align-items-center justify-content-center text-center mx-1">
-					<a class="nav-link" href="/shop" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Shop"><i class="fas fa-store"></i></a>
+					<a class="nav-link" href="/shop" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Shop" data-bs-original-title="Shop"><i class="fas fa-store"></i></a>
 				</li>
-
+			
 				<li class="nav-item d-flex align-items-center justify-content-center text-center">
 					<div class="dropdown">
 						<a class="nav-link bg-transparent py-0 pr-0" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown"
@@ -132,8 +134,8 @@
 							<div><img alt="your profile picture" loading="lazy" src="{{v.profile_url}}" class="profile-pic-35"></div>
 							<div class="text-left pl-2">
 								<div style="color: #{{v.namecolor}}" class="text-small font-weight-bold {% if v.patron %}patron{% endif %}"><span {% if v.patron %}class="patron" style="background-color:#{{v.namecolor}}"{% endif %}>{{v.username}}</span></div>
-								<div class="text-small-extra"><img alt="coins" class="mr-1 ml-1" data-bs-toggle="tooltip" data-bs-placement="bottom" height="13" src="/static/assets/images/marseycoin.webp?a=1008" data-bs-original-title="coins" aria-label="coins"><span id="user-coins-amount">{{v.coins}}</span> Coins</div>
-								<div class="text-small-extra"><img alt="marseybux" class="mr-1 ml-1" data-bs-toggle="tooltip" data-bs-placement="bottom" height="13" src="/static/assets/images/marseybux.webp?a=1008" data-bs-original-title="Marseybux" aria-label="Marseybux"><span id="user-bux-amount">{{v.procoins}}</span> Marseybux</div>
+								<div class="text-small-extra"><img alt="coins" class="mr-1 ml-1" data-bs-toggle="tooltip" data-bs-placement="bottom" height="13" width="16" src="/static/assets/images/marseycoin.webp?a=1008" title="coins" data-bs-original-title="coins" aria-label="coins"><span id="user-coins-amount">{{v.coins}}</span> Coins</div>
+								<div class="text-small-extra"><img alt="marseybux" class="mr-1 ml-1" data-bs-toggle="tooltip" data-bs-placement="bottom" height="13" width="30" src="/static/assets/images/marseybux.webp?a=1008" title="Marseybux" data-bs-original-title="Marseybux" aria-label="Marseybux"><span id="user-bux-amount">{{v.procoins}}</span> Marseybux</div>
 							</div>
 						</div>
 					</a>
@@ -144,13 +146,13 @@
 								<a class="dropdown-item" href="/settings"><i class="fas fa-cog fa-fw text-left mr-3"></i>Settings</a>
 							</div>
 							<div class="px-2">
-								<button class="dropdown-item copy-link" data-clipboard-text="{{SITE_FULL}}/signup?ref={{v.username}}"><i class="fad fa-user-friends fa-fw text-left mr-3"></i>Invite friends</button>
+								<button class="dropdown-item copy-link" data-clipboard-text="{{SITE_FULL}}/signup?ref={{v.username}}"><i class="fas fa-user-friends fa-fw text-left mr-3"></i>Invite friends</button>
 							</div>
 							<div class="px-2">
 								{% if SITE_NAME == 'Drama' %}
 									<a class="dropdown-item" href="https://play.google.com/store/apps/details?id=com.rdrama"><i class="fab fa-android fa-fw text-left mr-3"></i>Android app</a>
 								{% else %}
-									<a class="dropdown-item" href="/assets/{{config('SITE_NAME')}}_v1.7.apk?a=2"><i class="fab fa-android fa-fw text-left mr-3"></i>Android app</a>
+									<a class="dropdown-item" href="/assets/{{config('SITE_NAME')}}_v1.9.apk?a=3"><i class="fab fa-android fa-fw text-left mr-3"></i>Android app</a>
 								{% endif %}
 
 								<a class="dropdown-item" href="/changelog"><i class="fas fa-clipboard fa-fw text-left mr-3"></i>Changelog</a>
@@ -164,7 +166,7 @@
 								{% if request.host != 'pcmemes.net' %}
 									<a class="dropdown-item" href="/discord"><i class="fab fa-discord fa-fw text-left mr-3"></i>Discord</a>
 								{% endif %}
-								{% if not (g.webview and v.truecoins < 1) and SITE_NAME not in ('2Much4You','Ruqqus') %}
+								{% if not (g.webview and v.truecoins < 1) and SITE_NAME != 'Ruqqus' %}
 									<a class="dropdown-item" rel="nofollow noopener noreferrer" href="{{config('GUMROAD_LINK')}}"><i class="fas fa-dollar-sign fa-fw text-left mr-3"></i>Donate</a>
 								{% endif %}
 								{% if SITE_NAME == 'Drama' %}<a class="dropdown-item" href="/archives"><i class="fas fa-book fa-fw text-left mr-3"></i>Archives</a>{% endif %}
@@ -216,7 +218,7 @@
 				{% if SITE_NAME == 'Drama' %}
 					<a class="nav-item nav-link" href="https://play.google.com/store/apps/details?id=com.rdrama"><i class="fab fa-android fa-fw mr-3"></i>Android app</a>
 				{% else %}
-					<a class="nav-item nav-link" href="/assets/{{config('SITE_NAME')}}_v1.7.apk?a=2"><i class="fab fa-android fa-fw mr-3"></i>Android app</a>
+					<a class="nav-item nav-link" href="/assets/{{config('SITE_NAME')}}_v1.9.apk?a=3"><i class="fab fa-android fa-fw mr-3"></i>Android app</a>
 				{% endif %}
 
 				<a class="nav-item nav-link" rel="nofollow noopener noreferrer" href="https://github.com/Aevann1/Drama"><i class="fab fa-github fa-fw mr-3"></i>Source code</a>
@@ -224,7 +226,7 @@
 				{% if request.host != 'pcmemes.net' %}
 					<a class="nav-item nav-link" href="/discord"><i class="fab fa-discord fa-fw mr-3"></i>Discord</a>
 				{% endif %}
-				{% if not (g.webview and v.truecoins < 1) and SITE_NAME not in ('2Much4You','Ruqqus') %}
+				{% if not (g.webview and v.truecoins < 1) and SITE_NAME != 'Ruqqus' %}
 					<a class="nav-item nav-link" rel="nofollow noopener noreferrer" href="{{config('GUMROAD_LINK')}}"><i class="fas fa-dollar-sign fa-fw mr-3"></i>Donate</a>
 				{% endif %}
 				{% if SITE_NAME == 'Drama' %}<a class="nav-item nav-link" href="/archives"><i class="fas fa-book fa-fw mr-3"></i>Archives</a>{% endif %}
@@ -254,24 +256,7 @@
 	</div>
 </nav>
 
-<script src="/static/assets/js/header.js?a=245"></script>
-
-<style>
-	.notif-count {
-		background: red;
-		border-radius: 20%;
-		color: white;
-		padding: 2px 5px;
-		font-weight: 700;
-	}
-	li > .sidebar {
-		display: block !important;
-		max-width: 100% !important;
-	}
-	li > .sidebar > .rules {
-		display: none !important;
-	}
-</style>
+<script src="/static/assets/js/header.js?a=246"></script>
 
 {% if v and not err %}
 	<div id="formkey" class="d-none">{{v.formkey}}</div>

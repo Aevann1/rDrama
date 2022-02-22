@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
 	<meta name="description" content="{{config('DESCRIPTION')}}">
-	<meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' ajax.cloudflare.com; connect-src 'self' tls-use1.fpapi.io api.fpjs.io{% if PUSHER_ID %} {{PUSHER_ID}}.pushnotifications.pusher.com{% endif %}; object-src 'none';">
+	<meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' ajax.cloudflare.com; connect-src 'self' tls-use1.fpapi.io api.fpjs.io {% if PUSHER_ID != '3435tdfsdudebussylmaoxxt43' %}{{PUSHER_ID}}.pushnotifications.pusher.com{% endif %}; object-src 'none';">
 
-	<script src="/static/assets/js/bootstrap.js?a=240"></script>
+	<script src="/static/assets/js/bootstrap.js?a=245"></script>
 	{% if v %}
 		<style>:root{--primary:#{{v.themecolor}}}</style>
-		<link rel="stylesheet" href="/static/assets/css/main.css?a=126">
-		<link rel="stylesheet" href="/static/assets/css/{{v.theme}}.css?a=21">
+		<link rel="stylesheet" href="/static/assets/css/main.css?a=146">
+		<link rel="stylesheet" href="/static/assets/css/{{v.theme}}.css?a=25">
 		{% if v.agendaposter %}
 			<style>
 				html {
@@ -32,13 +32,21 @@
 		{% endif %}
 	{% else %}
 		<style>:root{--primary:#{{config('DEFAULT_COLOR')}}</style>
-		<link rel="stylesheet" href="/static/assets/css/main.css?a=126"><link rel="stylesheet" href="/static/assets/css/{{config('DEFAULT_THEME')}}.css?a=21">
+		<link rel="stylesheet" href="/static/assets/css/main.css?a=146"><link rel="stylesheet" href="/static/assets/css/{{config('DEFAULT_THEME')}}.css?a=25">
 	{% endif %}
 
 	{% if sub and sub.css and not request.path.endswith('settings') %}
 		<link rel="stylesheet" href="/s/{{sub.name}}/css" type="text/css">
 	{% endif %}
-	
+
+	{% if v and v.themecolor == '30409f' %}
+		<style>
+			p a {
+				color: #2a96f3;
+			}
+		</style>
+	{% endif %}
+
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
@@ -66,7 +74,7 @@
 	<meta name="twitter:url" content="{{SITE_FULL}}{{request.full_path}}" >
 	{% endblock %}
 
-		<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="apple-touch-fullscreen" content="yes">
 	<meta name="format-detection" content="telephone=no">
 	<meta name="viewport" content="width=device-width,initial-scale=1">

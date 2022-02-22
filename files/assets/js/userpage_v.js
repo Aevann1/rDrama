@@ -55,8 +55,8 @@ function post_toast_callback(url, data, callback) {
 
 }
 
-function toggleElement(group, id, id2) {
-	for(let el of document.getElementsByClassName(group)) {
+function toggleElement(id, id2) {
+	for(let el of document.getElementsByClassName('toggleable')) {
 		if(el.id != id) {
 			el.classList.add('d-none');
 		}
@@ -81,7 +81,7 @@ function updateBux(mobile=false) {
 }
 
 function transferCoins(mobile=false) {
-	for(let el of document.getElementsByClassName('profile-toggleable')) {
+	for(let el of document.getElementsByClassName('toggleable')) {
 		el.classList.add('d-none');
 	}
 
@@ -106,7 +106,7 @@ function transferCoins(mobile=false) {
 }
 
 function transferBux(mobile=false) {
-	for(let el of document.getElementsByClassName('profile-toggleable')) {
+	for(let el of document.getElementsByClassName('toggleable')) {
 		el.classList.add('d-none');
 	}
 

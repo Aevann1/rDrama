@@ -43,21 +43,21 @@ AWARDS3 = {
 		"price": 300
 	},
 	"wholesome": {
-        "kind": "wholesome",
-        "title": "Wholesome",
-        "description": "Summons a wholesome marsey on the post.",
-        "icon": "fas fa-smile-beam",
-        "color": "text-yellow",
-        "price": 300
-    },
+		"kind": "wholesome",
+		"title": "Wholesome",
+		"description": "Summons a wholesome marsey on the post.",
+		"icon": "fas fa-smile-beam",
+		"color": "text-yellow",
+		"price": 300
+	},
 	"tilt": {
-        "kind": "tilt",
-        "title": "Tilt",
-        "description": "Tilts the post by 1 degree (up to 4)",
-        "icon": "fas fa-car-tilt",
-        "color": "text-blue",
-        "price": 300
-    },
+		"kind": "tilt",
+		"title": "Tilt",
+		"description": "Tilts the post by 1 degree (up to 4)",
+		"icon": "fas fa-car-tilt",
+		"color": "text-blue",
+		"price": 300
+	},
 }
 
 @app.get("/shop")
@@ -76,6 +76,7 @@ def shop(v):
 	elif v.patron == 3: discount = 0.80
 	elif v.patron == 4: discount = 0.75
 	elif v.patron == 5: discount = 0.70
+	elif v.patron == 6: discount = 0.65
 	else: discount = 1
 
 	for badge in [69,70,71,72,73]:
@@ -90,7 +91,6 @@ def shop(v):
 
 
 @app.post("/buy/<award>")
-@limiter.limit("1/second;30/minute;200/hour;1000/day")
 @auth_required
 def buy(v, award):
 	if award == 'benefactor' and not request.values.get("mb"):
@@ -106,6 +106,7 @@ def buy(v, award):
 	elif v.patron == 3: discount = 0.80
 	elif v.patron == 4: discount = 0.75
 	elif v.patron == 5: discount = 0.70
+	elif v.patron == 6: discount = 0.65
 	else: discount = 1
 
 	for badge in [69,70,71,72,73]:
@@ -191,8 +192,7 @@ def buy(v, award):
 
 	return {"message": "Award bought!"}
 
-@app.get("/post/<pid>/awards")
-@app.post("/post/<pid>/awards")
+@app.post("/award_post/<pid>")
 @limiter.limit("1/second;30/minute;200/hour;1000/day")
 @is_not_permabanned
 def award_post(pid, v):
@@ -204,12 +204,10 @@ def award_post(pid, v):
 		return {"error": "That award doesn't exist."}, 404
 
 	post_award = g.db.query(AwardRelationship).filter(
-		and_(
-			AwardRelationship.kind == kind,
-			AwardRelationship.user_id == v.id,
-			AwardRelationship.submission_id == None,
-			AwardRelationship.comment_id == None
-		)
+		AwardRelationship.kind == kind,
+		AwardRelationship.user_id == v.id,
+		AwardRelationship.submission_id == None,
+		AwardRelationship.comment_id == None
 	).first()
 
 	if not post_award:
@@ -230,7 +228,7 @@ def award_post(pid, v):
 	author = post.author
 
 	if v.id != author.id:
-		msg = f"@{v.username} has given your [post]({post.permalink}) the {AWARDS[kind]['title']} Award!"
+		msg = f"@{v.username} has given your [post]({post.sl}) the {AWARDS[kind]['title']} Award!"
 		if note: msg += f"\n\n> {note}"
 		send_repeatable_notification(author.id, msg)
 
@@ -238,7 +236,7 @@ def award_post(pid, v):
 		return {"error": "You can't use this award on yourself."}, 400
 
 	if kind == "ban":
-		link = f"[this post]({post.permalink})"
+		link = f"[this post]({post.sl})"
 
 		if not author.is_suspended:
 			author.ban(reason=f"1-Day ban award used by @{v.username} on /post/{post.id}", days=1)
@@ -261,7 +259,7 @@ def award_post(pid, v):
 		author.is_banned = AUTOJANNY_ID
 		author.ban_reason = f"grass award used by @{v.username} on /post/{post.id}"
 		author.unban_utc = int(time.time()) + 30 * 86400
-		link = f"[this post]({post.permalink})"
+		link = f"[this post]({post.sl})"
 		send_repeatable_notification(author.id, f"Your account has been suspended permanently for {link}. You must [provide the admins](/contact) a timestamped picture of you touching grass to get unbanned!")
 	elif kind == "pin":
 		if post.stickied and post.stickied_utc:
@@ -284,12 +282,11 @@ def award_post(pid, v):
 		if author.marseyawarded:
 			return {"error": "This user is the under the effect of a conflicting award: Marsey award."}, 404
 
-		if author.username == "911roofer": abort(403)
 		if author.agendaposter and time.time() < author.agendaposter: author.agendaposter += 86400
 		else: author.agendaposter = int(time.time()) + 86400
 		
-		if not author.has_badge(26):
-			badge = Badge(user_id=author.id, badge_id=26)
+		if not author.has_badge(28):
+			badge = Badge(user_id=author.id, badge_id=28)
 			g.db.add(badge)
 			g.db.flush()
 			send_notification(author.id, f"@AutoJanny has given you the following profile badge:\n\n![]({badge.path})\n\n{badge.name}")
@@ -428,8 +425,7 @@ def award_post(pid, v):
 	return redirect(f"{SITE_FULL}/")
 
 
-@app.get("/comment/<cid>/awards")
-@app.post("/comment/<cid>/awards")
+@app.post("/award_comment/<cid>")
 @limiter.limit("1/second;30/minute;200/hour;1000/day")
 @is_not_permabanned
 def award_comment(cid, v):
@@ -441,12 +437,10 @@ def award_comment(cid, v):
 		return {"error": "That award doesn't exist."}, 404
 
 	comment_award = g.db.query(AwardRelationship).filter(
-		and_(
-			AwardRelationship.kind == kind,
-			AwardRelationship.user_id == v.id,
-			AwardRelationship.submission_id == None,
-			AwardRelationship.comment_id == None
-		)
+		AwardRelationship.kind == kind,
+		AwardRelationship.user_id == v.id,
+		AwardRelationship.submission_id == None,
+		AwardRelationship.comment_id == None
 	).first()
 
 	if not comment_award:
@@ -467,7 +461,7 @@ def award_comment(cid, v):
 	author = c.author
 
 	if v.id != author.id:
-		msg = f"@{v.username} has given your [comment]({c.permalink}) the {AWARDS[kind]['title']} Award!"
+		msg = f"@{v.username} has given your [comment]({c.sl}) the {AWARDS[kind]['title']} Award!"
 		if note: msg += f"\n\n> {note}"
 		send_repeatable_notification(author.id, msg)
 
@@ -475,7 +469,7 @@ def award_comment(cid, v):
 		return {"error": "You can't use this award on yourself."}, 400
 
 	if kind == "ban":
-		link = f"[this comment]({c.permalink})"
+		link = f"[this comment]({c.sl})"
 
 		if not author.is_suspended:
 			author.ban(reason=f"1-Day ban award used by @{v.username} on /comment/{c.id}", days=1)
@@ -498,7 +492,7 @@ def award_comment(cid, v):
 		author.is_banned = AUTOJANNY_ID
 		author.ban_reason = f"grass award used by @{v.username} on /comment/{c.id}"
 		author.unban_utc = int(time.time()) + 30 * 86400
-		link = f"[this comment]({c.permalink})"
+		link = f"[this comment]({c.sl})"
 		send_repeatable_notification(author.id, f"Your account has been suspended permanently for {link}. You must [provide the admins](/contact) a timestamped picture of you touching grass to get unbanned!")
 	elif kind == "pin":
 		if c.is_pinned and c.is_pinned_utc: c.is_pinned_utc += 3600
@@ -518,12 +512,11 @@ def award_comment(cid, v):
 		if author.marseyawarded:
 			return {"error": "This user is the under the effect of a conflicting award: Marsey award."}, 404
 
-		if author.username == "911roofer": abort(403)
 		if author.agendaposter and time.time() < author.agendaposter: author.agendaposter += 86400
 		else: author.agendaposter = int(time.time()) + 86400
 		
-		if not author.has_badge(26):
-			badge = Badge(user_id=author.id, badge_id=26)
+		if not author.has_badge(28):
+			badge = Badge(user_id=author.id, badge_id=28)
 			g.db.add(badge)
 			g.db.flush()
 			send_notification(author.id, f"@AutoJanny has given you the following profile badge:\n\n![]({badge.path})\n\n{badge.name}")
@@ -698,7 +691,7 @@ def admin_userawards_post(v):
 				g.db.add(award)
 
 	if v.id != u.id:
-		text = "You were given the following awards:\n\n"
+		text = f"@{v.username} has given the following awards:\n\n"
 		for key, value in notify_awards.items():
 			text += f" - **{value}** {AWARDS[key]['title']} {'Awards' if value != 1 else 'Award'}\n"
 		send_repeatable_notification(u.id, text)

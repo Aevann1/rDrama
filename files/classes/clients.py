@@ -66,10 +66,9 @@ class ClientAuth(Base):
 
 	__tablename__ = "client_auths"
 
-	id = Column(Integer, primary_key=True)
-	oauth_client = Column(Integer, ForeignKey("oauth_apps.id"))
+	user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
+	oauth_client = Column(Integer, ForeignKey("oauth_apps.id"), primary_key=True)
 	access_token = Column(String)
-	user_id = Column(Integer, ForeignKey("users.id"))
 	
 	user = relationship("User", viewonly=True)
 	application = relationship("OauthApp", viewonly=True)

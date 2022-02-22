@@ -3,7 +3,7 @@
 --
 
 -- Dumped from database version 13.5
--- Dumped by pg_dump version 14.1 (Ubuntu 14.1-2.pgdg20.04+1)
+-- Dumped by pg_dump version 14.2 (Ubuntu 14.2-1.pgdg20.04+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -165,31 +165,10 @@ CREATE TABLE public.banneddomains (
 --
 
 CREATE TABLE public.client_auths (
-    id integer NOT NULL,
     user_id integer NOT NULL,
     oauth_client integer NOT NULL,
     access_token character(128) NOT NULL
 );
-
-
---
--- Name: client_auths_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.client_auths_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: client_auths_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.client_auths_id_seq OWNED BY public.client_auths.id;
 
 
 --
@@ -207,31 +186,11 @@ CREATE TABLE public.comment_save_relationship (
 --
 
 CREATE TABLE public.commentflags (
-    id integer NOT NULL,
     user_id integer NOT NULL,
     comment_id integer NOT NULL,
-    reason character varying(350)
+    reason character varying(350),
+    created_utc integer NOT NULL
 );
-
-
---
--- Name: commentflags_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.commentflags_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: commentflags_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.commentflags_id_seq OWNED BY public.commentflags.id;
 
 
 --
@@ -264,7 +223,7 @@ CREATE TABLE public.comments (
     realupvotes integer DEFAULT 1 NOT NULL,
     top_comment_id integer,
     is_pinned_utc integer,
-    ghost boolean,
+    ghost boolean DEFAULT false NOT NULL,
     slots_result character varying(32),
     blackjack_result character varying(855),
     treasure_amount character varying(10),
@@ -297,7 +256,6 @@ ALTER SEQUENCE public.comments_id_seq OWNED BY public.comments.id;
 --
 
 CREATE TABLE public.commentvotes (
-    id integer NOT NULL,
     comment_id integer NOT NULL,
     vote_type integer NOT NULL,
     user_id integer NOT NULL,
@@ -308,23 +266,14 @@ CREATE TABLE public.commentvotes (
 
 
 --
--- Name: commentvotes_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: exiles; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE public.commentvotes_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: commentvotes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.commentvotes_id_seq OWNED BY public.commentvotes.id;
+CREATE TABLE public.exiles (
+    user_id integer NOT NULL,
+    sub character varying(20) NOT NULL,
+    exiler_id integer NOT NULL
+);
 
 
 --
@@ -332,31 +281,11 @@ ALTER SEQUENCE public.commentvotes_id_seq OWNED BY public.commentvotes.id;
 --
 
 CREATE TABLE public.flags (
-    id integer NOT NULL,
     user_id integer NOT NULL,
     post_id integer NOT NULL,
-    reason character varying(350)
+    reason character varying(350),
+    created_utc integer NOT NULL
 );
-
-
---
--- Name: flags_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.flags_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: flags_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.flags_id_seq OWNED BY public.flags.id;
 
 
 --
@@ -364,30 +293,10 @@ ALTER SEQUENCE public.flags_id_seq OWNED BY public.flags.id;
 --
 
 CREATE TABLE public.follows (
-    id integer NOT NULL,
     user_id integer NOT NULL,
-    target_id integer NOT NULL
+    target_id integer NOT NULL,
+    created_utc integer NOT NULL
 );
-
-
---
--- Name: follows_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.follows_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: follows_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.follows_id_seq OWNED BY public.follows.id;
 
 
 --
@@ -445,7 +354,7 @@ ALTER SEQUENCE public.modactions_id_seq OWNED BY public.modactions.id;
 CREATE TABLE public.mods (
     user_id integer NOT NULL,
     sub character varying(20) NOT NULL,
-    created_utc integer
+    created_utc integer NOT NULL
 );
 
 
@@ -454,31 +363,11 @@ CREATE TABLE public.mods (
 --
 
 CREATE TABLE public.notifications (
-    id integer NOT NULL,
     user_id integer NOT NULL,
     comment_id integer NOT NULL,
-    read boolean NOT NULL
+    read boolean NOT NULL,
+    created_utc integer NOT NULL
 );
-
-
---
--- Name: notifications_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.notifications_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: notifications_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.notifications_id_seq OWNED BY public.notifications.id;
 
 
 --
@@ -571,7 +460,7 @@ CREATE TABLE public.submissions (
     realupvotes integer,
     flair character varying(350),
     stickied_utc integer,
-    ghost boolean,
+    ghost boolean DEFAULT false NOT NULL,
     sub character varying(20)
 );
 
@@ -770,7 +659,6 @@ CREATE TABLE public.viewers (
 --
 
 CREATE TABLE public.votes (
-    id integer NOT NULL,
     user_id integer NOT NULL,
     submission_id integer NOT NULL,
     vote_type integer NOT NULL,
@@ -778,26 +666,6 @@ CREATE TABLE public.votes (
     "real" boolean DEFAULT true NOT NULL,
     created_utc integer NOT NULL
 );
-
-
---
--- Name: votes_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.votes_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: votes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.votes_id_seq OWNED BY public.votes.id;
 
 
 --
@@ -815,20 +683,6 @@ ALTER TABLE ONLY public.badge_defs ALTER COLUMN id SET DEFAULT nextval('public.b
 
 
 --
--- Name: client_auths id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.client_auths ALTER COLUMN id SET DEFAULT nextval('public.client_auths_id_seq'::regclass);
-
-
---
--- Name: commentflags id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.commentflags ALTER COLUMN id SET DEFAULT nextval('public.commentflags_id_seq'::regclass);
-
-
---
 -- Name: comments id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -836,38 +690,10 @@ ALTER TABLE ONLY public.comments ALTER COLUMN id SET DEFAULT nextval('public.com
 
 
 --
--- Name: commentvotes id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.commentvotes ALTER COLUMN id SET DEFAULT nextval('public.commentvotes_id_seq'::regclass);
-
-
---
--- Name: flags id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.flags ALTER COLUMN id SET DEFAULT nextval('public.flags_id_seq'::regclass);
-
-
---
--- Name: follows id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.follows ALTER COLUMN id SET DEFAULT nextval('public.follows_id_seq'::regclass);
-
-
---
 -- Name: modactions id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.modactions ALTER COLUMN id SET DEFAULT nextval('public.modactions_id_seq'::regclass);
-
-
---
--- Name: notifications id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.notifications ALTER COLUMN id SET DEFAULT nextval('public.notifications_id_seq'::regclass);
 
 
 --
@@ -889,13 +715,6 @@ ALTER TABLE ONLY public.submissions ALTER COLUMN id SET DEFAULT nextval('public.
 --
 
 ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_id_seq'::regclass);
-
-
---
--- Name: votes id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.votes ALTER COLUMN id SET DEFAULT nextval('public.votes_id_seq'::regclass);
 
 
 --
@@ -951,7 +770,7 @@ ALTER TABLE ONLY public.badges
 --
 
 ALTER TABLE ONLY public.client_auths
-    ADD CONSTRAINT client_auths_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT client_auths_pkey PRIMARY KEY (user_id, oauth_client);
 
 
 --
@@ -967,7 +786,7 @@ ALTER TABLE ONLY public.comment_save_relationship
 --
 
 ALTER TABLE ONLY public.commentflags
-    ADD CONSTRAINT commentflags_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT commentflags_pkey PRIMARY KEY (comment_id, user_id);
 
 
 --
@@ -983,7 +802,7 @@ ALTER TABLE ONLY public.comments
 --
 
 ALTER TABLE ONLY public.commentvotes
-    ADD CONSTRAINT commentvotes_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT commentvotes_pkey PRIMARY KEY (comment_id, user_id);
 
 
 --
@@ -995,11 +814,19 @@ ALTER TABLE ONLY public.banneddomains
 
 
 --
+-- Name: exiles exiles_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.exiles
+    ADD CONSTRAINT exiles_pkey PRIMARY KEY (user_id, sub);
+
+
+--
 -- Name: flags flags_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.flags
-    ADD CONSTRAINT flags_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT flags_pkey PRIMARY KEY (post_id, user_id);
 
 
 --
@@ -1007,7 +834,7 @@ ALTER TABLE ONLY public.flags
 --
 
 ALTER TABLE ONLY public.follows
-    ADD CONSTRAINT follows_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT follows_pkey PRIMARY KEY (target_id, user_id);
 
 
 --
@@ -1039,7 +866,7 @@ ALTER TABLE ONLY public.mods
 --
 
 ALTER TABLE ONLY public.notifications
-    ADD CONSTRAINT notifications_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT notifications_pkey PRIMARY KEY (user_id, comment_id);
 
 
 --
@@ -1051,27 +878,11 @@ ALTER TABLE ONLY public.oauth_apps
 
 
 --
--- Name: client_auths one_auth; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.client_auths
-    ADD CONSTRAINT one_auth UNIQUE (user_id, oauth_client);
-
-
---
 -- Name: users one_banner; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.users
     ADD CONSTRAINT one_banner UNIQUE (bannerurl);
-
-
---
--- Name: commentflags one_comment_flag; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.commentflags
-    ADD CONSTRAINT one_comment_flag UNIQUE (user_id, comment_id);
 
 
 --
@@ -1083,59 +894,11 @@ ALTER TABLE ONLY public.users
 
 
 --
--- Name: flags one_flag; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.flags
-    ADD CONSTRAINT one_flag UNIQUE (user_id, post_id);
-
-
---
--- Name: follows one_follow; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.follows
-    ADD CONSTRAINT one_follow UNIQUE (user_id, target_id);
-
-
---
--- Name: mods one_mod; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.mods
-    ADD CONSTRAINT one_mod UNIQUE (user_id, sub);
-
-
---
--- Name: notifications one_notif; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.notifications
-    ADD CONSTRAINT one_notif UNIQUE (user_id, comment_id);
-
-
---
 -- Name: users one_profile_url; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.users
     ADD CONSTRAINT one_profile_url UNIQUE (profileurl);
-
-
---
--- Name: commentvotes onecvote; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.commentvotes
-    ADD CONSTRAINT onecvote UNIQUE (user_id, comment_id);
-
-
---
--- Name: votes onevote; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.votes
-    ADD CONSTRAINT onevote UNIQUE (user_id, submission_id);
 
 
 --
@@ -1247,7 +1010,7 @@ ALTER TABLE ONLY public.viewers
 --
 
 ALTER TABLE ONLY public.votes
-    ADD CONSTRAINT votes_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT votes_pkey PRIMARY KEY (submission_id, user_id);
 
 
 --
@@ -1255,13 +1018,6 @@ ALTER TABLE ONLY public.votes
 --
 
 CREATE UNIQUE INDEX alts_unique_combination ON public.alts USING btree (GREATEST(user1, user2), LEAST(user1, user2));
-
-
---
--- Name: alts_user1_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX alts_user1_idx ON public.alts USING btree (user1);
 
 
 --
@@ -1300,24 +1056,10 @@ CREATE INDEX badges_badge_id_idx ON public.badges USING btree (badge_id);
 
 
 --
--- Name: badges_user_index; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX badges_user_index ON public.badges USING btree (user_id);
-
-
---
 -- Name: block_target_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX block_target_idx ON public.userblocks USING btree (target_id);
-
-
---
--- Name: block_user_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX block_user_idx ON public.userblocks USING btree (user_id);
 
 
 --
@@ -1342,24 +1084,10 @@ CREATE INDEX comment_post_id_index ON public.comments USING btree (parent_submis
 
 
 --
--- Name: commentflag_comment_index; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX commentflag_comment_index ON public.commentflags USING btree (comment_id);
-
-
---
 -- Name: comments_user_index; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX comments_user_index ON public.comments USING btree (author_id);
-
-
---
--- Name: commentvotes_comments_id_index; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX commentvotes_comments_id_index ON public.commentvotes USING btree (comment_id);
 
 
 --
@@ -1405,17 +1133,24 @@ CREATE INDEX fki_comment_save_relationship_comment_fkey ON public.comment_save_r
 
 
 --
--- Name: fki_comment_save_relationship_user_fkey; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX fki_comment_save_relationship_user_fkey ON public.comment_save_relationship USING btree (user_id);
-
-
---
 -- Name: fki_comment_sentto_fkey; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX fki_comment_sentto_fkey ON public.comments USING btree (sentto);
+
+
+--
+-- Name: fki_exile_exiler_fkey; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX fki_exile_exiler_fkey ON public.exiles USING btree (exiler_id);
+
+
+--
+-- Name: fki_exile_sub_fkey; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX fki_exile_sub_fkey ON public.exiles USING btree (sub);
 
 
 --
@@ -1440,24 +1175,10 @@ CREATE INDEX fki_save_relationship_submission_fkey ON public.save_relationship U
 
 
 --
--- Name: fki_save_relationship_user_fkey; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX fki_save_relationship_user_fkey ON public.save_relationship USING btree (user_id);
-
-
---
 -- Name: fki_sub_blocks_sub_fkey; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX fki_sub_blocks_sub_fkey ON public.sub_blocks USING btree (sub);
-
-
---
--- Name: fki_sub_blocks_user_fkey; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX fki_sub_blocks_user_fkey ON public.sub_blocks USING btree (user_id);
 
 
 --
@@ -1468,24 +1189,10 @@ CREATE INDEX fki_submissions_approver_fkey ON public.submissions USING btree (is
 
 
 --
--- Name: fki_subscription_submission_fkey; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX fki_subscription_submission_fkey ON public.subscriptions USING btree (submission_id);
-
-
---
 -- Name: fki_user_referrer_fkey; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX fki_user_referrer_fkey ON public.users USING btree (referred_by);
-
-
---
--- Name: fki_view_user_fkey; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX fki_view_user_fkey ON public.viewers USING btree (user_id);
 
 
 --
@@ -1500,20 +1207,6 @@ CREATE INDEX fki_view_viewer_fkey ON public.viewers USING btree (viewer_id);
 --
 
 CREATE INDEX flag_user_idx ON public.flags USING btree (user_id);
-
-
---
--- Name: flags_post_index; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX flags_post_index ON public.flags USING btree (post_id);
-
-
---
--- Name: follow_target_id_index; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX follow_target_id_index ON public.follows USING btree (target_id);
 
 
 --
@@ -1573,13 +1266,6 @@ CREATE INDEX modaction_pid_idx ON public.modactions USING btree (target_submissi
 
 
 --
--- Name: mods_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX mods_idx ON public.mods USING btree (user_id);
-
-
---
 -- Name: notification_read_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1591,13 +1277,6 @@ CREATE INDEX notification_read_idx ON public.notifications USING btree (read);
 --
 
 CREATE INDEX notifications_comment_idx ON public.notifications USING btree (comment_id);
-
-
---
--- Name: notifications_user_index; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX notifications_user_index ON public.notifications USING btree (user_id);
 
 
 --
@@ -1706,13 +1385,6 @@ CREATE INDEX user_private_idx ON public.users USING btree (is_private);
 
 
 --
--- Name: userblocks_both_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX userblocks_both_idx ON public.userblocks USING btree (user_id, target_id);
-
-
---
 -- Name: users_created_utc_index; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1752,13 +1424,6 @@ CREATE INDEX users_username_trgm_idx ON public.users USING gin (username public.
 --
 
 CREATE INDEX vote_user_index ON public.votes USING btree (user_id);
-
-
---
--- Name: votes_submission_id_index; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX votes_submission_id_index ON public.votes USING btree (submission_id);
 
 
 --
@@ -1897,6 +1562,14 @@ ALTER TABLE ONLY public.comment_save_relationship
 
 
 --
+-- Name: comments comment_sentto_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.comments
+    ADD CONSTRAINT comment_sentto_fkey FOREIGN KEY (sentto) REFERENCES public.users(id);
+
+
+--
 -- Name: commentflags commentflags_comment_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1925,7 +1598,7 @@ ALTER TABLE ONLY public.comments
 --
 
 ALTER TABLE ONLY public.commentvotes
-    ADD CONSTRAINT commentvote_comment_fkey FOREIGN KEY (comment_id) REFERENCES public.comments(id) MATCH FULL NOT VALID;
+    ADD CONSTRAINT commentvote_comment_fkey FOREIGN KEY (comment_id) REFERENCES public.comments(id) MATCH FULL;
 
 
 --
@@ -1934,6 +1607,30 @@ ALTER TABLE ONLY public.commentvotes
 
 ALTER TABLE ONLY public.commentvotes
     ADD CONSTRAINT commentvote_user_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- Name: exiles exile_exiler_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.exiles
+    ADD CONSTRAINT exile_exiler_fkey FOREIGN KEY (exiler_id) REFERENCES public.users(id);
+
+
+--
+-- Name: exiles exile_sub_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.exiles
+    ADD CONSTRAINT exile_sub_fkey FOREIGN KEY (sub) REFERENCES public.subs(name);
+
+
+--
+-- Name: exiles exile_user_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.exiles
+    ADD CONSTRAINT exile_user_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
 
 
 --
@@ -2141,7 +1838,7 @@ ALTER TABLE ONLY public.viewers
 --
 
 ALTER TABLE ONLY public.votes
-    ADD CONSTRAINT vote_submission_key FOREIGN KEY (submission_id) REFERENCES public.submissions(id) NOT VALID;
+    ADD CONSTRAINT vote_submission_key FOREIGN KEY (submission_id) REFERENCES public.submissions(id);
 
 
 --

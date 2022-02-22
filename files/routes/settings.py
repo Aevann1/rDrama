@@ -27,7 +27,8 @@ tiers={
 	"(Renthog)": 2,
 	"(Landchad)": 3,
 	"(Terminally online turboautist)": 4,
-	"(Rich Bich)": 5,
+	"(Footpig)": 5,
+	"(Rich Bich)": 6,
 	"(LlamaBean)": 1,
 	}
 
@@ -345,6 +346,10 @@ def settings_profile_post(v):
 
 		if house == "None": house = None 
 		v.house = house
+
+		if v.house == "Vampire":
+			send_repeatable_notification(DAD_ID, f"@{v.username} has joined House Vampire!")
+
 		updated = True
 
 	quadrant = request.values.get("quadrant")
@@ -473,6 +478,7 @@ def gumroad(v):
 	elif v.patron == 3: procoins = 10000
 	elif v.patron == 4: procoins = 25000
 	elif v.patron == 5: procoins = 50000
+	elif u.patron == 6: procoins = 125000
 
 	v.procoins += procoins
 	send_repeatable_notification(v.id, f"You have received {procoins} Marseybux! You can use them to buy awards in the [shop](/shop).")

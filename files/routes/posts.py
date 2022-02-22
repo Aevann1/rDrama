@@ -27,14 +27,10 @@ db.close()
 if path.exists(f'snappy_{SITE_NAME}.txt'):
 	with open(f'snappy_{SITE_NAME}.txt', "r", encoding="utf-8") as f:
 		if SITE == 'pcmemes.net': snappyquotes = tuple(f.read().split("{[para]}"))
-		else: snappyquotes = tuple(f.read().split("{[para]}")) + marseys
+		else: snappyquotes = tuple(f.read().split("\n{[para]}\n")) + marseys
 else: snappyquotes = marseys
 
 IMGUR_KEY = environ.get("IMGUR_KEY").strip()
-
-CF_KEY = environ.get("CF_KEY", "").strip()
-CF_ZONE = environ.get("CF_ZONE", "").strip()
-CF_HEADERS = {"Authorization": f"Bearer {CF_KEY}", "Content-Type": "application/json"}
 
 discounts = {
 	69: 0.02,
@@ -44,17 +40,34 @@ discounts = {
 	73: 0.10,
 }
 
+titleheaders = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.72 Safari/537.36"}
+
 def ghost_price(v):
 	if v.patron == 1: discount = 0.90
 	elif v.patron == 2: discount = 0.85
 	elif v.patron == 3: discount = 0.80
 	elif v.patron == 4: discount = 0.75
 	elif v.patron == 5: discount = 0.70
+	elif v.patron == 6: discount = 0.65
 	else: discount = 1
 	for badge in [69,70,71,72,73]:
 		if v.has_badge(badge): discount -= discounts[badge]
 
 	return int(500*discount)
+
+
+def submit_ghost(v,db):
+	ghost = db.query(AwardRelationship.id).filter(
+		AwardRelationship.kind == 'ghosts',
+		AwardRelationship.user_id == v.id,
+		AwardRelationship.submission_id == None,
+		AwardRelationship.comment_id == None
+	).first()
+
+	if ghost: ghost = 42069
+	else: ghost = ghost_price(v)
+	return ghost
+
 
 @app.post("/toggle_club/<pid>")
 @auth_required
@@ -86,11 +99,11 @@ def publish(pid, v):
 	if not post.ghost:
 		notify_users = NOTIFY_USERS(post.body_html, v) | NOTIFY_USERS2(post.title, v)
 
-		cid = notif_comment(f"@{v.username} has mentioned you: [{post.title}]({post.permalink})")
+		cid = notif_comment(f"@{v.username} has mentioned you: [{post.title}]({post.sl})")
 		for x in notify_users:
 			add_notif(cid, x)
 
-		cid = notif_comment(f"@{v.username} has made a new post: [{post.title}]({post.permalink})", autojanny=True)
+		cid = notif_comment(f"@{v.username} has made a new post: [{post.title}]({post.sl})", autojanny=True)
 		for follow in v.followers:
 			user = get_account(follow.user_id)
 			if post.club and not user.paid_dues: continue
@@ -116,7 +129,9 @@ def submit_get(v, sub=None):
 	
 	if request.path.startswith('/s/') and not sub: abort(404)
 
-	return render_template("submit.html", SUBS=() if SITE_NAME == 'Drama' else tuple(x[0] for x in g.db.query(Sub.name).order_by(Sub.name).all()), v=v, sub=sub, price=ghost_price(v))
+	SUBS = () if SITE_NAME == 'Drama' and not sub else tuple(x[0] for x in g.db.query(Sub.name).order_by(Sub.name).all())
+
+	return render_template("submit.html", SUBS=SUBS, v=v, sub=sub, ghost=submit_ghost(v,g.db))
 
 @app.get("/post/<pid>")
 @app.get("/post/<pid>/<anything>")
@@ -149,8 +164,6 @@ def post_id(pid, anything=None, v=None, sub=None):
 	sort = request.values.get("sort", defaultsortingcomments)
 
 	if post.club and not (v and (v.paid_dues or v.id == post.author_id)): abort(403)
-
-	if post.private and not (v and (v.admin_level > 1 or v.id == post.author.id)): abort(403)
 
 	if v:
 		votes = g.db.query(CommentVote).filter_by(user_id=v.id).subquery()
@@ -206,8 +219,8 @@ def post_id(pid, anything=None, v=None, sub=None):
 		elif sort == "bottom":
 			comments = comments.order_by(Comment.upvotes - Comment.downvotes)
 
-		first = [c[0] for c in comments.filter(or_(and_(Comment.slots_result == None, Comment.blackjack_result == None), func.length(Comment.body) > 50)).all()]
-		second = [c[0] for c in comments.filter(or_(Comment.slots_result != None, Comment.blackjack_result != None), func.length(Comment.body) <= 50).all()]
+		first = [c[0] for c in comments.filter(or_(and_(Comment.slots_result == None, Comment.blackjack_result == None, Comment.wordle_result == None), func.length(Comment.body) > 50)).all()]
+		second = [c[0] for c in comments.filter(or_(Comment.slots_result != None, Comment.blackjack_result != None, Comment.wordle_result != None), func.length(Comment.body) <= 50).all()]
 		comments = first + second
 	else:
 		pinned = g.db.query(Comment).filter(Comment.parent_submission == post.id, Comment.is_pinned != None).all()
@@ -225,8 +238,8 @@ def post_id(pid, anything=None, v=None, sub=None):
 		elif sort == "bottom":
 			comments = comments.order_by(Comment.upvotes - Comment.downvotes)
 
-		first = comments.filter(or_(and_(Comment.slots_result == None, Comment.blackjack_result == None), func.length(Comment.body) > 50)).all()
-		second = comments.filter(or_(Comment.slots_result != None, Comment.blackjack_result != None), func.length(Comment.body) <= 50).all()
+		first = comments.filter(or_(and_(Comment.slots_result == None, Comment.blackjack_result == None, Comment.wordle_result == None), func.length(Comment.body) > 50)).all()
+		second = comments.filter(or_(Comment.slots_result != None, Comment.blackjack_result != None, Comment.wordle_result != None), func.length(Comment.body) <= 50).all()
 		comments = first + second
 
 	offset = 0
@@ -334,8 +347,8 @@ def viewmore(v, pid, sort, offset):
 		elif sort == "bottom":
 			comments = comments.order_by(Comment.upvotes - Comment.downvotes)
 
-		first = [c[0] for c in comments.filter(or_(and_(Comment.slots_result == None, Comment.blackjack_result == None), func.length(Comment.body) > 50)).all()]
-		second = [c[0] for c in comments.filter(or_(Comment.slots_result != None, Comment.blackjack_result != None), func.length(Comment.body) <= 50).all()]
+		first = [c[0] for c in comments.filter(or_(and_(Comment.slots_result == None, Comment.blackjack_result == None, Comment.wordle_result == None), func.length(Comment.body) > 50)).all()]
+		second = [c[0] for c in comments.filter(or_(Comment.slots_result != None, Comment.blackjack_result != None, Comment.wordle_result != None), func.length(Comment.body) <= 50).all()]
 		comments = first + second
 	else:
 		comments = g.db.query(Comment).join(User, User.id == Comment.author_id).filter(User.shadowbanned == None, Comment.parent_submission == pid, Comment.author_id.notin_((AUTOPOLLER_ID, AUTOBETTER_ID, AUTOCHOICE_ID)), Comment.level == 1, Comment.is_pinned == None, Comment.id.notin_(ids))
@@ -351,8 +364,8 @@ def viewmore(v, pid, sort, offset):
 		elif sort == "bottom":
 			comments = comments.order_by(Comment.upvotes - Comment.downvotes)
 		
-		first = comments.filter(or_(and_(Comment.slots_result == None, Comment.blackjack_result == None), func.length(Comment.body) > 50)).all()
-		second = comments.filter(or_(Comment.slots_result != None, Comment.blackjack_result != None), func.length(Comment.body) <= 50).all()
+		first = comments.filter(or_(and_(Comment.slots_result == None, Comment.blackjack_result == None, Comment.wordle_result == None), func.length(Comment.body) > 50)).all()
+		second = comments.filter(or_(Comment.slots_result != None, Comment.blackjack_result != None, Comment.wordle_result != None), func.length(Comment.body) <= 50).all()
 		comments = first + second
 		comments = comments[offset:]
 
@@ -498,7 +511,7 @@ def edit_post(pid, v):
 				g.db.add(c)
 
 		if not p.choices.count():
-			for i in re.finditer('\s*##([^\$\n]+)##\s*', body, re.A):
+			for i in re.finditer('\s*&&([^\$\n]+)&&\s*', body, re.A):
 				body = body.replace(i.group(0), "")
 				c = Comment(author_id=AUTOCHOICE_ID,
 					parent_submission=p.id,
@@ -593,7 +606,7 @@ def edit_post(pid, v):
 
 		if not p.private and not p.ghost:
 			notify_users = NOTIFY_USERS(body_html, v) | NOTIFY_USERS2(title, v)
-			cid = notif_comment(f"@{v.username} has mentioned you: [{p.title}]({p.permalink})")
+			cid = notif_comment(f"@{v.username} has mentioned you: [{p.title}]({p.sl})")
 			for x in notify_users:
 				add_notif(cid, x)
 
@@ -741,7 +754,7 @@ def thumbnail_thread(pid):
 
 	if SITE_NAME == 'Drama':
 		for t in ("submission","comment"):
-			word = random.choice(('rdrama','marsey','2much4you.net'))
+			word = random.choice(('rdrama','marsey'))
 
 			try:
 				data = requests.get(f'https://api.pushshift.io/reddit/{t}/search?html_decode=true&q={word}&size=1')
@@ -753,7 +766,10 @@ def thumbnail_thread(pid):
 
 				body_html = sanitize(f'New {word} mention: https://old.reddit.com{i["permalink"]}?context=89', noimages=True)
 
-				existing_comment = db.query(Comment.id).filter_by(author_id=NOTIFICATIONS_ID, parent_submission=None, distinguish_level=6, body_html=body_html, level=1, sentto=0).one_or_none()
+				try: existing_comment = db.query(Comment.id).filter_by(author_id=NOTIFICATIONS_ID, parent_submission=None, distinguish_level=6, body_html=body_html, level=1).one_or_none()
+				except:
+					print(body_html)
+					break
 
 				if existing_comment: break
 
@@ -762,7 +778,6 @@ def thumbnail_thread(pid):
 									distinguish_level=6,
 									body_html=body_html,
 									level=1,
-									sentto=0,
 									)
 				db.add(new_comment)
 				db.flush()
@@ -804,7 +819,7 @@ def thumbnail_thread(pid):
 			for i in data:
 				body_html = sanitize(f'New pcmemes mention: https://old.reddit.com{i["permalink"]}?context=89', noimages=True)
 
-				existing_comment = db.query(Comment.id).filter_by(author_id=NOTIFICATIONS_ID, parent_submission=None, distinguish_level=6, body_html=body_html, level=1, sentto=0).one_or_none()
+				existing_comment = db.query(Comment.id).filter_by(author_id=NOTIFICATIONS_ID, parent_submission=None, distinguish_level=6, body_html=body_html, level=1).one_or_none()
 
 				if existing_comment: break
 
@@ -812,8 +827,7 @@ def thumbnail_thread(pid):
 									parent_submission=None,
 									distinguish_level=6,
 									body_html=body_html,
-									level=1,
-									sentto=0,
+									level=1
 									)
 				db.add(new_comment)
 				db.flush()
@@ -834,13 +848,6 @@ def thumbnail_thread(pid):
 @limiter.limit("1/second;6/minute;200/hour;1000/day")
 @auth_required
 def submit_post(v, sub=None):
-	if not sub: sub = request.values.get("sub")
-
-	if sub:
-		sub = g.db.query(Sub.name).filter_by(name=sub.strip().lower()).one_or_none()
-		if not sub: abort(404)
-		sub = sub[0]
-	else: sub = None
 
 	title = request.values.get("title", "").strip()[:500].replace('‎','')
 
@@ -849,15 +856,28 @@ def submit_post(v, sub=None):
 	body = request.values.get("body", "").strip().replace('‎','')
 
 	def error(error):
-		print(sub, flush=True)
-		if request.headers.get("Authorization") or request.headers.get("xhr"): error(error)
-		return render_template("submit.html", SUBS=() if SITE_NAME == 'Drama' else tuple(x[0] for x in g.db.query(Sub.name).order_by(Sub.name).all()), v=v, error=error, title=title, url=url, body=body, price=ghost_price(v)), 400
+		if request.headers.get("Authorization") or request.headers.get("xhr"): return {"error": error}, 403
+	
+		SUBS = () if SITE_NAME == 'Drama' and not sub else tuple(x[0] for x in g.db.query(Sub.name).order_by(Sub.name).all())
+		return render_template("submit.html", SUBS=SUBS, v=v, error=error, title=title, url=url, body=body, ghost=submit_ghost(v,g.db)), 400
 
-	if v.is_suspended: error( "You can't perform this action while banned.")
+
+	sub = request.values.get("sub")
+	if sub: sub = sub.replace('/s/','').replace('s/','')
+
+	if sub and sub != 'none':
+		sname = sub.strip().lower()
+		sub = g.db.query(Sub.name).filter_by(name=sname).one_or_none()
+		if not sub: return error(f"/s/{sname} not found!")
+		sub = sub[0]
+		if v.exiled_from(sub): return error(f"You're exiled from /s/{sub}")
+	else: sub = None
+
+	if v.is_suspended: return error("You can't perform this action while banned.")
 	
 	if v and v.patron:
-		if request.content_length > 8 * 1024 * 1024: error( "Max file size is 8 MB.")
-	elif request.content_length > 4 * 1024 * 1024: error( "Max file size is 4 MB.")
+		if request.content_length > 8 * 1024 * 1024: return error( "Max file size is 8 MB.")
+	elif request.content_length > 4 * 1024 * 1024: return error( "Max file size is 4 MB.")
 
 	if v.agendaposter and not v.marseyawarded: title = torture_ap(title, v.username)
 
@@ -879,7 +899,7 @@ def submit_post(v, sub=None):
 		for rd in ["://reddit.com", "://new.reddit.com", "://www.reddit.com", "://redd.it", "://libredd.it"]:
 			url = url.replace(rd, "://old.reddit.com")
 
-		url = url.replace("old.reddit.com/gallery", "new.reddit.com/gallery").replace("https://youtu.be/", "https://youtube.com/watch?v=").replace("https://music.youtube.com/watch?v=", "https://youtube.com/watch?v=").replace("https://open.spotify.com/", "https://open.spotify.com/embed/").replace("https://streamable.com/", "https://streamable.com/e/").replace("https://youtube.com/shorts/", "https://youtube.com/watch?v=").replace("https://mobile.twitter", "https://twitter").replace("https://m.facebook", "https://facebook").replace("m.wikipedia.org", "wikipedia.org").replace("https://m.youtube", "https://youtube").replace("https://www.youtube", "https://youtube")
+		url = url.replace("old.reddit.com/gallery", "new.reddit.com/gallery").replace("https://youtu.be/", "https://youtube.com/watch?v=").replace("https://music.youtube.com/watch?v=", "https://youtube.com/watch?v=").replace("https://streamable.com/", "https://streamable.com/e/").replace("https://youtube.com/shorts/", "https://youtube.com/watch?v=").replace("https://mobile.twitter", "https://twitter").replace("https://m.facebook", "https://facebook").replace("m.wikipedia.org", "wikipedia.org").replace("https://m.youtube", "https://youtube").replace("https://www.youtube", "https://youtube")
 
 		if url.startswith("https://streamable.com/") and not url.startswith("https://streamable.com/e/"): url = url.replace("https://streamable.com/", "https://streamable.com/e/")
 
@@ -1034,7 +1054,7 @@ def submit_post(v, sub=None):
 		body = body.replace(i.group(0), "")
 
 	choices = []
-	for i in re.finditer('\s*##([^\$\n]+)##\s*', body, re.A):
+	for i in re.finditer('\s*&&([^\$\n]+)&&\s*', body, re.A):
 		choices.append(i.group(1))
 		body = body.replace(i.group(0), "")
 
@@ -1050,7 +1070,7 @@ def submit_post(v, sub=None):
 			file.save("video.mp4")
 			with open("video.mp4", 'rb') as f:
 				try: url = requests.request("POST", "https://api.imgur.com/3/upload", headers={'Authorization': f'Client-ID {IMGUR_KEY}'}, files=[('video', f)]).json()['data']['link']
-				except: error( "Imgur error")
+				except: return error( "Imgur error")
 			if url.endswith('.'): url += 'mp4'
 			body += f"\n\n{url}"
 		else:
@@ -1083,19 +1103,6 @@ def submit_post(v, sub=None):
 	
 	if embed and len(embed) > 1500: embed = None
 
-	ghost = False
-	if request.values.get('ghost'):
-
-		price = ghost_price(v)
-
-		if v.coins >= price:
-			v.coins -= price
-			ghost = True
-		elif v.procoins >= price:
-			v.procoins -= price
-			ghost = True
-
-
 	new_post = Submission(
 		private=bool(request.values.get("private","")),
 		club=club,
@@ -1110,11 +1117,32 @@ def submit_post(v, sub=None):
 		title=title[:500],
 		title_html=title_html,
 		sub=sub,
-		ghost=ghost
+		ghost=False
 	)
 
 	g.db.add(new_post)
 	g.db.flush()
+
+	if request.values.get('ghost'):
+
+		ghost_award = g.db.query(AwardRelationship).filter(
+			AwardRelationship.kind == 'ghosts',
+			AwardRelationship.user_id == v.id,
+			AwardRelationship.submission_id == None,
+			AwardRelationship.comment_id == None
+		).first()
+		
+		if ghost_award:
+			ghost_award.submission_id = new_post.id
+			new_post.ghost = True
+		else:
+			price = ghost_price(v)
+			if v.coins >= price:
+				v.coins -= price
+				new_post.ghost = True
+			elif v.procoins >= price:
+				v.procoins -= price
+				new_post.ghost = True
 
 	if v and v.admin_level > 2:
 		for option in bet_options:
@@ -1170,7 +1198,7 @@ def submit_post(v, sub=None):
 			file.save("video.mp4")
 			with open("video.mp4", 'rb') as f:
 				try: url = requests.request("POST", "https://api.imgur.com/3/upload", headers={'Authorization': f'Client-ID {IMGUR_KEY}'}, files=[('video', f)]).json()['data']['link']
-				except: error( "Imgur error")
+				except: return error( "Imgur error")
 			if url.endswith('.'): url += 'mp4'
 			new_post.url = url
 		else:
@@ -1189,11 +1217,11 @@ def submit_post(v, sub=None):
 
 		notify_users = NOTIFY_USERS(body_html, v) | NOTIFY_USERS2(title, v)
 
-		cid = notif_comment(f"@{v.username} has mentioned you: [{title}]({new_post.permalink})")
+		cid = notif_comment(f"@{v.username} has mentioned you: [{title}]({new_post.sl})")
 		for x in notify_users:
 			add_notif(cid, x)
 
-		cid = notif_comment(f"@{v.username} has made a new post: [{title}]({new_post.permalink})", autojanny=True)
+		cid = notif_comment(f"@{v.username} has made a new post: [{title}]({new_post.sl})", autojanny=True)
 		for follow in v.followers:
 			user = get_account(follow.user_id)
 			if new_post.club and not user.paid_dues: continue
@@ -1263,7 +1291,31 @@ def submit_post(v, sub=None):
 	elif v.id == LAWLZ_ID:
 		if random.random() < 0.5: body = "wow, this lawlzpost sucks!"
 		else: body = "wow, a good lawlzpost for once!"
-	else: body = random.choice(snappyquotes)
+	else:
+		body = random.choice(snappyquotes)
+		if body.startswith('▼'):
+			body = body[1:]
+			vote = Vote(user_id=SNAPPY_ID,
+						vote_type=-1,
+						submission_id=new_post.id,
+						real = True
+						)
+			g.db.add(vote)
+			new_post.downvotes += 1
+			if body.startswith('OP is a Trump supporter'):
+				flag = Flag(post_id=new_post.id, user_id=SNAPPY_ID, reason='Trump supporter')
+				g.db.add(flag)
+		elif body.startswith('▲'):
+			body = body[1:]
+			vote = Vote(user_id=SNAPPY_ID,
+						vote_type=1,
+						submission_id=new_post.id,
+						real = True
+						)
+			g.db.add(vote)
+			new_post.upvotes += 1
+
+
 	body += "\n\n"
 
 	if new_post.url:
@@ -1311,11 +1363,6 @@ def submit_post(v, sub=None):
 		snappy.comment_count += 1
 		snappy.coins += 1
 		g.db.add(snappy)
-
-		if not v.is_blocking(snappy):
-			g.db.flush()
-			n = Notification(comment_id=c.id, user_id=v.id)
-			g.db.add(n)
 		
 		if body.startswith('!slots1000'):
 			check_for_slots_command(body, snappy, c)
@@ -1477,3 +1524,22 @@ def api_pin_post(post_id, v):
 		g.db.commit()
 		if post.is_pinned: return {"message": "Post pinned!"}
 		else: return {"message": "Post unpinned!"}
+
+
+@app.get("/submit/title")
+@limiter.limit("6/minute")
+@auth_required
+def get_post_title(v):
+
+	url = request.values.get("url", None)
+	if not url: abort(400)
+
+	try: x = requests.get(url, headers=titleheaders, timeout=5)
+	except: abort(400)
+
+	soup = BeautifulSoup(x.content, 'xml')
+
+	title = soup.find('title')
+	if not title: abort(400)
+
+	return {"url": url, "title": title.string}

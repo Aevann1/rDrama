@@ -9,15 +9,18 @@ class Flag(Base):
 
 	__tablename__ = "flags"
 
-	id = Column(Integer, primary_key=True)
-	post_id = Column(Integer, ForeignKey("submissions.id"))
-	user_id = Column(Integer, ForeignKey("users.id"))
+	post_id = Column(Integer, ForeignKey("submissions.id"), primary_key=True)
+	user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
 	reason = Column(String)
-	
+	created_utc = Column(Integer)
+
 	user = relationship("User", primaryjoin = "Flag.user_id == User.id", uselist = False, viewonly=True)
 
-	def __repr__(self):
+	def __init__(self, *args, **kwargs):
+		if "created_utc" not in kwargs: kwargs["created_utc"] = int(time.time())
+		super().__init__(*args, **kwargs)
 
+	def __repr__(self):
 		return f"<Flag(id={self.id})>"
 
 	@property
@@ -39,15 +42,18 @@ class CommentFlag(Base):
 
 	__tablename__ = "commentflags"
 
-	id = Column(Integer, primary_key=True)
-	user_id = Column(Integer, ForeignKey("users.id"))
-	comment_id = Column(Integer, ForeignKey("comments.id"))
+	comment_id = Column(Integer, ForeignKey("comments.id"), primary_key=True)
+	user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
 	reason = Column(String)
-	
+	created_utc = Column(Integer)
+
 	user = relationship("User", primaryjoin = "CommentFlag.user_id == User.id", uselist = False, viewonly=True)
 
-	def __repr__(self):
+	def __init__(self, *args, **kwargs):
+		if "created_utc" not in kwargs: kwargs["created_utc"] = int(time.time())
+		super().__init__(*args, **kwargs)
 
+	def __repr__(self):
 		return f"<CommentFlag(id={self.id})>"
 
 	@property

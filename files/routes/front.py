@@ -23,7 +23,7 @@ def unread(v):
 		Comment.is_banned == False,
 		Comment.deleted_utc == 0,
 		Comment.author_id != AUTOJANNY_ID,
-	).order_by(Notification.id.desc()).all()
+	).order_by(Notification.created_utc.desc()).all()
 
 	for n in v.notifications.filter_by(read=False).all():
 		n.read = True
@@ -42,7 +42,7 @@ def notifications(v):
 	modmail = request.values.get('modmail')
 	posts = request.values.get('posts')
 	if modmail and v.admin_level > 1:
-		comments = g.db.query(Comment).filter(Comment.sentto==0).order_by(Comment.id.desc()).offset(25*(page-1)).limit(26).all()
+		comments = g.db.query(Comment).filter(Comment.sentto==2).order_by(Comment.id.desc()).offset(25*(page-1)).limit(26).all()
 		next_exists = (len(comments) > 25)
 		comments = comments[:25]
 	elif messages:
@@ -50,7 +50,7 @@ def notifications(v):
 		next_exists = (len(comments) > 25)
 		comments = comments[:25]
 	elif posts:
-		notifications = v.notifications.join(Notification.comment).filter(Comment.author_id == AUTOJANNY_ID).order_by(Notification.id.desc()).offset(25 * (page - 1)).limit(101).all()
+		notifications = v.notifications.join(Notification.comment).filter(Comment.author_id == AUTOJANNY_ID).order_by(Notification.created_utc.desc()).offset(25 * (page - 1)).limit(101).all()
 
 		listing = []
 
@@ -72,7 +72,7 @@ def notifications(v):
 			Comment.is_banned == False,
 			Comment.deleted_utc == 0,
 			Comment.author_id != AUTOJANNY_ID,
-		).order_by(Notification.id.desc()).offset(50 * (page - 1)).limit(51).all()
+		).order_by(Notification.created_utc.desc()).offset(50 * (page - 1)).limit(51).all()
 
 		next_exists = (len(notifications) > 50)
 		notifications = notifications[:50]
@@ -110,6 +110,7 @@ def notifications(v):
 			else:
 				while c.parent_comment:
 					c = c.parent_comment
+				c.replies2 = g.db.query(Comment).filter_by(parent_comment_id=c.id).order_by(Comment.id).all()
 
 			if c not in listing: listing.append(c)
 
@@ -130,7 +131,7 @@ def notifications(v):
 @app.get("/logged_out")
 @app.get("/s/<sub>")
 @app.get("/logged_out/s/<sub>")
-@limiter.limit("3/second;30/minute;400/hour;2000/day")
+@limiter.limit("3/second;30/minute;1000/hour;5000/day")
 @auth_desired
 def front_all(v, sub=None):
 	if sub: sub = g.db.query(Sub).filter_by(name=sub.strip().lower()).one_or_none()
@@ -161,6 +162,7 @@ def front_all(v, sub=None):
 	sort=request.values.get("sort", defaultsorting)
 	t=request.values.get('t', defaulttime)
 	ccmode=request.values.get('ccmode', "false")
+	subs=request.values.get('subs', "false")
 
 	try: gt=int(request.values.get("utc_greater_than", 0))
 	except: gt=0
@@ -173,11 +175,12 @@ def front_all(v, sub=None):
 					t=t,
 					v=v,
 					ccmode=ccmode,
+					subs=subs,
 					filter_words=v.filter_words if v else [],
 					gt=gt,
 					lt=lt,
 					sub=sub,
-					site=SITE_NAME
+					site=SITE
 					)
 
 	posts = get_posts(ids, v=v)
@@ -205,7 +208,7 @@ def front_all(v, sub=None):
 			v.agendaposter = 0
 			send_repeatable_notification(v.id, "Your chud theme has expired!")
 			g.db.add(v)
-			badge = v.has_badge(26)
+			badge = v.has_badge(28)
 			if badge: g.db.delete(badge)
 			g.db.commit()
 
@@ -258,21 +261,25 @@ def front_all(v, sub=None):
 			g.db.commit()
 
 	if request.headers.get("Authorization"): return {"data": [x.json for x in posts], "next_exists": next_exists}
-	return render_template("home.html", v=v, listing=posts, next_exists=next_exists, sort=sort, t=t, page=page, ccmode=ccmode, sub=sub, home=True)
+	return render_template("home.html", v=v, listing=posts, next_exists=next_exists, sort=sort, t=t, page=page, ccmode=ccmode, subs=subs, sub=sub, home=True)
 
 
 
 @cache.memoize(timeout=86400)
-def frontlist(v=None, sort="hot", page=1, t="all", ids_only=True, ccmode="false", filter_words='', gt=0, lt=0, sub=None, site=None):
+def frontlist(v=None, sort="hot", page=1, t="all", ids_only=True, ccmode="false", subs="false", filter_words='', gt=0, lt=0, sub=None, site=None):
 
 	posts = g.db.query(Submission)
 	
 	if sub: posts = posts.filter_by(sub=sub.name)
-	elif SITE_NAME == '2Much4You': posts = posts.filter(Submission.sub.in_(toomuch_subs))
-	elif SITE_NAME == 'Ruqqus':
-		posts = posts.filter(Submission.sub != None)
-		if v and v.all_blocks: posts = posts.filter(Submission.sub.notin_(v.all_blocks))
-	else: posts = posts.filter_by(sub=None)
+	elif subs == "true":
+		if v and v.all_blocks: posts = posts.filter(or_(Submission.sub == None, Submission.sub.notin_(v.all_blocks)))
+	else:
+		if SITE_NAME == 'Drama': posts = posts.filter(Submission.sub == None)
+		else:
+			if SITE_NAME == 'Ruqqus':
+				posts = posts.filter(Submission.sub != None)
+				if v and v.all_blocks: posts = posts.filter(Submission.sub.notin_(v.all_blocks))
+			elif v and v.all_blocks: posts = posts.filter(or_(Submission.sub == None, Submission.sub.notin_(v.all_blocks)))
 
 	if gt: posts = posts.filter(Submission.created_utc > gt)
 	if lt: posts = posts.filter(Submission.created_utc < lt)
@@ -346,9 +353,15 @@ def frontlist(v=None, sort="hot", page=1, t="all", ids_only=True, ccmode="false"
 	if (sort == "hot" or (v and v.id == Q_ID)) and page == 1 and ccmode == "false" and not gt and not lt:
 		pins = g.db.query(Submission).filter(Submission.stickied != None, Submission.is_banned == False)
 		if sub: pins = pins.filter_by(sub=sub.name)
-		elif SITE_NAME == '2Much4You': pins = pins.filter(Submission.sub.in_(toomuch_subs))
-		elif SITE_NAME == 'Ruqqus': pins = pins.filter(Submission.sub != None)
-		else: pins = pins.filter_by(sub=None)
+		elif subs == "true":
+			if v and v.all_blocks: pins = pins.filter(or_(Submission.sub == None, Submission.sub.notin_(v.all_blocks)))
+		else:
+			if SITE_NAME == 'Drama': pins = pins.filter(Submission.sub == None)
+			else:
+				if SITE_NAME == 'Ruqqus':
+					pins = pins.filter(Submission.sub != None)
+					if v and v.all_blocks: pins = pins.filter(Submission.sub.notin_(v.all_blocks))
+				elif v and v.all_blocks: pins = pins.filter(or_(Submission.sub == None, Submission.sub.notin_(v.all_blocks)))
 
 		if v and v.admin_level == 0:
 			blocking = [x[0] for x in g.db.query(UserBlock.target_id).filter_by(user_id=v.id).all()]
@@ -466,9 +479,9 @@ def random_post(v):
 @cache.memoize(timeout=86400)
 def comment_idlist(page=1, v=None, nsfw=False, sort="new", t="all"):
 
-	cc_idlist = [x[0] for x in g.db.query(Submission.id).filter(Submission.club == True).all()]
+	cc_or_private = [x[0] for x in g.db.query(Submission.id).filter(or_(Submission.club == True, Submission.private == True)).all()]
 
-	comments = g.db.query(Comment.id).filter(Comment.parent_submission != None, Comment.parent_submission.notin_(cc_idlist))
+	comments = g.db.query(Comment.id).filter(Comment.parent_submission != None, Comment.parent_submission.notin_(cc_or_private))
 
 	if v and v.admin_level <= 3:
 		blocking = [x[0] for x in g.db.query(

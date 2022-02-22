@@ -45,7 +45,7 @@ else
 		if (!paused)
 		{
 			audio.play();
-			document.getElementById('userpage').addEventListener('click', () => {
+			window.addEventListener('click', () => {
 				if (audio.paused) audio.play(); 
 			}, {once : true});
 		}

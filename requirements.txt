@@ -8,6 +8,7 @@ Flask-Mail
 gevent
 greenlet
 gunicorn
+lxml
 mistletoe
 matplotlib
 Pillow
@@ -19,6 +20,7 @@ requests
 SQLAlchemy
 psycopg2-binary
 pusher_push_notifications
+pyenchant
 youtube-dl
 yattag
 webptools

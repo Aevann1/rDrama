@@ -25,7 +25,7 @@ class Submission(Base):
 	thumburl = Column(String)
 	is_banned = Column(Boolean, default=False)
 	bannedfor = Column(Boolean)
-	ghost = Column(Boolean)
+	ghost = Column(Boolean, default=False)
 	views = Column(Integer, default=0)
 	deleted_utc = Column(Integer, default=0)
 	distinguish_level = Column(Integer, default=0)
@@ -60,6 +60,7 @@ class Submission(Base):
 	comments = relationship("Comment", primaryjoin="Comment.parent_submission==Submission.id")
 	subr = relationship("Sub", primaryjoin="foreign(Submission.sub)==remote(Sub.name)", viewonly=True)
 
+
 	def __init__(self, *args, **kwargs):
 		if "created_utc" not in kwargs: kwargs["created_utc"] = int(time.time())
 		super().__init__(*args, **kwargs)
@@ -81,7 +82,7 @@ class Submission(Base):
 	@property
 	@lazy
 	def flags(self):
-		return g.db.query(Flag).filter_by(post_id=self.id).order_by(Flag.id)
+		return g.db.query(Flag).filter_by(post_id=self.id).order_by(Flag.created_utc)
 
 	@property
 	@lazy
@@ -204,12 +205,19 @@ class Submission(Base):
 	def fullname(self):
 		return f"t2_{self.id}"	
 
+
+	@property
+	@lazy
+	def sl(self):
+		link = f"/post/{self.id}"
+		if self.sub: link = f"/s/{self.sub}{link}"
+		return link
+
+
 	@property
 	@lazy
 	def shortlink(self):
-		link = f"/post/{self.id}"
-		if self.sub: link = f"/s/{self.sub}{link}"
-
+		link = self.sl
 		if self.club: return link
 
 		output = self.title.lower()

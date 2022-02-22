@@ -1,4 +1,4 @@
-This code runs https://rdrama.net, https://pcmemes.net, https://ruqqus.us, and https://2much4you.net
+This code runs https://rdrama.net, https://pcmemes.net, and https://ruqqus.us
 
 # Installation (Windows/Linux/MacOS)
 

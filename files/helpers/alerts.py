@@ -27,7 +27,7 @@ def send_repeatable_notification(uid, text, autojanny=False):
 
 	if existing_comment:
 		cid = existing_comment[0]
-		existing_notif = g.db.query(Notification.id).filter_by(user_id=uid, comment_id=cid).one_or_none()
+		existing_notif = g.db.query(Notification.user_id).filter_by(user_id=uid, comment_id=cid).one_or_none()
 		if existing_notif: cid = create_comment(text_html, autojanny)
 	else: cid = create_comment(text_html, autojanny)
 
@@ -55,7 +55,7 @@ def notif_comment(text, autojanny=False):
 
 
 def add_notif(cid, uid):
-	existing = g.db.query(Notification.id).filter_by(comment_id=cid, user_id=uid).one_or_none()
+	existing = g.db.query(Notification.user_id).filter_by(comment_id=cid, user_id=uid).one_or_none()
 	if not existing:
 		notif = Notification(comment_id=cid, user_id=uid)
 		g.db.add(notif)
@@ -87,20 +87,3 @@ def NOTIFY_USERS2(text, v):
 		if user and not v.any_block_exists(user): notify_users.add(user.id)
 
 	return notify_users
-
-def send_admin(id, body_html, vid=None):
-
-	new_comment = Comment(author_id=id,
-						  parent_submission=None,
-						  level=1,
-						  sentto=0,
-						  body_html=body_html,
-						  )
-	g.db.add(new_comment)
-	g.db.flush()
-
-	if vid: admins = g.db.query(User).filter(User.admin_level > 2, User.id != vid).all()
-	else: admins = g.db.query(User).filter(User.admin_level > 2).all()
-	for admin in admins:
-		notif = Notification(comment_id=new_comment.id, user_id=admin.id)
-		g.db.add(notif)

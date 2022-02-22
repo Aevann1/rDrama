@@ -29,7 +29,7 @@ function loadEmojis(form) {
 		
 				'flags': ['niger','lgbt','saudi','animesexual','blacknation','blm','blueline','dreamgender','fatpride','incelpride','israel','kazakhstan','landlordlove','scalperpride','superstraight','trans','translord','transracial','usa'],
 					
-				'wolf': ['wolfcumjar','wolflgbt','wolfmarseyhead','wolfnoir','wolfsherifssmoking','wolftrans','wolfvaporwave','wolfangry','wolfbrains','wolfcry','wolfdead','wolfdevilish','wolffacepalm','wolfhappy','wolfidea','wolfkoala','wolflaugh','wolflove','wolfmeditate','wolfphone','wolfrainbow','wolfroses','wolfsad','wolfsfear','wolfsleep','wolftear','wolfthink','wolfthumbsup','wolfupsidedown','wolfvictory','wolfwave','wolfwink'],
+				'wolf': ['wolfdrama','wolfcumjar','wolflgbt','wolfmarseyhead','wolfnoir','wolfsherifssmoking','wolftrans','wolfvaporwave','wolfangry','wolfbrains','wolfcry','wolfdead','wolfdevilish','wolffacepalm','wolfhappy','wolfidea','wolfkoala','wolflaugh','wolflove','wolfmeditate','wolfphone','wolfrainbow','wolfroses','wolfsad','wolfsfear','wolfsleep','wolftear','wolfthink','wolfthumbsup','wolfupsidedown','wolfvictory','wolfwave','wolfwink'],
 		
 				'misc': ['yotsubafish','yotsubalol','sigmatalking','zoroarkconfused','zoroarkhappy','zoroarkpout','zoroarksleepy','casanovanova','deuxwaifu','flairlessmong','hardislife','redditgigachad','rfybear','etika','sneed','retardedchildren','bruh','autism','doot','kylieface','queenyes','wholesomeseal','chadyescapy','gigachadglow','gigachadorthodox','gigachad','gigachad2','gigachad3']
 			}

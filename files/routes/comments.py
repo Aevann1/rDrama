@@ -16,15 +16,17 @@ from files.helpers.sanitize import filter_emojis_only
 import requests
 from shutil import copyfile
 from json import loads
+from collections import Counter
+from enchant import Dict
+
+d = Dict("en_US")
 
 IMGUR_KEY = environ.get("IMGUR_KEY").strip()
 
-if PUSHER_ID: beams_client = PushNotifications(instance_id=PUSHER_ID, secret_key=PUSHER_KEY)
+if PUSHER_ID != '3435tdfsdudebussylmaoxxt43':
+	beams_client = PushNotifications(instance_id=PUSHER_ID, secret_key=PUSHER_KEY)
 
-CF_KEY = environ.get("CF_KEY", "").strip()
-CF_ZONE = environ.get("CF_ZONE", "").strip()
-CF_HEADERS = {"Authorization": f"Bearer {CF_KEY}", "Content-Type": "application/json"}
-WORD_LIST = tuple(set(environ.get("WORDLE").split(" ")))
+WORDLE_COLOR_MAPPINGS = {-1: "🟥", 0: "🟨", 1: "🟩"}
 
 @app.get("/comment/<cid>")
 @app.get("/post/<pid>/<anything>/<cid>")
@@ -151,8 +153,12 @@ def api_comment(v):
 	parent_fullname = request.values.get("parent_fullname").strip()
 
 	parent_post = get_post(parent_submission, v=v)
+	sub = parent_post.sub
+	if sub and v.exiled_from(sub): return {"error": f"You're exiled from /s/{sub}"}, 403
+
 	if parent_post.club and not (v and (v.paid_dues or v.id == parent_post.author_id)): abort(403)
 
+	rts = False
 	if parent_fullname.startswith("t2_"):
 		parent = parent_post
 		parent_comment_id = None
@@ -164,6 +170,7 @@ def api_comment(v):
 		level = parent.level + 1
 		if level == 2: top_comment_id = parent.id
 		else: top_comment_id = parent.top_comment_id
+		if parent.author_id == v.id: rts = True
 	else: abort(400)
 
 	body = request.values.get("body", "").strip()[:10000]
@@ -191,7 +198,7 @@ def api_comment(v):
 		body = body.replace(i.group(0), "")
 
 	choices = []
-	for i in re.finditer('\s*##([^\$\n]+)##\s*', body, re.A):
+	for i in re.finditer('\s*&&([^\$\n]+)&&\s*', body, re.A):
 		choices.append(i.group(1))
 		body = body.replace(i.group(0), "")
 
@@ -220,10 +227,10 @@ def api_comment(v):
 							badge = BadgeDef(name=name, description=badge_def["description"])
 							g.db.add(badge)
 							g.db.flush()
-						filename = f'files/assets/images/badges/{badge.id}.webp'
-						copyfile(oldname, filename)
-						process_image(filename, 200)
-						requests.post(f'https://api.cloudflare.com/client/v4/zones/{CF_ZONE}/purge_cache', headers=CF_HEADERS, data={'files': [f"https://{request.host}/static/assets/images/badges/{badge.id}.webp"]})
+							filename = f'files/assets/images/badges/{badge.id}.webp'
+							copyfile(oldname, filename)
+							process_image(filename, 200)
+							requests.post(f'https://api.cloudflare.com/client/v4/zones/{CF_ZONE}/purge_cache', headers=CF_HEADERS, data={'files': [f"https://{request.host}/static/assets/images/badges/{badge.id}.webp"]})
 					except Exception as e:
 						return {"error": str(e)}, 400
 				elif v.admin_level > 2 and parent_post.id == 37838:
@@ -236,11 +243,11 @@ def api_comment(v):
 						if not g.db.query(Marsey.name).filter_by(name=name).one_or_none():
 							marsey = Marsey(name=marsey["name"], author_id=author_id, tags=marsey["tags"], count=0)
 							g.db.add(marsey)
-						filename = f'files/assets/images/emojis/{name}.webp'
-						copyfile(oldname, filename)
-						process_image(filename, 200)
-						requests.post(f'https://api.cloudflare.com/client/v4/zones/{CF_ZONE}/purge_cache', headers=CF_HEADERS, data={'files': [f"https://{request.host}/static/assets/images/emojis/{name}.webp"]})
-						cache.delete_memoized(marsey_list)
+							filename = f'files/assets/images/emojis/{name}.webp'
+							copyfile(oldname, filename)
+							process_image(filename, 200)
+							requests.post(f'https://api.cloudflare.com/client/v4/zones/{CF_ZONE}/purge_cache', headers=CF_HEADERS, data={'files': [f"https://{request.host}/static/assets/images/emojis/{name}.webp"]})
+							cache.delete_memoized(marsey_list)
 					except Exception as e:
 						return {"error": str(e)}, 400
 			body += f"\n\n![]({image})"
@@ -471,6 +478,19 @@ def api_comment(v):
 		
 			body = random.choice(LONGPOST_REPLIES)
 
+
+			if body.startswith('▼'):
+				body = body[1:]
+				vote = CommentVote(user_id=LONGPOSTBOT_ID,
+							vote_type=-1,
+							comment_id=c.id,
+							real = True
+							)
+				g.db.add(vote)
+				c.downvotes = 1
+
+
+
 			body_html2 = sanitize(body)
 
 			c2 = Comment(author_id=LONGPOSTBOT_ID,
@@ -511,7 +531,8 @@ def api_comment(v):
 				is_bot=True,
 				body_html=body_html2,
 				top_comment_id=c.top_comment_id,
-				ghost=parent_post.ghost
+				ghost=parent_post.ghost,
+				distinguish_level=6
 				)
 
 			g.db.add(c2)
@@ -535,7 +556,8 @@ def api_comment(v):
 				is_bot=True,
 				body_html=body_html2,
 				top_comment_id=c.top_comment_id,
-				ghost=parent_post.ghost
+				ghost=parent_post.ghost,
+				distinguish_level=6
 				)
 
 			g.db.add(c3)
@@ -552,7 +574,8 @@ def api_comment(v):
 				is_bot=True,
 				body_html=body_html2,
 				top_comment_id=c.top_comment_id,
-				ghost=parent_post.ghost
+				ghost=parent_post.ghost,
+				distinguish_level=6
 				)
 
 			g.db.add(c4)
@@ -575,34 +598,32 @@ def api_comment(v):
 				n = Notification(comment_id=c.id, user_id=x)
 				g.db.add(n)
 
-			if parent.author.id != v.id and PUSHER_ID:
+			if parent.author.id != v.id and PUSHER_ID != '3435tdfsdudebussylmaoxxt43':
 				if len(c.body) > 500: notifbody = c.body[:500] + '...'
 				else: notifbody = c.body
 
-				try:
-					beams_client.publish_to_interests(
-						interests=[f'{request.host}{parent.author.id}'],
-						publish_body={
-							'web': {
-								'notification': {
-									'title': f'New reply by @{c.author_name}',
-									'body': notifbody,
-									'deep_link': f'{SITE_FULL}/comment/{c.id}?context=8&read=true#context',
-									'icon': f'{SITE_FULL}/assets/images/{SITE_NAME}/icon.webp?a=1011',
-								}
-							},
-							'fcm': {
-								'notification': {
-									'title': f'New reply by @{c.author_name}',
-									'body': notifbody,
-								},
-								'data': {
-									'url': f'/comment/{c.id}?context=8&read=true#context',
-								}
+				beams_client.publish_to_interests(
+					interests=[f'{request.host}{parent.author.id}'],
+					publish_body={
+						'web': {
+							'notification': {
+								'title': f'New reply by @{c.author_name}',
+								'body': notifbody,
+								'deep_link': f'{SITE_FULL}/comment/{c.id}?context=8&read=true#context',
+								'icon': f'{SITE_FULL}/assets/images/{SITE_NAME}/icon.webp?a=1011',
 							}
 						},
-					)
-				except: pass
+						'fcm': {
+							'notification': {
+								'title': f'New reply by @{c.author_name}',
+								'body': notifbody,
+							},
+							'data': {
+								'url': f'/comment/{c.id}?context=8&read=true#context',
+							}
+						}
+					},
+				)
 
 
 	vote = CommentVote(user_id=v.id,
@@ -648,12 +669,12 @@ def api_comment(v):
 
 	check_for_treasure(body, c)
 
-	if not c.slots_result and not c.blackjack_result and not c.wordle_result:
+	if not c.slots_result and not c.blackjack_result and not c.wordle_result and not rts:
 		parent_post.comment_count += 1
 		g.db.add(parent_post)
 
 	if "!wordle" in body:
-		answer = random.choice(WORD_LIST)
+		answer = random.choice(WORDLE_LIST)
 		c.wordle_result = f'_active_{answer}'
 
 	g.db.commit()
@@ -708,7 +729,7 @@ def edit_comment(cid, v):
 				g.db.add(c_option)
 
 		if not c.choices:
-			for i in re.finditer('\s*##([^\$\n]+)##\s*', body, re.A):
+			for i in re.finditer('\s*&&([^\$\n]+)&&\s*', body, re.A):
 				body = body.replace(i.group(0), "")
 				c_choice = Comment(author_id=AUTOCHOICE_ID,
 					parent_submission=c.parent_submission,
@@ -929,7 +950,8 @@ def pin_comment(cid, v):
 		g.db.add(comment)
 
 		if v.id != comment.author_id:
-			message = f"@{v.username} (OP) has pinned your [comment]({comment.permalink})!"
+			if comment.post.ghost: message = f"OP has pinned your [comment]({comment.sl})!"
+			else: message = f"@{v.username} (OP) has pinned your [comment]({comment.sl})!"
 			send_repeatable_notification(comment.author_id, message)
 
 		g.db.commit()
@@ -952,7 +974,7 @@ def unpin_comment(cid, v):
 		g.db.add(comment)
 
 		if v.id != comment.author_id:
-			message = f"@{v.username} (OP) has unpinned your [comment]({comment.permalink})!"
+			message = f"@{v.username} (OP) has unpinned your [comment]({comment.sl})!"
 			send_repeatable_notification(comment.author_id, message)
 		g.db.commit()
 	return {"message": "Comment unpinned!"}
@@ -972,7 +994,7 @@ def mod_pin(cid, v):
 		g.db.add(comment)
 
 		if v.id != comment.author_id:
-			message = f"@{v.username} (Mod) has pinned your [comment]({comment.permalink})!"
+			message = f"@{v.username} (Mod) has pinned your [comment]({comment.sl})!"
 			send_repeatable_notification(comment.author_id, message)
 
 		g.db.commit()
@@ -992,7 +1014,7 @@ def mod_unpin(cid, v):
 		g.db.add(comment)
 
 		if v.id != comment.author_id:
-			message = f"@{v.username} (Mod) has unpinned your [comment]({comment.permalink})!"
+			message = f"@{v.username} (Mod) has unpinned your [comment]({comment.sl})!"
 			send_repeatable_notification(comment.author_id, message)
 		g.db.commit()
 	return {"message": "Comment unpinned!"}
@@ -1011,8 +1033,7 @@ def save_comment(cid, v):
 		new_save=CommentSaveRelationship(user_id=v.id, comment_id=comment.id)
 		g.db.add(new_save)
 
-		try: g.db.commit()
-		except: g.db.rollback()
+		g.db.commit()
 
 	return {"message": "Comment saved!"}
 
@@ -1036,20 +1057,42 @@ def unsave_comment(cid, v):
 @auth_required
 def handle_blackjack_action(cid, v):
 	comment = get_comment(cid)
-	action = request.values.get("action", "")
+	if 'active' in comment.blackjack_result:
+		action = request.values.get("action", "")
 
-	if action == 'hit': player_hit(comment)
-	elif action == 'stay': player_stayed(comment)
-	
-	g.db.add(comment)
-	g.db.add(v)
-	g.db.commit()
+		if action == 'hit': player_hit(comment)
+		elif action == 'stay': player_stayed(comment)
+		
+		g.db.add(comment)
+		g.db.add(v)
+		g.db.commit()
 	return { "message" : "..." }
+
+
+def diff_words(answer, guess):
+	"""
+	Return a list of numbers corresponding to the char's relevance.
+	-1 means char is not in solution or the character appears too many times in the guess
+	0 means char is in solution but in the wrong spot
+	1 means char is in the correct spot
+	"""
+	diffs = [
+			1 if cs == cg else -1 for cs, cg in zip(answer, guess)
+		]
+	char_freq = Counter(
+		c_guess for c_guess, diff, in zip(answer, diffs) if diff == -1
+	)
+	for i, cg in enumerate(guess):
+		if diffs[i] == -1 and cg in char_freq and char_freq[cg] > 0:
+			char_freq[cg] -= 1
+			diffs[i] = 0
+	return diffs
 
 @app.post("/wordle/<cid>")
 @limiter.limit("1/second;30/minute;200/hour;1000/day")
 @auth_required
 def handle_wordle_action(cid, v):
+
 	comment = get_comment(cid)
 
 	guesses, status, answer = comment.wordle_result.split("_")
@@ -1058,29 +1101,19 @@ def handle_wordle_action(cid, v):
 	try: guess = request.values.get("guess").strip().lower()
 	except: abort(400)
 
-	if (len(guess) == 5 and status == "active"):
-		result = ""
-		not_finished = [x for x in answer]
-		pos = 0
-		for i in guess:
-			result += i.upper()
-			if i == answer[pos]:
-				result += "🟩 "
-				not_finished[pos] = " "
-			elif i in not_finished: result += "🟨 "
-			else: result += "🟥 "
-			pos += 1
+	if len(guess) != 5 or not d.check(guess) and guess not in WORDLE_LIST:
+		return {"error": "Not a valid guess!"}, 400
 
-		guesses += result[:-1]
+	if status == "active":
+		guesses += "".join(cg + WORDLE_COLOR_MAPPINGS[diff] for cg, diff in zip(guess, diff_words(answer, guess)))
 
 		if (guess == answer): status = "won"
 		elif (count == 6): status = "lost"
 		else: guesses += ' -> '
 
 		comment.wordle_result = f'{guesses}_{status}_{answer}'
-		
 
 		g.db.add(comment)
 		g.db.commit()
 	
-	return { "message" : "..." }
+	return {"message" : "."}

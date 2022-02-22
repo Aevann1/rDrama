@@ -22,7 +22,7 @@
 {% for user in admins %}
 	<tr>
 		<td style="font-weight:bold;">{{loop.index}}</td>
-		<td><a style="color:#{{user.namecolor}};font-weight:bold;" href="/@{{user.username}}"><img alt="@{{user.username}}'s profile picture" loading="lazy" src="{{user.profile_url}}" class="pp20"><span {% if user.patron %}class="patron" style="background-color:#{{user.namecolor}}"{% endif %}>{{user.username}}</span></a>{% if user.admin_level == 1 and v and v.admin_level > 1 %}<i class="fas fa-broom align-middle ml-2 color-white" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Meme Admin"></i>{% endif %}</td>
+		<td><a style="color:#{{user.namecolor}};font-weight:bold;" href="/@{{user.username}}"><img alt="@{{user.username}}'s profile picture" loading="lazy" src="{{user.profile_url}}" class="pp20"><span {% if user.patron %}class="patron" style="background-color:#{{user.namecolor}}"{% endif %}>{{user.username}}</span></a>{% if user.admin_level == 1 and v and v.admin_level > 1 %}<i class="fas fa-broom align-middle ml-2 color-white" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Meme Admin" data-bs-original-title="Meme Admin"></i>{% endif %}</td>
 		<td style="font-weight:bold; text-align:right;">{{user.truecoins}}</td>
 		<td style="font-weight:bold; text-align:right;">{{user.modaction_num}}</td>
 	</tr>

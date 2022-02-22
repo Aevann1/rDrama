@@ -22,8 +22,24 @@
 {% endif %}
 
 
+{% if p.award_count("crab") %}
+	<script>
+		let audio = new Audio('/assets/crab.mp3');
+		audio.loop=true;
 
-{% if g.seal %}
+		function toggle() {
+			if (audio.paused) audio.play()
+			else audio.pause()
+		}
+
+		audio.play();
+		window.addEventListener('click', () => {
+			if (audio.paused) audio.play(); 
+		}, {once : true});
+	</script>
+{% endif %}
+
+{% if g.inferior_browser %}
 	{% if p.award_count("wholesome") %}
 		<style>
 			.sealimg {
@@ -50,7 +66,7 @@
 			}
 
 			@keyframes moveY {
-				from { top: 0; } to { top: 98%; }    
+				from { top: 0; } to { top: 98%; }	
 			}
 
 			.seal1 {
@@ -61,42 +77,117 @@
 		<div class="seal seal1" height="100%" width="100%">
 			<img alt=":#marseywholesome:" class="sealimg" src="/static/assets/images/emojis/marseywholesome.webp?a=1008">
 		</div>
+
+		{% if p.award_count("wholesome") > 1 %}
+			<style>
+				.seal2 {
+					animation: moveX 5s linear 0s infinite alternate, moveY 8s linear 0s infinite alternate !important;
+					animation-delay:1s;
+				}
+			</style>
+			<div class="seal seal2" height="100%" width="100%">
+				<img alt=":#marseywholesome:" class="sealimg" src="/static/assets/images/emojis/marseywholesome.webp?a=1008">
+			</div>
+		{% endif %}
+
+		{% if p.award_count("wholesome") > 2 %}
+			<style>
+				.seal3 {
+					animation: moveX 4s linear 0s infinite alternate, moveY 5s linear 0s infinite alternate !important;
+					animation-delay:2s;
+				}
+			</style>
+			<div class="seal seal3" height="100%" width="100%">
+				<img alt=":#marseywholesome:" class="sealimg" src="/static/assets/images/emojis/marseywholesome.webp?a=1008">
+			</div>
+		{% endif %}
+
+		{% if p.award_count("wholesome") > 3 %}
+			<style>
+				.seal4 {
+					animation: moveX 5s linear 0s infinite alternate, moveY 6.8s linear 0s infinite alternate !important;
+					animation-delay:3s;
+				}
+			</style>
+			<div class="seal seal4" height="100%" width="100%">
+				<img alt=":#marseywholesome:" class="sealimg" src="/static/assets/images/emojis/marseywholesome.webp?a=1008">
+			</div>
+		{% endif %}
 	{% endif %}
 
-	{% if p.award_count("wholesome") > 1 %}
+	{% if SITE_NAME == 'PCM' and p.award_count("toe") %}
 		<style>
-			.seal2 {
-				animation: moveX 5s linear 0s infinite alternate, moveY 8s linear 0s infinite alternate !important;
-				animation-delay:1s;
+			.toeimg {
+				width: 100px;
+				height: auto;
+			}
+			@media (max-width: 992px) {
+				.toeimg {
+					width: 30px;
+					height: auto;
+				}
+			}
+			
+			.toe {
+				position:fixed;
+				z-index:9999;
+				pointer-events: none;
+				width: 100% !important;
+				height: 100% !important;
+			}
+			
+			@keyframes moveX {
+				from { left: 0; } to { left: 98%; }
+			}
+		
+			@keyframes moveY {
+				from { top: 0; } to { top: 98%; }	
+			}
+		
+			.toe1 {
+				animation: moveX 4s linear 0s infinite alternate, moveY 6.8s linear 0s infinite alternate !important;
+				animation-delay:0s;
 			}
 		</style>
-		<div class="seal seal2" height="100%" width="100%">
-			<img alt=":#marseywholesome:" class="sealimg" src="/static/assets/images/emojis/marseywholesome.webp?a=1008">
+		<div class="toe toe1" height="100%" width="100%">
+			<img alt="Blade's toe" class="toeimg" src="/static/assets/images/PCM/toe.webp?a=1">
 		</div>
-	{% endif %}
-
-	{% if p.award_count("wholesome") > 2 %}
-		<style>
-			.seal3 {
-				animation: moveX 4s linear 0s infinite alternate, moveY 5s linear 0s infinite alternate !important;
-				animation-delay:2s;
-			}
-		</style>
-		<div class="seal seal3" height="100%" width="100%">
-			<img alt=":#marseywholesome:" class="sealimg" src="/static/assets/images/emojis/marseywholesome.webp?a=1008">
-		</div>
-	{% endif %}
-
-	{% if p.award_count("wholesome") > 3 %}
-		<style>
-			.seal4 {
-				animation: moveX 5s linear 0s infinite alternate, moveY 6.8s linear 0s infinite alternate !important;
-				animation-delay:3s;
-			}
-		</style>
-		<div class="seal seal4" height="100%" width="100%">
-			<img alt=":#marseywholesome:" class="sealimg" src="/static/assets/images/emojis/marseywholesome.webp?a=1008">
-		</div>
+		
+		{% if p.award_count("toe") > 1 %}
+			<style>
+				.toe2 {
+					animation: moveX 5s linear 0s infinite alternate, moveY 8s linear 0s infinite alternate !important;
+					animation-delay:1s;
+				}
+			</style>
+			<div class="toe toe2" height="100%" width="100%">
+				<img alt="Blade's toe" class="toeimg" src="/static/assets/images/PCM/toe.webp?a=1">
+			</div>
+		{% endif %}
+		
+		{% if p.award_count("toe") > 2 %}
+			<style>
+				.toe3 {
+					animation: moveX 4s linear 0s infinite alternate, moveY 5s linear 0s infinite alternate !important;
+					animation-delay:2s;
+				}
+			</style>
+			<div class="toe toe3" height="100%" width="100%">
+				<img alt="Blade's toe" class="toeimg" src="/static/assets/images/PCM/toe.webp?a=1">
+			</div>
+		{% endif %}
+		
+		{% if p.award_count("toe") > 3 %}
+			<style>
+				.toe4 {
+					animation: moveX 5s linear 0s infinite alternate, moveY 6.8s linear 0s infinite alternate !important;
+					animation-delay:3s;
+				}
+			</style>
+			<div class="toe toe4" height="100%" width="100%">
+				<img alt="Blade's toe" class="toeimg" src="/static/assets/images/PCM/toe.webp?a=1">
+			</div>
+		{% endif %}
 	{% endif %}
 {% else %}
 	{% if p.award_count("wholesome") %}
@@ -126,32 +217,89 @@
 				</marquee>
 			</marquee>
 		</div>
+
+		{% if p.award_count("wholesome") > 1 %}
+			<marquee class="seal" scrollamount=10 behavior="alternate" direction="down" height="100%">
+				<marquee direction="right" scrollamount=10 behavior="alternate" width="100%">
+					<img alt=":#marseywholesome:" class="sealimg" src="/static/assets/images/emojis/marseywholesome.webp?a=1008">
+				</marquee>
+			</marquee>
+		{% endif %}
+
+		{% if p.award_count("wholesome") > 2 %}
+			<marquee class="seal" scrollamount=10 behavior="alternate" direction="up" height="100%">
+				<marquee direction="left" scrollamount=10 behavior="alternate" width="100%">
+					<img alt=":#marseywholesome:" class="sealimg" src="/static/assets/images/emojis/marseywholesome.webp?a=1008">
+				</marquee>
+			</marquee>
+		{% endif %}
+
+		{% if p.award_count("wholesome") > 3 %}
+			<marquee class="seal" scrollamount=10 behavior="alternate" direction="down" height="100%">
+				<marquee direction="left" scrollamount=10 behavior="alternate" width="100%">
+					<img alt=":#marseywholesome:" class="sealimg" src="/static/assets/images/emojis/marseywholesome.webp?a=1008">
+				</marquee>
+			</marquee>
+		{% endif %}
 	{% endif %}
 
-	{% if p.award_count("wholesome") > 1 %}
-		<marquee class="seal" scrollamount=10 behavior="alternate" direction="down" height="100%">
-			<marquee direction="right" scrollamount=10 behavior="alternate" width="100%">
-				<img alt=":#marseywholesome:" class="sealimg" src="/static/assets/images/emojis/marseywholesome.webp?a=1008">
+	{% if SITE_NAME == 'PCM' and p.award_count("toe") %}
+		<style>
+			.toe {
+				position:fixed;
+				z-index:9999;
+				pointer-events: none;
+				width: 100% !important;
+				height: 100% !important;
+			}
+			.toeimg {
+				width: 100px;
+				height: auto;
+			}
+			@media (max-width: 992px) {
+				.toeimg {
+					width: 30px;
+					height: auto;
+				}
+			}
+		</style>
+		<div class="toe" height="100%" width="100%">
+			<marquee class="toe" scrollamount=10 behavior="alternate" direction="up" height="100%" width="100%">
+				<marquee direction="right" scrollamount=10 behavior="alternate" height="100%" width="100%">
+					<img alt="Blade's toe" class="toeimg" src="/static/assets/images/PCM/toe.webp?a=1">
+				</marquee>
 			</marquee>
-		</marquee>
-	{% endif %}
+		</div>
 
-	{% if p.award_count("wholesome") > 2 %}
-		<marquee class="seal" scrollamount=10 behavior="alternate" direction="up" height="100%">
-			<marquee direction="left" scrollamount=10 behavior="alternate" width="100%">
-				<img alt=":#marseywholesome:" class="sealimg" src="/static/assets/images/emojis/marseywholesome.webp?a=1008">
+		{% if p.award_count("toe") > 1 %}
+			<marquee class="toe" scrollamount=10 behavior="alternate" direction="down" height="100%">
+				<marquee direction="right" scrollamount=10 behavior="alternate" width="100%">
+					<img alt="Blade's toe" class="toeimg" src="/static/assets/images/PCM/toe.webp?a=1">
+				</marquee>
 			</marquee>
-		</marquee>
-	{% endif %}
+		{% endif %}
 
-	{% if p.award_count("wholesome") > 3 %}
-		<marquee class="seal" scrollamount=10 behavior="alternate" direction="down" height="100%">
-			<marquee direction="left" scrollamount=10 behavior="alternate" width="100%">
-				<img alt=":#marseywholesome:" class="sealimg" src="/static/assets/images/emojis/marseywholesome.webp?a=1008">
+		{% if p.award_count("toe") > 2 %}
+			<marquee class="toe" scrollamount=10 behavior="alternate" direction="up" height="100%">
+				<marquee direction="left" scrollamount=10 behavior="alternate" width="100%">
+					<img alt="Blade's toe" class="toeimg" src="/static/assets/images/PCM/toe.webp?a=1">
+				</marquee>
 			</marquee>
-		</marquee>
+		{% endif %}
+
+		{% if p.award_count("toe") > 3 %}
+			<marquee class="toe" scrollamount=10 behavior="alternate" direction="down" height="100%">
+				<marquee direction="left" scrollamount=10 behavior="alternate" width="100%">
+					<img alt="Blade's toe" class="toeimg" src="/static/assets/images/PCM/toe.webp?a=1">
+				</marquee>
+			</marquee>
+		{% endif %}
 	{% endif %}
 {% endif %}
+
+
+
+
 
 {% if p.award_count("train") or p.award_count("scooter") %}
 	<style>
@@ -192,26 +340,80 @@
 	<marquee class="train train1" direction="left" scrollamount=10 width="100%">
 		<img alt=":#marseytrain:" class="trainimg mirrored" src="/static/assets/images/emojis/marseytrain.webp?a=1008">
 	</marquee>
+
+	{% if p.award_count("train") > 1 %}
+		<marquee class="train train2" direction="right" scrollamount=10 width="100%">
+			<img alt=":#marseytrain:" class="trainimg" src="/static/assets/images/emojis/marseytrain.webp?a=1008">
+		</marquee>
+	{% endif %}
+
+	{% if p.award_count("train") > 2 %}
+		<marquee class="train train3" direction="left" scrollamount=10 width="100%">
+			<img alt=":#marseytrain:" class="trainimg mirrored" src="/static/assets/images/emojis/marseytrain.webp?a=1008">
+		</marquee>
+	{% endif %}
+
+	{% if p.award_count("train") > 3 %}
+		<marquee class="train train4" direction="right" scrollamount=10 width="100%">
+			<img alt=":#marseytrain:" class="trainimg" src="/static/assets/images/emojis/marseytrain.webp?a=1008">
+		</marquee>
+	{% endif %}
 {% endif %}
 
-{% if p.award_count("train") > 1 %}
-	<marquee class="train train2" direction="right" scrollamount=10 width="100%">
-		<img alt=":#marseytrain:" class="trainimg" src="/static/assets/images/emojis/marseytrain.webp?a=1008">
+
+{% if SITE_NAME == 'PCM' and p.award_count("croag") %}
+	<style>
+		.croag {
+			position:fixed;
+			z-index:9999;
+			pointer-events: none;
+		}
+		.croag1 {
+			top: 15%
+		}
+		.croag2 {
+			top: 40%
+		}
+		.croag3 {
+			top: 65%
+		}
+		.croag4 {
+			top: 90%
+		}
+		.croagimg {
+			width: 169px;
+			height: 68px;
+		}
+		@media (max-width: 992px) {
+			.croagimg {
+				width: 100px;
+				height: 40px;
+			}
+		}
+	</style>
+
+	<marquee class="croag croag1" direction="left" scrollamount=10 width="100%">
+		<img alt="croag" class="croagimg mirrored" src="/static/assets/images/PCM/croag.webp?a=1">
 	</marquee>
-{% endif %}
 
-{% if p.award_count("train") > 2 %}
-	<marquee class="train train3" direction="left" scrollamount=10 width="100%">
-		<img alt=":#marseytrain:" class="trainimg mirrored" src="/static/assets/images/emojis/marseytrain.webp?a=1008">
-	</marquee>
-{% endif %}
+	{% if p.award_count("croag") > 1 %}
+		<marquee class="croag croag2" direction="right" scrollamount=10 width="100%">
+			<img alt="croag" class="croagimg" src="/static/assets/images/PCM/croag.webp?a=1">
+		</marquee>
+	{% endif %}
 
-{% if p.award_count("train") > 3 %}
-	<marquee class="train train4" direction="right" scrollamount=10 width="100%">
-		<img alt=":#marseytrain:" class="trainimg" src="/static/assets/images/emojis/marseytrain.webp?a=1008">
-	</marquee>
-{% endif %}
+	{% if p.award_count("croag") > 2 %}
+		<marquee class="croag croag3" direction="left" scrollamount=10 width="100%">
+			<img alt="croag" class="croagimg mirrored" src="/static/assets/images/PCM/croag.webp?a=1">
+		</marquee>
+	{% endif %}
 
+	{% if p.award_count("croag") > 3 %}
+		<marquee class="croag croag4" direction="right" scrollamount=10 width="100%">
+			<img alt="croag" class="croagimg" src="/static/assets/images/PCM/croag.webp?a=1">
+		</marquee>
+	{% endif %}
+{% endif %}
 
 
 {% if p.award_count("scooter") %}
@@ -230,24 +432,24 @@
 	<marquee class="train train3" direction="right" scrollamount=10 width="100%">
 		<img alt=":#marseyscooter:" class="scooterimg" src="/static/assets/images/emojis/marseyscooter.webp?a=1008">
 	</marquee>
-{% endif %}
 
-{% if p.award_count("scooter") > 1 %}
-	<marquee class="train train4" direction="left" scrollamount=10 width="100%">
-		<img alt=":#marseyscooter:" class="scooterimg mirrored" src="/static/assets/images/emojis/marseyscooter.webp?a=1008">
-	</marquee>
-{% endif %}
+	{% if p.award_count("scooter") > 1 %}
+		<marquee class="train train4" direction="left" scrollamount=10 width="100%">
+			<img alt=":#marseyscooter:" class="scooterimg mirrored" src="/static/assets/images/emojis/marseyscooter.webp?a=1008">
+		</marquee>
+	{% endif %}
 
-{% if p.award_count("scooter") > 2 %}
-	<marquee class="train train1" direction="right" scrollamount=10 width="100%">
-		<img alt=":#marseyscooter:" class="scooterimg" src="/static/assets/images/emojis/marseyscooter.webp?a=1008">
-	</marquee>
-{% endif %}
+	{% if p.award_count("scooter") > 2 %}
+		<marquee class="train train1" direction="right" scrollamount=10 width="100%">
+			<img alt=":#marseyscooter:" class="scooterimg" src="/static/assets/images/emojis/marseyscooter.webp?a=1008">
+		</marquee>
+	{% endif %}
 
-{% if p.award_count("scooter") > 3 %}
-	<marquee class="train train2" direction="left" scrollamount=10 width="100%">
-		<img alt=":#marseyscooter:" class="scooterimg mirrored" src="/static/assets/images/emojis/marseyscooter.webp?a=1008">
-	</marquee>
+	{% if p.award_count("scooter") > 3 %}
+		<marquee class="train train2" direction="left" scrollamount=10 width="100%">
+			<img alt=":#marseyscooter:" class="scooterimg mirrored" src="/static/assets/images/emojis/marseyscooter.webp?a=1008">
+		</marquee>
+	{% endif %}
 {% endif %}
 
 
@@ -343,9 +545,11 @@
 					<ul class="list-group post-actions">
 						{% if not p.ghost %}<a class="btn-block" href="/votes?link={{p.fullname}}"><button class="nobackground btn btn-link btn-block btn-lg text-left text-muted"><i class="fas fa-arrows-v text-center text-muted mr-3"></i>Votes</button></a>{% endif %}
 
+						<button data-bs-dismiss="modal" class="copy-link nobackground btn btn-link btn-block btn-lg text-left text-muted" data-clipboard-text="{% if SITE_NAME == 'Drama' %}https://rdrama.com{{p.shortlink}}{% else %}{{p.permalink}}{% endif %}"><i class="far fa-copy text-center text-muted mr-3"></i>Copy link</button>
+
 						<button class="nobackground btn btn-link btn-block btn-lg text-left text-muted" data-bs-toggle="modal" data-bs-dismiss="modal" data-bs-target="#reportPostModal" onclick="report_postModal('{{p.id}}')"><i class="far fa-flag text-center text-muted mr-3"></i>Report</button>
 
-						<button class="nobackground btn btn-link btn-block btn-lg text-left text-muted" data-bs-toggle="modal" data-bs-dismiss="modal" data-bs-target="#awardModal" onclick="awardModal('/post/{{p.id}}/awards')"><i class="fas fa-gift text-center text-muted mr-3"></i>Give Award</button>
+						<button class="nobackground btn btn-link btn-block btn-lg text-left text-muted" data-bs-toggle="modal" data-bs-dismiss="modal" data-bs-target="#awardModal" onclick="awardModal('/award_post/{{p.id}}')"><i class="fas fa-gift text-center text-muted mr-3"></i>Give Award</button>
 
 						<button id="subscribe2-{{p.id}}" class="{% if p.id in v.subscribed_idlist() %}d-none{% endif %} nobackground btn btn-link btn-block btn-lg text-left text-muted" role="button" onclick="post_toast2(this,'/subscribe/{{p.id}}','subscribe2-{{p.id}}','unsubscribe2-{{p.id}}')" data-bs-dismiss="modal"><i class="fas fa-eye text-center text-muted mr-3"></i>Subscribe</button>
 						<button id="unsubscribe2-{{p.id}}" class="{% if not p.id in v.subscribed_idlist() %}d-none{% endif %} nobackground btn btn-link btn-block btn-lg text-left text-muted" role="button" onclick="post_toast2(this,'/unsubscribe/{{p.id}}','subscribe2-{{p.id}}','unsubscribe2-{{p.id}}')" data-bs-dismiss="modal"><i class="fas fa-eye-slash text-center text-muted mr-3"></i>Unsubscribe</button>
@@ -398,7 +602,10 @@
 						{% endif %}
 
 						{% if p.sub and v.mods(p.sub) %}
-							<button class="nobackground btn btn-link btn-block btn-lg text-left text-danger" onclick="post_toast(this,'/kick/{{p.id}}')"><i class="fas fa-sign-out text-danger text-center mr-3"></i>Kick</button>
+							<button data-bs-dismiss="modal" class="nobackground btn btn-link btn-block btn-lg text-left text-danger" onclick="post_toast(this,'/kick/{{p.id}}')"><i class="fas fa-sign-out text-danger text-center mr-3"></i>Kick</button>
+
+							<button data-bs-dismiss="modal" id="exile2" class="{% if p.author.exiled_from(p.sub) %}d-none{% endif %} nobackground btn btn-link btn-block btn-lg text-left text-danger" onclick="post_toast2(this,'/exile/post/{{p.id}}','exile2','unexile2')"><i class="fas fa-campfire mr-3 text-danger"></i>Exile user</button>
+							<button data-bs-dismiss="modal" id="unexile2" class="{% if not p.author.exiled_from(p.sub) %}d-none{% endif %} nobackground btn btn-link btn-block btn-lg text-left text-success" onclick="post_toast2(this,'/unexile/post/{{p.id}}','exile2','unexile2')"><i class="fas fa-campfire mr-3 text-success"></i>Unexile user</button>
 						{% endif %}
 					</ul>
 				</div>
@@ -489,24 +696,28 @@
 							<a href='/s/{{p.sub}}'>/s/{{p.sub}}</a>&nbsp;&nbsp;
 						{% endif %}
 
+						{% if p.sub and p.author.exiled_from(p.sub) %}
+							<a role="button"><i class="fas fa-campfire text-danger" data-bs-toggle="tooltip" data-bs-placement="bottom" title="User has been exiled from /s/{{p.sub}}" data-bs-original-title="User has been exiled from /s/{{p.sub}}"></i></a>
+						{% endif %}
+				
 						{% if p.bannedfor %}
-							<a role="button"><i class="fad fa-gavel text-danger" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="User was banned for this post{% if p.author.banned_by %} by @{{p.author.banned_by.username}}{% endif %}"></i></a>
+							<a role="button"><i class="fas fa-gavel text-danger" data-bs-toggle="tooltip" data-bs-placement="bottom" title="User was banned for this post{% if p.author.banned_by %} by @{{p.author.banned_by.username}}{% endif %}" data-bs-original-title="User was banned for this post{% if p.author.banned_by %} by @{{p.author.banned_by.username}}{% endif %}"></i></a>
 						{% endif %}	
 
 						{% if p.awards %}
 							{% for a in p.awards %}
-								<i class="{{a.class_list}} px-1" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{a.title}} Award{% if a.kind != 'ghosts' %} given by @{{a.user.username}}{% endif %}"></i>
+								<i class="{{a.class_list}} px-1" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{a.title}} Award{% if a.kind != 'ghosts' %} given by @{{a.user.username}}{% endif %}" data-bs-original-title="{{a.title}} Award{% if a.kind != 'ghosts' %} given by @{{a.user.username}}{% endif %}"></i>
 							{% endfor %}
 						{% endif %}
-						{% if v and v.admin_level > 1 and p.author.shadowbanned %}<i class="fas fa-user-times text-admin" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Shadowbanned by @{{p.author.shadowbanned}}"></i>{% endif %}
+						{% if v and v.admin_level > 1 and p.author.shadowbanned %}<i class="fas fa-user-times text-admin" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Shadowbanned by @{{p.author.shadowbanned}}" data-bs-original-title="Shadowbanned by @{{p.author.shadowbanned}}"></i>{% endif %}
 
 						{% if p.stickied %}
-							<i id='pinned-{{p.id}}' class="fas fa-thumbtack fa-rotate--45 text-admin" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Pinned by @{{p.stickied}}" {% if p.stickied_utc %}onmouseover="pinned_timestamp('pinned-{{p.id}}')" data-timestamp={{p.stickied_utc}} {% endif %}></i>
+							<i id='pinned-{{p.id}}' class="fas fa-thumbtack fa-rotate--45 text-admin" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Pinned by @{{p.stickied}}" data-bs-original-title="Pinned by @{{p.stickied}}" {% if p.stickied_utc %}onmouseover="pinned_timestamp('pinned-{{p.id}}')" data-timestamp={{p.stickied_utc}} {% endif %}></i>
 						{% endif %}
 
-						{% if p.is_pinned %}<i class="fas fa-thumbtack fa-rotate--45 fa-fw text-admin" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Pinned to profile"></i>{% endif %}
-						{% if p.distinguish_level %} <i class="fas fa-broom text-admin" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{SITE_NAME}} Admin, speaking officially"></i>{% endif %}
-						{% if p.is_bot %} <i class="fad fa-robot text-info" data-bs-toggle="tooltip" data-bs-placement="bottom"	data-bs-original-title="Bot"></i>{% endif %}
+						{% if p.is_pinned %}<i class="fas fa-thumbtack fa-rotate--45 fa-fw text-admin" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Pinned to profile" data-bs-original-title="Pinned to profile"></i>{% endif %}
+						{% if p.distinguish_level %} <i class="fas fa-broom text-admin" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{SITE_NAME}} Admin, speaking officially" data-bs-original-title="{{SITE_NAME}} Admin, speaking officially"></i>{% endif %}
+						{% if p.is_bot %} <i class="fas fa-robot text-info" data-bs-toggle="tooltip" data-bs-placement="bottom"	title="Bot" data-bs-original-title="Bot"></i>{% endif %}
 						{% if p.over_18 %}<span class="badge badge-danger text-small-extra mr-1">+18</span>{% endif %}
 						{% if p.private %}<span class="badge border-warning border-1 text-small-extra">Draft</span>{% endif %}
 						{% if p.active_flags %}<a class="btn btn-primary" role="button" style="padding:1px 5px; font-size:10px;" onclick="document.getElementById('flaggers').classList.toggle('d-none')">{{p.active_flags}} Reports</a>{% endif %}
@@ -519,10 +730,10 @@
 							👻
 						{% else %}
 							{% if SITE_NAME=='Drama' and p.author.house %}
-								<img src="/assets/images/{{SITE_NAME}}/houses/{{p.author.house}}.webp?a=7" height="20" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="House {{p.author.house}}">
+								<img src="/assets/images/{{SITE_NAME}}/houses/{{p.author.house}}.webp?a=7" height="20" data-bs-toggle="tooltip" data-bs-placement="bottom" title="House {{p.author.house}}" data-bs-original-title="House {{p.author.house}}" alt="House {{p.author.house}}">
 							{% endif %}
 
-							{% if p.author.verified %}<i class="fas fa-badge-check align-middle ml-1" style="color:{% if p.author.verifiedcolor %}#{{p.author.verifiedcolor}}{% else %}#1DA1F2{% endif %}" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="{{p.author.verified}}"></i>
+							{% if p.author.verified %}<i class="fas fa-badge-check align-middle ml-1" style="color:{% if p.author.verifiedcolor %}#{{p.author.verifiedcolor}}{% else %}#1DA1F2{% endif %}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{p.author.verified}}" data-bs-original-title="{{p.author.verified}}"></i>
 							{% endif %}
 							<a class="user-name text-decoration-none" onclick='popclick({{p.author.json_popover(v) | tojson}})' data-bs-placement="bottom" data-bs-toggle="popover" data-bs-trigger="click" data-content-id="popover" role="button" tabindex="0" style="color: #{{p.author.namecolor}}; font-weight: bold;" class="user-name"><img alt="@{{p.author_name}}'s profile picture" loading="lazy" src="{{p.author.profile_url}}" class="profile-pic-25 mr-2"><span {% if p.author.patron and not p.distinguish_level %}class="patron" style="background-color:#{{p.author.namecolor}};"{% elif p.distinguish_level and SITE_NAME == 'Drama' %}class="mod"{% endif %}>{{p.author_name}}</span></a>{% if p.author.customtitle %}&nbsp;<bdi style="color: #{{p.author.titlecolor}}">&nbsp;{% if p.author.quadrant %}<img alt="{{p.author.quadrant}} quadrant" loading="lazy" height="20" src="/static/assets/images/quadrants/{{p.author.quadrant}}.webp?a=1008">{% endif %}{{p.author.customtitle | safe}}</bdi>{% endif %}
 						{% endif %}
@@ -540,7 +751,7 @@
 						<pre></pre>
 						<ul style="padding-left:20px; margin-bottom: 0;">
 							{% for f in p.flags %}
-								<li><a style="font-weight:bold" href="{{f.user.url}}">{{f.user.username}}</a>{% if f.reason %}: {{f.realreason(v) | safe}}{% endif %} {% if v and v.admin_level > 1 %}<a role="button" onclick="post_toast(this,'/del_report/p{{f.id}}')">[remove]</a>{% endif %}</li>
+								<li><a style="font-weight:bold" href="{{f.user.url}}">{{f.user.username}}</a>{% if f.reason %}: {{f.realreason(v) | safe}}{% endif %} {% if v and v.admin_level > 1 %}<a role="button" onclick="post_toast(this,'/del_report/post/{{f.post_id}}/{{f.user_id}}')">[remove]</a>{% endif %}</li>
 							{% endfor %}
 						</ul>
 					</div>
@@ -627,11 +838,11 @@
 									<div class="text-small font-weight-bold mt-1" id="charcount-post-edit" style="right: 1rem; bottom: 0.5rem; z-index: 3;"></div>
 
 									<div class="comment-format">
-										<small class="format btn btn-secondary"><i class="fas fa-bold" aria-hidden="true" onclick="makeBold('post-edit-box-{{p.id}}')" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Bold"></i></small> 
-										<a class="format btn btn-secondary" role="button"><i class="fas fa-italic" aria-hidden="true" onclick="makeItalics('post-edit-box-{{p.id}}')" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Italicize"></i></a> 
-										<a class="format btn btn-secondary" role="button"><i class="fas fa-quote-right" aria-hidden="true" onclick="makeQuote('post-edit-box-{{p.id}}')" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Quote"></i></a>
-										<a class="format btn btn-secondary" role="button"><span class="font-weight-bolder text-uppercase" onclick="commentForm('post-edit-box-{{p.id}}');getGif()" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#gifModal" data-bs-toggle="tooltip" data-bs-placement="bottom"  data-bs-original-title="Add GIF">GIF</span></a>
-										<a class="format btn btn-secondary" role="button"><i class="fas fa-smile-beam" onclick="loadEmojis('post-edit-box-{{p.id}}')" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#emojiModal" data-bs-toggle="tooltip" data-bs-placement="bottom"  data-bs-original-title="Add Emoji"></i></a>
+										<small class="format btn btn-secondary"><i class="fas fa-bold" aria-hidden="true" onclick="makeBold('post-edit-box-{{p.id}}')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Bold" data-bs-original-title="Bold"></i></small> 
+										<a class="format btn btn-secondary" role="button"><i class="fas fa-italic" aria-hidden="true" onclick="makeItalics('post-edit-box-{{p.id}}')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Italicize" data-bs-original-title="Italicize"></i></a> 
+										<a class="format btn btn-secondary" role="button"><i class="fas fa-quote-right" aria-hidden="true" onclick="makeQuote('post-edit-box-{{p.id}}')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Quote" data-bs-original-title="Quote"></i></a>
+										<a class="format btn btn-secondary" role="button"><span class="font-weight-bolder text-uppercase" onclick="commentForm('post-edit-box-{{p.id}}');getGif()" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#gifModal" data-bs-toggle="tooltip" data-bs-placement="bottom"  title="Add GIF" data-bs-original-title="Add GIF">GIF</span></a>
+										<a class="format btn btn-secondary" role="button"><i class="fas fa-smile-beam" onclick="loadEmojis('post-edit-box-{{p.id}}')" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#emojiModal" data-bs-toggle="tooltip" data-bs-placement="bottom"  title="Add Emoji" data-bs-original-title="Add Emoji"></i></a>
 
 										<label class="format btn btn-secondary m-0 ml-1 {% if v %}d-inline-block{% else %}d-none{% endif %}" for="file-upload-edit-{{p.id}}">
 											<div id="filename-show-edit-{{p.id}}"><i class="far fa-image"></i></div>
@@ -688,7 +899,7 @@
 						{% if not p.ghost %}<a class="list-inline-item" href="/votes?link={{p.fullname}}"><i class="fas fa-arrows-v"></i>Votes</a>{% endif %}
 
 						{% if v %}
-							<a class="list-inline-item text-muted d-none d-md-inline-block" role="button" data-bs-toggle="modal" data-bs-target="#awardModal" onclick="awardModal('/post/{{p.id}}/awards')"><i class="fas fa-gift fa-fw"></i>Give Award</a>
+							<a class="list-inline-item text-muted d-none d-md-inline-block" role="button" data-bs-toggle="modal" data-bs-target="#awardModal" onclick="awardModal('/award_post/{{p.id}}')"><i class="fas fa-gift fa-fw"></i>Give Award</a>
 						{% endif %}
 
 						<a class="list-inline-item copy-link" role="button" data-clipboard-text="{% if SITE_NAME == 'Drama' %}https://rdrama.com{{p.shortlink}}{% else %}{{p.permalink}}{% endif %}"><i class="fas fa-copy"></i>Copy link</a>
@@ -759,6 +970,10 @@
 
 								{% if p.sub and v.mods(p.sub) %}
 									<a class="dropdown-item list-inline-item text-danger" role="button" onclick="post_toast(this,'/kick/{{p.id}}')"><i class="fas fa-sign-out text-danger"></i>Kick</a>
+
+									<a id="exile" class="{% if p.author.exiled_from(p.sub) %}d-none{% endif %} dropdown-item list-inline-item text-danger" role="button" onclick="post_toast2(this,'/exile/post/{{p.id}}','exile','unexile')"><i class="fas fa-campfire text-danger"></i>Exile user</a>
+									<a id="unexile" class="{% if not p.author.exiled_from(p.sub) %}d-none{% endif %} dropdown-item list-inline-item text-success" role="button" onclick="post_toast2(this,'/unexile/post/{{p.id}}','exile','unexile')"><i class="fas fa-campfire text-success"></i>Unexile user</a>
+
 								{% endif %}
 
 
@@ -784,7 +999,7 @@
 					<div id="voting" class="voting d-none d-md-block mb-auto">
 						<div id="post-{{p.id}}-up" tabindex="0" role="button" onclick="vote('post', '{{p.id}}', '1')" class="mx-auto arrow-up upvote-button post-{{p.id}}-up {% if voted==1 %}active{% endif %}"></div>
 
-						<span id="post-score-{{p.id}}" class="score post-score-{{p.id}} {% if voted==1 %}score-up{% elif voted==-1%}score-down{% endif %}{% if p.controversial %} controversial{% endif %}" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="+{{ups}} | -{{downs}}">{{score}}</span>
+						<span id="post-score-{{p.id}}" class="score post-score-{{p.id}} {% if voted==1 %}score-up{% elif voted==-1%}score-down{% endif %}{% if p.controversial %} controversial{% endif %}" data-bs-toggle="tooltip" data-bs-placement="right" title="+{{ups}} | -{{downs}}" data-bs-original-title="+{{ups}} | -{{downs}}">{{score}}</span>
 						<div {% if environ.get('DISABLE_DOWNVOTES') == '1' %}style="display:None!important"{% endif %} id="post-{{p.id}}-down" tabindex="0" role="button" onclick="vote('post', '{{p.id}}', '-1')" class="text-muted mx-auto arrow-down downvote-button post-{{p.id}}-down {% if voted==-1 %}active{% endif %}"></div>
 					</div>
 
@@ -793,7 +1008,7 @@
 					<div id="voting" class="voting d-none d-md-block mb-auto">
 						<div id="post-{{p.id}}-up" tabindex="0" role="button" onclick="vote('post', '{{p.id}}', '1')" class="arrow-up mx-auto" onclick="location.href='/login?redirect={{request.path | urlencode}}';">
 						</div>
-						<span id="post-{{p.id}}-score-none" class="score text-muted{% if p.controversial %} controversial{% endif %}"{% if not p.is_banned %} data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="+{{ups}} | -{{downs}}"{% endif %}>{{score}}</span>
+						<span id="post-{{p.id}}-score-none" class="score text-muted{% if p.controversial %} controversial{% endif %}"{% if not p.is_banned %} data-bs-toggle="tooltip" data-bs-placement="right" title="+{{ups}} | -{{downs}}" data-bs-original-title="+{{ups}} | -{{downs}}"{% endif %}>{{score}}</span>
 						<div {% if environ.get('DISABLE_DOWNVOTES') == '1' %}style="display:None!important"{% endif %} id="post-{{p.id}}-down" tabindex="0" role="button" onclick="vote('post', '{{p.id}}', '-1')" class="arrow-down mx-auto" onclick="location.href='/login?redirect={{request.path | urlencode}}';"></div>
 					</div>
 
@@ -836,7 +1051,6 @@
 					{% endif %}
 				</li>
 
-				<a class="list-inline-item copy-link" role="button" role="button" data-clipboard-text="{% if SITE_NAME == 'Drama' %}https://rdrama.com{{p.shortlink}}{% else %}{{p.permalink}}{% endif %}"><i class="fas fa-link"></i>Copy link</a>
 				{% if v %}
 				<li class="list-inline-item">
 					<a role="button" data-bs-toggle="modal" data-bs-target="#actionsModal">
@@ -854,7 +1068,7 @@
 						</span>
 					{% endif %}
 
-					<span id="post-mobile-score-{{p.id}}" class="score post-score-{{p.id}} {% if voted==1 %}score-up{% elif voted==-1%}score-down{% endif %}{% if p.controversial %} controversial{% endif %}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="+{{ups}} | -{{downs}}">{{score}}</span>
+					<span id="post-mobile-score-{{p.id}}" class="score post-score-{{p.id}} {% if voted==1 %}score-up{% elif voted==-1%}score-down{% endif %}{% if p.controversial %} controversial{% endif %}" data-bs-toggle="tooltip" data-bs-placement="top" title="+{{ups}} | -{{downs}}" data-bs-original-title="+{{ups}} | -{{downs}}">{{score}}</span>
 
 					{% if v %}
 						<span {% if environ.get('DISABLE_DOWNVOTES') == '1' %}style="display:None!important"{% endif %} id="post-mobile-{{p.id}}-down" tabindex="0" role="button" onclick="vote('post-mobile', '{{p.id}}', '-1')" class="mx-0 pl-1 my-0 arrow-down downvote-button post-{{p.id}}-down {% if voted==-1 %}active{% endif %}"></span>
@@ -913,18 +1127,18 @@
 			<div class="text-small font-weight-bold mt-1" id="charcount-reply" style="right: 1rem; bottom: 0.5rem; z-index: 3;"></div>
 
 			<div class="comment-format">
-				<a class="btn btn-secondary format d-inline-block m-0" role="button"><i class="fas fa-bold" onclick="makeBold('reply-form-body-{{p.fullname}}')" data-bs-toggle="tooltip" data-bs-placement="bottom"  data-bs-original-title="Bold"></i></a>
+				<a class="btn btn-secondary format d-inline-block m-0" role="button"><i class="fas fa-bold" onclick="makeBold('reply-form-body-{{p.fullname}}')" data-bs-toggle="tooltip" data-bs-placement="bottom"  title="Bold" data-bs-original-title="Bold"></i></a>
 				&nbsp;
-				<a class="btn btn-secondary format d-inline-block m-0" role="button"><i class="fas fa-italic" onclick="makeItalics('reply-form-body-{{p.fullname}}')" data-bs-toggle="tooltip" data-bs-placement="bottom"  data-bs-original-title="Italicize"></i></a>
+				<a class="btn btn-secondary format d-inline-block m-0" role="button"><i class="fas fa-italic" onclick="makeItalics('reply-form-body-{{p.fullname}}')" data-bs-toggle="tooltip" data-bs-placement="bottom"  title="Italicize" data-bs-original-title="Italicize"></i></a>
 				&nbsp;
-				<a class="btn btn-secondary format d-inline-block m-0" role="button"><i class="fas fa-quote-right" onclick="makeQuote('reply-form-body-{{p.fullname}}')" data-bs-toggle="tooltip" data-bs-placement="bottom"  data-bs-original-title="Quote"></i></a>
+				<a class="btn btn-secondary format d-inline-block m-0" role="button"><i class="fas fa-quote-right" onclick="makeQuote('reply-form-body-{{p.fullname}}')" data-bs-toggle="tooltip" data-bs-placement="bottom"  title="Quote" data-bs-original-title="Quote"></i></a>
 				&nbsp;
 				<label class="btn btn-secondary format d-inline-block m-0" for="gif-reply-btn-{{p.fullname}}">
-					<span id="gif-reply-btn-{{p.fullname}}" class="font-weight-bolder text-uppercase" onclick="commentForm('reply-form-body-{{p.fullname}}');getGif()" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#gifModal" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Add GIF">GIF</span>
+					<span id="gif-reply-btn-{{p.fullname}}" class="font-weight-bolder text-uppercase" onclick="commentForm('reply-form-body-{{p.fullname}}');getGif()" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#gifModal" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add GIF" data-bs-original-title="Add GIF">GIF</span>
 				</label> 
 				&nbsp;
 				<label class="btn btn-secondary format d-inline-block m-0" for="emoji-reply-btn-{{p.fullname}}">
-					<div id="emoji-reply-btn-{{p.fullname}}" onclick="loadEmojis('reply-form-body-{{p.fullname}}')" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#emojiModal" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Add Emoji"><i class="fas fa-smile-beam"></i></div>
+					<div id="emoji-reply-btn-{{p.fullname}}" onclick="loadEmojis('reply-form-body-{{p.fullname}}')" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#emojiModal" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add Emoji" data-bs-original-title="Add Emoji"><i class="fas fa-smile-beam"></i></div>
 				</label> 
 				<label class="format btn btn-secondary m-0 ml-1 {% if v %}d-inline-block{% else %}d-none{% endif %}" for="file-upload-reply-{{p.fullname}}">
 					<div id="filename-show-reply-{{p.fullname}}"><i class="far fa-image"></i></div>
@@ -963,7 +1177,7 @@
  </div>
  
 {% if offset %}
-	<script src="/static/assets/js/viewmore.js?a=246"></script>
+	<script src="/static/assets/js/viewmore.js?a=247"></script>
 {% endif %}
 
 {% elif not p.replies and p.deleted_utc == 0 %}
