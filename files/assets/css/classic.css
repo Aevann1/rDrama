@@ -460,12 +460,6 @@ a.nav-link:hover {
     border-color: transparent !important;
 }
 
-@media (max-width: 765px) { 
-    #frontpage .container {
-        margin-top: -35px
-    }   
-}
-
 #settings2 .nav.settings-nav .fas {
     color: var(--grey) !important
 }
@@ -500,4 +494,14 @@ a.nav-link:hover {
 	color: #ff0 !important;
 	text-shadow: -1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000 !important;
 	background: transparent !important;
+}
+
+
+.d-flex.justify-content-between.align-items-center.pt-3.pb-2.sorting {
+	float: left !important;
+	padding-top: 0 !important;
+}
+
+.sorting {
+	padding-bottom: 0 !important;
 }
