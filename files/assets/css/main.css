@@ -4994,7 +4994,7 @@ li > .sidebar > .rules {
     object-fit: cover !important;
 }
 
-@media (max-width: 400px) { 
+@media (max-width: 500px) { 
     .count {
         display:block;
         text-align: center;
@@ -5012,7 +5012,7 @@ th, td {
     font-size: min(3vw,14px) !important;
 }
 
-@media (max-width: 400px) {
+@media (max-width: 500px) {
     .text-small-m {
         font-size: min(3.3vw,12px) !important;
         margin-right: min(2vw,0.5rem) !important;
