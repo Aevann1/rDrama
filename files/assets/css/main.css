@@ -5008,3 +5008,62 @@ th, td {
 .text-small-mobile {
     font-size: min(2.7vw,14px) !important;
 }
+
+/*russia*/
+:root {
+    --white: white !important;
+    --red: #DA291C  !important;
+    --blue: #0032A0 !important;
+    --primary: var(--red) !important;
+}
+
+.mod {
+	padding: 2px 5px 3px;
+	border-radius: 5px;
+	color: #fff !important;
+    background: linear-gradient(to bottom, #FFFFFF 33.333%, #0032A0 33.333%, #0032A0 66.667%, #DA291C  66.667%);
+	text-shadow: -1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000;
+}
+
+#frontpage .col.h-100.custom-gutters .row .col, .srd {
+    background: linear-gradient(to bottom, #FFFFFF 33.333%, #0032A0 33.333%, #0032A0 66.667%, #DA291C  66.667%);
+}
+
+#frontpage .btn.btn-secondary.text-small-m {
+	color: white !important;
+	text-shadow: -1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000 !important;
+	background: transparent !important;
+}
+
+.user-name {
+    color: var(--red) !important
+}
+
+.patron {
+    background-color: var(--blue) !important;
+}
+
+.arrow-up::before {
+	font-family: serif !important;
+	content: "🇷🇺";
+    opacity:0.3;
+}
+
+.active.arrow-up::before {
+	opacity: 1;
+}
+
+.arrow-down::before {
+	font-family: serif !important;
+	content: "🇺🇦";
+    opacity:0.3;
+}
+
+.active.arrow-down::before {
+	opacity: 1;
+}
+
+#frontpage .btn {
+    background-color: var(--red) !important;
+    color: white !important;
+}
