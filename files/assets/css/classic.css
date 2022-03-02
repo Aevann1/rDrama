@@ -505,3 +505,8 @@ a.nav-link:hover {
 .sorting {
 	padding-bottom: 0 !important;
 }
+
+.comment-anchor:target, .unread2 {
+	background: rgba(136,136,136,0.2);
+	padding: 12px;
+}
