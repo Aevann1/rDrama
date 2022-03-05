@@ -54,6 +54,11 @@ def api_verify_email(v):
 def activate(v):
 
 	email = request.values.get("email", "").strip().lower()
+
+	if not email_regex.fullmatch(email):
+		return render_template("message.html", v=v, title="Invalid email.", error="Invalid email."), 400
+
+
 	id = request.values.get("id", "").strip()
 	timestamp = int(request.values.get("time", "0"))
 	token = request.values.get("token", "").strip()

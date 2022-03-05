@@ -50,8 +50,8 @@
     {% endif %}
 {% endif %}
 
-{% if p.sub and v.mods(p.sub) %}
-    <button data-bs-dismiss="modal" class="nobackground btn btn-link btn-block btn-lg text-left text-danger" onclick="post_toast(this,'/kick/{{p.id}}')"><i class="fas fa-sign-out text-danger text-center mr-3"></i>Kick</button>
+{% if p.sub and v.mods(p.sub) and not p.author.mods(p.sub) %}
+    <button data-bs-dismiss="modal" class="nobackground btn btn-link btn-block btn-lg text-left text-danger" onclick="post_toast(this,'/kick/{{p.id}}')"><i class="fas fa-sign-out text-danger text-center mr-3"></i>Remove</button>
 
     <button data-bs-dismiss="modal" id="exile2" class="{% if p.author.exiled_from(p.sub) %}d-none{% endif %} nobackground btn btn-link btn-block btn-lg text-left text-danger" onclick="post_toast2(this,'/exile/post/{{p.id}}','exile2','unexile2')"><i class="fas fa-campfire mr-3 text-danger"></i>Exile user</button>
     <button data-bs-dismiss="modal" id="unexile2" class="{% if not p.author.exiled_from(p.sub) %}d-none{% endif %} nobackground btn btn-link btn-block btn-lg text-left text-success" onclick="post_toast2(this,'/unexile/post/{{p.id}}','exile2','unexile2')"><i class="fas fa-campfire mr-3 text-success"></i>Unexile user</button>

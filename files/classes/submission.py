@@ -88,12 +88,14 @@ class Submission(Base):
 	@property
 	@lazy
 	def options(self):
-		return g.db.query(Comment).filter_by(parent_submission = self.id, author_id = AUTOPOLLER_ID, level=1)
+		return g.db.query(Comment).filter_by(parent_submission = self.id, author_id = AUTOPOLLER_ID, level=1).order_by(Comment.id)
+
 
 	@property
 	@lazy
 	def choices(self):
-		return g.db.query(Comment).filter_by(parent_submission = self.id, author_id = AUTOCHOICE_ID, level=1)
+		return g.db.query(Comment).filter_by(parent_submission = self.id, author_id = AUTOCHOICE_ID, level=1).order_by(Comment.id)
+
 
 	@property
 	@lazy

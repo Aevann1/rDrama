@@ -98,10 +98,7 @@ def publish(pid, v):
 		notify_users = NOTIFY_USERS(f'{post.title} {post.body}', v)
 
 		if notify_users:
-			text = f"@{v.username} has mentioned you: [{SITE_FULL}/post/{post.id}](/post/{post.id})"
-			if post.sub: text += f" in <a href='/s/{post.sub}'>/s/{post.sub}"
-
-			cid = notif_comment(text)
+			cid = notif_comment2(post)
 			for x in notify_users:
 				add_notif(cid, x)
 
@@ -151,6 +148,8 @@ def submit_get(v, sub=None):
 def post_id(pid, anything=None, v=None, sub=None):
 	if not v and not request.path.startswith('/logged_out') and not request.headers.get("Authorization"):
 		return redirect(f"{SITE_FULL}/logged_out{request.full_path}")
+
+	if v and request.path.startswith('/logged_out'): v = None
 
 	try: pid = int(pid)
 	except Exception as e: pass
@@ -392,7 +391,7 @@ def viewmore(v, pid, sort, offset):
 	else: offset += 1
 	comments = comments2
 
-	return render_template("comments.html", v=v, comments=comments, ids=list(ids), render_replies=True, pid=pid, sort=sort, offset=offset, ajax=True)
+	return render_template("comments.html", v=v, comments=comments, p=post, ids=list(ids), render_replies=True, pid=pid, sort=sort, offset=offset, ajax=True)
 
 
 @app.get("/morecomments/<cid>")
@@ -441,7 +440,8 @@ def morecomments(v, cid):
 		c = g.db.query(Comment).filter_by(id=cid).one_or_none()
 		comments = c.replies
 
-	return render_template("comments.html", v=v, comments=comments, render_replies=True, ajax=True)
+	p = comments[0].post
+	return render_template("comments.html", v=v, comments=comments, p=p, render_replies=True, ajax=True)
 
 @app.post("/edit_post/<pid>")
 @limiter.limit("1/second;30/minute;200/hour;1000/day")
@@ -573,19 +573,16 @@ def edit_post(pid, v):
 			g.db.add(n)
 
 
-
-		if not p.private and not p.ghost:
-			notify_users = NOTIFY_USERS(f'{title} {body}', v)
-			if notify_users:
-				cid = notif_comment(f"@{v.username} has mentioned you: [{SITE_FULL}/post/{post.id}](/post/{post.id})")
-				for x in notify_users:
-					add_notif(cid, x)
-
-
-
-	if (title != p.title or body != p.body) and v.id == p.author_id:
+	if v.id == p.author_id:
 		if int(time.time()) - p.created_utc > 60 * 3: p.edited_utc = int(time.time())
 		g.db.add(p)
+
+	if not p.private and not p.ghost:
+		notify_users = NOTIFY_USERS(f'{p.title} {p.body}', v)
+		if notify_users:
+			cid = notif_comment2(p)
+			for x in notify_users:
+				add_notif(cid, x)
 
 	g.db.commit()
 
@@ -893,8 +890,10 @@ def submit_post(v, sub=None):
 		
 		url = urlunparse(new_url)
 
+		search_url  = url.replace('\\', '').replace('_', '\_').replace('%', '').strip()
+
 		repost = g.db.query(Submission).filter(
-			Submission.url.ilike(url),
+			Submission.url.ilike(search_url),
 			Submission.deleted_utc == 0,
 			Submission.is_banned == False
 		).one_or_none()
@@ -909,7 +908,8 @@ def submit_post(v, sub=None):
 			reason = f"Remove the {domain_obj.domain} link from your post and try again. {domain_obj.reason}"
 			return error(reason)
 		elif "twitter.com" == domain:
-			embed = requests.get("https://publish.twitter.com/oembed", params={"url":url, "omit_script":"t"}, timeout=5).json()["html"]
+			try: embed = requests.get("https://publish.twitter.com/oembed", params={"url":url, "omit_script":"t"}, timeout=5).json()["html"]
+			except: pass
 		elif url.startswith('https://youtube.com/watch?v='):
 			url = unquote(url).replace('?t', '&t')
 			yt_id = url.split('https://youtube.com/watch?v=')[1].split('&')[0].split('%')[0]
@@ -928,7 +928,7 @@ def submit_post(v, sub=None):
 		elif app.config['SERVER_NAME'] in domain and "/post/" in url and "context" not in url:
 			id = url.split("/post/")[1]
 			if "/" in id: id = id.split("/")[0]
-			embed = int(id)
+			embed = str(int(id))
 
 
 	if not url and not request.values.get("body") and not request.files.get("file") and not request.files.get("file2"):
@@ -1182,10 +1182,7 @@ def submit_post(v, sub=None):
 		notify_users = NOTIFY_USERS(f'{title} {body}', v)
 
 		if notify_users:
-			text = f"@{v.username} has mentioned you: [{SITE_FULL}/post/{post.id}](/post/{post.id})"
-			if post.sub: text += f" in <a href='/s/{post.sub}'>/s/{post.sub}"
-
-			cid = notif_comment(text)
+			cid = notif_comment2(post)
 			for x in notify_users:
 				add_notif(cid, x)
 
@@ -1485,7 +1482,7 @@ def api_pin_post(post_id, v):
 @auth_required
 def get_post_title(v):
 
-	url = request.values.get("url", None)
+	url = request.values.get("url")
 	if not url: abort(400)
 
 	try: x = requests.get(url, headers=titleheaders, timeout=5)

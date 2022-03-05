@@ -4,9 +4,7 @@ from flask import g
 
 def get_id(username, v=None, graceful=False):
 	
-	username = username.replace('\\', '')
-	username = username.replace('_', '\_')
-	username = username.replace('%', '')
+	username = username.replace('\\', '').replace('_', '\_').replace('%', '').strip()
 
 	user = g.db.query(
 		User.id

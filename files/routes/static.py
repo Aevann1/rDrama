@@ -40,6 +40,8 @@ def marsey_list():
 def terms(v):
 	if not v and not request.path.startswith('/logged_out'): return redirect(f"{SITE_FULL}/logged_out{request.full_path}")
 
+	if v and request.path.startswith('/logged_out'): v = None
+
 	return render_template("terms.html", v=v)
 
 @app.get('/sidebar')
@@ -47,6 +49,8 @@ def terms(v):
 @auth_desired
 def sidebar(v):
 	if not v and not request.path.startswith('/logged_out'): return redirect(f"{SITE_FULL}/logged_out{request.full_path}")
+
+	if v and request.path.startswith('/logged_out'): v = None
 
 	return render_template('sidebar.html', v=v)
 

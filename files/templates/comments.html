@@ -231,10 +231,10 @@
 
 				{% if c.parent_comment_id and not standalone and level != 1 %}<a href="#comment-{{c.parent_comment_id}}-only" class="text-muted ml-2"><i class="fas fa-reply fa-sm fa-fw fa-flip-horizontal mr-1"></i>{{c.parent_comment.author_name}}</a>{% endif %}
 
-				{% if c.created_utc %}
-					<span id="timestamp-{{c.id}}" onmouseover="timestamp('timestamp-{{c.id}}','{{c.created_utc}}')" data-bs-toggle="tooltip" data-bs-placement="bottom" class="time-stamp">&nbsp;{{c.age_string}}</span>
-				{% elif c.notif_utc %}
+				{% if c.notif_utc %}
 					<span id="timestamp-{{c.id}}" onmouseover="timestamp('timestamp-{{c.id}}','{{c.notif_utc}}')" data-bs-toggle="tooltip" data-bs-placement="bottom" class="time-stamp">&nbsp;{{c.age_string}}</span>
+				{% elif c.created_utc %}
+					<span id="timestamp-{{c.id}}" onmouseover="timestamp('timestamp-{{c.id}}','{{c.created_utc}}')" data-bs-toggle="tooltip" data-bs-placement="bottom" class="time-stamp">&nbsp;{{c.age_string}}</span>
 				{% endif %}
 				
 				{% if c.edited_utc %}
@@ -305,8 +305,8 @@
 			{% if c.award_count("tilt") %}
 				<style>
 					@keyframes c{{c.id}}-tilt {
-						from {transform: rotate(0.5deg);}
-						to {transform: rotate({{c.award_count("tilt")}}deg);}
+						from {transform: rotate(1deg);}
+						to {transform: rotate({{c.award_count("tilt")*4}}deg);}
 					}
 					.comment-{{c.id}}-only {
 						animation-name: c{{c.id}}-tilt !important;
@@ -537,7 +537,7 @@
 
 {% if c.post %}
 	{% set sub = c.post.sub %}
-	{% if sub and v.mods(sub) %}
+	{% if sub and v.mods(sub) and not c.author.mods(sub) %}
 		<button id="exile-{{c.id}}" class="d-none {% if not c.author.exiled_from(sub) %}d-md-block{% endif %} dropdown-item list-inline-item text-danger" onclick="post_toast2(this,'/exile/comment/{{c.id}}','exile-{{c.id}}','unexile-{{c.id}}')"><i class="fas fa-campfire text-danger fa-fw"></i>Exile user</button>
 		<button id="unexile-{{c.id}}" class="d-none {% if c.author.exiled_from(sub) %}d-md-block{% endif %} dropdown-item list-inline-item text-success" onclick="post_toast2(this,'/unexile/comment/{{c.id}}','exile-{{c.id}}','unexile-{{c.id}}')"><i class="fas fa-campfire text-success fa-fw"></i>Unexile user</button>
 	{% endif %}
@@ -713,7 +713,7 @@
 
 						{% if c.post %}
 							{% set sub = c.post.sub %}
-							{% if sub and v.mods(sub) %}
+							{% if sub and v.mods(sub) and not c.author.mods(sub) %}
 								<a data-bs-dismiss="modal" id="exile2-{{c.id}}" class="{% if c.author.exiled_from(sub) %}d-none{% endif %} list-group-item text-danger" onclick="post_toast2(this,'/exile/comment/{{c.id}}','exile2-{{c.id}}','unexile2-{{c.id}}')"><i class="fas fa-campfire text-danger mr-2"></i>Exile user</a>
 								<a data-bs-dismiss="modal" id="unexile2-{{c.id}}" class="{% if not c.author.exiled_from(sub) %}d-none{% endif %} list-group-item text-success" onclick="post_toast2(this,'/unexile/comment/{{c.id}}','exile2-{{c.id}}','unexile2-{{c.id}}')"><i class="fas fa-campfire text-success mr-2"></i>Unexile user</a>
 							{% endif %}
@@ -886,7 +886,7 @@
 	{% include "expanded_image_modal.html" %}
 
 	<script src="/static/assets/js/comments+submission_listing.js?v=253"></script>
-	<script src="/static/assets/js/comments.js?v=252"></script>
+	<script src="/static/assets/js/comments.js?v=253"></script>
 
 	<script>
 		{% if p and (not v or v.highlightcomments) %}
@@ -895,7 +895,7 @@
 			if (lastCount)
 			{
 				{% for c in p.comments2 %}
-					{% if not (v and v.id==c[0]) %}
+					{% if not (v and v.id==c[0]) and not c.voted %}
 						if ({{c[1]*1000}} > lastCount.t) 
 						try {document.getElementById("comment-{{c.id}}-only").classList.add('unread2')}
 						catch(e) {}
@@ -903,6 +903,41 @@
 				{% endfor %}
 			}
 		{% endif %}
+
+
+		function morecomments(cid) {
+			btn = document.getElementById(`btn-${cid}`);
+			btn.disabled = true;
+			btn.innerHTML = "Requesting...";
+			var form = new FormData();
+			form.append("formkey", formkey());
+			const xhr = new XMLHttpRequest();
+			xhr.open("get", `/morecomments/${cid}`);
+			xhr.setRequestHeader('xhr', 'xhr');
+			xhr.onload=function(){
+				if (xhr.status==200) {
+					document.getElementById(`morecomments-${cid}`).innerHTML = xhr.response.replace(/data-src/g, 'src').replace(/data-cfsrc/g, 'src').replace(/style="display:none;visibility:hidden;"/g, '');
+					bs_trigger()
+
+					{% if p %}
+						comments = JSON.parse(localStorage.getItem("old-comment-counts")) || {}
+						lastCount = comments['{{p.id}}']
+						if (lastCount)
+						{
+							{% for c in p.comments2 %}
+								{% if not (v and v.id==c[0]) and not c.voted %}
+									if ({{c[1]*1000}} > lastCount.t) 
+									try {document.getElementById("comment-{{c.id}}-only").classList.add('unread2')}
+									catch(e) {}
+								{% endif %}
+							{% endfor %}
+						}
+					{% endif %}
+				}
+				btn.disabled = false;
+			}
+			xhr.send(form)
+		}
 	</script>
 {% endif %}
 

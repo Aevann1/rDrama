@@ -85,6 +85,7 @@ def login_post():
 	template = ''
 
 	username = request.values.get("username")
+	username  = username.replace('\\', '').replace('_', '\_').replace('%', '').strip()
 
 	if not username: abort(400)
 	if username.startswith('@'): username = username[1:]
@@ -181,11 +182,13 @@ def sign_up_get(v):
 
 	if v: return redirect(SITE_FULL)
 
-	agent = request.headers.get("User-Agent", None)
+	agent = request.headers.get("User-Agent")
 	if not agent: abort(403)
 
-	ref = request.values.get("ref", None)
+	ref = request.values.get("ref")
+
 	if ref:
+		ref  = ref.replace('\\', '').replace('_', '\_').replace('%', '').strip()
 		ref_user = g.db.query(User).filter(User.username.ilike(ref)).one_or_none()
 
 	else:
@@ -205,7 +208,7 @@ def sign_up_get(v):
 					   digestmod='md5'
 					   ).hexdigest()
 
-	error = request.values.get("error", None)
+	error = request.values.get("error")
 
 	return render_template("sign_up.html",
 						   formkey=formkey,
@@ -226,7 +229,7 @@ def sign_up_post(v):
 
 	if v: abort(403)
 
-	agent = request.headers.get("User-Agent", None)
+	agent = request.headers.get("User-Agent")
 	if not agent: abort(403)
 
 	form_timestamp = request.values.get("now", '0')
@@ -273,7 +276,10 @@ def sign_up_post(v):
 
 	email = request.values.get("email").strip().lower()
 
-	if not email: email = None
+	if email:
+		if not email_regex.fullmatch(email):
+			return signup_error("Invalid email.")
+	else: email = None
 
 	existing_account = get_user(username, graceful=True)
 	if existing_account and existing_account.reserved:
@@ -363,7 +369,14 @@ def get_forgot():
 def post_forgot():
 
 	username = request.values.get("username").lstrip('@')
-	email = request.values.get("email",'').strip().lower().replace("_","\_")
+	email = request.values.get("email",'').strip().lower()
+
+	if not email_regex.fullmatch(email):
+		return render_template("forgot_password.html", error="Invalid email.")
+
+
+	username  = username.replace('\\', '').replace('_', '\_').replace('%', '').strip()
+	email  = email.replace('\\', '').replace('_', '\_').replace('%', '').strip()
 
 	user = g.db.query(User).filter(
 		User.username.ilike(username),
@@ -485,6 +498,9 @@ def request_2fa_disable():
 
 
 	email=request.values.get("email").strip().lower()
+
+	if not email_regex.fullmatch(email):
+		return render_template("message.html", title="Invalid email.", error="Invalid email.")
 
 	password =request.values.get("password")
 	if not user.verifyPass(password):

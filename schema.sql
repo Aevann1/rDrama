@@ -225,7 +225,7 @@ CREATE TABLE public.comments (
     is_pinned_utc integer,
     ghost boolean DEFAULT false NOT NULL,
     slots_result character varying(32),
-    blackjack_result character varying(855),
+    blackjack_result character varying(860),
     treasure_amount character varying(10),
     wordle_result character varying(115)
 );

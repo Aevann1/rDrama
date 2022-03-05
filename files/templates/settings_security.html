@@ -25,7 +25,7 @@
 						<label for="new-email" class="w-lg-25">Email</label>
 						<div class="w-lg-100">
 							<input autocomplete="off" class="form-control" id="new_email" {% if v.email %}placeholder="{{v.email}}"{% else %}placeholder="Your email"{% endif %}
-							aria-describedby="new_email" type="email" name="new_email" required>
+							aria-describedby="new_email" type="email" pattern='([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+' name="new_email" required>
 							{% if v.email and not v.is_activated %}
 								<div class="text-danger text-small-extra mt-1" id="email-verify-text">Email not verified. You will not be able to recover your account with this email until you verify it. <u><a role="button" onclick="post_toast(this,'/verify_email');emailVerifyText()"class="text-danger">Verify now.</a></u></div>
 							{% elif not v.email %}

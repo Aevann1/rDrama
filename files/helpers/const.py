@@ -103,6 +103,7 @@ SLURS = {
 	"elon musk": "rocket daddy",
 	" elon ": " rocket daddy ",
 	"fake and gay": "fake and straight",
+	'<img loading="lazy" data-bs-toggle="tooltip" alt=":n:" title=":n:" class="emoji-md" src="/e/n.webp"> <img loading="lazy" data-bs-toggle="tooltip" alt=":i:" title=":i:" class="emoji-md" src="/e/i.webp"><img loading="lazy" data-bs-toggle="tooltip" alt=":g:" title=":g:" class="emoji-md" src="/e/g.webp"><img loading="lazy" data-bs-toggle="tooltip" alt=":g:" title=":g:" class="emoji-md" src="/e/g.webp"><img loading="lazy" data-bs-toggle="tooltip" alt=":e:" title=":e:" class="emoji-md" src="/e/e.webp"><img loading="lazy" data-bs-toggle="tooltip" alt=":r:" title=":r:" class="emoji-md" src="/e/r.webp">':'<img loading="lazy" data-bs-toggle="tooltip" alt=":b:" title=":b:" class="emoji-md" src="/e/b.webp"> <img loading="lazy" data-bs-toggle="tooltip" alt=":i:" title=":i:" class="emoji-md" src="/e/i.webp"><img loading="lazy" data-bs-toggle="tooltip" alt=":p:" title=":p:" class="emoji-md" src="/e/p.webp"><img loading="lazy" data-bs-toggle="tooltip" alt=":o:" title=":o:" class="emoji-md" src="/e/o.webp"><img loading="lazy" data-bs-toggle="tooltip" alt=":c:" title=":c:" class="emoji-md" src="/e/c.webp">'
 }
 
 single_words = "|".join([slur.lower() for slur in SLURS.keys()])
@@ -142,7 +143,6 @@ if SITE in {'rdrama.net','devrama.xyz'}:
 	LAWLZ_ID = 3833
 	LLM_ID = 253
 	DAD_ID = 2513
-	SOREN_ID = 2546
 	MOM_ID = 4588
 	DONGER_ID = 541
 	BUG_THREAD = 18459
@@ -175,7 +175,6 @@ elif SITE == "pcmemes.net":
 	LAWLZ_ID = 0
 	LLM_ID = 0
 	DAD_ID = 0
-	SOREN_ID = 0
 	MOM_ID = 0
 	DONGER_ID = 0
 	BUG_THREAD = 4103
@@ -208,7 +207,6 @@ else:
 	LAWLZ_ID = 0
 	LLM_ID = 0
 	DAD_ID = 0
-	SOREN_ID = 0
 	MOM_ID = 0
 	DONGER_ID = 0
 	BUG_THREAD = 0
@@ -591,7 +589,6 @@ NOTIFIED_USERS = {
 	'dong': DONGER_ID,
 	'kippy': KIPPY_ID,
 	'the_homocracy': HOMO_ID,
-	'soren': SOREN_ID
 }
 
 FORTUNE_REPLIES = ('<b style="color:#6023f8">Your fortune: Allah Wills It</b>','<b style="color:#d302a7">Your fortune: Inshallah, Only Good Things Shall Come To Pass</b>','<b style="color:#e7890c">Your fortune: Allah Smiles At You This Day</b>','<b style="color:#7fec11">Your fortune: Your Bussy Is In For A Blasting</b>','<b style="color:#43fd3b">Your fortune: You Will Be Propositioned By A High-Tier Twink</b>','<b style="color:#9d05da">Your fortune: Repent, You Have Displeased Allah And His Vengeance Is Nigh</b>','<b style="color:#f51c6a">Your fortune: Reply Hazy, Try Again</b>','<b style="color:#00cbb0">Your fortune: lmao you just lost 100 coins</b>','<b style="color:#2a56fb">Your fortune: Yikes 😬</b>','<b style="color:#0893e1">Your fortune: You Will Be Blessed With Many Black Bulls</b>','<b style="color:#16f174">Your fortune: NEETmax, The Day Is Lost If You Venture Outside</b>','<b style="color:#fd4d32">Your fortune: A Taste Of Jannah Awaits You Today</b>','<b style="color:#bac200">Your fortune: Watch Your Back</b>','<b style="color:#6023f8">Your fortune: Outlook good</b>','<b style="color:#d302a7">Your fortune: Godly Luck</b>','<b style="color:#e7890c">Your fortune: Good Luck</b>','<b style="color:#7fec11">Your fortune: Bad Luck</b>','<b style="color:#43fd3b">Your fortune: Good news will come to you by mail</b>','<b style="color:#9d05da">Your fortune: Very Bad Luck</b>','<b style="color:#00cbb0">Your fortune: ｷﾀ━━━━━━(ﾟ∀ﾟ)━━━━━━ !!!!</b>','<b style="color:#2a56fb">Your fortune: Better not tell you now</b>','<b style="color:#0893e1">Your fortune: You will meet a dark handsome stranger</b>','<b style="color:#16f174">Your fortune: （　´_ゝ`）ﾌｰﾝ</b>','<b style="color:#fd4d32">Your fortune: Excellent Luck</b>','<b style="color:#bac200">Your fortune: Average Luck</b>')
@@ -693,6 +690,8 @@ emoji_regex3 = re.compile('(?<!#"):([!#A-Za-z0-9]{1,30}?):', flags=re.A)
 emoji_regex4 = re.compile('(?<!"):([!A-Za-z0-9]{1,30}?):', flags=re.A)
 
 snappy_url_regex = re.compile('<a href=\"(https?:\/\/[a-z]{1,20}\.[^\"]+)\" rel=\"nofollow noopener noreferrer\" target=\"_blank\">(.*?)<\/a>', flags=re.A)
+
+email_regex = re.compile('([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+', flags=re.A)
 
 slur_regex = re.compile(rf"((?<=\s|>)|^)({single_words})((?=[\s<,.$]|s[\s<,.$]))", flags=re.I|re.A)
 slur_regex_upper = re.compile(rf"((?<=\s|>)|^)({single_words.upper()})((?=[\s<,.$]|S[\s<,.$]))", flags=re.A)

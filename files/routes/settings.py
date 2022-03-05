@@ -51,63 +51,63 @@ def settings_profile_post(v):
 
 	if request.values.get("background", v.background) != v.background:
 		updated = True
-		v.background = request.values.get("background", None)
+		v.background = request.values.get("background")
 
 	elif request.values.get("slurreplacer", v.slurreplacer) != v.slurreplacer:
 		updated = True
-		v.slurreplacer = request.values.get("slurreplacer", None) == 'true'
+		v.slurreplacer = request.values.get("slurreplacer") == 'true'
 
 	elif request.values.get("hidevotedon", v.hidevotedon) != v.hidevotedon:
 		updated = True
-		v.hidevotedon = request.values.get("hidevotedon", None) == 'true'
+		v.hidevotedon = request.values.get("hidevotedon") == 'true'
 
 	elif request.values.get("cardview", v.cardview) != v.cardview:
 		updated = True
-		v.cardview = request.values.get("cardview", None) == 'true'
+		v.cardview = request.values.get("cardview") == 'true'
 
 	elif request.values.get("highlightcomments", v.highlightcomments) != v.highlightcomments:
 		updated = True
-		v.highlightcomments = request.values.get("highlightcomments", None) == 'true'
+		v.highlightcomments = request.values.get("highlightcomments") == 'true'
 
 	elif request.values.get("newtab", v.newtab) != v.newtab:
 		updated = True
-		v.newtab = request.values.get("newtab", None) == 'true'
+		v.newtab = request.values.get("newtab") == 'true'
 
 	elif request.values.get("newtabexternal", v.newtabexternal) != v.newtabexternal:
 		updated = True
-		v.newtabexternal = request.values.get("newtabexternal", None) == 'true'
+		v.newtabexternal = request.values.get("newtabexternal") == 'true'
 
 	elif request.values.get("oldreddit", v.oldreddit) != v.oldreddit:
 		updated = True
-		v.oldreddit = request.values.get("oldreddit", None) == 'true'
+		v.oldreddit = request.values.get("oldreddit") == 'true'
 
 	elif request.values.get("teddit", v.teddit) != v.teddit:
 		updated = True
-		v.teddit = request.values.get("teddit", None) == 'true'
+		v.teddit = request.values.get("teddit") == 'true'
 
 	elif request.values.get("nitter", v.nitter) != v.nitter:
 		updated = True
-		v.nitter = request.values.get("nitter", None) == 'true'
+		v.nitter = request.values.get("nitter") == 'true'
 
 	elif request.values.get("controversial", v.controversial) != v.controversial:
 		updated = True
-		v.controversial = request.values.get("controversial", None) == 'true'
+		v.controversial = request.values.get("controversial") == 'true'
 
 	elif request.values.get("sigs_disabled", v.sigs_disabled) != v.sigs_disabled:
 		updated = True
-		v.sigs_disabled = request.values.get("sigs_disabled", None) == 'true'
+		v.sigs_disabled = request.values.get("sigs_disabled") == 'true'
 
 	elif request.values.get("over18", v.over_18) != v.over_18:
 		updated = True
-		v.over_18 = request.values.get("over18", None) == 'true'
+		v.over_18 = request.values.get("over18") == 'true'
 		
 	elif request.values.get("private", v.is_private) != v.is_private:
 		updated = True
-		v.is_private = request.values.get("private", None) == 'true'
+		v.is_private = request.values.get("private") == 'true'
 
 	elif request.values.get("nofollow", v.is_nofollow) != v.is_nofollow:
 		updated = True
-		v.is_nofollow = request.values.get("nofollow", None) == 'true'
+		v.is_nofollow = request.values.get("nofollow") == 'true'
 
 	elif request.values.get("bio") == "":
 		v.bio = None
@@ -859,12 +859,12 @@ def settings_name_change(v):
 						   v=v,
 						   error="This isn't a valid username.")
 
-	name=new_name.replace('_','\_')
+	search_name = new_name.replace('\\', '').replace('_','\_').replace('%','')
 
 	x= g.db.query(User).filter(
 		or_(
-			User.username.ilike(name),
-			User.original_username.ilike(name)
+			User.username.ilike(search_name),
+			User.original_username.ilike(search_name)
 			)
 		).one_or_none()
 

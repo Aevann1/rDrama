@@ -24,8 +24,7 @@
 
 																<label for="email" class="mt-3">Email</label>
 
-																<input autocomplete="off" class="form-control" id="password"
-																		type="text" name="email" required=""{% if v %} value="{{v.email}}" disabled{% endif %}>
+																<input autocomplete="off" class="form-control" id="password" type="email" pattern='([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+' name="email" required=""{% if v %} value="{{v.email}}" disabled{% endif %}>
 
 																<input autocomplete="off" class="btn btn-primary login w-100 mt-3" type="submit" value="Send recovery link">
 

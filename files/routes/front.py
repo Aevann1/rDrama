@@ -61,7 +61,7 @@ def notifications(v):
 				x.read = True
 				c.unread = True
 				g.db.add(x)
-			if not c.created_utc: c.notif_utc = x.created_utc
+			c.notif_utc = x.created_utc
 			listing.append(c)
 
 		g.db.commit()
@@ -85,7 +85,7 @@ def notifications(v):
 			try: c = comments[i]
 			except: continue
 			if not x.read: c.unread = True
-			if not c.created_utc: c.notif_utc = x.created_utc
+			c.notif_utc = x.created_utc
 			x.read = True
 			g.db.add(x)
 			i += 1
@@ -102,7 +102,9 @@ def notifications(v):
 						x.voted = 1
 						if x not in c.replies2: c.replies2.append(x)
 
-				while c.parent_comment and (c.parent_comment.author_id == v.id or c.parent_comment in comments):
+				counter = 0
+				while counter < 10 and c.parent_comment and (c.parent_comment.author_id == v.id or c.parent_comment in comments):
+					counter += 1
 					parent = c.parent_comment
 					if parent.replies2 == None: parent.replies2 = [c]
 					elif c not in parent.replies2: parent.replies2.append(c)
@@ -135,7 +137,7 @@ def notifications(v):
 @app.get("/logged_out/s/<sub>")
 @limiter.limit("3/second;30/minute;1000/hour;5000/day")
 @auth_desired
-def front_all(v, sub=None):
+def front_all(v, sub=None, subdomain=None):
 	if sub: sub = g.db.query(Sub).filter_by(name=sub.strip().lower()).one_or_none()
 	
 	if request.path.startswith('/s/') and not sub: abort(404)
@@ -162,9 +164,11 @@ def front_all(v, sub=None):
 	sort=request.values.get("sort", defaultsorting)
 	t=request.values.get('t', defaulttime)
 	ccmode=request.values.get('ccmode', "false").lower()
+	
+	if request.host == 'rdrama.net': defaultsubs = 'Exclude subs'
+	else: defaultsubs = 'Include subs'
 
-	defaultsubs = 'Include subs'
-	if v: subs=session.get('sub_toggle', defaultsubs)
+	if v: subs=session.get('subs', defaultsubs)
 	else: subs=defaultsubs
 
 	try: gt=int(request.values.get("utc_greater_than", 0))
@@ -320,6 +324,7 @@ def frontlist(v=None, sort="hot", page=1, t="all", ids_only=True, ccmode="false"
 
 	if v and filter_words:
 		for word in filter_words:
+			word  = word.replace('\\', '').replace('_', '\_').replace('%', '\%').strip()
 			posts=posts.filter(not_(Submission.title.ilike(f'%{word}%')))
 
 	if not (v and v.shadowbanned):
@@ -552,7 +557,7 @@ def all_comments(v):
 @auth_required
 def transfers(v):
 
-	comments = g.db.query(Comment).filter(Comment.author_id == NOTIFICATIONS_ID, Comment.parent_submission == None, Comment.distinguish_level == 6, Comment.body_html.like("%</a> has transferred %"), Comment.created_utc == 0).order_by(Comment.id.desc())
+	comments = g.db.query(Comment).filter(Comment.author_id == NOTIFICATIONS_ID, Comment.parent_submission == None, Comment.body_html.like("%</a> has transferred %")).order_by(Comment.id.desc())
 
 	if request.headers.get("Authorization"): return {"data": [x.json for x in comments.all()]}
 

@@ -86,6 +86,7 @@ def searchposts(v):
 
 	if 'q' in criteria:
 		words=criteria['q'].split()
+		words = criteria['q'].replace('\\', '').replace('_', '\_').replace('%', '\%').strip().split()
 		words=[Submission.title.ilike('%'+x+'%') for x in words]
 		posts=posts.filter(*words)
 		
@@ -93,6 +94,9 @@ def searchposts(v):
 
 	if 'domain' in criteria:
 		domain=criteria['domain']
+
+		domain = domain.replace('\\', '').replace('_', '\_').replace('%', '').strip()
+
 		posts=posts.filter(
 			or_(
 				Submission.url.ilike("https://"+domain+'/%'),
@@ -221,7 +225,8 @@ def searchcomments(v):
 		else: comments = comments.filter(Comment.author_id == author.id)
 
 	if 'q' in criteria:
-		words = criteria['q'].split()
+		words = criteria['q'].replace('\\', '').replace('_', '\_').replace('%', '\%').strip().split()
+
 		words = [Comment.body.ilike('%'+x+'%') for x in words]
 		comments = comments.filter(*words)
 
@@ -283,8 +288,7 @@ def searchusers(v):
 	sort = request.values.get("sort", "new").lower()
 	t = request.values.get('t', 'all').lower()
 	term=query.lstrip('@')
-	term=term.replace('\\','')
-	term=term.replace('_','\_')
+	term = term.replace('\\','').replace('_','\_').replace('%','')
 	
 	users=g.db.query(User).filter(User.username.ilike(f'%{term}%'))
 	

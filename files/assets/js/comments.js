@@ -17,25 +17,6 @@ function poll_vote_no_v() {
 	bootstrap.Toast.getOrCreateInstance(document.getElementById('toast-post-error')).show();
 }
 
-function morecomments(cid) {
-	btn = document.getElementById(`btn-${cid}`);
-	btn.disabled = true;
-	btn.innerHTML = "Requesting...";
-	var form = new FormData();
-	form.append("formkey", formkey());
-	const xhr = new XMLHttpRequest();
-	xhr.open("get", `/morecomments/${cid}`);
-	xhr.setRequestHeader('xhr', 'xhr');
-	xhr.onload=function(){
-		if (xhr.status==200) {
-			document.getElementById(`morecomments-${cid}`).innerHTML = xhr.response.replace(/data-src/g, 'src').replace(/data-cfsrc/g, 'src').replace(/style="display:none;visibility:hidden;"/g, '');
-			bs_trigger()
-		}
-		btn.disabled = false;
-	}
-	xhr.send(form)
-}
-
 function expandMarkdown(t,id) {
 	let ta = document.getElementById('markdown-'+id);
 	ta.classList.toggle('d-none');

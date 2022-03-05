@@ -459,8 +459,8 @@
 {% if p.award_count("tilt") %}
 	<style>
 		@keyframes post-tilt {
-			from {transform: rotate(0.5deg);}
-			to {transform: rotate({{p.award_count("tilt")}}deg);}
+			from {transform: rotate(1deg);}
+			to {transform: rotate({{p.award_count("tilt")*4}}deg);}
 		}
 		#post-root {
 			animation-name: post-tilt !important;
@@ -978,7 +978,38 @@
  </div>
  
 {% if offset %}
-	<script src="/static/assets/js/viewmore.js?v=247"></script>
+	<script>
+		function viewmore(pid,sort,offset,ids) {
+			btn = document.getElementById("viewbtn");
+			btn.disabled = true;
+			btn.innerHTML = "Requesting...";
+			var form = new FormData();
+			const xhr = new XMLHttpRequest();
+			xhr.open("get", `/viewmore/${pid}/${sort}/${offset}?ids=${ids}`);
+			xhr.setRequestHeader('xhr', 'xhr');
+			xhr.onload=function(){
+				if (xhr.status==200) {
+					document.getElementById(`viewmore-${offset}`).innerHTML = xhr.response.replace(/data-src/g, 'src').replace(/data-cfsrc/g, 'src').replace(/style="display:none;visibility:hidden;"/g, '');
+					bs_trigger()
+
+					comments = JSON.parse(localStorage.getItem("old-comment-counts")) || {}
+					lastCount = comments['{{p.id}}']
+					if (lastCount)
+					{
+						{% for c in p.comments2 %}
+							{% if not (v and v.id==c[0]) and not c.voted %}
+								if ({{c[1]*1000}} > lastCount.t) 
+								try {document.getElementById("comment-{{c.id}}-only").classList.add('unread2')}
+								catch(e) {}
+							{% endif %}
+						{% endfor %}
+					}
+				}
+				btn.disabled = false;
+			}
+			xhr.send(form)
+		}
+	</script>
 {% endif %}
 
 {% elif not p.replies and p.deleted_utc == 0 %}
@@ -1045,6 +1076,8 @@
 		{% endif %}
 
 		{% if "?context" not in request.full_path %}
+			localStorage.setItem("old-comment-counts", localStorage.getItem("comment-counts"))
+
 			const comments = JSON.parse(localStorage.getItem("comment-counts")) || {}
 			const newTotal = {{p.comment_count}} || ((comments['{{p.id}}'] || {c: 0}).c + 1)
 			comments['{{p.id}}'] = {c: newTotal, t: Date.now()}

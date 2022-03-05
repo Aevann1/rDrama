@@ -31,7 +31,7 @@
 		<title>{% if ref_user %}{{ref_user.username}} invites you to {{SITE_NAME}}{% else %}Sign up - {{SITE_NAME}}{% endif %}</title>
 
 		<style>:root{--primary:#{{config('DEFAULT_COLOR')}}</style>
-		<link rel="stylesheet" href="/static/assets/css/main.css?v=167"><link rel="stylesheet" href="/static/assets/css/{{config('DEFAULT_THEME')}}.css?v=27">
+		<link rel="stylesheet" href="/static/assets/css/main.css?v=168"><link rel="stylesheet" href="/static/assets/css/{{config('DEFAULT_THEME')}}.css?v=27">
 
 </head>
 
@@ -71,65 +71,65 @@
 
 											<form action="/signup" method="post" class="mt-md-3" id="signup">
 
-														{% if error %}<span class="text-danger">{{error}}</span><br>{% endif %}
+												{% if error %}<span class="text-danger">{{error}}</span><br>{% endif %}
 
-														<input autocomplete="off" type="hidden" name="formkey" value="{{formkey}}">
-														<input autocomplete="off" type="hidden" name="now" value="{{now}}">
+												<input autocomplete="off" type="hidden" name="formkey" value="{{formkey}}">
+												<input autocomplete="off" type="hidden" name="now" value="{{now}}">
 
-														{% if redirect %}<input autocomplete="off" type="hidden" name="redirect" value="{{redirect}}">{% endif %}
-														{% if ref_user %}
-														<input autocomplete="off" type="hidden" name="referred_by" value="{{ref_user.id}}">{% endif %}
+												{% if redirect %}<input autocomplete="off" type="hidden" name="redirect" value="{{redirect}}">{% endif %}
+												{% if ref_user %}
+												<input autocomplete="off" type="hidden" name="referred_by" value="{{ref_user.id}}">{% endif %}
 
-														<label for="username-register" class="mt-3">Username</label>
+												<label for="username-register" class="mt-3">Username</label>
 
-														<input autocomplete="off" class="form-control" id="username-register"
-														aria-describedby="usernameHelpRegister" type="text" name="username" pattern="[a-zA-Z0-9_\-]{3,25}" min="3" max="25" required="">
-														<small id="usernameHelpRegister"></small>
+												<input autocomplete="off" class="form-control" id="username-register"
+												aria-describedby="usernameHelpRegister" type="text" name="username" pattern="[a-zA-Z0-9_\-]{3,25}" min="3" max="25" required="">
+												<small id="usernameHelpRegister"></small>
 
-														<label for="email-register" class="mt-3">Email Address</label>
+												<label for="email-register" class="mt-3">Email Address</label>
 
-														<small class="d-inline-block text-muted ml-1">(optional)</small>
+												<small class="d-inline-block text-muted ml-1">(optional)</small>
 
-														<input autocomplete="off" class="form-control" id="email-register"
-														aria-describedby="emailHelpRegister" type="text" name="email">
+												<input style="background-color: var(--gray-800)" autocomplete="off" class="form-control" id="email-register"
+												aria-describedby="emailHelpRegister" type="email" pattern='([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+' name="email" readonly onfocus="if (this.hasAttribute('readonly')) {this.removeAttribute('readonly');this.blur();this.focus()}" >
 
-														<label for="password-register" class="mt-3">Password</label>
+												<label for="password-register" class="mt-3">Password</label>
 
-														<input autocomplete="off" class="form-control" id="password-register"
-														aria-describedby="passwordHelpReigster" type="password" name="password" required="">
-														<small id="passwordHelpRegister" class="form-text font-weight-bold text-muted d-none mt-1">Minimum of 8
-																characters
-														required.</small>
-														<small id="passwordHelpSuccess" class="form-text font-weight-bold text-success d-none mt-1">Your password meets the requirements.
-														</small>
+												<input autocomplete="off" class="form-control" id="password-register"
+												aria-describedby="passwordHelpReigster" type="password" name="password" required="">
+												<small id="passwordHelpRegister" class="form-text font-weight-bold text-muted d-none mt-1">Minimum of 8
+														characters
+												required.</small>
+												<small id="passwordHelpSuccess" class="form-text font-weight-bold text-success d-none mt-1">Your password meets the requirements.
+												</small>
 
-														<label for="password_confirm" class="mt-3">Confirm Password</label>
+												<label for="password_confirm" class="mt-3">Confirm Password</label>
 
-														<input autocomplete="off" class="form-control" id="password_confirm"
-														aria-describedby="passwordConfirmHelp" type="password" name="password_confirm"
-														required="">
-														<div class="custom-control custom-checkbox mt-4">
-																<input autocomplete="off" type="checkbox" class="custom-control-input" id="termsCheck" required>
-																<label class="custom-control-label terms" for="termsCheck">I accept the <a
-																{% if g.webview %}
-																	href="/logged_out/terms">terms of use
-																{% else %}
-																	href="/logged_out/sidebar">rules
-																{% endif %}
-																</a></label>
-														</div>
-
-														{% if hcaptcha %}
-															<div class="h-captcha" data-sitekey="{{hcaptcha}}"></div>
+												<input autocomplete="off" class="form-control" id="password_confirm"
+												aria-describedby="passwordConfirmHelp" type="password" name="password_confirm"
+												required="">
+												<div class="custom-control custom-checkbox mt-4">
+														<input autocomplete="off" type="checkbox" class="custom-control-input" id="termsCheck" required>
+														<label class="custom-control-label terms" for="termsCheck">I accept the <a
+														{% if g.webview %}
+															href="/logged_out/terms">terms of use
+														{% else %}
+															href="/logged_out/sidebar">rules
 														{% endif %}
+														</a></label>
+												</div>
 
-														<button class="btn btn-primary login w-100 mt-3" id="register_button">Register</button>
+												{% if hcaptcha %}
+													<div class="h-captcha" data-sitekey="{{hcaptcha}}"></div>
+												{% endif %}
 
-														<div class="text-center text-muted text-small mt-2 mb-0">
-																		Already have an account? <a href="/login{{'?redirect='+redirect if redirect else ''}}" class="font-weight-bold toggle-login">Log in</a>
-														</div>
+												<button class="btn btn-primary login w-100 mt-3" id="register_button">Register</button>
 
-												</form>
+												<div class="text-center text-muted text-small mt-2 mb-0">
+																Already have an account? <a href="/login{{'?redirect='+redirect if redirect else ''}}" class="font-weight-bold toggle-login">Log in</a>
+												</div>
+
+											</form>
 
 										</div>
 

@@ -86,12 +86,16 @@ class Comment(Base):
 	@property
 	@lazy
 	def options(self):
-		return [x for x in self.child_comments if x.author_id == AUTOPOLLER_ID]
+		li = [x for x in self.child_comments if x.author_id == AUTOPOLLER_ID]
+		return sorted(li, key=lambda x: x.id)
+
 
 	@property
 	@lazy
 	def choices(self):
-		return [x for x in self.child_comments if x.author_id == AUTOCHOICE_ID]
+		li = [x for x in self.child_comments if x.author_id == AUTOCHOICE_ID]
+		return sorted(li, key=lambda x: x.id)
+
 
 	def total_poll_voted(self, v):
 		if v:
@@ -118,8 +122,10 @@ class Comment(Base):
 	@property
 	@lazy
 	def age_string(self):
-		if self.created_utc: timestamp = self.created_utc
-		elif self.notif_utc: timestamp = self.notif_utc
+		notif_utc = self.__dict__.get("notif_utc")
+
+		if notif_utc: timestamp = notif_utc
+		elif self.created_utc: timestamp = self.created_utc
 		else: return None
 		
 		age = int(time.time()) - timestamp
@@ -218,7 +224,7 @@ class Comment(Base):
 
 	@property
 	def replies2(self):
-		return self.__dict__.get("replies2", None)
+		return self.__dict__.get("replies2")
 
 	@replies2.setter
 	def replies2(self, value):

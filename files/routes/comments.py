@@ -71,6 +71,8 @@ def post_pid_comment_cid(cid, pid=None, anything=None, v=None, sub=None):
 	
 	if not v and not request.path.startswith('/logged_out'): return redirect(f"{SITE_FULL}/logged_out{request.full_path}")
 	
+	if v and request.path.startswith('/logged_out'): v = None
+
 	try: cid = int(cid)
 	except: abort(404)
 
@@ -271,20 +273,51 @@ def api_comment(v):
 							if not marsey_regex2.fullmatch(name):
 								return {"error": "Invalid name!"}, 403
 
-							if "author" in marsey: author_id = get_user(marsey["author"]).id
-							elif "author_id" in marsey: author_id = marsey["author_id"]
+							if "author" in marsey: user = get_user(marsey["author"])
+							elif "author_id" in marsey: user = get_account(marsey["author_id"])
 							else: abort(400)
 
 							existing = g.db.query(Marsey.name).filter_by(name=name).one_or_none()
 							if existing: return {"error": "A marsey with this name already exists!"}, 403
 
-							marsey = Marsey(name=marsey["name"], author_id=author_id, tags=marsey["tags"], count=0)
+							marsey = Marsey(name=marsey["name"], author_id=user.id, tags=marsey["tags"], count=0)
 							g.db.add(marsey)
 							filename = f'files/assets/images/emojis/{name}.webp'
 							copyfile(oldname, filename)
 							process_image(filename, 200)
+
+
+							all_by_author = g.db.query(Marsey.author_id).filter_by(author_id=user.id).count()
+
+							if all_by_author >= 10 and not user.has_badge(16):
+								new_badge = Badge(badge_id=16, user_id=user.id)
+
+								g.db.add(new_badge)
+								g.db.flush()
+
+								if v.id != user.id:
+									text = f"@AutoJanny has given you the following profile badge:\n\n![]({new_badge.path})\n\n{new_badge.name}"
+									send_notification(user.id, text)
+
+								old_badge = user.has_badge(17)
+								if badge: g.db.delete(badge)
+
+
+							if all_by_author < 10 and not user.has_badge(17):
+								new_badge = Badge(badge_id=17, user_id=user.id)
+
+								g.db.add(new_badge)
+								g.db.flush()
+
+								if v.id != user.id:
+									text = f"@AutoJanny has given you the following profile badge:\n\n![]({new_badge.path})\n\n{new_badge.name}"
+									send_notification(user.id, text)
+
+
+
 							requests.post(f'https://api.cloudflare.com/client/v4/zones/{CF_ZONE}/purge_cache', headers=CF_HEADERS, data={'files': [f"https://{request.host}/e/{name}.webp"]}, timeout=5)
 							cache.delete_memoized(marsey_list)
+
 						except Exception as e:
 							return {"error": str(e)}, 400
 				body += f"\n\n![]({image})"

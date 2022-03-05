@@ -9,7 +9,6 @@ def create_comment(text_html, autojanny=False):
 
 	new_comment = Comment(author_id=author_id,
 							parent_submission=None,
-							created_utc=0,
 							body_html=text_html)
 	g.db.add(new_comment)
 	g.db.flush()
@@ -22,7 +21,7 @@ def send_repeatable_notification(uid, text, autojanny=False):
 	
 	text_html = sanitize(text)
 
-	existing_comment = g.db.query(Comment.id).filter_by(author_id=author_id, parent_submission=None, body_html=text_html, created_utc=0).first()
+	existing_comment = g.db.query(Comment.id).filter_by(author_id=author_id, parent_submission=None, body_html=text_html).first()
 
 	if existing_comment:
 		cid = existing_comment[0]
@@ -47,10 +46,24 @@ def notif_comment(text, autojanny=False):
 
 	text_html = sanitize(text, alert=True)
 
-	existing = g.db.query(Comment.id).filter_by(author_id=author_id, parent_submission=None, body_html=text_html, created_utc=0).one_or_none()
+	existing = g.db.query(Comment.id).filter_by(author_id=author_id, parent_submission=None, body_html=text_html).one_or_none()
 	
 	if existing: return existing[0]
 	else: return create_comment(text_html, autojanny)
+
+
+def notif_comment2(p):
+
+	search_html = f'%</a> has mentioned you: <a href="/post/{p.id}" rel="nofollow">%'
+
+	existing = g.db.query(Comment.id).filter(Comment.author_id == NOTIFICATIONS_ID, Comment.parent_submission == None, Comment.body_html.like(search_html)).first()
+	
+	if existing: return existing[0]
+	else:
+		text = f"@{p.author.username} has mentioned you: [{p.title}](/post/{p.id})"
+		if p.sub: text += f" in <a href='/s/{p.sub}'>/s/{p.sub}"
+		text_html = sanitize(text, alert=True)
+		return create_comment(text_html)
 
 
 def add_notif(cid, uid):
