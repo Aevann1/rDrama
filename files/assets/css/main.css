@@ -5009,24 +5009,24 @@ th, td {
     font-size: min(3vw,14px) !important;
 }
 
-/*russia*/
+/*ukraine*/
 :root {
     --white: white !important;
-    --red: #DA291C  !important;
-    --blue: #0032A0 !important;
-    --primary: var(--red) !important;
+    --yellow: #ffd700   !important;
+    --blue: #0057b7 !important;
+    --primary: var(--yellow) !important;
 }
 
 .mod {
 	padding: 2px 5px 3px;
 	border-radius: 5px;
 	color: #fff !important;
-    background: linear-gradient(to bottom, #FFFFFF 33.333%, #0032A0 33.333%, #0032A0 66.667%, #DA291C  66.667%) !important;
+    background: linear-gradient(to bottom, var(--blue) 50%, var(--yellow) 50%) !important;
 	text-shadow: -1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000 !important;
 }
 
 #frontpage .col.h-100.custom-gutters .row .col, .srd {
-    background: linear-gradient(to bottom, #FFFFFF 33.333%, #0032A0 33.333%, #0032A0 66.667%, #DA291C  66.667%) !important;
+    background: linear-gradient(to bottom, var(--blue) 50%, var(--yellow) 50%) !important;
 }
 
 #frontpage .btn.btn-secondary.text-small-m {
@@ -5036,7 +5036,7 @@ th, td {
 }
 
 .user-name {
-    color: var(--red) !important
+    color: var(--yellow) !important
 }
 
 .patron {
@@ -5045,7 +5045,7 @@ th, td {
 
 .arrow-up::before {
 	font-family: serif !important;
-	content: "🇷🇺";
+	content: "🇺🇦";
     opacity:0.3;
 }
 
@@ -5055,7 +5055,7 @@ th, td {
 
 .arrow-down::before {
 	font-family: serif !important;
-	content: "🇺🇦";
+	content: "🇷🇺";
     opacity:0.3;
 }
 
@@ -5064,6 +5064,6 @@ th, td {
 }
 
 #frontpage .btn {
-    background-color: var(--red) !important;
+    background-color: var(--yellow) !important;
     color: white !important;
 }
