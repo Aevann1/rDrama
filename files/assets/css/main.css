@@ -5021,12 +5021,12 @@ th, td {
 	padding: 2px 5px 3px;
 	border-radius: 5px;
 	color: #fff !important;
-    background: linear-gradient(to bottom, #FFFFFF 33.333%, #0032A0 33.333%, #0032A0 66.667%, #DA291C  66.667%);
-	text-shadow: -1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000;
+    background: linear-gradient(to bottom, #FFFFFF 33.333%, #0032A0 33.333%, #0032A0 66.667%, #DA291C  66.667%) !important;
+	text-shadow: -1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000 !important;
 }
 
 #frontpage .col.h-100.custom-gutters .row .col, .srd {
-    background: linear-gradient(to bottom, #FFFFFF 33.333%, #0032A0 33.333%, #0032A0 66.667%, #DA291C  66.667%);
+    background: linear-gradient(to bottom, #FFFFFF 33.333%, #0032A0 33.333%, #0032A0 66.667%, #DA291C  66.667%) !important;
 }
 
 #frontpage .btn.btn-secondary.text-small-m {
