@@ -5067,3 +5067,7 @@ th, td {
     background-color: var(--red) !important;
     color: white !important;
 }
+
+.table a {
+    color: var(--primary) !important;
+}
