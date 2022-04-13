@@ -64,7 +64,7 @@
 								{% endif %}
 
 								{% if u.verified %}
-									<span><i class="fas fa-badge-check align-middle ml-2" style="color:{% if u.verifiedcolor %}#{{u.verifiedcolor}}{% else %}#1DA1F2{% endif %}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{u.verified}}"></i></span>
+									<span><i class="fas fa-badge-check align-middle ml-2 {% if u.verified=='Glowiefied' %}glow{% endif %}" style="color:{% if u.verifiedcolor %}#{{u.verifiedcolor}}{% else %}#1DA1F2{% endif %}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{u.verified}}"></i></span>
 								{% endif %}
 
 								{% if u.admin_level > 1 or (u.admin_level == 1 and not(v and v.admin_level > 1)) %}
@@ -385,7 +385,7 @@
 				{% endif %}
 
 				{% if u.verified %}
-					<span><i class="fas fa-badge-check align-middle ml-2" style="color:{% if u.verifiedcolor %}#{{u.verifiedcolor}}{% else %}#1DA1F2{% endif %}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{u.verified}}"></i></span>&nbsp;
+					<span><i class="fas fa-badge-check align-middle ml-2 {% if u.verified=='Glowiefied' %}glow{% endif %}" style="color:{% if u.verifiedcolor %}#{{u.verifiedcolor}}{% else %}#1DA1F2{% endif %}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{u.verified}}"></i></span>&nbsp;
 				{% endif %}
 
 				{% if u.admin_level > 1 or (u.admin_level == 1 and not(v and v.admin_level > 1)) %}
