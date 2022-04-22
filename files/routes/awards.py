@@ -608,6 +608,7 @@ def admin_userawards_get(v):
 @limiter.limit("1/second;30/minute;200/hour;1000/day")
 @admin_level_required(2)
 def admin_userawards_post(v):
+	emoji_whitelist = ["shit", "fireflies", "train", "scooter", "wholesome", "tilt", "glowie"]
 	if request.host == 'pcmemes.net' and v.admin_level < 3: abort(403)
 
 	try: u = request.values.get("username").strip()
@@ -618,8 +619,9 @@ def admin_userawards_post(v):
 	notify_awards = {}
 
 	for key, value in request.values.items():
-		if key not in AWARDS: continue
-
+		# Check if award exists and is allowed
+		if key not in AWARDS.extend(emoji_whitelist): abort(403)
+                
 		if value:
 			
 			if int(value) > 10: abort(403)
