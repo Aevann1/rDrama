@@ -81,6 +81,38 @@ def handler(signum, frame):
 	print("Timeout!")
 	raise Exception("Timeout")
 
+def render_emoji(html, regexp, edit, marseys_used=set(), b=False):
+	emojis = list(regexp.finditer(html))
+	captured = set()
+
+	for i in emojis:
+		if i.group(0) in captured: continue
+		captured.add(i.group(0))
+
+		emoji = i.group(1).lower()
+		attrs = ''
+		if b: attrs += ' b'
+		if not edit and len(emojis) <= 20 and random() < 0.0025 and ('marsey' in emoji or emoji in marseys_const2): attrs += ' g'
+
+		old = emoji
+		emoji = emoji.replace('!','').replace('#','')
+		if emoji == 'marseyrandom': emoji = choice(marseys_const2)
+
+		emoji_partial = '<img loading="lazy" data-bs-toggle="tooltip" alt=":{0}:" title=":{0}:" src="{1}"{2}>'
+		emoji_html = None
+
+		if path.isfile(f'files/assets/images/emojis/{emoji}.webp'):
+			emoji_html = emoji_partial.format(old, f'/e/{emoji}.webp', attrs)
+		elif emoji.endswith('pat'):
+			if path.isfile(f"files/assets/images/emojis/{emoji.replace('pat','')}.webp"):
+				pat(emoji.replace('pat',''))
+				emoji_html = emoji_partial.format(old, f'/e/{emoji}.webp', attrs)
+				requests.post(f'https://api.cloudflare.com/client/v4/zones/{CF_ZONE}/purge_cache', headers=CF_HEADERS, data={'files': [f"https://{request.host}/e/{emoji}.webp"]}, timeout=5)
+
+		if emoji_html:
+			html = re.sub(f'(?<!"){i.group(0)}', emoji_html, html)
+	return html
+
 
 def sanitize(sanitized, alert=False, comment=False, edit=False):
 
@@ -145,7 +177,7 @@ def sanitize(sanitized, alert=False, comment=False, edit=False):
 	
 	sanitized = spoiler_regex.sub(r'<spoiler>\1</spoiler>', sanitized)
 	
-	if comment: marseys_used = set()
+	marseys_used = set()
 
 	emojis = list(emoji_regex.finditer(sanitized))
 	if len(emojis) > 20: edit = True
@@ -159,55 +191,14 @@ def sanitize(sanitized, alert=False, comment=False, edit=False):
 		if 'marseylong1' in old or 'marseylong2' in old or 'marseyllama1' in old or 'marseyllama2' in old: new = old.lower().replace(">", " class='mb-0'>")
 		else: new = old.lower()
 
-		captured2 = []
-		for i in emoji_regex2.finditer(new):
-			if i.group(0) in captured2: continue
-			captured2.append(i.group(0))
-
-			emoji = i.group(1).lower()
-			remoji = emoji.replace('!','').replace('#','')
-
-			golden = ' '
-			if not edit and random() < 0.0025 and ('marsey' in emoji or emoji in marseys_const2): golden = 'g '
-
-			if remoji == 'marseyrandom': remoji = choice(marseys_const2)
-
-			if path.isfile(f'files/assets/images/emojis/{remoji}.webp'):
-				new = re.sub(f'(?<!"):{emoji}:', f'<img loading="lazy" data-bs-toggle="tooltip" alt=":{emoji}:" title=":{emoji}:" b {golden}src="/e/{remoji}.webp">', new, flags=re.I|re.A)
-				if comment: marseys_used.add(emoji)
-			elif remoji.endswith('pat') and path.isfile(f"files/assets/images/emojis/{remoji.replace('pat','')}.webp"):
-				pat(remoji.replace('pat',''))
-				new = re.sub(f'(?<!"):{emoji}:', f'<img loading="lazy" data-bs-toggle="tooltip" alt=":{emoji}:" title=":{emoji}:" b {golden}src="/e/{remoji}.webp">', new, flags=re.I|re.A)
-				requests.post(f'https://api.cloudflare.com/client/v4/zones/{CF_ZONE}/purge_cache', headers=CF_HEADERS, data={'files': [f"https://{request.host}/e/{emoji}.webp"]}, timeout=5)
-
+		new = render_emoji(new, emoji_regex2, edit, marseys_used, True)
 
 		sanitized = sanitized.replace(old, new)
 
 	emojis = list(emoji_regex3.finditer(sanitized))
 	if len(emojis) > 20: edit = True
 
-	captured = []
-	for i in emojis:
-		if i.group(0) in captured: continue
-		captured.append(i.group(0))
-
-		emoji = i.group(1).lower()
-		golden = ' '
-		if not edit and random() < 0.0025 and ('marsey' in emoji or emoji in marseys_const2): golden = 'g '
-
-		old = emoji
-		emoji = emoji.replace('!','').replace('#','')
-		if emoji == 'marseyrandom': emoji = choice(marseys_const2)
-
-
-		if path.isfile(f'files/assets/images/emojis/{emoji}.webp'):
-			sanitized = re.sub(f'(?<!"):{i.group(1).lower()}:', f'<img loading="lazy" data-bs-toggle="tooltip" alt=":{old}:" title=":{old}:" {golden}src="/e/{emoji}.webp">', sanitized, flags=re.I|re.A)
-			if comment: marseys_used.add(emoji)
-		elif emoji.endswith('pat') and path.isfile(f"files/assets/images/emojis/{emoji.replace('pat','')}.webp"):
-			pat(emoji.replace('pat',''))
-			sanitized = re.sub(f'(?<!"):{i.group(1).lower()}:', f'<img loading="lazy" data-bs-toggle="tooltip" alt=":!{old}:" title=":!{old}:" {golden}src="/e/{emoji}.webp">', sanitized, flags=re.I|re.A)
-			requests.post(f'https://api.cloudflare.com/client/v4/zones/{CF_ZONE}/purge_cache', headers=CF_HEADERS, data={'files': [f"https://{request.host}/e/{emoji}.webp"]}, timeout=5)
-
+	sanitized = render_emoji(sanitized, emoji_regex3, edit, marseys_used)
 
 	for rd in ["://reddit.com", "://new.reddit.com", "://www.reddit.com", "://redd.it", "://libredd.it", "://teddit.net"]:
 		sanitized = sanitized.replace(rd, "://old.reddit.com")
@@ -313,29 +304,7 @@ def filter_emojis_only(title, edit=False, graceful=False):
 	
 	title = title.replace('‎','').replace('​','').replace("\ufeff", "").replace("𒐪","").replace("\n", "").replace("\r", "").replace("\t", "").replace("&", "&amp;").replace('<','&lt;').replace('>','&gt;').replace('"', '&quot;').replace("'", "&#039;").strip()
 
-	emojis = list(emoji_regex4.finditer(title))
-	if len(emojis) > 20: edit = True
-
-	captured = []
-	for i in emojis:
-		if i.group(0) in captured: continue
-		captured.append(i.group(0))
-
-		emoji = i.group(1).lower()
-		golden = ' '
-		if not edit and random() < 0.0025 and ('marsey' in emoji or emoji in marseys_const2): golden = 'g '
-
-		old = emoji
-		emoji = emoji.replace('!','').replace('#','')
-		if emoji == 'marseyrandom': emoji = choice(marseys_const2)		
-
-		if path.isfile(f'files/assets/images/emojis/{emoji}.webp'):
-			title = re.sub(f'(?<!"):{old}:', f'<img loading="lazy" data-bs-toggle="tooltip" alt=":{old}:" title=":{old}:" {golden}src="/e/{emoji}.webp">', title, flags=re.I|re.A)
-		elif emoji.endswith('pat') and path.isfile(f"files/assets/images/emojis/{emoji.replace('pat','')}.webp"):
-			pat(emoji.replace('pat',''))
-			title = re.sub(f'(?<!"):{old}:', f'<img loading="lazy" data-bs-toggle="tooltip" alt=":{old}:" title=":{old}:" {golden}src="/e/{emoji}.webp">', title, flags=re.I|re.A)
-			requests.post(f'https://api.cloudflare.com/client/v4/zones/{CF_ZONE}/purge_cache', headers=CF_HEADERS, data={'files': [f"https://{request.host}/e/{emoji}.webp"]}, timeout=5)
-
+	title = render_emoji(title, emoji_regex4, edit)
 
 	title = strikethrough_regex.sub(r'<del>\1</del>', title)
 

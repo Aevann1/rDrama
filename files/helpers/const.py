@@ -761,7 +761,7 @@ mute_regex = re.compile("/mute @([a-z0-9_\-]{3,25}) ([0-9])+", flags=re.A)
 
 emoji_regex = re.compile("[^a]>\s*(:[!#]{0,2}\w+:\s*)+<\/", flags=re.A)
 emoji_regex2 = re.compile('(?<!"):([!#A-Za-z0-9]{1,30}?):', flags=re.A)
-emoji_regex3 = re.compile('(?<!#"):([!#A-Za-z0-9]{1,30}?):', flags=re.A)
+emoji_regex3 = re.compile('(?<!"):([!#A-Za-z0-9]{1,30}?):', flags=re.A)
 emoji_regex4 = re.compile('(?<!"):([!A-Za-z0-9]{1,30}?):', flags=re.A)
 
 snappy_url_regex = re.compile('<a href=\"(https?:\/\/[a-z]{1,20}\.[\w:~,()\-.#&\/=?@%;+]{5,250})\" rel=\"nofollow noopener noreferrer\" target=\"_blank\">([\w:~,()\-.#&\/=?@%;+]{5,250})<\/a>', flags=re.A)
