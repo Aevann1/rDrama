@@ -43,7 +43,8 @@ def allowed_attributes(tag, name, value):
 		if name == 'loading' and value == 'lazy': return True
 		if name == 'referrpolicy' and value == 'no-referrer': return True
 		if name == 'data-bs-toggle' and value == 'tooltip': return True
-		if name in ['alt','title','g','b']: return True
+		if name in ['alt','title','g','b','pat']: return True
+		if name == 'class' and value == 'pat-hand': return True
 		return False
 
 	if tag == 'lite-youtube':
@@ -62,6 +63,13 @@ def allowed_attributes(tag, name, value):
 
 	if tag == 'p':
 		if name == 'class' and value == 'mb-0': return True
+		return False
+
+	if tag == 'span':
+		if name == 'class' and value in ['pat-container', 'pat-hand']: return True
+		if name == 'data-bs-toggle' and value == 'tooltip': return True
+		if name == 'title': return True
+		if name == 'alt': return True
 		return False
 
 
@@ -108,6 +116,11 @@ def render_emoji(html, regexp, edit, marseys_used=set(), b=False):
 				pat(emoji.replace('pat',''))
 				emoji_html = emoji_partial.format(old, f'/e/{emoji}.webp', attrs)
 				requests.post(f'https://api.cloudflare.com/client/v4/zones/{CF_ZONE}/purge_cache', headers=CF_HEADERS, data={'files': [f"https://{request.host}/e/{emoji}.webp"]}, timeout=5)
+			elif emoji.startswith('@'):
+				if u := get_user(emoji[1:-3], graceful=True):
+					attrs += ' pat'
+					emoji_html = f'<span class="pat-container" data-bs-toggle="tooltip" alt=":{old}:" title=":{old}:"><img src="/assets/images/pat/hand.webp" class="pat-hand">{emoji_partial.format(old, f"/pp/{u.id}", attrs)}</span>'
+
 
 		if emoji_html:
 			html = re.sub(f'(?<!"){i.group(0)}', emoji_html, html)

@@ -717,10 +717,12 @@ marseys_const2 = marseys_const + ['chudsey','a','b','c','d','e','f','g','h','i',
 db.close()
 
 if SITE_NAME == 'PCM':
+	valid_username_chars = 'a-zA-Z0-9_\-А-я'
 	valid_username_regex = re.compile("^[a-zA-Z0-9_\-А-я]{3,25}$", flags=re.A)
 	mention_regex = re.compile('(^|\s|<p>)@(([a-zA-Z0-9_\-А-я]){3,25})', flags=re.A)
 	mention_regex2 = re.compile('<p>@(([a-zA-Z0-9_\-А-я]){3,25})', flags=re.A)
 else:
+	valid_username_chars = 'a-zA-Z0-9_\-'
 	valid_username_regex = re.compile("^[a-zA-Z0-9_\-]{3,25}$", flags=re.A)
 	mention_regex = re.compile('(^|\s|<p>)@(([a-zA-Z0-9_\-]){1,25})', flags=re.A)
 	mention_regex2 = re.compile('<p>@(([a-zA-Z0-9_\-]){1,25})', flags=re.A)
@@ -759,10 +761,10 @@ strikethrough_regex = re.compile('''~{1,2}([^~]+)~{1,2}''', flags=re.A)
 
 mute_regex = re.compile("/mute @([a-z0-9_\-]{3,25}) ([0-9])+", flags=re.A)
 
-emoji_regex = re.compile("[^a]>\s*(:[!#]{0,2}\w+:\s*)+<\/", flags=re.A)
-emoji_regex2 = re.compile('(?<!"):([!#A-Za-z0-9]{1,30}?):', flags=re.A)
-emoji_regex3 = re.compile('(?<!"):([!#A-Za-z0-9]{1,30}?):', flags=re.A)
-emoji_regex4 = re.compile('(?<!"):([!A-Za-z0-9]{1,30}?):', flags=re.A)
+emoji_regex = re.compile(f"[^a]>\s*(:[!#@]{{0,3}}[{valid_username_chars}]+:\s*)+<\/", flags=re.A)
+emoji_regex2 = re.compile(f"(?<!\"):([!#@{valid_username_chars}]{{1,31}}?):", flags=re.A)
+emoji_regex3 = re.compile(f"(?<!\"):([!#@{valid_username_chars}]{{1,31}}?):", flags=re.A)
+emoji_regex4 = re.compile(f"(?<!\"):([!@{valid_username_chars}]{{1,31}}?):", flags=re.A)
 
 snappy_url_regex = re.compile('<a href=\"(https?:\/\/[a-z]{1,20}\.[\w:~,()\-.#&\/=?@%;+]{5,250})\" rel=\"nofollow noopener noreferrer\" target=\"_blank\">([\w:~,()\-.#&\/=?@%;+]{5,250})<\/a>', flags=re.A)
 

@@ -3181,7 +3181,7 @@ small, .small {
 	width: 28px;
 	height: 28px;
 }
-.profile-pic-20, .pp20, img[src^="/uid/"], img[src^="/pp/"] {
+.profile-pic-20, .pp20, img[src^="/uid/"], img[src^="/pp/"]:not(img[alt^=":"]) {
 	margin-right: 0.25rem !important;
 	width: 20px;
 	height: 20px;
@@ -4539,7 +4539,7 @@ video {
 .text-removed {
 	color: #ffabab !important;
 }
-.mirrored, img[alt^=":!"], img[alt^=":#!"] {
+.mirrored, img[alt^=":!"], img[alt^=":#!"], .pat-container[alt^=":!"], .pat-container[alt^=":#!"] {
 	transform: scaleX(-1);
 	-webkit-transform: scaleX(-1);
 }
@@ -4589,6 +4589,33 @@ input[type=radio] ~ .custom-control-label::before {
 	-o-object-fit: contain;
 	object-fit: contain;
 }
+
+.pat-container {
+    position: relative;
+    display: inline-block;
+}
+img[pat] {
+    animation: pat-pfp-anim 0.3s infinite !important;
+    transform-origin: bottom center;
+    margin-top: 10%;
+    border-radius: 50%;
+    text-align: center;
+    object-fit: cover;
+    background-color: var(--gray-600);
+}
+.pat-hand {
+    position: absolute;
+    width: 90%;
+    height: 90%;
+    margin-top: -10%;
+    z-index: 1;
+}
+@keyframes pat-pfp-anim {
+    0% { transform: scale(1, 0.8) }
+    50% { transform: scale(0.8, 1) }
+    100% { transform: scale(1, 0.8) }
+}
+        
 .twitter-tweet {
 	margin-bottom: 9.8px;
 	padding-bottom: 7px;
