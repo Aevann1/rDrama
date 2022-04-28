@@ -1,0 +1,30 @@
+{# JournoidBanner Index (keep updated for clarity's sake):
+	[0] TransParentTransKid (good coverage) on the Independent
+	[1] TransParentTransKid (lol coverage) on Reuters
+	[2] "Furry Culture Month" baited Libs of TikTok on Mashable
+#}
+{% set JOURNOID_BANNERS = [
+	( 
+		"As seen on The Independent 📰✨💞", 
+		"https://www.independent.co.uk/news/world/americas/us-politics/reddit-conservatives-post-trans-child-fake-b2060803.html", 
+		"/post/61530/"
+	),
+	(
+		"Has been fact-checked by Reuters 📰", 
+		"https://www.reuters.com/article/factcheck-socialmedia-gender/fact-check-post-about-parent-forcefully-medicating-transgender-child-is-fabricated-idUSL2N2WC1OK", 
+		"/post/60443/"
+	),
+	(
+		"As seen on Mashable & Libs of TikTok 📰✨", 
+		"https://mashable.com/article/libs-of-tiktok-furries-school-troll-fake", 
+		"/post/63155/"
+	),
+]
+%}
+
+{% set journoid = JOURNOID_BANNERS|random %}
+<div class="srd">
+	<a id="srd-link" class="text-small-mobile" href="{{ journoid[1] }}">{{ journoid[0] }}</a>
+	<span id="srd-separator">&mdash;</span>
+	<a id="srd-discuss" class="text-small-mobile" href="{{ journoid[2] }}">(discuss)</a>
+</div>

@@ -4759,6 +4759,7 @@ img.golden, img[g] {
 .bg-muted {
 	background-color: #6c757d !important;
 }
+
 .srd {
 	width: 100%;
 	background-color: var(--primary);
@@ -4767,6 +4768,13 @@ img.golden, img[g] {
 	font-weight: bold;
 	white-space: nowrap;
 }
+.srd > a {
+	color: white;
+}
+#srd-discuss {
+	font-weight: normal;
+}
+
 @media (max-width: 768px) {
 	.toast {
 		bottom: 5rem !important;
