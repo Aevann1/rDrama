@@ -4468,7 +4468,7 @@ blockquote p {
 		margin: 1.75rem auto !important;
 }
 }
-.in-comment-image:not(img[src*="/uid/"]):not(img[src*="/pp/"]), .preview img, .img:not(img[src*="/uid/"]):not(img[src*="/pp/"]), img[alt^="![]("], .preview img {
+.in-comment-image:not(img[src*="/uid/"]):not(img[src*="/pp/"]), .img:not(img[src*="/uid/"]):not(img[src*="/pp/"]), img[alt^="![]("], .preview img:not(img[src$="/pic"]):not(.pat-hand) {
 	max-height: 150px !important;
 	max-width: 100% !important;
 	border-radius: 0.2rem !important;
@@ -4601,7 +4601,7 @@ img[pat] {
     text-align: center;
     object-fit: cover;
 }
-img[pat][src^="/pp/"] {
+img[pat][src^="/pp/"], img[pat][src$="/pic"] {
 	border-radius: 50%;
 }
 .pat-hand {

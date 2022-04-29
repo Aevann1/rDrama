@@ -4,23 +4,20 @@ function markdown(first, second) {
 	var input = document.getElementById(first).value;
 	input = input.replace(/\|\|(.*?)\|\|/g, '<span class="spoiler">$1</span>')
 	
-	var emojis = Array.from(input.matchAll(/:([#!A-Za-z0-9]{1,30}?):/gi))
+	var emojis = Array.from(input.matchAll(/:([^\s]{1,31}):/gi))
 	if(emojis != null){
 		for(i = 0; i < emojis.length; i++){
-			var emoji = emojis[i][0];
-			if (emoji.includes('marseyrandom')) continue
-			var remoji = emoji.replace(/:/g,'').toLowerCase();
-			if (remoji.startsWith("!#") || remoji.startsWith("#!"))
-			{
-				input = input.replace(emoji, "<img class='emoji-lg mirrored' src='/e/" + remoji.substring(2) + ".webp'>")
-			} else if (remoji.startsWith("#"))
-			{
-				input = input.replace(emoji, "<img class='emoji-lg' src='/e/" + remoji.substring(1) + ".webp'>")
-			} else if (remoji.startsWith("!"))
-			{
-				input = input.replace(emoji, "<img height=30 class='emoji mirrored' src='/e/" + remoji.substring(1) + ".webp'>")
+			var old = emojis[i][0];
+			if (old.includes('marseyrandom')) continue
+			var emoji = old.replace(/[:!@#]/g,'').toLowerCase();
+			var mirroredClass = old.indexOf('!') == -1 ? '' : 'mirrored';
+			var emojiClass = old.indexOf('#') == -1 ? 'emoji' : 'emoji-lg';
+			if (emoji.endsWith('pat')) {
+				emoji = emoji.substr(0, emoji.length - 3);
+				var url = old.indexOf('@') != -1 ? `/@${emoji}/pic` : `/e/${emoji}.webp`;
+				input = input.replace(old, `<span class="pat-container ${mirroredClass}"><img class="pat-hand" src="/assets/images/hand.webp"><img pat class="${emojiClass}" src="${url}"></span>`);
 			} else {
-				input = input.replace(emoji, "<img height=30 class='emoji' src='/e/" + remoji + ".webp'>")
+				input = input.replace(old, `<img class="${emojiClass} ${mirroredClass}" src="/e/${emoji}.webp">`);
 			}
 		}
 	}
