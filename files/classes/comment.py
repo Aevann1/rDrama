@@ -483,8 +483,26 @@ class Comment(Base):
 		body = f"<span id='blackjack-{self.id}' class='ml-2'><em>{player_hand} vs. {dealer_hand}</em>"
 		
 		if blackjack_status == 'active' and v and v.id == self.author_id:
-			body += f'''<button class="action-{self.id} btn btn-success small" style="text-transform: uppercase; padding: 2px"onclick="handle_action('blackjack','{self.id}','hit')">Hit</button>
-			<button class="action-{self.id} btn btn-danger small" style="text-transform: uppercase; padding: 2px"onclick="handle_action('blackjack','{self.id}','stay')">Stay</button>'''
+			body += f'''
+			<button
+				class="action-{self.id} btn btn-success small"
+				style="text-transform: uppercase; padding: 2px"
+				onclick="handle_action('blackjack','{self.id}','hit')">
+					Hit
+			</button>
+			<button
+				class="action-{self.id} btn btn-danger small"
+				style="text-transform: uppercase; padding: 2px"
+				onclick="handle_action('blackjack','{self.id}','stay')">
+					Stay
+			</button>
+			<button
+				class="action-{self.id} btn btn-secondary small"
+				style="text-transform: uppercase; padding: 2px"
+				onclick="handle_action('blackjack','{self.id}','doubledown')">
+					Double Down
+			</button>
+			'''
 		elif blackjack_status == 'push':
 			body += f"<strong class='ml-2'>Pushed. Refunded {wager} {currency_kind}.</strong>"
 		elif blackjack_status == 'bust':

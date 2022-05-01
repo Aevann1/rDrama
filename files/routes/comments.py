@@ -1014,6 +1014,7 @@ def handle_blackjack_action(cid, v):
 
 		if action == 'hit': player_hit(comment)
 		elif action == 'stay': player_stayed(comment)
+		elif action == 'doubledown': player_doubled_down(comment, v)
 		
 		g.db.add(comment)
 		g.db.add(v)

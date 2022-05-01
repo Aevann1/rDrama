@@ -86,7 +86,7 @@ def check_for_blackjack_commands(in_text, from_user, from_comment):
 
 						from_comment.blackjack_result = format_all(player_hand, dealer_hand, rest_of_deck, status, wager, currency_prop)
 
-def player_hit(from_comment):
+def player_hit(from_comment, did_double_down=False):
 	player_hand, dealer_hand, deck, status, wager, kind = from_comment.blackjack_result.split("_")
 	player_hand = player_hand.split("/")
 	dealer_hand = dealer_hand.split("/")
@@ -100,7 +100,7 @@ def player_hit(from_comment):
 
 	from_comment.blackjack_result = format_all(player_hand, dealer_hand, deck, status, wager, kind)
 
-	if (player_value == 21): player_stayed(from_comment)
+	if (did_double_down or player_value == 21): player_stayed(from_comment)
 
 def player_stayed(from_comment):
 	player_hand, dealer_hand, deck, status, wager, kind = from_comment.blackjack_result.split("_")
@@ -122,6 +122,26 @@ def player_stayed(from_comment):
 	from_comment.blackjack_result = format_all(player_hand, dealer_hand, deck, status, wager, kind)
 
 	apply_game_result(from_comment, wager, status, kind)
+
+def player_doubled_down(from_comment, from_user): 
+	# When doubling down, the player receives one additional card (a "hit") and their initial bet is doubled.
+	player_hand, dealer_hand, deck, status, wager, kind = from_comment.blackjack_result.split("_")
+	wager_value = int(wager)
+
+	# Gotsta have enough coins
+	if (from_user.coins < wager_value): return
+
+	# Double the initial wager
+	from_user.coins -= wager_value
+	wager_value *= 2
+
+	# Apply the changes to the stored hand.
+	player_hand = player_hand.split("/")
+	dealer_hand = dealer_hand.split("/")
+	deck = deck.split("/")
+	from_comment.blackjack_result = format_all(player_hand, dealer_hand, deck, status, str(wager_value), kind)
+
+	player_hit(from_comment, True)
 
 def apply_game_result(from_comment, wager, result, kind):
 	wager_value = int(wager)
