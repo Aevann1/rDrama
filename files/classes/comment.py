@@ -480,6 +480,9 @@ class Comment(Base):
 		except: kind = "coins"
 		currency_kind = "Coins" if kind == "coins" else "Marseybucks"
 
+		try: is_insured = split_result[6]
+		except: is_insured = "0"
+
 		body = f"<span id='blackjack-{self.id}' class='ml-2'><em>{player_hand} vs. {dealer_hand}</em>"
 		
 		if blackjack_status == 'active' and v and v.id == self.author_id:
@@ -503,6 +506,17 @@ class Comment(Base):
 					Double Down
 			</button>
 			'''
+
+			if dealer_hand[0][0] == 'A' and not is_insured == "1":
+				body += f'''
+				<button
+					class="action-{self.id} btn btn-secondary small"
+					style="text-transform: uppercase; padding: 2px"
+					onclick="handle_action('blackjack','{self.id}','insurance')">
+						Insure
+				</button>
+				'''
+
 		elif blackjack_status == 'push':
 			body += f"<strong class='ml-2'>Pushed. Refunded {wager} {currency_kind}.</strong>"
 		elif blackjack_status == 'bust':
@@ -513,6 +527,9 @@ class Comment(Base):
 			body += f"<strong class='ml-2'>Won {wager} {currency_kind}.</strong>"
 		elif blackjack_status == 'blackjack':
 			body += f"<strong class='ml-2'>Blackjack! Won {floor(wager * 3/2)} {currency_kind}.</strong>"
+
+		if is_insured == "1":
+			body += f" <em class='text-success'>Insured.</em>"
 
 		body += '</span>'
 		return body

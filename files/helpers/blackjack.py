@@ -42,12 +42,12 @@ def format_cards(hand):
 	return map(lambda x: "".join(x), hand)
 
 
-def format_all(player_hand, dealer_hand, deck, status, wager, kind):
+def format_all(player_hand, dealer_hand, deck, status, wager, kind, is_insured=0):
 	formatted_player_hand = format_cards(player_hand)
 	formatted_dealer_hand = format_cards(dealer_hand)
 	formatted_deck = format_cards(deck)
 
-	return f'{"/".join(formatted_player_hand)}_{"/".join(formatted_dealer_hand)}_{"/".join(formatted_deck)}_{status}_{wager}_{kind}'
+	return f'{"/".join(formatted_player_hand)}_{"/".join(formatted_dealer_hand)}_{"/".join(formatted_deck)}_{status}_{wager}_{kind}_{str(is_insured)}'
 
 
 def check_for_blackjack_commands(in_text, from_user, from_comment):
@@ -66,7 +66,6 @@ def check_for_blackjack_commands(in_text, from_user, from_comment):
 					if (wager_value < minimum_bet): break
 					elif (wager_value > maximum_bet): break
 					elif (wager_value <= currency_value):
-
 						setattr(from_user, currency_prop, currency_value - wager_value)
 
 						player_hand, dealer_hand, rest_of_deck = deal_initial_cards()
@@ -80,14 +79,11 @@ def check_for_blackjack_commands(in_text, from_user, from_comment):
 						elif player_value == 21:
 							status = 'blackjack'
 							apply_game_result(from_comment, wager, status, currency_prop)
-						elif dealer_value == 21:
-							status = 'lost'
-							apply_game_result(from_comment, wager, status, currency_prop)
 
-						from_comment.blackjack_result = format_all(player_hand, dealer_hand, rest_of_deck, status, wager, currency_prop)
+						from_comment.blackjack_result = format_all(player_hand, dealer_hand, rest_of_deck, status, wager, currency_prop, 0)
 
 def player_hit(from_comment, did_double_down=False):
-	player_hand, dealer_hand, deck, status, wager, kind = from_comment.blackjack_result.split("_")
+	player_hand, dealer_hand, deck, status, wager, kind, is_insured = from_comment.blackjack_result.split("_")
 	player_hand = player_hand.split("/")
 	dealer_hand = dealer_hand.split("/")
 	deck = deck.split("/")
@@ -98,50 +94,73 @@ def player_hit(from_comment, did_double_down=False):
 		status = 'bust'
 		apply_game_result(from_comment, wager, status, kind)
 
-	from_comment.blackjack_result = format_all(player_hand, dealer_hand, deck, status, wager, kind)
+	from_comment.blackjack_result = format_all(player_hand, dealer_hand, deck, status, wager, kind, int(is_insured))
 
 	if (did_double_down or player_value == 21): player_stayed(from_comment)
 
 def player_stayed(from_comment):
-	player_hand, dealer_hand, deck, status, wager, kind = from_comment.blackjack_result.split("_")
+	player_hand, dealer_hand, deck, status, wager, kind, is_insured = from_comment.blackjack_result.split("_")
 	player_hand = player_hand.split("/")
 	player_value = get_hand_value(player_hand)
 	dealer_hand = dealer_hand.split("/")
 	dealer_value = get_hand_value(dealer_hand)
 	deck = deck.split("/")
 
-	while dealer_value < 17 and dealer_value != -1:
-		next = deck.pop(0)
-		dealer_hand.append(next)
-		dealer_value = get_hand_value(dealer_hand)
+	if dealer_value == 21 and is_insured == "1":
+		from_comment.author.coins += int(wager)
+	else:
+		while dealer_value < 17 and dealer_value != -1:
+			next = deck.pop(0)
+			dealer_hand.append(next)
+			dealer_value = get_hand_value(dealer_hand)
 
 	if player_value > dealer_value or dealer_value == -1: status = 'won'
 	elif dealer_value > player_value: status = 'lost'
 	else: status = 'push'
 
-	from_comment.blackjack_result = format_all(player_hand, dealer_hand, deck, status, wager, kind)
+	from_comment.blackjack_result = format_all(player_hand, dealer_hand, deck, status, wager, kind, int(is_insured))
 
 	apply_game_result(from_comment, wager, status, kind)
 
-def player_doubled_down(from_comment, from_user): 
+def player_doubled_down(from_comment): 
 	# When doubling down, the player receives one additional card (a "hit") and their initial bet is doubled.
-	player_hand, dealer_hand, deck, status, wager, kind = from_comment.blackjack_result.split("_")
+	player_hand, dealer_hand, deck, status, wager, kind, is_insured = from_comment.blackjack_result.split("_")
 	wager_value = int(wager)
 
 	# Gotsta have enough coins
-	if (from_user.coins < wager_value): return
+	if (from_comment.author.coins < wager_value): return
 
 	# Double the initial wager
-	from_user.coins -= wager_value
+	from_comment.author.coins -= wager_value
 	wager_value *= 2
 
 	# Apply the changes to the stored hand.
 	player_hand = player_hand.split("/")
 	dealer_hand = dealer_hand.split("/")
 	deck = deck.split("/")
-	from_comment.blackjack_result = format_all(player_hand, dealer_hand, deck, status, str(wager_value), kind)
+	from_comment.blackjack_result = format_all(player_hand, dealer_hand, deck, status, str(wager_value), kind, int(is_insured))
 
 	player_hit(from_comment, True)
+
+def player_bought_insurance(from_comment):
+	# When buying insurance, the player pays a side bet equal to 1/2 the original bet.
+	# In the event the dealer actually had a blackjack, they receive a 2:1 payout limiting the negative effect.
+	player_hand, dealer_hand, deck, status, wager, kind, is_insured = from_comment.blackjack_result.split("_")
+	wager_value = int(wager)
+	insurance_cost = wager_value / 2
+
+	# Gotsta have enough coins
+	if (from_comment.author.coins < insurance_cost): return
+
+	# Charge for (and grant) insurance
+	from_comment.author.coins -= insurance_cost
+	is_insured = 1
+
+	# Apply the changes to the stored hand.
+	player_hand = player_hand.split("/")
+	dealer_hand = dealer_hand.split("/")
+	deck = deck.split("/")
+	from_comment.blackjack_result = format_all(player_hand, dealer_hand, deck, status, str(wager_value), kind, int(is_insured))
 
 def apply_game_result(from_comment, wager, result, kind):
 	wager_value = int(wager)

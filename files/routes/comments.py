@@ -1014,8 +1014,9 @@ def handle_blackjack_action(cid, v):
 
 		if action == 'hit': player_hit(comment)
 		elif action == 'stay': player_stayed(comment)
-		elif action == 'doubledown': player_doubled_down(comment, v)
-		
+		elif action == 'doubledown': player_doubled_down(comment)
+		elif action == 'insurance': player_bought_insurance(comment)
+
 		g.db.add(comment)
 		g.db.add(v)
 		g.db.commit()
