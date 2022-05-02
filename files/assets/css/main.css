@@ -4583,8 +4583,6 @@ input[type=radio] ~ .custom-control-label::before {
 }
 .emj, .emoji, .bigemoji, .emoji-md, .emoji-lg, img[alt^=":"]
 {
-	max-width: min(150px,25vw) !important;
-	max-height: min(150px,25vw) !important;
 	display: inline-block;
 	-o-object-fit: contain;
 	object-fit: contain;

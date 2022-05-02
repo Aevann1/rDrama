@@ -96,8 +96,8 @@
 
 												<input autocomplete="off" class="form-control" id="post-title" aria-describedby="titleHelpRegister" type="text" name="title" placeholder="Required" value="{{title}}" minlength="1" maxlength="500" required oninput="checkForRequired();savetext()">
 
-												<label class="btn btn-secondary format d-inline-block m-0" for="emoji-reply-btn-2">
-													<div id="emoji-reply-btn-2" onclick="loadEmojis('post-title')" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#emojiModal" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add Emoji"><i class="fas fa-smile-beam"></i></div>
+												<label onclick="loadEmojis('post-title')" class="btn btn-secondary format d-inline-block m-0" for="emoji-reply-btn-2">
+													<div id="emoji-reply-btn-2" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#emojiModal" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add Emoji"><i class="fas fa-smile-beam"></i></div>
 												</label>
 
 												<div id="urlblock">
@@ -132,22 +132,22 @@
 												</div>
 
 												<p></p>
-												<small class="btn btn-secondary format d-inline-block m-0">
-												<i class="fas fa-bold" aria-hidden="true" onclick="makeBold('post-text')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Bold"></i>
+												<small  onclick="makeBold('post-text')" class="btn btn-secondary format d-inline-block m-0">
+												<i class="fas fa-bold" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Bold"></i>
 												</small>
 												&nbsp; 
-												<small class="btn btn-secondary format d-inline-block m-0">
-												<i class="fas fa-italic" aria-hidden="true" onclick="makeItalics('post-text')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Italicize"></i>
+												<small onclick="makeItalics('post-text')" class="btn btn-secondary format d-inline-block m-0">
+												<i class="fas fa-italic" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Italicize"></i>
 												</small>
 												&nbsp; 
-												<small class="btn btn-secondary format d-inline-block m-0">
-												<i class="fas fa-quote-right" aria-hidden="true" onclick="makeQuote('post-text')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Quote"></i>
+												<small onclick="makeQuote('post-text')" class="btn btn-secondary format d-inline-block m-0">
+												<i class="fas fa-quote-right" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Quote"></i>
 												</small>
 												&nbsp;
 												<small class="btn btn-secondary format d-inline-block m-0"><span class="font-weight-bolder text-uppercase" aria-hidden="true" onclick="getGif();commentForm('post-text')" data-bs-toggle="modal" data-bs-target="#gifModal" data-bs-toggle="tooltip" data-bs-placement="bottom"  title="Add GIF">GIF</span></small>
 												&nbsp;
-												<label class="btn btn-secondary format d-inline-block m-0" for="emoji-reply-btn">
-													<div id="emoji-reply-btn" onclick="loadEmojis('post-text')" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#emojiModal" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add Emoji"><i class="fas fa-smile-beam"></i></div>
+												<label onclick="loadEmojis('post-text')" class="btn btn-secondary format d-inline-block m-0" for="emoji-reply-btn">
+													<div id="emoji-reply-btn" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#emojiModal" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add Emoji"><i class="fas fa-smile-beam"></i></div>
 												</label>
 																
 												<label class="format btn btn-secondary m-0 ml-1 {% if v %}d-inline-block{% else %}d-none{% endif %}" for="file-upload-submit">
