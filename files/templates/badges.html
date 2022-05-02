@@ -6,6 +6,7 @@
 </pre>
 <h1>User Badges</h1>
 <div>This page describes the requirements for obtaining all profile badges.</div>
+<div>Rarity is the ratio of badge quantity to the number of non-lurkers (truescore &geq; <span id="badges-nonlurk-tc">{{ nonlurk_tc }}</span>): <span id="badges-nonlurkers">{{ nonlurk }}</span>.</div>
 <pre>
 
 
@@ -17,6 +18,8 @@
 		<th>Name</th>
 		<th>Image</th>
 		<th>Description</th>
+		<th>#</th>
+		<th>Rarity</th>
 	</tr>
 </thead>
 {% for badge in badges %}
@@ -25,6 +28,9 @@
 		<td>{{badge.name}}</td>
 		<td><img alt="{{badge.name}}" loading="lazy" src="/assets/images/badges/{{badge.id}}.webp?v=1016" width=45.83 height=50>
 		<td>{{badge.description}}</td>
+		{%- set ct = counts[badge.id] if badge.id in counts else (0, 0) %}
+		<td class="badges-rarity-qty">{{ ct[0] }}</td>
+		<td class="badges-rarity-ratio">{{ "{:0.3f}".format(ct[1]) }}%</td>
 	</tr>
 {% endfor %}
 </table>
