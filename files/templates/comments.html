@@ -112,6 +112,9 @@
 
 {% if v %}
 	{% set voted=c.voted %}
+	{% if not voted and v.id == c.author_id %}
+		{% set voted=1 %}
+	{% endif %}
 {% else %}
 	{% set voted=-2 %}
 {% endif %}
