@@ -68,26 +68,30 @@ def api_vote_post(post_id, new, v):
 
 	existing = g.db.query(Vote).filter_by(user_id=v.id, submission_id=post.id).one_or_none()
 
+	coin_delta = 1
+	if v.id == post.author.id:
+		coin_delta = 0
+
 	if existing and existing.vote_type == new: return "", 204
 
 	if existing:
 		if existing.vote_type == 0 and new != 0:
-			post.author.coins += 1
-			post.author.truecoins += 1
+			post.author.coins += coin_delta
+			post.author.truecoins += coin_delta
 			g.db.add(post.author)
 			existing.vote_type = new
 			g.db.add(existing)
 		elif existing.vote_type != 0 and new == 0:
-			post.author.coins -= 1
-			post.author.truecoins -= 1
+			post.author.coins -= coin_delta
+			post.author.truecoins -= coin_delta
 			g.db.add(post.author)
 			g.db.delete(existing)
 		else:
 			existing.vote_type = new
 			g.db.add(existing)
 	elif new != 0:
-		post.author.coins += 1
-		post.author.truecoins += 1
+		post.author.coins += coin_delta
+		post.author.truecoins += coin_delta
 		g.db.add(post.author)
 
 		if new == 1 and (v.agendaposter or v.shadowbanned or (v.is_banned and not v.unban_utc) or (v.profile_url.startswith('/e/') and not v.customtitle and v.namecolor == DEFAULT_COLOR)): real = False
@@ -132,26 +136,30 @@ def api_vote_comment(comment_id, new, v):
 	
 	existing = g.db.query(CommentVote).filter_by(user_id=v.id, comment_id=comment.id).one_or_none()
 
+	coin_delta = 1
+	if v.id == comment.author_id:
+		coin_delta = 0
+
 	if existing and existing.vote_type == new: return "", 204
 
 	if existing:
 		if existing.vote_type == 0 and new != 0:
-			comment.author.coins += 1
-			comment.author.truecoins += 1
+			comment.author.coins += coin_delta
+			comment.author.truecoins += coin_delta
 			g.db.add(comment.author)
 			existing.vote_type = new
 			g.db.add(existing)
 		elif existing.vote_type != 0 and new == 0:
-			comment.author.coins -= 1
-			comment.author.truecoins -= 1
+			comment.author.coins -= coin_delta
+			comment.author.truecoins -= coin_delta
 			g.db.add(comment.author)
 			g.db.delete(existing)
 		else:
 			existing.vote_type = new
 			g.db.add(existing)
 	elif new != 0:
-		comment.author.coins += 1
-		comment.author.truecoins += 1
+		comment.author.coins += coin_delta
+		comment.author.truecoins += coin_delta
 		g.db.add(comment.author)
 
 		if new == 1 and (v.agendaposter or v.shadowbanned or (v.is_banned and not v.unban_utc) or (v.profile_url.startswith('/e/') and not v.customtitle and v.namecolor == DEFAULT_COLOR)): real = False
