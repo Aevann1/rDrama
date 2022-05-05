@@ -96,9 +96,7 @@
 
 												<input autocomplete="off" class="form-control" id="post-title" aria-describedby="titleHelpRegister" type="text" name="title" placeholder="Required" value="{{title}}" minlength="1" maxlength="500" required oninput="checkForRequired();savetext()">
 
-												<label onclick="loadEmojis('post-title')" class="btn btn-secondary format d-inline-block m-0" for="emoji-reply-btn-2">
-													<div id="emoji-reply-btn-2" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#emojiModal" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add Emoji"><i class="fas fa-smile-beam"></i></div>
-												</label>
+												<div onclick="loadEmojis('post-title')" class="btn btn-secondary format d-inline-block m-0" id="emoji-reply-btn-2" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#emojiModal" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add Emoji"><i class="fas fa-smile-beam"></i></div>												
 
 												<div id="urlblock">
 														<label for="URL" class="mt-3">URL</label>
