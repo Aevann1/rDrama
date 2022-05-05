@@ -864,7 +864,8 @@ approved_embed_hosts = [
 	'deviantart.com',
 	'deviantart.net',
 	'googleapis.com',
-	'bing.com'
+	'bing.com',
+	'typekit.net',
 	]
 
 hosts = "|".join(approved_embed_hosts).replace('.','\.')
