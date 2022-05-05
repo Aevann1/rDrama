@@ -85,7 +85,12 @@
 		<label class="custom-control-label" for="under_attack">Under attack mode</label>
 	</div>
 
-	<button class="btn btn-primary mt-3" onclick="post_toast(this,'/admin/purge_cache');">PURGE CACHE</button>
+	<button class="btn btn-primary mt-3" onclick="post_toast(this,'/admin/purge_cache');" style="margin-bottom: 2em;">PURGE CACHE</button>
 {% endif %}
+
+<h4>Server Status</h4>
+<div>
+	Live Revision: <code>{{ gitref }}</code> <br>
+</div>
 
 {% endblock %}
