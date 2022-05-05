@@ -781,6 +781,7 @@ slur_regex = re.compile(f"({single_words})(?![^<]*>)", flags=re.I|re.A)
 slur_regex_upper = re.compile(f"({single_words.upper()})(?![^<]*>)", flags=re.A)
 torture_regex = re.compile('(^|\s)(i|me) ', flags=re.I|re.A)
 torture_regex2 = re.compile("(^|\s)i'm ", flags=re.I|re.A)
+torture_regex_exclude = re.compile('^\s*>', flags=re.A)
 
 def sub_matcher(match):
 	return SLURS[match.group(0).lower()]
@@ -795,11 +796,17 @@ def censor_slurs(body, logged_user):
 	return body
 
 def torture_ap(body, username):
-	for k, l in AJ_REPLACEMENTS.items():
-		body = body.replace(k, l)
-	body = torture_regex.sub(rf'\1@{username} ', body)
-	body = torture_regex2.sub(rf'\1@{username} is ', body)
-	return body
+	lines = body.splitlines(keepends=True)
+
+	for i in range(len(lines)):
+		if torture_regex_exclude.match(lines[i]):
+			continue
+		for k, l in AJ_REPLACEMENTS.items():
+			lines[i] = lines[i].replace(k, l)
+		lines[i] = torture_regex.sub(rf'\1@{username} ', lines[i])
+		lines[i] = torture_regex2.sub(rf'\1@{username} is ', lines[i])
+
+	return ''.join(lines)
 
 YOUTUBE_KEY = environ.get("YOUTUBE_KEY", "").strip()
 
