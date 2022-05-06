@@ -599,9 +599,7 @@
 						<input type="hidden" name="formkey" value="{{v.formkey}}"> 
 						<textarea required autocomplete="off" minlength="1" maxlength="10000" name="body" form="reply-to-t3_{{c.id}}" data-id="{{c.id}}" class="comment-box form-control rounded" id="reply-form-body-{{c.id}}" aria-label="With textarea" rows="3" oninput="markdown('reply-form-body-{{c.id}}', 'message-reply-{{c.id}}')"></textarea> 
 						<div class="comment-format" id="comment-format-bar-{{c.id}}"> 
-							<label class="btn btn-secondary m-0 mt-3 mr-1" onclick="loadEmojis('reply-form-body-{{c.id}}')" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#emojiModal" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add Emoji">
-								<i class="fas fa-smile-beam"></i>
-							</label>
+							<div onclick="loadEmojis('reply-form-body-{{c.id}}')" class="btn btn-secondary m-0 mt-3 mr-1" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#emojiModal" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add Emoji"><i class="fas fa-smile-beam"></i></div>	
 
 							{% if c.sentto == 2 %}
 								<label class="btn btn-secondary m-0 mt-3" for="file-upload">

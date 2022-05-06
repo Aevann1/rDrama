@@ -144,9 +144,7 @@
 												&nbsp;
 												<small class="btn btn-secondary format d-inline-block m-0"><span class="font-weight-bolder text-uppercase" aria-hidden="true" onclick="getGif();commentForm('post-text')" data-bs-toggle="modal" data-bs-target="#gifModal" data-bs-toggle="tooltip" data-bs-placement="bottom"  title="Add GIF">GIF</span></small>
 												&nbsp;
-												<label onclick="loadEmojis('post-text')" class="btn btn-secondary format d-inline-block m-0" for="emoji-reply-btn">
-													<div id="emoji-reply-btn" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#emojiModal" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add Emoji"><i class="fas fa-smile-beam"></i></div>
-												</label>
+												<div onclick="loadEmojis('post-text')" class="btn btn-secondary format d-inline-block m-0" id="emoji-reply-btn" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#emojiModal" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add Emoji"><i class="fas fa-smile-beam"></i></div>
 																
 												<label class="format btn btn-secondary m-0 ml-1 {% if v %}d-inline-block{% else %}d-none{% endif %}" for="file-upload-submit">
 													<div id="filename-show-submit"><i class="far fa-image"></i></div>

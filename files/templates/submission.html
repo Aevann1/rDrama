@@ -764,7 +764,7 @@
 										<a class="format btn btn-secondary" role="button"><i class="fas fa-italic" aria-hidden="true" onclick="makeItalics('post-edit-box-{{p.id}}')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Italicize"></i></a> 
 										<a class="format btn btn-secondary" role="button"><i class="fas fa-quote-right" aria-hidden="true" onclick="makeQuote('post-edit-box-{{p.id}}')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Quote"></i></a>
 										<a class="format btn btn-secondary" role="button"><span class="font-weight-bolder text-uppercase" onclick="commentForm('post-edit-box-{{p.id}}');getGif()" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#gifModal" data-bs-toggle="tooltip" data-bs-placement="bottom"  title="Add GIF">GIF</span></a>
-										<a class="format btn btn-secondary" role="button"><i class="fas fa-smile-beam" onclick="loadEmojis('post-edit-box-{{p.id}}')" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#emojiModal" data-bs-toggle="tooltip" data-bs-placement="bottom"  title="Add Emoji"></i></a>
+										<div onclick="loadEmojis('post-edit-box-{{p.id}}')" class="format btn btn-secondary" role="button" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#emojiModal" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add Emoji"><i class="fas fa-smile-beam"></i></div>	
 
 										<label class="format btn btn-secondary m-0 ml-1 {% if v %}d-inline-block{% else %}d-none{% endif %}" for="file-upload-edit-{{p.id}}">
 											<div id="filename-show-edit-{{p.id}}"><i class="far fa-image"></i></div>
@@ -962,9 +962,8 @@
 						<span id="gif-reply-btn-{{p.fullname}}" class="font-weight-bolder text-uppercase" onclick="commentForm('reply-form-body-{{p.fullname}}');getGif()" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#gifModal" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add GIF">GIF</span>
 					</label> 
 					&nbsp;
-					<label class="btn btn-secondary format d-inline-block m-0" for="emoji-reply-btn-{{p.fullname}}">
-						<div id="emoji-reply-btn-{{p.fullname}}" onclick="loadEmojis('reply-form-body-{{p.fullname}}')" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#emojiModal" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add Emoji"><i class="fas fa-smile-beam"></i></div>
-					</label> 
+					<div onclick="loadEmojis('reply-form-body-{{p.fullname}}')" class="btn btn-secondary format d-inline-block m-0" id="emoji-reply-btn-{{p.fullname}}" aria-hidden="true" data-bs-toggle="modal" data-bs-target="#emojiModal" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add Emoji"><i class="fas fa-smile-beam"></i></div>	
+					&nbsp;
 					<label class="format btn btn-secondary m-0 ml-1 {% if v %}d-inline-block{% else %}d-none{% endif %}" for="file-upload-reply-{{p.fullname}}">
 						<div id="filename-show-reply-{{p.fullname}}"><i class="far fa-image"></i></div>
 						<input autocomplete="off" id="file-upload-reply-{{p.fullname}}" type="file" multiple="multiple" name="file" accept="image/*, video/*" {% if request.headers.get('cf-ipcountry')=="T1" %}disabled{% endif %} onchange="changename('filename-show-reply-{{p.fullname}}','file-upload-reply-{{p.fullname}}')" hidden>
