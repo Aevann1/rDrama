@@ -317,7 +317,7 @@ function emojiAddToInput(event)
 		if(emojiSelectSuffixDOMs[i].checked)
 			strToInsert = emojiSelectSuffixDOMs[i].value + strToInsert;
 
-	strToInsert = " :" + strToInsert + ": "
+	strToInsert = ":" + strToInsert + ":"
 	const newPos =  emojiInputTargetDOM.selectionStart + strToInsert.length;
 	
 	emojiInputTargetDOM.setRangeText(strToInsert);
