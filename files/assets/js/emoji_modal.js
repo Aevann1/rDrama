@@ -171,7 +171,7 @@ emojiRequest.open("GET", '/marsey_list.json');
 emojiRequest.onload = async (e) => {
 	let emojis  = JSON.parse(emojiRequest.response);
 	if(! (emojis instanceof Array ))
-		throw new TypeError("[EMOIJ DIALOG] rDrama's server should have sent a JSON-coded Array!")
+		throw new TypeError("[EMOIJ DIALOG] rDrama's server should have sent a JSON-coded Array!");
 
 	let classes = new Set();
 	const bussyDOM = document.createElement("div");
@@ -349,10 +349,10 @@ function emojiAddToInput(event)
 
 	// Update favs. from old code
 	if (favorite_emojis[event.currentTarget.dataset.emojiName])
-		favorite_emojis[event.currentTarget.dataset.emojiName] += 1
+		favorite_emojis[event.currentTarget.dataset.emojiName] += 1;
 	else
-		favorite_emojis[event.currentTarget.dataset.emojiName] = 1
-	localStorage.setItem("favorite_emojis", JSON.stringify(favorite_emojis))
+		favorite_emojis[event.currentTarget.dataset.emojiName] = 1;
+	localStorage.setItem("favorite_emojis", JSON.stringify(favorite_emojis));
 }
 
 function loadEmojis(inputTargetIDName)
@@ -363,5 +363,5 @@ function loadEmojis(inputTargetIDName)
 		emojiRequest.send();
 	}
 
-	emojiInputTargetDOM = document.getElementById(inputTargetIDName)
+	emojiInputTargetDOM = document.getElementById(inputTargetIDName);
 }
