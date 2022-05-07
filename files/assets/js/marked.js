@@ -4,7 +4,7 @@ function markdown(first, second) {
 	var input = document.getElementById(first).value;
 	input = input.replace(/\|\|(.*?)\|\|/g, '<span class="spoiler">$1</span>')
 	
-	var emojis = Array.from(input.matchAll(/:([^\s]{1,31}):/gi))
+	var emojis = Array.from(input.matchAll(/:([^:\s]{1,31}):/gi))
 	if(emojis != null){
 		for(i = 0; i < emojis.length; i++){
 			var old = emojis[i][0];
