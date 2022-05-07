@@ -42,20 +42,18 @@ const favorite_emojis = JSON.parse(localStorage.getItem("favorite_emojis")) || {
 let emojiDOMs = {};
 
 const EMOIJ_SEARCH_ENGINE_MIN_INTERVAL = 350;
-class EmojiSearchEngine {
-	constructor () {
-		this.working = false;
-		this.queries = [];
-	}
-
-	addQuery(query) {
+let emojiSearcher = {
+	working: false,
+	queries: [],
+	
+	addQuery: function(query)
+	{
 		this.queries.push(query);
 		if(!this.working)
 			this.work();
-		
-	}
-
-	async work() {
+	},
+	
+	work: async function work() {
 		this.working = true;
 
 		while(this.queries.length > 0)
@@ -91,8 +89,7 @@ class EmojiSearchEngine {
 
 		this.working = false;
 	}
-}
-let emojiSearcher = new EmojiSearchEngine();
+};
 
 // tags dictionary. KEEP IT SORT
 class EmoijsDictNode
