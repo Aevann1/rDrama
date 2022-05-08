@@ -107,7 +107,8 @@ def player_stayed(from_comment):
 	deck = deck.split("/")
 
 	if dealer_value == 21 and is_insured == "1":
-		from_comment.author.coins += int(wager)
+		currency_value = getattr(from_comment.author, kind, 0)
+		setattr(from_comment.author, kind, currency_value + int(wager))
 	else:
 		while dealer_value < 17 and dealer_value != -1:
 			next = deck.pop(0)
@@ -126,12 +127,13 @@ def player_doubled_down(from_comment):
 	# When doubling down, the player receives one additional card (a "hit") and their initial bet is doubled.
 	player_hand, dealer_hand, deck, status, wager, kind, is_insured = from_comment.blackjack_result.split("_")
 	wager_value = int(wager)
+	currency_value = getattr(from_comment.author, kind, 0)
 
 	# Gotsta have enough coins
-	if (from_comment.author.coins < wager_value): return
+	if (currency_value < wager_value): return
 
 	# Double the initial wager
-	from_comment.author.coins -= wager_value
+	setattr(from_comment.author, kind, currency_value - wager_value)
 	wager_value *= 2
 
 	# Apply the changes to the stored hand.
@@ -148,12 +150,13 @@ def player_bought_insurance(from_comment):
 	player_hand, dealer_hand, deck, status, wager, kind, is_insured = from_comment.blackjack_result.split("_")
 	wager_value = int(wager)
 	insurance_cost = wager_value / 2
+	currency_value = getattr(from_comment.author, kind, 0)
 
 	# Gotsta have enough coins
-	if (from_comment.author.coins < insurance_cost): return
+	if (currency_value < insurance_cost): return
 
 	# Charge for (and grant) insurance
-	from_comment.author.coins -= insurance_cost
+	setattr(from_comment.author, kind, currency_value - insurance_cost)
 	is_insured = 1
 
 	# Apply the changes to the stored hand.
