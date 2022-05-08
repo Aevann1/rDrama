@@ -1299,7 +1299,7 @@ def submit_post(v, sub=None):
 				rev = f"* [unddit.com](https://unddit.com/{rev})\n"
 			elif post.url.startswith("https://old.reddit.com/u/"):
 				rev = post.url.replace('https://old.reddit.com/u/', '')
-				rev = f"* [camas.github.io](https://camas.github.io/reddit-search/#\u007b\"author\":\"{rev}\",\"resultSize\":100\u007d)\n"
+				rev = f"* [search.marsey.cat](https://search.marsey.cat/reddit-search/#\u007b\"author\":\"{rev}\",\"resultSize\":100\u007d)\n"
 			else: rev = ''
 			
 			newposturl = post.url
@@ -1324,7 +1324,7 @@ def submit_post(v, sub=None):
 					body += f'* [unddit.com](https://unddit.com/{href.replace("https://old.reddit.com/", "")})\n'
 				if href.startswith('https://old.reddit.com/u/'):
 					rev = post.url.replace('https://old.reddit.com/u/', '')
-					body += f"* [camas.github.io](https://camas.github.io/reddit-search/#\u007b\"author\":\"{rev}\",\"resultSize\":100\u007d)\n"
+					body += f"* [search.marsey.cat](https://search.marsey.cat/reddit-search/#\u007b\"author\":\"{rev}\",\"resultSize\":100\u007d)\n"
 				body += f'* [archive.org](https://web.archive.org/{href})\n'
 				body += f'* [archive.ph](https://archive.ph/?url={quote(href)}&run=1) (click to archive)\n'
 				body += f'* [ghostarchive.org](https://ghostarchive.org/search?term={quote(href)}) (click to archive)\n\n'
