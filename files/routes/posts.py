@@ -1321,9 +1321,10 @@ def submit_post(v, sub=None):
 			if f'**[{title}]({href})**:\n\n' not in body:
 				body += f'**[{title}]({href})**:\n\n'
 				if href.startswith('https://old.reddit.com/r/'):
-					body += f'* [unddit.com](https://unddit.com/{href.replace("https://old.reddit.com/", "")})\n'
+					rev = href.replace('https://old.reddit.com/', '')
+					body += f'* [unddit.com](https://unddit.com/{rev})\n'
 				if href.startswith('https://old.reddit.com/u/'):
-					rev = post.url.replace('https://old.reddit.com/u/', '')
+					rev = href.replace('https://old.reddit.com/u/', '')
 					body += f"* [search.marsey.cat](https://search.marsey.cat/reddit-search/#\u007b\"author\":\"{rev}\",\"resultSize\":100\u007d)\n"
 				body += f'* [archive.org](https://web.archive.org/{href})\n'
 				body += f'* [archive.ph](https://archive.ph/?url={quote(href)}&run=1) (click to archive)\n'
