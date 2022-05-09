@@ -60,8 +60,20 @@ def allowed_attributes(tag, name, value):
 		if name == 'src' and embed_fullmatch_regex.fullmatch(value): return True
 		return False
 
+	if tag == 'audio':
+		if name == 'controls' and value == '': return True
+		if name == 'preload' and value == 'none': return True
+		if name == 'src' and embed_fullmatch_regex.fullmatch(value): return True
+		return False
+
 	if tag == 'p':
 		if name == 'class' and value == 'mb-0': return True
+		return False
+
+	if tag == 'i':
+		if name == 'class' and \
+			sorted(value.split())[0][:3] == 'fa-' and \
+			sorted(value.split())[1:] == ['fas', 'px-1', 'text-black']: return True
 		return False
 
 	if tag == 'span':
