@@ -130,6 +130,7 @@ if SITE in {'rdrama.net','devrama.xyz'}:
 	AUTOBETTER_ID = 7668
 	AUTOCHOICE_ID = 9167
 	BASEDBOT_ID = 0
+	CRINGEBOT_ID = 0
 
 	A_ID = 1230
 	KIPPY_ID = 7150
@@ -173,6 +174,7 @@ elif SITE == "pcmemes.net":
 	AUTOBETTER_ID = 1867
 	AUTOCHOICE_ID = 2072
 	BASEDBOT_ID = 800
+	CRINGEBOT_ID = 0
 
 	A_ID = 0
 	KIPPY_ID = 1592
@@ -205,6 +207,7 @@ elif SITE == 'cringetopia.org':
 	AUTOBETTER_ID = 7
 	AUTOCHOICE_ID = 8
 	BASEDBOT_ID = 0
+	CRINGEBOT_ID = 0
 
 	A_ID = 0
 	KIPPY_ID = 0
@@ -248,6 +251,7 @@ else:
 	AUTOBETTER_ID = 7
 	AUTOCHOICE_ID = 8
 	BASEDBOT_ID = 0
+	CRINGEBOT_ID = 0
 
 	A_ID = 0
 	KIPPY_ID = 0

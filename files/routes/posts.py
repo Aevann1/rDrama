@@ -1364,6 +1364,50 @@ def submit_post(v, sub=None):
 			post.comment_count += 1
 			post.replies = [c]
 
+	if CRINGEBOT_ID != 0:
+		ct_options = [
+			'<img src="/assets/images/Cringetopia/vote/cringe.webp" style="height: 1.5rem;"> Cringe — If this post is quality and/or classic cringe content',
+			'<img src="/assets/images/Cringetopia/vote/satire.webp" style="height: 1.5rem;"> Satire — If this post contains satirical content',
+			'<img src="/assets/images/Cringetopia/vote/chad.webp" style="height: 1.5rem;"> Chad — If you believe this post contains something chadworthy',
+		]
+
+		c = Comment(author_id=CRINGEBOT_ID,
+				distinguish_level=6,
+				parent_submission=post.id,
+				level=1,
+				over_18=False,
+				is_bot=True,
+				app_id=None,
+				body_html='',
+				is_pinned='Cringebot'
+				)
+		g.db.add(c)
+
+		cringebot = g.db.query(User).filter_by(id = CRINGEBOT_ID).one_or_none()
+		cringebot.comment_count += 1
+		cringebot.coins += 1
+		g.db.add(cringebot)
+		g.db.flush()
+
+		c.top_comment_id = c.id
+		post.comment_count += 1
+		post.replies = [c]
+
+		ct_cringebot_id = g.db.query(Comment.id).filter(Comment.author_id == CRINGEBOT_ID,
+			Comment.parent_submission == post.id).one_or_none()
+		if ct_cringebot_id != None:
+			for opt in ct_options:
+				c_choice = Comment(author_id=AUTOCHOICE_ID,
+					parent_submission=post.id,
+					parent_comment_id=ct_cringebot_id[0],
+					level=2,
+					body_html=opt,
+					upvotes=0,
+					is_bot=True
+					)
+				g.db.add(c_choice)
+		g.db.flush()
+
 	v.post_count = g.db.query(Submission.id).filter_by(author_id=v.id, is_banned=False, deleted_utc=0).count()
 	g.db.add(v)
 
