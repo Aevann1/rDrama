@@ -28,7 +28,7 @@ const emojiSelectPostfixDOMs= document.getElementsByClassName("emoji-postfix");
 
 const emojiNotFoundDOM = document.getElementById("no-emojis-found");
 const emojiWorkingDOM = document.getElementById("emojis-work");
-const emojiNewUser = document.getElementById("emoji-new-user");
+const emojiNewUserDOM = document.getElementById("emoji-new-user");
 
 /** @type {HTMLInputElement} */
 const emojiSearchBarDOM = document.getElementById('emoji_search');
@@ -40,7 +40,7 @@ let emojiInputTargetDOM = undefined;
 const favorite_emojis = JSON.parse(localStorage.getItem("favorite_emojis")) || {};
 const emojiFirstBoot = Object.keys(favorite_emojis).length === 0;
 
-emojiNewUser.hidden = !emojiFirstBoot;
+emojiNewUserDOM.hidden = !emojiFirstBoot;
 
 /** Associative array of all the emojis' DOM */
 let emojiDOMs = {};
@@ -76,7 +76,7 @@ let emojiSearcher = {
 				continue;
 			}
 			// Hide welcome message
-			emojiNewUser.hidden = true;
+			emojiNewUserDOM.hidden = true;
 
 			// Search
 			const resultSet = emojisSearchDictionary.searchFor(query);
@@ -266,7 +266,7 @@ function switchEmojiTab(e)
 	if(className === "favorite")
 	{
 		if(emojiFirstBoot)
-			emojiNewUser.hidden = false;
+			emojiNewUserDOM.hidden = false;
 
 		for(const emojiDOM of Object.values(emojiDOMs))
 			emojiDOM.hidden = true;
@@ -284,7 +284,7 @@ function switchEmojiTab(e)
 		return;
 	}
 	
-	emojiNewUser.hidden = true;
+	emojiNewUserDOM.hidden = true;
 
 	for(const emojiDOM of Object.values(emojiDOMs))
 		emojiDOM.hidden = emojiDOM.dataset.className !== className;
