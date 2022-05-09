@@ -797,7 +797,7 @@ def settings_song_change(v):
 	song=request.values.get("song").strip()
 
 	if song == "" and v.song:
-		if path.isfile(f"/songs/{v.song}.mp3") and g.db.query(User.id).filter_by(song=v.song).count() == 1:
+		if path.isfile(f"/songs/{v.song}.mp3") and g.db.query(User).filter_by(song=v.song).count() == 1:
 			os.remove(f"/songs/{v.song}.mp3")
 		v.song = None
 		g.db.add(v)
@@ -836,7 +836,7 @@ def settings_song_change(v):
 			return render_template("settings_profile.html", v=v, error="Duration of the video must not exceed 15 minutes.")
 
 
-	if v.song and path.isfile(f"/songs/{v.song}.mp3") and g.db.query(User.id).filter_by(song=v.song).count() == 1:
+	if v.song and path.isfile(f"/songs/{v.song}.mp3") and g.db.query(User).filter_by(song=v.song).count() == 1:
 		os.remove(f"/songs/{v.song}.mp3")
 
 	ydl_opts = {

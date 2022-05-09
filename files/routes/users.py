@@ -864,7 +864,7 @@ def visitors(v):
 def u_username(username, v=None):
 
 	if not v and not request.path.startswith('/logged_out'): return redirect(f"/logged_out{request.full_path}")
-	if v and request.path.startswith('/logged_out'): v = None
+	if v and request.path.startswith('/logged_out'): return redirect(request.full_path.replace('/logged_out',''))
 
 	u = get_user(username, v=v)
 
@@ -953,7 +953,7 @@ def u_username(username, v=None):
 def u_username_comments(username, v=None):
 
 	if not v and not request.path.startswith('/logged_out'): return redirect(f"/logged_out{request.full_path}")
-	if v and request.path.startswith('/logged_out'): v = None
+	if v and request.path.startswith('/logged_out'): return redirect(request.full_path.replace('/logged_out',''))
 
 	user = get_user(username, v=v)
 
@@ -1075,7 +1075,7 @@ def follow_user(username, v):
 	g.db.add(new_follow)
 
 	g.db.flush()
-	target.stored_subscriber_count = g.db.query(Follow.target_id).filter_by(target_id=target.id).count()
+	target.stored_subscriber_count = g.db.query(Follow).filter_by(target_id=target.id).count()
 	g.db.add(target)
 
 	send_notification(target.id, f"@{v.username} has followed you!")
@@ -1103,7 +1103,7 @@ def unfollow_user(username, v):
 		g.db.delete(follow)
 		
 		g.db.flush()
-		target.stored_subscriber_count = g.db.query(Follow.target_id).filter_by(target_id=target.id).count()
+		target.stored_subscriber_count = g.db.query(Follow).filter_by(target_id=target.id).count()
 		g.db.add(target)
 
 		send_notification(target.id, f"@{v.username} has unfollowed you!")
@@ -1126,7 +1126,7 @@ def remove_follow(username, v):
 	g.db.delete(follow)
 	
 	g.db.flush()
-	v.stored_subscriber_count = g.db.query(Follow.target_id).filter_by(target_id=v.id).count()
+	v.stored_subscriber_count = g.db.query(Follow).filter_by(target_id=v.id).count()
 	g.db.add(v)
 
 	send_repeatable_notification(target.id, f"@{v.username} has removed your follow!")
@@ -1145,7 +1145,7 @@ def remove_follow(username, v):
 @auth_desired
 def user_profile_uid(v, id):
 	if not v and not request.path.startswith('/logged_out'): return redirect(f"/logged_out{request.full_path}")
-	if v and request.path.startswith('/logged_out'): v = None
+	if v and request.path.startswith('/logged_out'): return redirect(request.full_path.replace('/logged_out',''))
 
 	try: id = int(id)
 	except:

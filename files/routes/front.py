@@ -173,7 +173,7 @@ def front_all(v, sub=None, subdomain=None):
 		session["session_id"] = secrets.token_hex(49)
 
 	if not v and not request.path.startswith('/logged_out'): return redirect(f"/logged_out{request.full_path}")
-	if v and request.path.startswith('/logged_out'): v = None
+	if v and request.path.startswith('/logged_out'): return redirect(request.full_path.replace('/logged_out',''))
 
 	if sub: sub = g.db.query(Sub).filter_by(name=sub.strip().lower()).one_or_none()
 	

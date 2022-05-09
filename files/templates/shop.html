@@ -14,7 +14,9 @@
 		<h5 class="mt-4">Coins spent by you: {{v.coins_spent}} coins</h5>
 		<h5 class="mt-4">Lootboxes bought by you: {{v.lootboxes_bought}} lootbox{{'es' if v.lootboxes_bought != 1}}</h5>
 		<h5 class="mt-4">Your current coins: {{v.coins}}</h5>
-		<h5 class="mt-4">Your current marseybux: {{v.procoins}}</h3>
+		{% if SITE_NAME not in ('Cringetopia', 'WPD') %}
+			<h5 class="mt-4">Your current marseybux: {{v.procoins}}</h3>
+		{% endif %}
 	</header>
 {% endblock %}
 
@@ -72,8 +74,10 @@
 				<td>{{a['owned']}}</td>
 				{% set kind = a['kind'] %}
 				<td>
-					{% if a['kind'] != "benefactor" %}<a class="d-flex btn btn-success {% if v.coins < a['price'] %}disabled{% endif %}" role="button" onclick="post_toast(this,'/buy/{{kind}}')"><span class="m-auto">Buy with coins</span></a>{% endif %}
-					{% if a['kind'] != "grass" %}<a class="d-flex marseybux btn btn-success {% if v.procoins < a['price'] %}disabled{% endif %}" role="button" onclick="post_toast(this,'/buy/{{kind}}?mb=true')"><span class="m-auto">Buy with marseybux</span></a>{% endif %}
+					{% if a['kind'] != "benefactor" %}<a class="d-flex btn btn-success {% if v.coins < a['price'] %}disabled{% endif %}" role="button" onclick="post_toast(this,'/buy/{{kind}}')"><span class="m-auto">Buy</span></a>{% endif %}
+					{% if SITE_NAME not in ('Cringetopia', 'WPD') %}
+						{% if a['kind'] != "grass" %}<a class="d-flex marseybux btn btn-success {% if v.procoins < a['price'] %}disabled{% endif %}" role="button" onclick="post_toast(this,'/buy/{{kind}}?mb=true')"><span class="m-auto">Buy with marseybux</span></a>{% endif %}
+					{% endif %}
 				</td>
 				<td>
 					{{a['description']}}

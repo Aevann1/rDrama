@@ -115,8 +115,10 @@
 					<span id="profile-coins-amount">{{u.coins}}</span>
 					<img alt="coins" class="ml-1 mb-1" data-bs-toggle="tooltip" data-bs-placement="bottom" title="coins" height="20" src="/assets/images/{{SITE_NAME}}/coins.webp?v=2">&nbsp;&nbsp;
 
-					<span id="profile-bux-amount">{{u.procoins}}</span>
-					<img alt="marseybux" class="ml-1 mb-1" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Marseybux" height="20" width="46" src="/assets/images/marseybux.webp?v=1008">&nbsp;&nbsp;
+					{% if SITE_NAME not in ('Cringetopia', 'WPD') %}
+						<span id="profile-bux-amount">{{u.procoins}}</span>
+						<img alt="marseybux" class="ml-1 mb-1" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Marseybux" height="20" width="46" src="/assets/images/marseybux.webp?v=1008">&nbsp;&nbsp;
+					{% endif %}
 
 					<a href="/@{{u.username}}/followers">{{u.stored_subscriber_count}} follower{{'s' if u.stored_subscriber_count != 1 else ''}}</a>&nbsp;&nbsp;
 
@@ -176,7 +178,9 @@
 
 						<a class="btn btn-primary" role="button" onclick="post_toast(this,'/@{{u.username}}/suicide')">Get them help</a>
 						<a class="btn btn-primary" role="button" onclick="toggleElement('coin-transfer', 'coin-transfer-amount')">Gift coins</a>
-						<a class="btn btn-primary" role="button" onclick="toggleElement('bux-transfer', 'bux-transfer-amount')">Gift Marseybux</a>
+						{% if SITE_NAME not in ('Cringetopia', 'WPD') %}
+							<a class="btn btn-primary" role="button" onclick="toggleElement('bux-transfer', 'bux-transfer-amount')">Gift Marseybux</a>
+						{% endif %}
 
 						{% if v.admin_level > 2 %}
 							<a id="admin" class="{% if u.admin_level > 1 %}d-none{% endif %} btn btn-primary" href="javascript:void(0)" onclick="post_toast2(this,'/@{{u.username}}/make_admin','admin','unadmin')">Make admin</a>
@@ -413,8 +417,10 @@
 					<span id="profile-coins-amount-mobile" class="font-weight-bold">{{u.coins}}</span>
 					<img alt="coins" class="ml-1 mb-1" data-bs-toggle="tooltip" data-bs-placement="bottom" title="coins" height="15" src="/assets/images/{{SITE_NAME}}/coins.webp?v=2">&nbsp;&nbsp;
 
-					<span id="profile-bux-amount-mobile" class="font-weight-bold">{{u.procoins}}</span>
-					<img alt="marseybux" class="ml-1 mb-1" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Marseybux" height="15" width="35" src="/assets/images/marseybux.webp?v=1008">&nbsp;&nbsp;
+					{% if SITE_NAME not in ('Cringetopia', 'WPD') %}
+						<span id="profile-bux-amount-mobile" class="font-weight-bold">{{u.procoins}}</span>
+						<img alt="marseybux" class="ml-1 mb-1" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Marseybux" height="15" width="35" src="/assets/images/marseybux.webp?v=1008">&nbsp;&nbsp;
+					{% endif %}
 
 					<a href="/@{{u.username}}/followers" class="font-weight-bold">{{u.stored_subscriber_count}} follower{{'s' if u.stored_subscriber_count != 1 else ''}}</a>&nbsp;&nbsp;
 
@@ -488,7 +494,9 @@
 					<a class="btn btn-primary" role="button" onclick="toggleElement('message-mobile', 'input-message-mobile')">Message</a>
 					<a class="btn btn-primary" role="button" onclick="post_toast(this,'/@{{u.username}}/suicide')">Get them help</a>
 					<a class="btn btn-primary" role="button" onclick="toggleElement('coin-transfer-mobile', 'coin-transfer-amount-mobile')">Gift coins</a>
-					<a class="btn btn-primary" role="button" onclick="toggleElement('bux-transfer-mobile', 'bux-transfer-amount-mobile')">Gift Marseybux</a>
+					{% if SITE_NAME not in ('Cringetopia', 'WPD') %}
+						<a class="btn btn-primary" role="button" onclick="toggleElement('bux-transfer-mobile', 'bux-transfer-amount-mobile')">Gift Marseybux</a>
+					{% endif %}
 
 					{% if v.admin_level > 2 %} 
 						<a id="admin2" class="{% if u.admin_level > 1 %}d-none{% endif %} btn btn-primary" href="javascript:void(0)" onclick="post_toast2(this,'/@{{u.username}}/make_admin','admin2','unadmin2')">Make admin</a>

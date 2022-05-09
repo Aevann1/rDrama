@@ -579,18 +579,22 @@ line breaks
 			<td>!slots100</td>
 			<td>Play slots using coins - minimum 100 coins</td>
 		</tr>
-		<tr>
-			<td>!slotsmb100</td>
-			<td>Play slots using marseybux - minimum 100 marseybux</td>
-		</tr>
+		{% if SITE_NAME not in ('Cringetopia', 'WPD') %}
+			<tr>
+				<td>!slotsmb100</td>
+				<td>Play slots using marseybux - minimum 100 marseybux</td>
+			</tr>
+		{% endif %}
 		<tr>
 			<td>!blackjack100</td>
 			<td>Play blackjack using coins - minimum 100 coins</td>
 		</tr>
-		<tr>
-			<td>!blackjackmb100</td>
-			<td>Play blackjack using marseybux - minimum 100 marseybux</td>
-		</tr>
+		{% if SITE_NAME not in ('Cringetopia', 'WPD') %}
+			<tr>
+				<td>!blackjackmb100</td>
+				<td>Play blackjack using marseybux - minimum 100 marseybux</td>
+			</tr>
+		{% endif %}
 		<tr>
 			<td>!wordle</td>
 			<td>Play wordle</td>

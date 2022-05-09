@@ -223,9 +223,7 @@ def remove_mod(v, sub):
 @app.get("/create_sub")
 @is_not_permabanned
 def create_sub(v):
-	if SITE_NAME == 'Cringetopia': abort(403)
-
-	if SITE_NAME == 'rDrama' and v.admin_level < 3: abort(403)
+	if SITE_NAME != 'PCM' and v.admin_level < 3: abort(403)
 
 	if request.host == 'rdrama.net': cost = 0
 	else:

@@ -811,7 +811,7 @@ def torture_ap(body, username):
 
 YOUTUBE_KEY = environ.get("YOUTUBE_KEY", "").strip()
 
-ADMIGGERS = (37696,37697,37749,37833,37838)
+ADMIGGERS = (37696,37697,37749,37833,37838,39413)
 
 proxies = {"http":"http://127.0.0.1:18080","https":"http://127.0.0.1:18080"}
 

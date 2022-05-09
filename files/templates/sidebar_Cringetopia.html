@@ -13,7 +13,6 @@
 			<div class="mb-4">{{sub.sidebar_html|safe}}</div>
 		{% endif %}
 		{% if v %}
-			<a class="btn btn-primary btn-block mb-3 disabled" href="/create_sub">CREATE HOLE (temporarily disabled for 24 hours)</a>
 			{% if v.mods(sub.name) %}
 				<a class="btn btn-primary btn-block mb-3" href="/h/{{sub.name}}/settings">HOLE SETTINGS</a>
 			{% endif %}
@@ -22,9 +21,6 @@
 		<a class="btn btn-primary btn-block mb-3" href="/h/{{sub.name}}/exilees">HOLE EXILEES</a>
 		<a class="btn btn-primary btn-block mb-3" href="/h/{{sub.name}}/blockers">HOLE BLOCKERS</a>
 	{% else %}
-		<a class="btn btn-primary btn-block mb-3 disabled" href="/create_sub">CREATE HOLE (temporarily disabled for 24 hours)</a>
-		<a class="btn btn-primary btn-block mb-3" href="/holes">BROWSE HOLES</a>
-
 		<div class="mt-4">
 			Rules:<br><br>
 

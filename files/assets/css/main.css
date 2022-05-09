@@ -5094,3 +5094,7 @@ th, td {
     position: absolute;
     transform: translate(-70px,-22px);
 }
+
+blockquote a {
+	filter: brightness(150%);
+}

@@ -62,7 +62,7 @@ def marsey_list():
 @auth_desired
 def sidebar(v):
 	if not v and not request.path.startswith('/logged_out'): return redirect(f"/logged_out{request.full_path}")
-	if v and request.path.startswith('/logged_out'): v = None
+	if v and request.path.startswith('/logged_out'): return redirect(request.full_path.replace('/logged_out',''))
 
 	return render_template('sidebar.html', v=v)
 
@@ -86,42 +86,42 @@ def stats(site=None):
 
 	active_users = set(posters) | set(commenters) | set(voters) | set(commentvoters)
 
-	stats = {"marseys": g.db.query(Marsey.name).count(),
-			"users": g.db.query(User.id).count(),
-			"private users": g.db.query(User.id).filter_by(is_private=True).count(),
-			"banned users": g.db.query(User.id).filter(User.is_banned > 0).count(),
-			"verified email users": g.db.query(User.id).filter_by(is_activated=True).count(),
+	stats = {"marseys": g.db.query(Marsey).count(),
+			"users": g.db.query(User).count(),
+			"private users": g.db.query(User).filter_by(is_private=True).count(),
+			"banned users": g.db.query(User).filter(User.is_banned > 0).count(),
+			"verified email users": g.db.query(User).filter_by(is_activated=True).count(),
 			"coins in circulation": g.db.query(func.sum(User.coins)).scalar(),
 			"total shop sales": g.db.query(func.sum(User.coins_spent)).scalar(),
-			"signups last 24h": g.db.query(User.id).filter(User.created_utc > day).count(),
-			"total posts": g.db.query(Submission.id).count(),
-			"posting users": g.db.query(Submission.author_id).distinct().count(),
-			"listed posts": g.db.query(Submission.id).filter_by(is_banned=False).filter(Submission.deleted_utc == 0).count(),
-			"removed posts (by admins)": g.db.query(Submission.id).filter_by(is_banned=True).count(),
-			"deleted posts (by author)": g.db.query(Submission.id).filter(Submission.deleted_utc > 0).count(),
-			"posts last 24h": g.db.query(Submission.id).filter(Submission.created_utc > day).count(),
-			"total comments": g.db.query(Comment.id).filter(Comment.author_id.notin_((AUTOJANNY_ID,NOTIFICATIONS_ID))).count(),
-			"commenting users": g.db.query(Comment.author_id).distinct().count(),
-			"removed comments (by admins)": g.db.query(Comment.id).filter_by(is_banned=True).count(),
-			"deleted comments (by author)": g.db.query(Comment.id).filter(Comment.deleted_utc > 0).count(),
-			"comments last_24h": g.db.query(Comment.id).filter(Comment.created_utc > day, Comment.author_id.notin_((AUTOJANNY_ID,NOTIFICATIONS_ID))).count(),
-			"post votes": g.db.query(Vote.submission_id).count(),
-			"post voting users": g.db.query(Vote.user_id).distinct().count(),
-			"comment votes": g.db.query(CommentVote.comment_id).count(),
-			"comment voting users": g.db.query(CommentVote.user_id).distinct().count(),
-			"total upvotes": g.db.query(Vote.submission_id).filter_by(vote_type=1).count() + g.db.query(CommentVote.comment_id).filter_by(vote_type=1).count(),
-			"total downvotes": g.db.query(Vote.submission_id).filter_by(vote_type=-1).count() + g.db.query(CommentVote.comment_id).filter_by(vote_type=-1).count(),
-			"total awards": g.db.query(AwardRelationship.id).count(),
-			"awards given": g.db.query(AwardRelationship.id).filter(or_(AwardRelationship.submission_id != None, AwardRelationship.comment_id != None)).count(),
+			"signups last 24h": g.db.query(User).filter(User.created_utc > day).count(),
+			"total posts": g.db.query(Submission).count(),
+			"posting users": g.db.query(Submission).distinct().count(),
+			"listed posts": g.db.query(Submission).filter_by(is_banned=False).filter(Submission.deleted_utc == 0).count(),
+			"removed posts (by admins)": g.db.query(Submission).filter_by(is_banned=True).count(),
+			"deleted posts (by author)": g.db.query(Submission).filter(Submission.deleted_utc > 0).count(),
+			"posts last 24h": g.db.query(Submission).filter(Submission.created_utc > day).count(),
+			"total comments": g.db.query(Comment).filter(Comment.author_id.notin_((AUTOJANNY_ID,NOTIFICATIONS_ID))).count(),
+			"commenting users": g.db.query(Comment).distinct().count(),
+			"removed comments (by admins)": g.db.query(Comment).filter_by(is_banned=True).count(),
+			"deleted comments (by author)": g.db.query(Comment).filter(Comment.deleted_utc > 0).count(),
+			"comments last_24h": g.db.query(Comment).filter(Comment.created_utc > day, Comment.author_id.notin_((AUTOJANNY_ID,NOTIFICATIONS_ID))).count(),
+			"post votes": g.db.query(Vote).count(),
+			"post voting users": g.db.query(Vote).distinct().count(),
+			"comment votes": g.db.query(CommentVote).count(),
+			"comment voting users": g.db.query(CommentVote).distinct().count(),
+			"total upvotes": g.db.query(Vote).filter_by(vote_type=1).count() + g.db.query(CommentVote.comment_id).filter_by(vote_type=1).count(),
+			"total downvotes": g.db.query(Vote).filter_by(vote_type=-1).count() + g.db.query(CommentVote.comment_id).filter_by(vote_type=-1).count(),
+			"total awards": g.db.query(AwardRelationship).count(),
+			"awards given": g.db.query(AwardRelationship).filter(or_(AwardRelationship.submission_id != None, AwardRelationship.comment_id != None)).count(),
 			"users who posted, commented, or voted in the past 7 days": len(active_users),
 			}
 
 
 	if SITE_NAME == 'rDrama':
-		furries1 = g.db.query(User.id).filter(User.house.like('Furry%')).count()
-		femboys1 = g.db.query(User.id).filter(User.house.like('Femboy%')).count()
-		vampires1 = g.db.query(User.id).filter(User.house.like('Vampire%')).count()
-		racists1 = g.db.query(User.id).filter(User.house.like('Racist%')).count()
+		furries1 = g.db.query(User).filter(User.house.like('Furry%')).count()
+		femboys1 = g.db.query(User).filter(User.house.like('Femboy%')).count()
+		vampires1 = g.db.query(User).filter(User.house.like('Vampire%')).count()
+		racists1 = g.db.query(User).filter(User.house.like('Racist%')).count()
 
 		furries2 = g.db.query(func.sum(User.truecoins)).filter(User.house.like('Furry%')).scalar()
 		femboys2 = g.db.query(func.sum(User.truecoins)).filter(User.house.like('Femboy%')).scalar()
@@ -251,11 +251,11 @@ def cached_chart(kind, site):
 
 	daily_times = [time.strftime("%d/%m", time.gmtime(day_cutoffs[i + 1])) for i in range(len(day_cutoffs) - 1)][::-1]
 
-	daily_signups = [g.db.query(User.id).filter(User.created_utc < day_cutoffs[i], User.created_utc > day_cutoffs[i + 1]).count() for i in range(len(day_cutoffs) - 1)][::-1]
+	daily_signups = [g.db.query(User).filter(User.created_utc < day_cutoffs[i], User.created_utc > day_cutoffs[i + 1]).count() for i in range(len(day_cutoffs) - 1)][::-1]
 
-	post_stats = [g.db.query(Submission.id).filter(Submission.created_utc < day_cutoffs[i], Submission.created_utc > day_cutoffs[i + 1], Submission.is_banned == False).count() for i in range(len(day_cutoffs) - 1)][::-1]
+	post_stats = [g.db.query(Submission).filter(Submission.created_utc < day_cutoffs[i], Submission.created_utc > day_cutoffs[i + 1], Submission.is_banned == False).count() for i in range(len(day_cutoffs) - 1)][::-1]
 
-	comment_stats = [g.db.query(Comment.id).filter(Comment.created_utc < day_cutoffs[i], Comment.created_utc > day_cutoffs[i + 1],Comment.is_banned == False, Comment.author_id.notin_((AUTOJANNY_ID,NOTIFICATIONS_ID))).count() for i in range(len(day_cutoffs) - 1)][::-1]
+	comment_stats = [g.db.query(Comment).filter(Comment.created_utc < day_cutoffs[i], Comment.created_utc > day_cutoffs[i + 1],Comment.is_banned == False, Comment.author_id.notin_((AUTOJANNY_ID,NOTIFICATIONS_ID))).count() for i in range(len(day_cutoffs) - 1)][::-1]
 
 	plt.rcParams["figure.figsize"] = (30, 20)
 
@@ -497,7 +497,7 @@ no = (21,22,23,24,25,26,27)
 def badge_list(site):
 	badges = g.db.query(BadgeDef).filter(BadgeDef.id.notin_(no)).order_by(BadgeDef.id).all()
 	counts_raw = g.db.query(Badge.badge_id, func.count()).group_by(Badge.badge_id).all()
-	users = g.db.query(User.id).count()
+	users = g.db.query(User).count()
 
 	counts = {}
 	for c in counts_raw:

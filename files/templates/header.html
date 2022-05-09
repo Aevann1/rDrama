@@ -153,7 +153,9 @@
 							<div class="text-left pl-2">
 								<div style="color: #{{v.namecolor}}" class="text-small font-weight-bold {% if v.patron %}patron{% endif %}"><span {% if v.patron %}class="patron" style="background-color:#{{v.namecolor}}"{% endif %}>{{v.username}}</span></div>
 								<div class="text-small-extra"><img alt="coins" class="mr-1 ml-1" data-bs-toggle="tooltip" data-bs-placement="bottom" height="13" src="/assets/images/{{SITE_NAME}}/coins.webp?v=2" title="coins" aria-label="coins"><span id="user-coins-amount">{{v.coins}}</span> Coins</div>
-								<div class="text-small-extra"><img alt="marseybux" class="mr-1 ml-1" data-bs-toggle="tooltip" data-bs-placement="bottom" height="13" width="30" src="/assets/images/marseybux.webp?v=1008" title="Marseybux" aria-label="Marseybux"><span id="user-bux-amount">{{v.procoins}}</span> Marseybux</div>
+								{% if SITE_NAME not in ('Cringetopia', 'WPD') %}
+									<div class="text-small-extra"><img alt="marseybux" class="mr-1 ml-1" data-bs-toggle="tooltip" data-bs-placement="bottom" height="13" width="30" src="/assets/images/marseybux.webp?v=1008" title="Marseybux" aria-label="Marseybux"><span id="user-bux-amount">{{v.procoins}}</span> Marseybux</div>
+								{% endif %}
 							</div>
 						</div>
 					</a>

@@ -315,8 +315,8 @@ def sign_up_post(v):
 
 	ref_id = int(request.values.get("referred_by", 0))
 
-	id_1 = g.db.query(User.id).filter_by(id=9).count()
-	users_count = g.db.query(User.id).count()
+	id_1 = g.db.query(User).filter_by(id=9).count()
+	users_count = g.db.query(User).count()
 	if id_1 == 0 and users_count == 8:
 		admin_level=3
 		session["history"] = []

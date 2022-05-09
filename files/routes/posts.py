@@ -120,7 +120,7 @@ def submit_get(v, sub=None):
 def post_id(pid, anything=None, v=None, sub=None):
 
 	if not v and not request.path.startswith('/logged_out'): return redirect(f"/logged_out{request.full_path}")
-	if v and request.path.startswith('/logged_out'): v = None
+	if v and request.path.startswith('/logged_out'): return redirect(request.full_path.replace('/logged_out',''))
 
 	try: pid = int(pid)
 	except Exception as e: pass
@@ -229,13 +229,13 @@ def post_id(pid, anything=None, v=None, sub=None):
 			for comment in comments:
 				comments2.append(comment)
 				ids.add(comment.id)
-				count += g.db.query(Comment.id).filter_by(parent_submission=post.id, top_comment_id=comment.id).count() + 1
+				count += g.db.query(Comment).filter_by(parent_submission=post.id, top_comment_id=comment.id).count() + 1
 				if count > 50: break
 		else:
 			for comment in comments:
 				comments2.append(comment)
 				ids.add(comment.id)
-				count += g.db.query(Comment.id).filter_by(parent_submission=post.id, parent_comment_id=comment.id).count() + 1
+				count += g.db.query(Comment).filter_by(parent_submission=post.id, parent_comment_id=comment.id).count() + 1
 				if count > 10: break
 
 		if len(comments) == len(comments2): offset = 0
@@ -353,13 +353,13 @@ def viewmore(v, pid, sort, offset):
 		for comment in comments:
 			comments2.append(comment)
 			ids.add(comment.id)
-			count += g.db.query(Comment.id).filter_by(parent_submission=post.id, top_comment_id=comment.id).count() + 1
+			count += g.db.query(Comment).filter_by(parent_submission=post.id, top_comment_id=comment.id).count() + 1
 			if count > 50: break
 	else:
 		for comment in comments:
 			comments2.append(comment)
 			ids.add(comment.id)
-			count += g.db.query(Comment.id).filter_by(parent_submission=post.id, parent_comment_id=comment.id).count() + 1
+			count += g.db.query(Comment).filter_by(parent_submission=post.id, parent_comment_id=comment.id).count() + 1
 			if count > 10: break
 	
 	if len(comments) == len(comments2): offset = 0
@@ -476,29 +476,27 @@ def edit_post(pid, v):
 	if body != p.body:
 		if v.id == p.author_id and v.agendaposter and not v.marseyawarded: body = torture_ap(body, v.username)
 
-		if not p.options:
-			for i in poll_regex.finditer(body):
-				body = body.replace(i.group(0), "")
-				c = Comment(author_id=AUTOPOLLER_ID,
-					parent_submission=p.id,
-					level=1,
-					body_html=filter_emojis_only(i.group(1)),
-					upvotes=0,
-					is_bot=True
-					)
-				g.db.add(c)
+		for i in poll_regex.finditer(body):
+			body = body.replace(i.group(0), "")
+			c = Comment(author_id=AUTOPOLLER_ID,
+				parent_submission=p.id,
+				level=1,
+				body_html=filter_emojis_only(i.group(1)),
+				upvotes=0,
+				is_bot=True
+				)
+			g.db.add(c)
 
-		if not p.choices:
-			for i in choice_regex.finditer(body):
-				body = body.replace(i.group(0), "")
-				c = Comment(author_id=AUTOCHOICE_ID,
-					parent_submission=p.id,
-					level=1,
-					body_html=filter_emojis_only(i.group(1)),
-					upvotes=0,
-					is_bot=True
-					)
-				g.db.add(c)
+		for i in choice_regex.finditer(body):
+			body = body.replace(i.group(0), "")
+			c = Comment(author_id=AUTOCHOICE_ID,
+				parent_submission=p.id,
+				level=1,
+				body_html=filter_emojis_only(i.group(1)),
+				upvotes=0,
+				is_bot=True
+				)
+			g.db.add(c)
 
 		body_html = sanitize(body, edit=True)
 
@@ -1408,7 +1406,7 @@ def submit_post(v, sub=None):
 				g.db.add(c_choice)
 		g.db.flush()
 
-	v.post_count = g.db.query(Submission.id).filter_by(author_id=v.id, is_banned=False, deleted_utc=0).count()
+	v.post_count = g.db.query(Submission).filter_by(author_id=v.id, is_banned=False, deleted_utc=0).count()
 	g.db.add(v)
 
 	if v.id == PIZZASHILL_ID:

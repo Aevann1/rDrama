@@ -68,7 +68,7 @@ def pusher_thread(interests, c, username):
 def post_pid_comment_cid(cid, pid=None, anything=None, v=None, sub=None):
 
 	if not v and not request.path.startswith('/logged_out'): return redirect(f"/logged_out{request.full_path}")
-	if v and request.path.startswith('/logged_out'): v = None
+	if v and request.path.startswith('/logged_out'): return redirect(request.full_path.replace('/logged_out',''))
 
 	try: cid = int(cid)
 	except: abort(404)
@@ -282,7 +282,7 @@ def api_comment(v):
 							g.db.add(marsey)
 							g.db.flush()
 
-							all_by_author = g.db.query(Marsey.author_id).filter_by(author_id=user.id).count()
+							all_by_author = g.db.query(Marsey).filter_by(author_id=user.id).count()
 
 							if all_by_author >= 10 and not user.has_badge(16):
 								new_badge = Badge(badge_id=16, user_id=user.id)
@@ -636,7 +636,7 @@ def api_comment(v):
 
 	cache.delete_memoized(comment_idlist)
 
-	v.comment_count = g.db.query(Comment.id).filter(Comment.author_id == v.id, Comment.parent_submission != None).filter_by(is_banned=False, deleted_utc=0).count()
+	v.comment_count = g.db.query(Comment).filter(Comment.author_id == v.id, Comment.parent_submission != None).filter_by(is_banned=False, deleted_utc=0).count()
 	g.db.add(v)
 
 	c.voted = 1
@@ -700,31 +700,29 @@ def edit_comment(cid, v):
 		if v.agendaposter and not v.marseyawarded:
 			body = torture_ap(body, v.username)
 
-		if not c.options:
-			for i in poll_regex.finditer(body):
-				body = body.replace(i.group(0), "")
-				c_option = Comment(author_id=AUTOPOLLER_ID,
-					parent_submission=c.parent_submission,
-					parent_comment_id=c.id,
-					level=c.level+1,
-					body_html=filter_emojis_only(i.group(1)),
-					upvotes=0,
-					is_bot=True
-					)
-				g.db.add(c_option)
+		for i in poll_regex.finditer(body):
+			body = body.replace(i.group(0), "")
+			c_option = Comment(author_id=AUTOPOLLER_ID,
+				parent_submission=c.parent_submission,
+				parent_comment_id=c.id,
+				level=c.level+1,
+				body_html=filter_emojis_only(i.group(1)),
+				upvotes=0,
+				is_bot=True
+				)
+			g.db.add(c_option)
 
-		if not c.choices:
-			for i in choice_regex.finditer(body):
-				body = body.replace(i.group(0), "")
-				c_choice = Comment(author_id=AUTOCHOICE_ID,
-					parent_submission=c.parent_submission,
-					parent_comment_id=c.id,
-					level=c.level+1,
-					body_html=filter_emojis_only(i.group(1)),
-					upvotes=0,
-					is_bot=True
-					)
-				g.db.add(c_choice)
+		for i in choice_regex.finditer(body):
+			body = body.replace(i.group(0), "")
+			c_choice = Comment(author_id=AUTOCHOICE_ID,
+				parent_submission=c.parent_submission,
+				parent_comment_id=c.id,
+				level=c.level+1,
+				body_html=filter_emojis_only(i.group(1)),
+				upvotes=0,
+				is_bot=True
+				)
+			g.db.add(c_choice)
 
 		body_html = sanitize(body, edit=True)
 

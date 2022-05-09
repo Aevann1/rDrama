@@ -105,9 +105,9 @@ def api_vote_post(post_id, new, v):
 		g.db.add(vote)
 
 	g.db.flush()
-	post.upvotes = g.db.query(Vote.submission_id).filter_by(submission_id=post.id, vote_type=1).count()
-	post.downvotes = g.db.query(Vote.submission_id).filter_by(submission_id=post.id, vote_type=-1).count()
-	post.realupvotes = g.db.query(Vote.submission_id).filter_by(submission_id=post.id, real=True).count()
+	post.upvotes = g.db.query(Vote).filter_by(submission_id=post.id, vote_type=1).count()
+	post.downvotes = g.db.query(Vote).filter_by(submission_id=post.id, vote_type=-1).count()
+	post.realupvotes = g.db.query(Vote).filter_by(submission_id=post.id, real=True).count()
 	if post.author.progressivestack: post.realupvotes *= 2
 	g.db.add(post)
 	g.db.commit()
@@ -175,9 +175,9 @@ def api_vote_comment(comment_id, new, v):
 		g.db.add(vote)
 
 	g.db.flush()
-	comment.upvotes = g.db.query(CommentVote.comment_id).filter_by(comment_id=comment.id, vote_type=1).count()
-	comment.downvotes = g.db.query(CommentVote.comment_id).filter_by(comment_id=comment.id, vote_type=-1).count()
-	comment.realupvotes = g.db.query(CommentVote.comment_id).filter_by(comment_id=comment.id, real=True).count()
+	comment.upvotes = g.db.query(CommentVote).filter_by(comment_id=comment.id, vote_type=1).count()
+	comment.downvotes = g.db.query(CommentVote).filter_by(comment_id=comment.id, vote_type=-1).count()
+	comment.realupvotes = g.db.query(CommentVote).filter_by(comment_id=comment.id, real=True).count()
 	if comment.author.progressivestack: comment.realupvotes *= 2
 	g.db.add(comment)
 	g.db.commit()
@@ -210,7 +210,7 @@ def api_vote_poll(comment_id, v):
 		g.db.add(vote)
 
 	g.db.flush()
-	comment.upvotes = g.db.query(CommentVote.comment_id).filter_by(comment_id=comment.id, vote_type=1).count()
+	comment.upvotes = g.db.query(CommentVote).filter_by(comment_id=comment.id, vote_type=1).count()
 	g.db.add(comment)
 	g.db.commit()
 	return "", 204
@@ -268,12 +268,12 @@ def api_vote_choice(comment_id, v):
 	else: parent = comment.post
 
 	for vote in parent.total_choice_voted(v):
-		vote.comment.upvotes = g.db.query(CommentVote.comment_id).filter_by(comment_id=vote.comment.id, vote_type=1).count() - 1
+		vote.comment.upvotes = g.db.query(CommentVote).filter_by(comment_id=vote.comment.id, vote_type=1).count() - 1
 		g.db.add(vote.comment)
 		g.db.delete(vote)
 
 	g.db.flush()
-	comment.upvotes = g.db.query(CommentVote.comment_id).filter_by(comment_id=comment.id, vote_type=1).count()
+	comment.upvotes = g.db.query(CommentVote).filter_by(comment_id=comment.id, vote_type=1).count()
 	g.db.add(comment)
 	g.db.commit()
 	return "", 204

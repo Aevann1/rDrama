@@ -7,7 +7,7 @@
 	<script src="/assets/js/bootstrap.js?v=245"></script>
 	{% if v %}
 		<style>:root{--primary:#{{v.themecolor}}}</style>
-		<link rel="stylesheet" href="/assets/css/main.css?v=256">
+		<link rel="stylesheet" href="/assets/css/main.css?v=258">
 		<link rel="stylesheet" href="/assets/css/{{v.theme}}.css?v=57">
 		{% if v.agendaposter %}
 			<style>
@@ -32,7 +32,7 @@
 		{% endif %}
 	{% else %}
 		<style>:root{--primary:#{{config('DEFAULT_COLOR')}}</style>
-		<link rel="stylesheet" href="/assets/css/main.css?v=256">
+		<link rel="stylesheet" href="/assets/css/main.css?v=258">
 		<link rel="stylesheet" href="/assets/css/{{config('DEFAULT_THEME')}}.css?v=57">
 	{% endif %}
 
@@ -42,14 +42,6 @@
 
 	{% if sub and sub.css and not request.path.endswith('settings') %}
 		<link rel="stylesheet" href="/h/{{sub.name}}/css" type="text/css">
-	{% endif %}
-
-	{% if v and v.themecolor == '30409f' %}
-		<style>
-			p a {
-				color: #2a96f3;
-			}
-		</style>
 	{% endif %}
 
 	{% if SITE_NAME == 'rDrama' %}
