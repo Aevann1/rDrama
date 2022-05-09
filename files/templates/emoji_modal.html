@@ -2,15 +2,28 @@
 <div class="modal fade" id="emojiModal" tabindex="-1" role="dialog" aria-labelledby="emojiModalTitle" aria-hidden="true">
 	<style>
 		#emojiTabs {height: 80%;}
-		@media (max-height: 900px) {
+		@media (max-height: 650px) {
 			#emojiTabs {height: 100%;}
 			#emojiModalInternalDivIDK {margin-top: 0 !important; margin-bottom: 0 !important; padding-top: 0 !important; padding-bottom: 0 !important;}
+		
+			#emoji-modal-tabs-container {
+				overflow-x: scroll;
+			}
+
+			#emoji-modal-tabs {
+				white-space: nowrap;
+				flex-wrap: nowrap;
+			}
+
+			#emoji-modal-tabs li {
+				display: inline-block;
+			}
 		}
 	</style>
 	<div id="emojiModalInternalDivIDK" class="modal-dialog modal-dialog-scrollable modal-dialog-centered p-2 py-5 emoji-modal" role="document">
 		<div class="modal-content" id="emojiTabs">
 			<div class="modal-header">
-				<div>
+				<div id="emoji-modal-tabs-container">
 					<ul class="nav nav-pills py-2" id="emoji-modal-tabs">
 						<li class="nav-item">
 							<a class="nav-link active emojitab" data-class-name="favorite" data-bs-toggle="tab" href="#" onclick="switchEmojiTab(event)">⭐ Favorite ⭐</a>
@@ -44,12 +57,6 @@
 						<label for="emoji-sel-2">Pat</label>
 					</div>
 				</fieldset>
-				<!--
-				<fieldset class="p-2">
-					<label>marseyalphabet:</label>
-					<input type="text">
-					<button>generate!</button>
-				</fieldset>-->
 			</div>
 
 			<div style="overflow-y: scroll;">
@@ -62,7 +69,7 @@
 					</div>
 					<div id="emoji-new-user" class="tab-content py-3 pl-2" hidden>
 						👋 Hello! This is the first time you're using the emoji system on this device 📱.<br>
-						I've took the liberty to populate this tab with a selection of emojis 😽. Next time you'll find the ones you used the most in there 📚
+						I've took the liberty to populate this tab with a selection of Anton's emojis 😽. Next time you'll find the ones you used the most in there 📚
 					</div>
 					<div id="tab-content" class="tab-content d-flex flex-wrap py-3 pl-2" hidden>
 						<style>

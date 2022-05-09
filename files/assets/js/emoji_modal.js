@@ -65,7 +65,7 @@ let emojiSearcher = {
 			const startTime = Date.now();
 
 			// Get last input
-			const query = this.queries[this.queries.length - 1];
+			const query = this.queries[this.queries.length - 1].toLowerCase();
 			this.queries = [];
 
 			// To improve perf we avoid showing all emojis at the same time.
@@ -182,7 +182,7 @@ emojiRequest.onload = async (e) => {
 
 	for(let i = 0; i < emojis.length; i++)
 	{
-		let emoji = emojis[i];
+		const emoji = emojis[i];
 
 		emojisSearchDictionary.updateTag(emoji.name, emoji.name);
 		if(emoji.author !== undefined && emoji.author !== null)
@@ -291,7 +291,7 @@ function switchEmojiTab(e)
 }
 
 emojiSearchBarDOM.oninput = async function(event) {
-	emojiSearcher.addQuery(emojiSearchBarDOM.value.toLowerCase());
+	emojiSearcher.addQuery(emojiSearchBarDOM.value);
 
 	// Remove any selected tab, now it is meaningless
 	for(let i = 0; i < classesSelectorDOM.children.length; i++)
