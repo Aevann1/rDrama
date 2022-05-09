@@ -28,6 +28,7 @@ const emojiSelectPostfixDOMs= document.getElementsByClassName("emoji-postfix");
 
 const emojiNotFoundDOM = document.getElementById("no-emojis-found");
 const emojiWorkingDOM = document.getElementById("emojis-work");
+const emojiNewUser = document.getElementById("emoji-new-user");
 
 /** @type {HTMLInputElement} */
 const emojiSearchBarDOM = document.getElementById('emoji_search');
@@ -37,6 +38,9 @@ let emojiInputTargetDOM = undefined;
 
 // Emojis usage stats. I don't really like this format but I'll keep it for backward comp.
 const favorite_emojis = JSON.parse(localStorage.getItem("favorite_emojis")) || {};
+const emojiFirstBoot = Object.keys(favorite_emojis).length === 0;
+
+emojiNewUser.hidden = !emojiFirstBoot;
 
 /** Associative array of all the emojis' DOM */
 let emojiDOMs = {};
@@ -71,6 +75,8 @@ let emojiSearcher = {
 				classesSelectorDOM.children[0].children[0].classList.add("active");
 				continue;
 			}
+			// Hide welcome message
+			emojiNewUser.hidden = true;
 
 			// Search
 			const resultSet = emojisSearchDictionary.searchFor(query);
@@ -179,7 +185,7 @@ emojiRequest.onload = async (e) => {
 		let emoji = emojis[i];
 
 		emojisSearchDictionary.updateTag(emoji.name, emoji.name);
-		if(emoji.author !== undefined && emoji.author !== "rDrama's chads")
+		if(emoji.author !== undefined && emoji.author !== null)
 			emojisSearchDictionary.updateTag(emoji.author.toLowerCase(), emoji.name);
 
 		if(emoji.tags instanceof Array)
@@ -192,7 +198,7 @@ emojiRequest.onload = async (e) => {
 		const emojiDOM = document.importNode(emojiButtonTemplateDOM.content, true).children[0];
 
 		emojiDOM.title = emoji.name
-		if(emoji.author !== undefined && emoji.author !== "rDrama's chads")
+		if(emoji.author !== undefined && emoji.author !== null)
 			emojiDOM.title += "\nauthor\t" + emoji.author
 		if(emoji.count !== undefined)
 			emojiDOM.title += "\nused\t" + emoji.count;
@@ -234,13 +240,7 @@ emojiRequest.onload = async (e) => {
 	}
 
 	// Show favorite for start.
-	const sortable = Object.fromEntries(
-		Object.entries(favorite_emojis).sort(([,a],[,b]) => b-a)
-	);
-			
-	for (const emoji of Object.keys(sortable).slice(0, 25))
-		if(emojiDOMs[emoji] instanceof HTMLElement)
-			emojiDOMs[emoji].hidden = false;
+	await classesSelectorDOM.children[0].children[0].click();
 	
 	// Send it to the render machine! 
 	emojiResultsDOM.appendChild(bussyDOM);
@@ -265,24 +265,29 @@ function switchEmojiTab(e)
 	// Special case: favorites
 	if(className === "favorite")
 	{
+		if(emojiFirstBoot)
+			emojiNewUser.hidden = false;
+
 		for(const emojiDOM of Object.values(emojiDOMs))
 			emojiDOM.hidden = true;
 
 		// copied from the old one
-		const sortable = Object.fromEntries(
+		// For new users we show anton-d's emojis
+		const favs = emojiFirstBoot ? emojisSearchDictionary.searchFor("anton-d") : Object.keys(Object.fromEntries(
 			Object.entries(favorite_emojis).sort(([,a],[,b]) => b-a)
-		);
+		)).slice(0, 25);
 		
-		for (const emoji of Object.keys(sortable).slice(0, 25))
+		for (const emoji of favs)
 			if(emojiDOMs[emoji] instanceof HTMLElement)
 				emojiDOMs[emoji].hidden = false;
 		
 		return;
 	}
+	
+	emojiNewUser.hidden = true;
 
 	for(const emojiDOM of Object.values(emojiDOMs))
 		emojiDOM.hidden = emojiDOM.dataset.className !== className;
-
 }
 
 emojiSearchBarDOM.oninput = async function(event) {
