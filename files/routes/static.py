@@ -35,7 +35,7 @@ def marsey_list():
 	# From database
 	emojis = [{
 		"name": emoji.name,
-		"author": author if SITE_NAME == 'rDrama' else None,
+		"author": author if SITE_NAME == 'rDrama' or author == "anton-d" else None,
 		# yikes, I don't really like this DB schema. Next time be better
 		"tags": emoji.tags.split(" ") + [emoji.name[len("marsey"):] if emoji.name.startswith("marsey") else emoji.name],
 		"count": emoji.count,
