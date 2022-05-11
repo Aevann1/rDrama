@@ -541,8 +541,9 @@ def leaderboard(v):
 @app.get("/@<username>/css")
 def get_css(username):
 	user = get_user(username)
-	resp=make_response(user.css or "")
-	resp.headers.add("Content-Type", "text/css")
+	resp = make_response(user.css or "")
+	resp.headers["Content-Type"] = "text/css"
+	resp.headers["Referrer-Policy"] = "no-referrer"
 	return resp
 
 @app.get("/@<username>/profilecss")
@@ -550,8 +551,9 @@ def get_profilecss(username):
 	user = get_user(username)
 	if user.profilecss: profilecss = user.profilecss
 	else: profilecss = ""
-	resp=make_response(profilecss)
-	resp.headers.add("Content-Type", "text/css")
+	resp = make_response(profilecss)
+	resp.headers["Content-Type"] = "text/css"
+	resp.headers["Referrer-Policy"] = "no-referrer"
 	return resp
 
 @app.get("/id/<id>/profilecss")
@@ -559,8 +561,9 @@ def get_profilecss_id(id):
 	user = get_account(id)
 	if user.profilecss: profilecss = user.profilecss
 	else: profilecss = ""
-	resp=make_response(profilecss)
-	resp.headers.add("Content-Type", "text/css")
+	resp = make_response(profilecss)
+	resp.headers["Content-Type"] = "text/css"
+	resp.headers["Referrer-Policy"] = "no-referrer"
 	return resp
 
 @app.get("/@<username>/song")
