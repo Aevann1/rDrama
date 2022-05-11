@@ -25,6 +25,8 @@ const emojiResultsDOM = document.getElementById("tab-content");
 const emojiSelectSuffixDOMs = document.getElementsByClassName("emoji-suffix");
 /** @type {HTMLInputElement[]} */
 const emojiSelectPostfixDOMs= document.getElementsByClassName("emoji-postfix");
+/** @type {HTMLInputElement} */
+const emojiUseCompleteSearchDOM = document.getElementById("emoji-complete-search");
 
 const emojiNotFoundDOM = document.getElementById("no-emojis-found");
 const emojiWorkingDOM = document.getElementById("emojis-work");
@@ -79,7 +81,8 @@ let emojiSearcher = {
 			emojiNewUserDOM.hidden = true;
 
 			// Search
-			const resultSet = emojisSearchDictionary.searchFor(query);
+			const completeSearch = emojiUseCompleteSearchDOM.checked;
+			const resultSet = completeSearch ? emojisSearchDictionary.completeSearch(query) : emojisSearchDictionary.searchFor(query);
 
 			// update stuff 
 			for(const [emojiName, emojiDOM] of Object.entries(emojiDOMs))
@@ -87,7 +90,7 @@ let emojiSearcher = {
 
 			emojiNotFoundDOM.hidden = resultSet.size !== 0;
 
-			console.log("Search time: " + (Date.now() - startTime) + "ms");
+			console.log("Search time: " + (Date.now() - startTime) + "ms completeSearch=" + completeSearch);
 			let sleepTime = EMOIJ_SEARCH_ENGINE_MIN_INTERVAL - (Date.now() - startTime);
 			if(sleepTime > 0)
 				await new Promise(r => setTimeout(r, sleepTime));
@@ -142,7 +145,7 @@ const emojisSearchDictionary = {
 		if(this.dict.length === 0)
 			return new Set();
 
-		let result = new Set();
+		const result = new Set();
 
 		let low = 0;
 		let high = this.dict.length;
@@ -158,11 +161,27 @@ const emojisSearchDictionary = {
 		let target = low;
 		for(let i = target; i >= 0 && this.dict[i].tag.startsWith(query); i--)
 			for(let j = 0; j < this.dict[i].emojiNames.length; j++)
-				result = result.add(this.dict[i].emojiNames[j]);
+				result.add(this.dict[i].emojiNames[j]);
 		
 		for(let i = target + 1; i < this.dict.length && this.dict[i].tag.startsWith(query); i++)
 			for(let j = 0; j < this.dict[i].emojiNames.length; j++)
-				result = result.add(this.dict[i].emojiNames[j]);
+				result.add(this.dict[i].emojiNames[j]);
+		
+		return result;
+	},
+
+	/**
+	 * We also check for substrings! (sigh)
+	 * @param {String} tag
+	 * @returns {Set}
+	 */
+	completeSearch: function(query) {
+		const result = new Set();
+
+		for(let i = 0; i < this.dict.length; i++)
+			if(this.dict[i].tag.includes(query))
+				for(let j = 0; j < this.dict[i].emojiNames.length; j++)
+					result.add(this.dict[i].emojiNames[j])
 		
 		return result;
 	}
@@ -366,4 +385,17 @@ function loadEmojis(inputTargetIDName)
 	}
 
 	emojiInputTargetDOM = document.getElementById(inputTargetIDName);
+}
+
+// Search opt stuff
+// Restore prev. status of the search preference
+emojiUseCompleteSearchDOM.checked = JSON.parse(localStorage.getItem("emoji_use_complete_search")) || true;
+
+// On change we memorized the new value
+emojiUseCompleteSearchDOM.onchange = function(event)
+{
+	localStorage.setItem("emoji_use_complete_search", JSON.stringify(event.currentTarget.checked));
+
+	// kick start new search
+	emojiSearchBarDOM.dispatchEvent(new Event('input'));
 }
