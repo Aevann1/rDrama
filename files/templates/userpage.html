@@ -6,7 +6,7 @@
 {% block title %}
 
 {% if u and u.profilecss and not request.values.get('nocss') %}
-	<link rel="stylesheet" href="/@{{u.username}}/profilecss">
+	<link rel="stylesheet" id="{{css_janitor_id}}" href="/@{{u.username}}/profilecss">
 {% endif %}
 
 <title>{{u.username}}'s profile - {{SITE_NAME}}</title>
@@ -774,6 +774,18 @@
 
 {% if v and v.id != u.id and '/comments' not in request.path %}
 	{% include "emoji_modal.html" %}
+{% endif %}
+
+{% if v and v.admin_level > 1 %}
+	<script>
+		const userStyleDOM = document.getElementById("{{css_janitor_id}}");
+
+		if(userStyleDOM instanceof HTMLLinkElement && userStyleDOM.sheet != null)
+			document.addEventListener('keydown', (e) => {
+				if(e.ctrlKey && e.altKey && (e.key === 'J' || e.key === 'j'))
+					userStyleDOM.disabled = !userStyleDOM.disabled;
+			});
+	</script>
 {% endif %}
 
 {% endblock %}

@@ -934,7 +934,8 @@ def u_username(username, v=None):
 												sort=sort,
 												t=t,
 												next_exists=next_exists,
-												is_following=(v and u.has_follower(v)))
+												is_following=(v and u.has_follower(v)),
+												css_janitor_id=str(int(time.time())))
 
 
 
@@ -947,7 +948,8 @@ def u_username(username, v=None):
 									sort=sort,
 									t=t,
 									next_exists=next_exists,
-									is_following=(v and u.has_follower(v)))
+									is_following=(v and u.has_follower(v)),
+									css_janitor_id=str(int(time.time())))
 
 
 @app.get("/@<username>/comments")
@@ -1186,7 +1188,7 @@ def saved_posts(v, username):
 											listing=listing,
 											page=page,
 											next_exists=next_exists,
-											)
+											css_janitor_id=str(int(time.time())))
 
 
 @app.get("/@<username>/saved/comments")
