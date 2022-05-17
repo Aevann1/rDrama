@@ -75,14 +75,36 @@ function report_commentModal(id, author) {
 
 };
 
+// Returns the selection text based on the range with the HTML
+function getSelectionTextHtml() {
+    let html = "";
+    let sel = getSelection();
+    if (sel.rangeCount) {
+        let container = document.createElement("div");
+        container.appendChild(sel.getRangeAt(0).cloneContents());
+        html += container.innerHTML;
+    }
+    return html;
+}
+
 function openReplyBox(id) {
 	const element = document.getElementById(id);
 	const textarea = element.getElementsByTagName('textarea')[0]
-	let text = getSelection().toString()
+	let text = getSelectionTextHtml()
+  		
 	if (text)
 	{
-		textarea.value = '>' + text
-		textarea.value = textarea.value.replace(/\n\n([^$])/g,"\n\n>$1")
+		textarea.value = '>' + text.replace(/\n<p>/g,"")
+			.replace(/<p>/g,"")
+			.replace(/<\/p>/g,"\n>")
+			.replace(/\*/g,"\\*")
+			.replace(/\*\*/g,"\\*\\*")
+			.replace(/\_/g,"\\_")
+			.replace(/<i>|<\/i>/g,"*")
+			.replace(/<b>|<\/b>/g,"**")
+			.replace(/<u>|<\/u>/g,"_")
+			.replace(/\n>$/g,"")
+			.replace(/\n\n([^$])/g,"\n\n>$1")
 		if (!textarea.value.endsWith('\n\n')) textarea.value += '\n\n'
 	}
 	element.classList.remove('d-none')
