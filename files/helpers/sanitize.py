@@ -81,7 +81,16 @@ def allowed_attributes(tag, name, value):
 url_re = build_url_re(tlds=TLDS, protocols=['http', 'https'])
 
 def callback(attrs, new=False):
+	if (None, "href") not in attrs:
+		return # Incorrect <a> tag
+
 	href = attrs[(None, "href")]
+
+	# \ in href right after / makes most browsers ditch site hostname and allows for a host injection bypassing the check, see <a href="/\google.com">cool</a>
+	if "\\" in href:
+		attrs["_text"] = href # Laugh at this user
+		del attrs[(None, "href")] # Make unclickable and reset harmful payload
+		return attrs
 
 	if not href.startswith('/') and not href.startswith(f'{SITE_FULL}/'):
 		attrs[(None, "target")] = "_blank"
@@ -128,6 +137,7 @@ def render_emoji(html, regexp, edit, marseys_used=set(), b=False):
 
 
 		if emoji_html:
+			marseys_used.add(emoji)
 			html = re.sub(f'(?<!"){i.group(0)}', emoji_html, html)
 	return html
 
