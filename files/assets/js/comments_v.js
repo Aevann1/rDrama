@@ -95,6 +95,9 @@ function openReplyBox(id) {
 	if (text)
 	{
 		textarea.value = '>' + text.replace(/\n<img /g,"<img ")
+			.replace(/<ul>|<\/ul>|<ol>|<\/ol>/g,"")
+			.replace(/<li>/g,"- ")
+			.replace(/<\/li>/g,"\n>")
 			.replace(/<img.*?alt=\"(.*?)\".*?>\n/g,"$1\r\n>") // Emojis with newline
 			.replace(/<img.*?alt=\"(.*?)\".*?>/g,"$1") // Emojis
 			.replace(/\n<p>/g,"")
