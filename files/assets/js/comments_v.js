@@ -94,15 +94,20 @@ function openReplyBox(id) {
   		
 	if (text)
 	{
-		textarea.value = '>' + text.replace(/\n<p>/g,"")
+		textarea.value = '>' + text.replace(/\n<img /g,"<img ")
+			.replace(/<img.*?alt=\"(.*?)\".*?>\n/g,"$1\r\n>") // Emojis with newline
+			.replace(/<img.*?alt=\"(.*?)\".*?>/g,"$1") // Emojis
+			.replace(/\n<p>/g,"")
 			.replace(/<p>/g,"")
 			.replace(/<\/p>/g,"\n>")
 			.replace(/\*/g,"\\*")
 			.replace(/\*\*/g,"\\*\\*")
 			.replace(/\_/g,"\\_")
+			.replace(/\~\~/g,"\\~\\~")
 			.replace(/<i>|<\/i>/g,"*")
 			.replace(/<b>|<\/b>/g,"**")
 			.replace(/<u>|<\/u>/g,"_")
+			.replace(/<strike>|<\/strike>/g,"~~")
 			.replace(/\n>$/g,"")
 			.replace(/\n\n([^$])/g,"\n\n>$1")
 		if (!textarea.value.endsWith('\n\n')) textarea.value += '\n\n'
