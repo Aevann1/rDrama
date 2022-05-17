@@ -15,7 +15,7 @@ function markdown(first, second) {
 			if (emoji.endsWith('pat')) {
 				emoji = emoji.substr(0, emoji.length - 3);
 				var url = old.indexOf('@') != -1 ? `/@${emoji}/pic` : `/e/${emoji}.webp`;
-				input = input.replace(old, `<span class="pat-container ${mirroredClass}"><img class="pat-hand" src="/assets/images/hand.webp"><img pat class="${emojiClass}" src="${url}"></span>`);
+				input = input.replace(old, `<span class="${mirroredClass}" data-bs-toggle="tooltip" alt="${old}" title="${old}"><img src="/assets/images/hand.webp"><img pat class="${emojiClass}" src="${url}"></span>`);
 			} else {
 				input = input.replace(old, `<img class="${emojiClass} ${mirroredClass}" src="/e/${emoji}.webp">`);
 			}
