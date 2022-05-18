@@ -1,10 +1,10 @@
 from files.helpers.wrappers import *
 from files.helpers.alerts import *
-from files.helpers.images import *
 from files.helpers.const import *
 from files.helpers.slots import *
 from files.helpers.blackjack import *
 from files.helpers.treasure import *
+from files.helpers.media import *
 from files.classes import *
 from files.routes.front import comment_idlist
 from files.routes.static import marsey_list
@@ -218,107 +218,114 @@ def api_comment(v):
 
 	if request.files.get("file") and request.headers.get("cf-ipcountry") != "T1":
 		files = request.files.getlist('file')[:4]
-		for file in files:
-			if file.content_type.startswith('image/'):
-				oldname = f'/images/{time.time()}'.replace('.','') + '.webp'
-				file.save(oldname)
-				image = process_image(v.patron, oldname)
-				if image == "": return {"error":"Image upload failed"}
-				if v.admin_level > 2 and level == 1:
-					if parent_post.id == 37696:
-						li = sorted(os.listdir('files/assets/images/rDrama/sidebar'),
-							key=lambda e: int(e.split('.webp')[0]))[-1]
-						num = int(li.split('.webp')[0]) + 1
-						filename = f'files/assets/images/rDrama/sidebar/{num}.webp'
-						copyfile(oldname, filename)
-						process_image(v.patron, filename, 400)
-					elif parent_post.id == 37697:
-						li = sorted(os.listdir('files/assets/images/rDrama/banners'),
-							key=lambda e: int(e.split('.webp')[0]))[-1]
-						num = int(li.split('.webp')[0]) + 1
-						filename = f'files/assets/images/rDrama/banners/{num}.webp'
-						copyfile(oldname, filename)
-						process_image(v.patron, filename)
-					elif parent_post.id == 37833:
-						try:
-							badge_def = loads(body)
-							name = badge_def["name"]
-
-							existing = g.db.query(BadgeDef).filter_by(name=name).one_or_none()
-							if existing: return {"error": "A badge with this name already exists!"}, 403
-
-							badge = BadgeDef(name=name, description=badge_def["description"])
-							g.db.add(badge)
-							g.db.flush()
-							filename = f'files/assets/images/badges/{badge.id}.webp'
+		if parent_post.id == 37696 or parent_post.id == 37697 or parent_post.id == 37833 or parent_post.id == 37838:
+			for file in files:
+				if file.content_type.startswith('image/'):
+					oldname = f'/images/{time.time()}'.replace('.','') + '.webp'
+					file.save(oldname)
+					image = process_image(v.patron, oldname)
+					if image == "": return {"error":"Image upload failed"}
+					if v.admin_level > 2 and level == 1:
+						if parent_post.id == 37696:
+							li = sorted(os.listdir('files/assets/images/rDrama/sidebar'),
+								key=lambda e: int(e.split('.webp')[0]))[-1]
+							num = int(li.split('.webp')[0]) + 1
+							filename = f'files/assets/images/rDrama/sidebar/{num}.webp'
 							copyfile(oldname, filename)
-							process_image(v.patron, filename, 200)
-							requests.post(f'https://api.cloudflare.com/client/v4/zones/{CF_ZONE}/purge_cache', headers=CF_HEADERS, data={'files': [f"https://{request.host}/assets/images/badges/{badge.id}.webp"]}, timeout=5)
-						except Exception as e:
-							return {"error": str(e)}, 400
-					elif v.admin_level > 2 and parent_post.id == 37838:
-						try:
-							marsey = loads(body.lower())
-
-							name = marsey["name"]
-							if not marsey_regex.fullmatch(name): return {"error": "Invalid name!"}, 400
-							existing = g.db.query(Marsey.name).filter_by(name=name).one_or_none()
-							if existing: return {"error": "A marsey with this name already exists!"}, 403
-
-							tags = marsey["tags"]
-							if not tags_regex.fullmatch(tags): return {"error": "Invalid tags!"}, 400
-
-							if "author" in marsey: user = get_user(marsey["author"])
-							elif "author_id" in marsey: user = get_account(marsey["author_id"])
-							else: abort(400)
-
-							filename = f'files/assets/images/emojis/{name}.webp'
+							process_image(v.patron, filename, 400)
+						elif parent_post.id == 37697:
+							li = sorted(os.listdir('files/assets/images/rDrama/banners'),
+								key=lambda e: int(e.split('.webp')[0]))[-1]
+							num = int(li.split('.webp')[0]) + 1
+							filename = f'files/assets/images/rDrama/banners/{num}.webp'
 							copyfile(oldname, filename)
-							process_image(v.patron, filename, 200)
+							process_image(v.patron, filename)
+						elif parent_post.id == 37833:
+							try:
+								badge_def = loads(body)
+								name = badge_def["name"]
 
-							marsey = Marsey(name=name, author_id=user.id, tags=tags, count=0)
-							g.db.add(marsey)
-							g.db.flush()
+								existing = g.db.query(BadgeDef).filter_by(name=name).one_or_none()
+								if existing: return {"error": "A badge with this name already exists!"}, 403
 
-							all_by_author = g.db.query(Marsey).filter_by(author_id=user.id).count()
+								badge = BadgeDef(name=name, description=badge_def["description"])
+								g.db.add(badge)
+								g.db.flush()
+								filename = f'files/assets/images/badges/{badge.id}.webp'
+								copyfile(oldname, filename)
+								process_image(v.patron, filename, 200)
+								requests.post(f'https://api.cloudflare.com/client/v4/zones/{CF_ZONE}/purge_cache', headers=CF_HEADERS, data={'files': [f"https://{request.host}/assets/images/badges/{badge.id}.webp"]}, timeout=5)
+							except Exception as e:
+								return {"error": str(e)}, 400
+						elif v.admin_level > 2 and parent_post.id == 37838:
+							try:
+								marsey = loads(body.lower())
 
-							if all_by_author >= 10 and not user.has_badge(16):
-								new_badge = Badge(badge_id=16, user_id=user.id)
+								name = marsey["name"]
+								if not marsey_regex.fullmatch(name): return {"error": "Invalid name!"}, 400
+								existing = g.db.query(Marsey.name).filter_by(name=name).one_or_none()
+								if existing: return {"error": "A marsey with this name already exists!"}, 403
 
-								g.db.add(new_badge)
+								tags = marsey["tags"]
+								if not tags_regex.fullmatch(tags): return {"error": "Invalid tags!"}, 400
+
+								if "author" in marsey: user = get_user(marsey["author"])
+								elif "author_id" in marsey: user = get_account(marsey["author_id"])
+								else: abort(400)
+
+								filename = f'files/assets/images/emojis/{name}.webp'
+								copyfile(oldname, filename)
+								process_image(v.patron, filename, 200)
+
+								marsey = Marsey(name=name, author_id=user.id, tags=tags, count=0)
+								g.db.add(marsey)
 								g.db.flush()
 
-								if v.id != user.id:
-									text = f"@AutoJanny has given you the following profile badge:\n\n![]({new_badge.path})\n\n{new_badge.name}"
-									send_notification(user.id, text)
+								all_by_author = g.db.query(Marsey).filter_by(author_id=user.id).count()
 
-							elif all_by_author < 10 and not user.has_badge(17):
-								new_badge = Badge(badge_id=17, user_id=user.id)
+								if all_by_author >= 10 and not user.has_badge(16):
+									new_badge = Badge(badge_id=16, user_id=user.id)
 
-								g.db.add(new_badge)
-								g.db.flush()
+									g.db.add(new_badge)
+									g.db.flush()
 
-								if v.id != user.id:
-									text = f"@AutoJanny has given you the following profile badge:\n\n![]({new_badge.path})\n\n{new_badge.name}"
-									send_notification(user.id, text)
+									if v.id != user.id:
+										text = f"@AutoJanny has given you the following profile badge:\n\n![]({new_badge.path})\n\n{new_badge.name}"
+										send_notification(user.id, text)
+
+								elif all_by_author < 10 and not user.has_badge(17):
+									new_badge = Badge(badge_id=17, user_id=user.id)
+
+									g.db.add(new_badge)
+									g.db.flush()
+
+									if v.id != user.id:
+										text = f"@AutoJanny has given you the following profile badge:\n\n![]({new_badge.path})\n\n{new_badge.name}"
+										send_notification(user.id, text)
 
 
 
-							requests.post(f'https://api.cloudflare.com/client/v4/zones/{CF_ZONE}/purge_cache', headers=CF_HEADERS, data={'files': [f"https://{request.host}/e/{name}.webp"]}, timeout=5)
-							cache.delete_memoized(marsey_list)
+								requests.post(f'https://api.cloudflare.com/client/v4/zones/{CF_ZONE}/purge_cache', headers=CF_HEADERS, data={'files': [f"https://{request.host}/e/{name}.webp"]}, timeout=5)
+								cache.delete_memoized(marsey_list)
 
-						except Exception as e:
-							return {"error": str(e)}, 400
-				body += f"\n\n![]({image})"
-			elif file.content_type.startswith('video/'):
-				file.save("video.mp4")
-				with open("video.mp4", 'rb') as f:
-					try: req = requests.request("POST", "https://pomf2.lain.la/upload.php", files={'files[]': f}, timeout=5).json()
-					except requests.Timeout: return {"error": "Video upload timed out, please try again!"}
-					try: url = req['files'][0]['url']
-					except: return {"error": req['description']}, 400
-				body += f"\n\n{url}"
-			else: return {"error": "Image/Video files only"}, 400
+							except Exception as e:
+								return {"error": str(e)}, 400
+					body += f"\n\n![]({image})"
+				elif file.content_type.startswith('video/mp4'):
+					file.save("originalvid.mp4")
+					termout = os.system("ffmpeg -y -loglevel warning -i originalvid.mp4 -map_metadata -1 -c:v copy -c:a copy video.mp4")
+					with open("video.mp4", 'rb') as f:
+						try: req = requests.request("POST", "https://pomf2.lain.la/upload.php", files={'files[]': f}, timeout=5).json()
+						except requests.Timeout: return {"error": "Video upload timed out, please try again!"}
+						try: url = req['files'][0]['url']
+						except: return {"error": req['description']}, 400
+					body += f"\n\n{url}"
+				else: return {"error": "Image/Video files only"}, 400
+		else:
+			try:
+				body += upload_files(v, files)
+			except FileUploadException as e:
+				return e.result()
 
 	if v.agendaposter and not v.marseyawarded and parent_post.id not in ADMIGGERS:
 		body = torture_ap(body, v.username)
@@ -760,22 +767,12 @@ def edit_comment(cid, v):
 
 		if request.files.get("file") and request.headers.get("cf-ipcountry") != "T1":
 			files = request.files.getlist('file')[:4]
-			for file in files:
-				if file.content_type.startswith('image/'):
-					name = f'/images/{time.time()}'.replace('.','') + '.webp'
-					file.save(name)
-					url = process_image(v.patron, name)
-					body += f"\n\n![]({url})"
-				elif file.content_type.startswith('video/'):
-					file.save("video.mp4")
-					with open("video.mp4", 'rb') as f:
-						try: req = requests.request("POST", "https://pomf2.lain.la/upload.php", files={'files[]': f}, timeout=5).json()
-						except requests.Timeout: return {"error": "Video upload timed out, please try again!"}
-						try: url = req['files'][0]['url']
-						except: return {"error": req['description']}, 400
-					body += f"\n\n{url}"
-				else: return {"error": "Image/Video files only"}, 400
-
+			
+			try:
+				body += upload_files(v, files)
+			except FileUploadException as e:
+				return e.result()
+				
 			body_html = sanitize(body, edit=True)
 
 		if len(body_html) > 20000: abort(400)
