@@ -7,6 +7,7 @@ from files.helpers.alerts import *
 from files.helpers.discord import send_discord_message
 from files.helpers.const import *
 from files.helpers.slots import *
+from files.helpers.media import *
 from files.classes import *
 from flask import *
 from io import BytesIO
@@ -15,7 +16,6 @@ from PIL import Image as PILimage
 from .front import frontlist, changeloglist
 from urllib.parse import ParseResult, urlunparse, urlparse, quote, unquote
 from os import path
-import requests
 from shutil import copyfile
 from sys import stdout
 
@@ -457,22 +457,13 @@ def edit_post(pid, v):
 
 	if request.files.get("file") and request.headers.get("cf-ipcountry") != "T1":
 		files = request.files.getlist('file')[:4]
-		for file in files:
-			if file.content_type.startswith('image/'):
-				name = f'/images/{time.time()}'.replace('.','') + '.webp'
-				file.save(name)
-				url = process_image(v.patron, name)
-				body += f"\n\n![]({url})"
-			elif file.content_type.startswith('video/'):
-				file.save("video.mp4")
-				with open("video.mp4", 'rb') as f:
-					try: req = requests.request("POST", "https://pomf2.lain.la/upload.php", files={'files[]': f}, timeout=5).json()
-					except requests.Timeout: return {"error": "Video upload timed out, please try again!"}
-					try: url = req['files'][0]['url']
-					except: return {"error": req['description']}, 400
-				body += f"\n\n{url}"
-			else: return {"error": "Image/Video files only"}, 400
-
+		
+		try:
+			body += upload_files(v, files)
+		except FileUploadException as e:
+			return e.result()
+			
+			
 	if body != p.body:
 		if v.id == p.author_id and v.agendaposter and not v.marseyawarded: body = torture_ap(body, v.username)
 
@@ -1071,21 +1062,10 @@ def submit_post(v, sub=None):
 
 	if request.files.get("file2") and request.headers.get("cf-ipcountry") != "T1":
 		files = request.files.getlist('file2')[:4]
-		for file in files:
-			if file.content_type.startswith('image/'):
-				name = f'/images/{time.time()}'.replace('.','') + '.webp'
-				file.save(name)
-				body += f"\n\n![]({process_image(v.patron, name)})"
-			elif file.content_type.startswith('video/'):
-				file.save("video.mp4")
-				with open("video.mp4", 'rb') as f:
-					try: req = requests.request("POST", "https://pomf2.lain.la/upload.php", files={'files[]': f}, timeout=5).json()
-					except requests.Timeout: return {"error": "Video upload timed out, please try again!"}
-					try: url = req['files'][0]['url']
-					except: return {"error": req['description']}, 400
-				body += f"\n\n{url}"
-			else:
-				return error("Image/Video files only.")
+		try:
+			body += upload_files(v, files)
+		except FileUploadException as e:
+			return e.result()
 
 	body_html = sanitize(body)
 
@@ -1174,20 +1154,21 @@ def submit_post(v, sub=None):
 		file = request.files['file']
 
 		if file.content_type.startswith('image/'):
-			name = f'/images/{time.time()}'.replace('.','') + '.webp'
-			file.save(name)
+			
+			try: name = upload_image(v, file)
+			except FileUploadException as e: return e.result()
+			
 			post.url = process_image(v.patron, name)
 
 			name2 = name.replace('.webp', 'r.webp')
 			copyfile(name, name2)
-			post.thumburl = process_image(v.patron, name2, resize=100)	
+			post.thumburl = process_image(v.patron, name2, resize=100)
+				
 		elif file.content_type.startswith('video/'):
-			file.save("video.mp4")
-			with open("video.mp4", 'rb') as f:
-				try: req = requests.request("POST", "https://pomf2.lain.la/upload.php", files={'files[]': f}, timeout=5).json()
-				except requests.Timeout: return {"error": "Video upload timed out, please try again!"}
-				try: url = req['files'][0]['url']
-				except: return {"error": req['description']}, 400
+			try: url = upload_video(v, file)
+			
+			except FileUploadException as e: return e.result()
+			
 			post.url = url
 		else:
 			return error("Image/Video files only.")
