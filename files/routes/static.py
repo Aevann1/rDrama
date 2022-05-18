@@ -2,6 +2,7 @@ from files.mail import *
 from files.__main__ import app, limiter, mail
 from files.helpers.alerts import *
 from files.helpers.const import *
+from files.helpers.media import *
 from files.classes.award import AWARDS
 from sqlalchemy import func
 from os import path
@@ -399,20 +400,17 @@ def submit_contact(v):
 	if request.files.get("file") and request.headers.get("cf-ipcountry") != "T1":
 		file=request.files["file"]
 		if file.content_type.startswith('image/'):
-			name = f'/images/{time.time()}'.replace('.','') + '.webp'
-			file.save(name)
-			url = process_image(v.patron, name)
+			try: url = upload_image(v, file)
+			except FileUploadError as e: return e.result()
+			
 			body_html += f'<img data-bs-target="#expandImageModal" data-bs-toggle="modal" onclick="expandDesktopImage(this.src)" class="img" src="{url}" loading="lazy">'
 		elif file.content_type.startswith('video/'):
-			file.save("video.mp4")
-			with open("video.mp4", 'rb') as f:
-				try: req = requests.request("POST", "https://pomf2.lain.la/upload.php", files={'files[]': f}, timeout=5).json()
-				except requests.Timeout: return {"error": "Video upload timed out, please try again!"}
-				try: url = req['files'][0]['url']
-				except: return {"error": req['description']}, 400
+			try: url = upload_video(v, file)
+			except FileUploadError as e: return e.result()
+			
 			body_html += f"<p>{url}</p>"
 		else: return {"error": "Image/Video files only"}, 400
-
+		
 
 
 	new_comment = Comment(author_id=v.id,
