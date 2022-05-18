@@ -2,7 +2,7 @@ from sqlalchemy.orm import deferred, aliased
 from secrets import token_hex
 import pyotp
 from files.helpers.discord import remove_user
-from files.helpers.images import *
+from files.helpers.media import *
 from files.helpers.const import *
 from .alts import Alt
 from .saves import *
