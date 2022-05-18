@@ -10,7 +10,7 @@ COPY requirements.txt /etc/requirements.txt
 
 RUN pip3 install -r /etc/requirements.txt
 
-RUN mkdir /images && mkdir /songs
+RUN mkdir /images && mkdir /songs && mkdir /videos
 
 EXPOSE 80/tcp
 
