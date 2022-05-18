@@ -3,6 +3,8 @@ from files.helpers.alerts import *
 from files.helpers.sanitize import *
 from files.helpers.discord import remove_user, set_nick
 from files.helpers.const import *
+from files.helpers.media import *
+
 from files.mail import *
 from files.__main__ import app, cache, limiter
 import youtube_dl
@@ -211,23 +213,11 @@ def settings_profile_post(v):
 
 		if request.files.get('file'):
 			file = request.files['file']
-			if file.content_type.startswith('image/'):
-				name = f'/images/{time.time()}'.replace('.','') + '.webp'
-				file.save(name)
-				url = process_image(v.patron, name)
-				bio += f"\n\n![]({url})"
-			elif file.content_type.startswith('video/'):
-				file.save("video.mp4")
-				with open("video.mp4", 'rb') as f:
-					try: req = requests.request("POST", "https://pomf2.lain.la/upload.php", files={'files[]': f}, timeout=5).json()
-					except requests.Timeout: return {"error": "Video upload timed out, please try again!"}
-					try: url = req['files'][0]['url']
-					except: return {"error": req['description']}, 400
-				bio += f"\n\n{url}"
-			else:
-				if request.headers.get("Authorization") or request.headers.get("xhr"): return {"error": "Image/Video files only"}, 400
-				return render_template("settings_profile.html", v=v, error="Image/Video files only."), 400
-		
+			try:
+				bio += upload_file(v, files)
+			except FileUploadException as e:
+				return e.result()
+			
 		bio_html = sanitize(bio)
 
 		if len(bio_html) > 10000:
