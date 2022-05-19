@@ -24,8 +24,8 @@
 		{% include "journoid_banner.html" %}
 	{% endif %}
 
-	<div class="navbar navbar-expand-md navbar-light" id="navbar">
-		<div class="container-fluid" style="padding:0;">
+	<div class="navbar navbar-expand-md navbar-light" id="navbar" style="background: url('/assets/images/baloons.webp') !important;">
+		<div class="container-fluid" style="padding:0; background: transparent !important">
 			<a href="/" class="navbar-brand mr-auto {% if SITE_NAME in ('PCM','WPD') and not sub %}flex-grow-1{% endif %}">
 				<img alt="header icon" height=33 src="/assets/images/{{SITE_NAME}}/headericon.webp?v=1019">
 			</a>
