@@ -21,7 +21,7 @@ Copyright (C) 2022 Dr Steven Transmisia, anti-evil engineer
  * @param {KeyboardEvent} e
  */
 document.addEventListener('keydown', (e) => {
-	if(!(e.ctrlKey && e.key == "Enter"))
+	if(!((e.ctrlKey || e.metaKey) && e.key === "Enter"))
 		return;
 	
 	/** @type {HTMLTextAreaElement} */
