@@ -18,7 +18,7 @@ from os import path
 import requests
 from shutil import copyfile
 from sys import stdout
-
+import os
 
 if SITE_NAME == 'PCM': snappyquotes = []
 else: snappyquotes = [f':#{x}:' for x in marseys_const2]
@@ -464,7 +464,11 @@ def edit_post(pid, v):
 				url = process_image(v.patron, name)
 				body += f"\n\n![]({url})"
 			elif file.content_type.startswith('video/'):
-				file.save("video.mp4")
+				if file.content_type == 'video/webm':
+					file.save("video.mp4")
+				else:
+					file.save("unsanitized.mp4")
+					os.system(f'ffmpeg -y -loglevel warning -i unsanitized.mp4 -map_metadata -1 -c:v copy -c:a copy video.mp4')
 				with open("video.mp4", 'rb') as f:
 					try: req = requests.request("POST", "https://pomf2.lain.la/upload.php", files={'files[]': f}, timeout=5).json()
 					except requests.Timeout: return {"error": "Video upload timed out, please try again!"}
@@ -1077,7 +1081,11 @@ def submit_post(v, sub=None):
 				file.save(name)
 				body += f"\n\n![]({process_image(v.patron, name)})"
 			elif file.content_type.startswith('video/'):
-				file.save("video.mp4")
+				if file.content_type == 'video/webm':
+					file.save("video.mp4")
+				else:
+					file.save("unsanitized.mp4")
+					os.system(f'ffmpeg -y -loglevel warning -i unsanitized.mp4 -map_metadata -1 -c:v copy -c:a copy video.mp4')
 				with open("video.mp4", 'rb') as f:
 					try: req = requests.request("POST", "https://pomf2.lain.la/upload.php", files={'files[]': f}, timeout=5).json()
 					except requests.Timeout: return {"error": "Video upload timed out, please try again!"}
@@ -1182,7 +1190,11 @@ def submit_post(v, sub=None):
 			copyfile(name, name2)
 			post.thumburl = process_image(v.patron, name2, resize=100)	
 		elif file.content_type.startswith('video/'):
-			file.save("video.mp4")
+			if file.content_type == 'video/webm':
+				file.save("video.mp4")
+			else:
+				file.save("unsanitized.mp4")
+				os.system(f'ffmpeg -y -loglevel warning -i unsanitized.mp4 -map_metadata -1 -c:v copy -c:a copy video.mp4')
 			with open("video.mp4", 'rb') as f:
 				try: req = requests.request("POST", "https://pomf2.lain.la/upload.php", files={'files[]': f}, timeout=5).json()
 				except requests.Timeout: return {"error": "Video upload timed out, please try again!"}

@@ -409,7 +409,7 @@ def monthly(v):
 	emails = [x['email'] for x in requests.get(f'https://api.gumroad.com/v2/products/{GUMROAD_ID}/subscribers', data=data, timeout=5).json()["subscribers"]]
 
 	for u in g.db.query(User).filter(User.patron > 0, User.patron_utc == 0).all():
-		if u.patron > 4 or u.email and u.email.lower() in emails:
+		if u.email and u.email.lower() in emails:
 			procoins = procoins_li[u.patron]
 			u.procoins += procoins
 			g.db.add(u)

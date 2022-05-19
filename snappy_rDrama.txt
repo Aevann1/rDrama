@@ -3819,3 +3819,5 @@ This is your fate. This is what you chose. There is no turning back. You are the
 {[para]}
 #fortune
 {[para]}
+
+{[para]}

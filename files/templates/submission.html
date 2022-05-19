@@ -57,6 +57,12 @@
 	</script>
 {% endif %}
 
+{% if SITE_NAME == 'PCM' %}
+	{% set wholesome = '/assets/images/wholesome.webp' %}
+{% else %}
+	{% set wholesome = '/e/marseywholesome.webp' %}
+{% endif %}
+
 {% if g.inferior_browser %}
 	{% if p.award_count("wholesome") %}
 		<style>
@@ -93,7 +99,7 @@
 			}
 		</style>
 		<div class="seal seal1" height="100%" width="100%">
-			<img alt=":#marseywholesome:" class="sealimg" src="/e/marseywholesome.webp">
+			<img alt=":#marseywholesome:" class="sealimg" src="{{wholesome}}">
 		</div>
 
 		{% if p.award_count("wholesome") > 1 %}
@@ -104,7 +110,7 @@
 				}
 			</style>
 			<div class="seal seal2" height="100%" width="100%">
-				<img alt=":#marseywholesome:" class="sealimg" src="/e/marseywholesome.webp">
+				<img alt=":#marseywholesome:" class="sealimg" src="{{wholesome}}">
 			</div>
 		{% endif %}
 
@@ -116,7 +122,7 @@
 				}
 			</style>
 			<div class="seal seal3" height="100%" width="100%">
-				<img alt=":#marseywholesome:" class="sealimg" src="/e/marseywholesome.webp">
+				<img alt=":#marseywholesome:" class="sealimg" src="{{wholesome}}">
 			</div>
 		{% endif %}
 
@@ -128,7 +134,7 @@
 				}
 			</style>
 			<div class="seal seal4" height="100%" width="100%">
-				<img alt=":#marseywholesome:" class="sealimg" src="/e/marseywholesome.webp">
+				<img alt=":#marseywholesome:" class="sealimg" src="{{wholesome}}">
 			</div>
 		{% endif %}
 	{% endif %}
@@ -231,7 +237,7 @@
 		<div class="seal" height="100%" width="100%">
 			<marquee class="seal" scrollamount=10 behavior="alternate" direction="up" height="100%" width="100%">
 				<marquee direction="right" scrollamount=10 behavior="alternate" height="100%" width="100%">
-					<img alt=":#marseywholesome:" class="sealimg" src="/e/marseywholesome.webp">
+					<img alt=":#marseywholesome:" class="sealimg" src="{{wholesome}}">
 				</marquee>
 			</marquee>
 		</div>
@@ -239,7 +245,7 @@
 		{% if p.award_count("wholesome") > 1 %}
 			<marquee class="seal" scrollamount=10 behavior="alternate" direction="down" height="100%">
 				<marquee direction="right" scrollamount=10 behavior="alternate" width="100%">
-					<img alt=":#marseywholesome:" class="sealimg" src="/e/marseywholesome.webp">
+					<img alt=":#marseywholesome:" class="sealimg" src="{{wholesome}}">
 				</marquee>
 			</marquee>
 		{% endif %}
@@ -247,7 +253,7 @@
 		{% if p.award_count("wholesome") > 2 %}
 			<marquee class="seal" scrollamount=10 behavior="alternate" direction="up" height="100%">
 				<marquee direction="left" scrollamount=10 behavior="alternate" width="100%">
-					<img alt=":#marseywholesome:" class="sealimg" src="/e/marseywholesome.webp">
+					<img alt=":#marseywholesome:" class="sealimg" src="{{wholesome}}">
 				</marquee>
 			</marquee>
 		{% endif %}
@@ -255,7 +261,7 @@
 		{% if p.award_count("wholesome") > 3 %}
 			<marquee class="seal" scrollamount=10 behavior="alternate" direction="down" height="100%">
 				<marquee direction="left" scrollamount=10 behavior="alternate" width="100%">
-					<img alt=":#marseywholesome:" class="sealimg" src="/e/marseywholesome.webp">
+					<img alt=":#marseywholesome:" class="sealimg" src="{{wholesome}}">
 				</marquee>
 			</marquee>
 		{% endif %}

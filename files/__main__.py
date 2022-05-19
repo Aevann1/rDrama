@@ -36,6 +36,7 @@ app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024
 app.config["SESSION_COOKIE_SECURE"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 app.config["PERMANENT_SESSION_LIFETIME"] = 60 * 60 * 24 * 365
+app.config['SESSION_REFRESH_EACH_REQUEST'] = False
 app.config["DEFAULT_COLOR"] = environ.get("DEFAULT_COLOR", "ff0000").strip()
 app.config["DEFAULT_THEME"] = environ.get("DEFAULT_THEME", "midnight").strip()
 app.config["FORCE_HTTPS"] = 1

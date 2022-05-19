@@ -40,9 +40,10 @@ def allowed_attributes(tag, name, value):
 			else: return False
 
 		if name == 'loading' and value == 'lazy': return True
-		if name == 'referrpolicy' and value == 'no-referrer': return True
 		if name == 'data-bs-toggle' and value == 'tooltip': return True
-		if name in ['alt','title','g','b']: return True
+		if name in ['g','b'] and not value: return True
+		if name in ['alt','title']: return True
+		if name == 'referrpolicy' and value == 'no-referrer': return True
 		return False
 
 	if tag == 'lite-youtube':
@@ -323,9 +324,11 @@ def sanitize(sanitized, alert=False, comment=False, edit=False):
 def allowed_attributes_emojis(tag, name, value):
 
 	if tag == 'img':
+		if name == 'src' and value.startswith('/'): return True
 		if name == 'loading' and value == 'lazy': return True
 		if name == 'data-bs-toggle' and value == 'tooltip': return True
-		if name in ['src','alt','title','g']: return True
+		if name == 'g' and not value: return True
+		if name in ['alt','title']: return True
 
 	if tag == 'span':
 		if name == 'data-bs-toggle' and value == 'tooltip': return True

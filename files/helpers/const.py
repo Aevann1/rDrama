@@ -670,7 +670,7 @@ if SITE_NAME == 'PCM':
 AWARDS2 = deepcopy(AWARDS)
 for k, val in AWARDS.items():
 	if val['description'] == '???' and not (k == 'ghost' and SITE_NAME == 'PCM'): AWARDS2.pop(k)
-	if SITE == 'pcmemes.net' and k in ('ban','pizzashill','marsey','bird','grass','chud'): AWARDS2.pop(k)
+	if SITE == 'pcmemes.net' and k in ('ban','pizzashill','marsey','bird','grass','chud','unblockable'): AWARDS2.pop(k)
 
 
 AWARDS3 = {}

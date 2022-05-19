@@ -1,7 +1,7 @@
 [![Build status](https://img.shields.io/github/workflow/status/TheMotte/rDrama/run_tests.py/frost)](https://github.com/Aevann1/rDrama/actions?query=workflow%3Arun_tests.py+branch%3Afrost)
 
 
-This code runs https://rdrama.net and https://pcmemes.net
+This code runs https://rdrama.net, https://pcmemes.net, https://cringetopia.org, and https://watchpeopledie.co
 
 # Installation (Windows/Linux/MacOS)
 

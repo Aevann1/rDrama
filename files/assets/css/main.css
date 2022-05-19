@@ -4612,6 +4612,8 @@ img[src="/assets/images/hand.webp"]+img {
     margin-top: 10%;
     text-align: center;
     object-fit: cover;
+}
+img[src="/assets/images/hand.webp"]+img[src^="/pp/"], img[src="/assets/images/hand.webp"]+img[src$="/pic"] {
 	border-radius: 50%;
 }
 @keyframes pat-pfp-anim {

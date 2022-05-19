@@ -6,7 +6,7 @@ deck_count = 4
 ranks = ("2", "3", "4", "5", "6", "7", "8", "9", "X", "J", "Q", "K", "A")
 suits = ("♠️", "♥️", "♣️", "♦️")
 coins_command_word = "!blackjack"
-marseybucks_command_word = "!blackjackmb"
+marseybux_command_word = "!blackjackmb"
 minimum_bet = 100
 maximum_bet = INFINITY
 
@@ -51,7 +51,7 @@ def format_all(player_hand, dealer_hand, deck, status, wager, kind, is_insured=0
 
 
 def check_for_blackjack_commands(in_text, from_user, from_comment):
-	for command_word in (coins_command_word, marseybucks_command_word):
+	for command_word in (coins_command_word, marseybux_command_word):
 		currency_prop = "coins" if command_word == coins_command_word else "procoins"
 		currency_value = getattr(from_user, currency_prop, 0)
 

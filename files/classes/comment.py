@@ -479,7 +479,7 @@ class Comment(Base):
 		wager = int(split_result[4])
 		try: kind = split_result[5]
 		except: kind = "coins"
-		currency_kind = "Coins" if kind == "coins" else "Marseybucks"
+		currency_kind = "Coins" if kind == "coins" else "Marseybux"
 
 		try: is_insured = split_result[6]
 		except: is_insured = "0"
