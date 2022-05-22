@@ -10,15 +10,46 @@ function pinned_timestamp(id) {
 	if (!pintooltip.includes('until')) el.setAttribute("data-bs-original-title", `${pintooltip} until ${time}`)
 }
 
-function popclick(author) {
+/** @type {HTMLImageElement} */
+const popClickBadgeTemplateDOM = document.createElement("IMG");
+popClickBadgeTemplateDOM.width = 32;
+popClickBadgeTemplateDOM.loading = "lazy";
+popClickBadgeTemplateDOM.alt = "badge";
+
+/**
+ * @param {MouseEvent} e 
+ */
+function popclick(e) {
+	// We let through those methods
+	if(e.ctrlKey || e.metaKey || e.shiftKey || e.altKey)
+		return true;
+	e.preventDefault();
+	
+	if(e.currentTarget.dataset.popInfo === undefined)
+		throw new SyntaxError("ill formed HTML! data-pop-info not present!!!");
+
+	const author = JSON.parse(e.currentTarget.dataset.popInfo);
+	if(!(author instanceof Object))
+		throw new SyntaxError("data-pop-info was not valid!");
+	
+	// This is terrible lol. in header.js:bs_trigger() we should add
+	// to the ANCHOR element an event handler for "show.bs.tooltip" to build this
+	// when the DOM is ready.
+	// PROBLEM: IT DOES NOT WORK :MARSEYCRAZYTROLL: idk why it should work according to
+	// boostrap docs!
 	setTimeout(() => {
 		let popover = document.getElementsByClassName("popover")
 		popover = popover[popover.length-1]
 
-		let badges = ''
-		for (const x of author["badges"]) {
-			badges += `<img alt="badge" width="32" loading="lazy" src="${x}?v=1016">`
+		const badgesDOM = popover.getElementsByClassName('pop-badges')[0];
+		badgesDOM.innerHTML = "";
+		for (const badge of author["badges"]) {
+			const badgeDOM = popClickBadgeTemplateDOM.cloneNode();
+			badgeDOM.src = badge + "?v=1016";
+
+			badgesDOM.append(badgeDOM);
 		}
+
 		popover.getElementsByClassName('pop-banner')[0].src = author["bannerurl"]
 		popover.getElementsByClassName('pop-picture')[0].src = author["profile_url"]
 		popover.getElementsByClassName('pop-username')[0].innerHTML = author["username"]
@@ -27,8 +58,9 @@ function popclick(author) {
 		popover.getElementsByClassName('pop-commentcount')[0].innerHTML = author["comment_count"]
 		popover.getElementsByClassName('pop-coins')[0].innerHTML = author["coins"]
 		popover.getElementsByClassName('pop-viewmore')[0].href = author["url"]
-		popover.getElementsByClassName('pop-badges')[0].innerHTML = badges
-	; }, 1);
+	}, 5);
+
+	return false;
 }
 
 document.addEventListener("click", function(){
