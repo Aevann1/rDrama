@@ -9,19 +9,28 @@ import time
 from .const import *
 
 def process_video(file):
-	name = f'/videos/{time.time()}'.replace('.','')
-	file.save(name)
-	os.system(f'ffmpeg -y -loglevel warning -i {name} -map_metadata -1 {name}.mp4')
-	os.remove(name)
+	original = f'/videos/{time.time()}'.replace('.','')
+	converted = f'{original}.mp4'
+	file.save(original)
+	ffmpreg_res = os.system(f'ffmpeg -y -loglevel warning -i {original} -map_metadata -1 {converted}')
+	os.remove(original)
+	if ffmpreg_res:
+		print(f'ffmpeg returned {ffmpreg_res}', flush=True)
+		# ffmpeg leaves a 0-sized output file usually but who knows what if it can be
+		# tricked into generating something very large?
+		try: os.remove(converted)
+		except: pass
 
-	with open(f"{name}.mp4", 'rb') as f:
-		if SITE_NAME != 'rDrama' or os.stat(f'{name}.mp4').st_size > 8 * 1024 * 1024:
-			os.remove(f"{name}.mp4")
+		return {"error": "Video conversion failed, choose a better video!"}
+
+	with open(converted, 'rb') as f:
+		if SITE_NAME != 'rDrama' or os.stat(converted).st_size > 8 * 1024 * 1024:
+			os.remove(converted)
 		try: req = requests.request("POST", "https://pomf2.lain.la/upload.php", files={'files[]': f}, timeout=20).json()
 		except requests.Timeout: return {"error": "Video upload timed out, please try again!"}
-		
+
 	try: return req['files'][0]['url']
-	except: return {"error": req['description']}
+	except: return {"error": req.get('description', 'no description')}
 
 
 def process_image(patron, filename=None, resize=0):
