@@ -5,6 +5,7 @@
 	"display": "standalone",
 	"background_color": "#FF66AC",
 	"description": "rDrama",
+	"offline_enabled": true,
 	"icons": [
 			{
 				"src": "/assets/images/rDrama/192.png?v=1",
