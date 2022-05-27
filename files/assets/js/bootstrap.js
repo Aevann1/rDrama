@@ -26,3 +26,9 @@ if (window.location.pathname != '/submit')
 		}, 2000);
 	});
 }
+
+if ("serviceWorker" in navigator) {
+	navigator.serviceWorker.register("/offline-service-worker.js")
+		.then((registration) => registration.update())
+		.catch((e) => console.log("Offline service worker update failed with error", e));
+}
