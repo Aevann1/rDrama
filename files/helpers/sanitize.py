@@ -164,7 +164,7 @@ def sanitize(sanitized, alert=False, comment=False, edit=False):
 	signal.signal(signal.SIGALRM, handler)
 	signal.alarm(1)
 
-	if not sanitized.startswith('```') and not sanitized.startswith('<pre>'):
+	if '```' not in sanitized and '<pre>' not in sanitized:
 		sanitized = linefeeds_regex.sub(r'\1\n\n\2', sanitized)
 
 	sanitized = image_regex.sub(r'\1![](\2)\4', sanitized)

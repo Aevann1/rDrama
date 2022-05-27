@@ -1,16 +1,30 @@
+const reason = document.getElementById("reason")
+const reportPostButton = document.getElementById("reportPostButton");
+
+reason.addEventListener('keydown', (e) => {
+	if(!((e.ctrlKey || e.metaKey) && e.key === "Enter")) return;
+
+	const targetDOM = document.activeElement;
+	if(!(targetDOM instanceof HTMLInputElement)) return;
+
+	reportPostButton.click()
+	bootstrap.Modal.getOrCreateInstance(document.getElementById('reportPostModal')).hide()
+});
+
 function report_postModal(id) {
 
-	submitbutton=document.getElementById("reportPostButton");
 	document.getElementById("reportPostFormBefore").classList.remove('d-none');
 	document.getElementById("reportPostFormAfter").classList.add('d-none');
-	submitbutton.disabled = false;
-	submitbutton.classList.remove('disabled');
-	submitbutton.innerHTML='Report post';
+	reportPostButton.disabled = false;
+	reportPostButton.classList.remove('disabled');
+	reportPostButton.innerHTML='Report post';
 
-	reason = document.getElementById("reason")
 	reason.value = ""
+	setTimeout(() => {
+		reason.focus()
+	}, 500);
 
-	submitbutton.onclick = function() {
+	reportPostButton.onclick = function() {
 
 		this.innerHTML='Reporting post';
 		this.disabled = true;

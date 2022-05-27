@@ -38,6 +38,20 @@ function post_toast3(t, url, button1, button2) {
 	xhr.send(form);
 }
 
+const reason_comment = document.getElementById("reason_comment")
+const reportCommentButton = document.getElementById("reportCommentButton");
+
+reason_comment.addEventListener('keydown', (e) => {
+	if(!((e.ctrlKey || e.metaKey) && e.key === "Enter")) return;
+
+	const targetDOM = document.activeElement;
+	if(!(targetDOM instanceof HTMLInputElement)) return;
+
+	reportCommentButton.click()
+	bootstrap.Modal.getOrCreateInstance(document.getElementById('reportCommentModal')).hide()
+});
+
+
 function report_commentModal(id, author) {
 
 	document.getElementById("comment-author").textContent = author;
@@ -45,15 +59,16 @@ function report_commentModal(id, author) {
 	document.getElementById("reportCommentFormBefore").classList.remove('d-none');
 	document.getElementById("reportCommentFormAfter").classList.add('d-none');
 
-	btn = document.getElementById("reportCommentButton")
-	btn.innerHTML='Report comment';
-	btn.disabled = false;
-	btn.classList.remove('disabled');
+	reportCommentButton.innerHTML='Report comment';
+	reportCommentButton.disabled = false;
+	reportCommentButton.classList.remove('disabled');
 
-	reason = document.getElementById("reason-comment")
-	reason.value = ""
-	
-	btn.onclick = function() {
+	reason_comment.value = ""
+	setTimeout(() => {
+		reason_comment.focus()
+	}, 500);
+
+	reportCommentButton.onclick = function() {
 		this.innerHTML='Reporting comment';
 		this.disabled = true;
 		this.classList.add('disabled');
@@ -62,7 +77,7 @@ function report_commentModal(id, author) {
 		xhr.setRequestHeader('xhr', 'xhr');
 		var form = new FormData()
 		form.append("formkey", formkey());
-		form.append("reason", reason.value);
+		form.append("reason", reason_comment.value);
 
 		xhr.onload=function() {
 			document.getElementById("reportCommentFormBefore").classList.add('d-none');
