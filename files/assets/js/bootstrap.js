@@ -28,7 +28,7 @@ if (window.location.pathname != '/submit')
 }
 
 if ("serviceWorker" in navigator) {
-	navigator.serviceWorker.register("/offline-service-worker.js")
+	navigator.serviceWorker.register("/service-worker.js")
 		.then((registration) => registration.update())
-		.catch((e) => console.log("Offline service worker update failed with error", e));
+		.catch((e) => console.log("Service worker update failed with error", e));
 }
