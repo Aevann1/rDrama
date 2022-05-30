@@ -78,15 +78,16 @@
 				<a class="mobile-nav-icon d-md-none" href="/random_user"><i class="fas fa-music align-middle text-gray-500 black"></i></a>
 				<a class="mobile-nav-icon d-md-none" href="/random_post"><i class="fas fa-random align-middle text-gray-500 black"></i></a>
 			{% if v and LOTTERY_ENABLED %}
+			<span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Lottershe">
 				<a
 					href="#"
 					class="mobile-nav-icon d-md-none"
-					title="Lottershe"
 					data-bs-toggle="modal"
 					data-bs-dismiss="modal"
 					data-bs-target="#lotteryModal"> 
 					<i class="fas fa-ticket align-middle text-gray-500"></i>
 				</a>
+			</span>
 			{% endif %}
 			{% if v and v.admin_level > 1 %}
 				<a class="mobile-nav-icon d-md-none" href="/admin"><i class="fas fa-crown align-middle text-gray-500 black"></i></a>
@@ -115,11 +116,14 @@
 				</li>
 
 				{% if v and LOTTERY_ENABLED %}
-				<li class="nav-item d-flex align-items-center justify-content-center text-center mx-1">
+				<li
+					class="nav-item d-flex align-items-center justify-content-center text-center mx-1"
+					data-bs-toggle="tooltip"
+					data-bs-placement="bottom"
+					title="Lottershe">
 					<a
 						href="#"
 						class="nav-link"
-						title="Lottershe"
 						data-bs-toggle="modal"
 						data-bs-dismiss="modal"
 						data-bs-target="#lotteryModal"> 
