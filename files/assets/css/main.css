@@ -5272,6 +5272,12 @@ audio, video {
 .fa-manhole:before{content:"\e1d6"}.fad.fa-manhole:after{content:"\e1d6\e1d6"}
 
 /* Lottery */
+@media screen and (max-width: 350px) {
+	.lottery-modal {
+		overflow-x: auto !important;
+	}
+}
+
 .lottery-modal--dialog {
     display: flex;
     align-items: center;
@@ -5425,10 +5431,6 @@ audio, video {
 	.lottery-modal--dialog {
 		min-width: 440px !important;
 	}
-    #lotteryModal .modal-dialog
-    {
-        min-width: 340px !important;
-    }
 }
 
 .sidebar-link {

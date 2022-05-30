@@ -1,35 +1,23 @@
-const CHECK_LOTTERY_RATE = 5000;
-let onCooldown = false;
-
 window.addEventListener("DOMContentLoaded", () => {
-  let ticketPulled = document.getElementById("lotteryTicketPulled");
-  let purchaseTicket = document.getElementById("purchaseTicket");
-  // Request lottery information while the modal is open.
-  const lotteryModal = document;
-  lotteryModal.getElementById("lotteryModal");
-
   lotteryModal.addEventListener("show.bs.modal", (event) => {
     if (event.target.id === "lotteryModal") {
       checkLotteryStats();
-      startCheckingLotteryStats();
-    }
-  });
-  lotteryModal.addEventListener("hide.bs.modal", (event) => {
-    if (event.target.id === "lotteryModal") {
-      stopCheckingLotteryStats();
     }
   });
 
   // Show ticket being pulled.
-  purchaseTicket.addEventListener("click", e => {
-    onCooldown = true;
+  const ticketPulled = document.getElementById("lotteryTicketPulled");
+  const purchaseTicket = document.getElementById("purchaseTicket");
+
+  purchaseTicket.addEventListener("click", () => {
     ticketPulled.style.display = "block";
 
     setTimeout(() => {
-        onCooldown = false;
-        ticketPulled.style.display = "none";
-        ticketPulled.src = "/assets/images/rDrama/lottery_modal_active.webp?v=2&t="+new Date().getTime();
-        purchaseTicket.disabled = false;
+      ticketPulled.style.display = "none";
+      ticketPulled.src =
+        "/assets/images/rDrama/lottery_modal_active.webp?v=2&t=" +
+        new Date().getTime();
+      purchaseTicket.disabled = false;
     }, 1780);
   });
 });
@@ -43,43 +31,35 @@ function checkLotteryStats() {
   return handleLotteryRequest("active", "GET");
 }
 
-let checking;
-function startCheckingLotteryStats() {
-  clearTimeout(checking);
-
-  checking = setTimeout(() => {
-    checkLotteryStats();
-    startCheckingLotteryStats();
-  }, CHECK_LOTTERY_RATE);
-}
-
-function stopCheckingLotteryStats() {
-  clearTimeout(checking);
-}
-
 // Admin
 function ensureIntent() {
   return window.confirm("Are you sure you want to end the current lottery?");
 }
 
 function startLotterySession() {
+  checkLotteryStats();
+
   if (ensureIntent()) {
-    return handleLotteryRequest("start", "POST");
+    return handleLotteryRequest("start", "POST", () =>
+      window.location.reload()
+    );
   }
 }
 
 function endLotterySession() {
+  checkLotteryStats();
+
   if (ensureIntent()) {
-    return handleLotteryRequest("end", "POST");
+    return handleLotteryRequest("end", "POST", () => window.location.reload());
   }
 }
 
 // Composed
-function handleLotteryRequest(uri, method) {
+function handleLotteryRequest(uri, method, callback = () => {}) {
   const xhr = new XMLHttpRequest();
   const url = `/lottery/${uri}`;
   xhr.open(method, url);
-  xhr.onload = handleLotteryResponse.bind(null, xhr, method);
+  xhr.onload = handleLotteryResponse.bind(null, xhr, method, callback);
 
   const form = new FormData();
   form.append("formkey", formkey());
@@ -87,7 +67,7 @@ function handleLotteryRequest(uri, method) {
   xhr.send(form);
 }
 
-function handleLotteryResponse(xhr, method) {
+function handleLotteryResponse(xhr, method, callback) {
   let response;
 
   try {
@@ -108,6 +88,8 @@ function handleLotteryResponse(xhr, method) {
       toastMessage.innerText = response.message;
 
       bootstrap.Toast.getOrCreateInstance(toast).show();
+
+      callback();
     } else {
       // Display error.
       const toast = document.getElementById("lottery-post-error");
@@ -122,7 +104,6 @@ function handleLotteryResponse(xhr, method) {
 
   if (response && response.stats) {
     lastStats = response.stats;
-    startCheckingLotteryStats();
 
     const { user, lottery, participants } = response.stats;
     const [
@@ -151,18 +132,22 @@ function handleLotteryResponse(xhr, method) {
       prizeImage.style.display = "inline";
       prizeField.textContent = lottery.prize;
       timeLeftField.textContent = formatTimeLeft(lottery.timeLeft);
-      
+
       if (participants) {
         participantsThisSessionField.textContent = participants;
       }
 
       ticketsSoldThisSessionField.textContent = lottery.ticketsSoldThisSession;
       ticketsHeldCurrentField.textContent = user.ticketsHeld.current;
-      purchaseTicketButton.disabled = onCooldown;
     } else {
       prizeImage.style.display = "none";
-      [prizeField, timeLeftField, ticketsSoldThisSessionField, participantsThisSessionField, ticketsHeldCurrentField]
-        .forEach(e => e.textContent = "-");
+      [
+        prizeField,
+        timeLeftField,
+        ticketsSoldThisSessionField,
+        participantsThisSessionField,
+        ticketsHeldCurrentField,
+      ].forEach((e) => (e.textContent = "-"));
       purchaseTicketButton.disabled = true;
     }
 

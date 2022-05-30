@@ -1,6 +1,6 @@
 {% if LOTTERY_ENABLED %}
 <div
-  class="modal fade"
+  class="modal fade lottery-modal"
   id="lotteryModal"
   tabindex="-1"
   role="dialog"
@@ -65,9 +65,9 @@
           <div class="lottery-modal--stat">
             <div class="lottery-modal--stat-keys">
               <div>Prize</div>
-              <div>Time Remaining</div>
-              <div>Tickets Sold This Session</div>
-              <div>Participants This Session</div>
+              <div>Time Left</div>
+              <div>Tickets Sold</div>
+              <div>Participants</div>
             </div>
             <div class="lottery-modal--stat-values">
               <div>
@@ -93,9 +93,9 @@
           </div>
           <div class="lottery-modal--stat">
             <div class="lottery-modal--stat-keys">
-              <div>Tickets Owned This Session</div>
-              <div>Total Tickets Owned</div>
-              <div>Total Winnings</div>
+              <div>Your Held Tickets</div>
+              <div>Lifetime Held Tickets</div>
+              <div>Lifetime Winnings</div>
             </div>
             <div class="lottery-modal--stat-values">
               <div id="ticketsHeldCurrent">-</div>
@@ -108,7 +108,6 @@
             class="btn btn-success lottery-modal--action"
             id="purchaseTicket"
             onclick="purchaseLotteryTicket()"
-            disabled="true"
           >
             Purchase 1 for
             <img
