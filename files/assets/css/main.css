@@ -5272,42 +5272,19 @@ audio, video {
 .fa-manhole:before{content:"\e1d6"}.fad.fa-manhole:after{content:"\e1d6\e1d6"}
 
 /* Lottery */
-@media screen and (max-width: 350px) {
-	.lottery-modal {
-		overflow-x: auto !important;
-	}
-}
-
-.lottery-modal--dialog {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-	height: 100vh;
-  }
-
-.lottery-modal--content {
-	width: 1000px;
-}
-
-.lottery-modal--close {
-	position: absolute;
-	top: 4px;
-	right: 12px;
-	z-index: 10;
-}
-
-.lottery-modal--wrapper {
+.lottery-page--wrapper {
 	display: flex;
 	align-items: center;
+	justify-content: center;
 	padding: 2rem;
 }
 
-.lottery-modal--wrapper > div {
+.lottery-page--wrapper > div {
 	height: 400px;
 	width: 400px;
 }
 
-.lottery-modal--image {
+.lottery-page--image {
 	max-width: 400px;
 	height: 400px;
 	margin-right: 1rem;
@@ -5318,7 +5295,7 @@ audio, video {
 	position: relative;
 }
 
-.lottery-modal--image > img {
+.lottery-page--image > img {
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -5326,25 +5303,26 @@ audio, video {
 	height: 100%;
 }
 
-.lottery-modal--stat {
+.lottery-page--stat {
 	margin-bottom: 1rem;
 }
 
-.lottery-modal--action {
+.lottery-page--action {
 	border-width: 2px;
 	font-size: 1.4rem;
 }
 
-.lottery-modal--stats {
+.lottery-page--stats {
 	display: flex;
 	flex-direction: column;
 	align-items: stretch;
 	justify-content: flex-end;
 	flex: 1;
 	margin-left: 2rem;
+	max-width: 500px;
 }
 
-.lottery-modal--stat {
+.lottery-page--stat {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -5354,81 +5332,81 @@ audio, video {
 	padding: 1rem;
 }
 
-.lottery-modal--stat-keys {
+.lottery-page--stat-keys {
 	color: #ffb2d4;
 	font-variant: small-caps;
 	font-weight: 400;
 }
 
-.lottery-modal--stat-values {
+.lottery-page--stat-values {
 	text-align: right;
 }
 
 @media screen and (max-width: 1680px) {
-	.lottery-modal--image {
+	.lottery-page--image {
 		margin-right: 0;
 		margin-bottom: 2rem;
 	}
 
-	.lottery-modal--content {
+	.lottery-page--content {
 		width: 440px;
 		min-width: 0;
 	}
 
-	.lottery-modal--wrapper {
+	.lottery-page--wrapper {
 		flex-direction: column;
 		justify-content: center;
 	}
 
-	.lottery-modal--action {
+	.lottery-page--action {
 		margin-bottom: 1rem;
 	}
 
-	.lottery-modal--stats {
+	.lottery-page--stats {
 		margin-left: 0;
 		width: 300px;
 		flex-direction: column-reverse;
 	}
 
-	.lottery-modal--dialog {
+	.lottery-page--dialog {
 		min-width: 440px !important;
 	}
 }
 
 @media screen and (max-width: 464px) {
-	.lottery-modal--image {
+	.lottery-page--image {
 		margin-right: 0;
 		margin-bottom: 2rem;
 	}
 
-	.lottery-modal--content {
+	.lottery-page--content {
 		width: 440px;
 		min-width: 0;
 	}
 
-	.lottery-modal--wrapper {
+	.lottery-page--wrapper {
 		flex-direction: column;
 		justify-content: center;
 	    padding: 2rem;
 	}
 
-    .lottery-modal--wrapper > div
+    .lottery-page--wrapper > div
     {
         width: 300px;
         height: 300px;
     }
 
-	.lottery-modal--action {
+	.lottery-page--action {
 		margin-bottom: 1rem;
 	}
 
-	.lottery-modal--stats {
+	.lottery-page--stats {
 		margin-left: 0;
 		width: 300px;
 		flex-direction: column-reverse;
 	}
 
-	.lottery-modal--dialog {
+	.lottery-page--dialog {
 		min-width: 440px !important;
 	}
 }

@@ -1,9 +1,5 @@
 window.addEventListener("DOMContentLoaded", () => {
-  lotteryModal.addEventListener("show.bs.modal", (event) => {
-    if (event.target.id === "lotteryModal") {
-      checkLotteryStats();
-    }
-  });
+  checkLotteryStats();
 
   // Show ticket being pulled.
   const ticketPulled = document.getElementById("lotteryTicketPulled");

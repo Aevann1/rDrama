@@ -1,0 +1,171 @@
+{% extends "default.html" %}
+
+{% block content %}
+<div>
+  <div class="lottery-page--wrapper">
+    <div class="lottery-page--image">
+      <img src="/assets/images/rDrama/lottery.webp?v=2" />
+      <img
+        id="lotteryTicketPulled"
+        src="/assets/images/rDrama/lottery_active.webp?v=2"
+        style="display: none"
+      />
+    </div>
+    <div class="lottery-page--stats">
+      {% if v.admin_level > 2 %}
+      <div
+        class="lottery-page--stat"
+        style="position: relative; padding-top: 1rem; overflow: hidden;"
+      >
+        <i
+          class="fas fa-broom"
+          style="
+            position: absolute;
+            bottom: -4px;
+            right: -4px;
+            font-size: 50px;
+            color: var(--gray-600);
+          "
+        >
+        </i>
+        <button
+          type="button"
+          class="btn btn-danger"
+          id="endLotterySession"
+          style="display: none"
+          onclick="endLotterySession()"
+        >
+          End Current Session
+        </button>
+        <button
+          type="button"
+          class="btn btn-success"
+          id="startLotterySession"
+          style="display: none"
+          onclick="startLotterySession()"
+        >
+          Start New Session
+        </button>
+      </div>
+      {% endif %}
+      <div class="lottery-page--stat">
+        <div class="lottery-page--stat-keys">
+          <div>Prize</div>
+          <div>Time Left</div>
+          <div>Tickets Sold</div>
+          <div>Participants</div>
+        </div>
+        <div class="lottery-page--stat-values">
+          <div>
+            <img
+              id="prize-image"
+              alt="coins"
+              class="mr-1 ml-1"
+              data-bs-toggle="tooltip"
+              data-bs-placement="bottom"
+              height="13"
+              src="/assets/images/rDrama/coins.webp?v=2"
+              title=""
+              aria-label="coins"
+              data-bs-original-title="coins"
+              style="display: none; position: relative; top: -2px"
+            />
+            <span id="prize">-</span>
+          </div>
+          <div id="timeLeft">-</div>
+          <div id="ticketsSoldThisSession">-</div>
+          <div id="participantsThisSession">-</div>
+        </div>
+      </div>
+      <div class="lottery-page--stat">
+        <div class="lottery-page--stat-keys">
+          <div>Your Held Tickets</div>
+          <div>Lifetime Held Tickets</div>
+          <div>Lifetime Winnings</div>
+        </div>
+        <div class="lottery-page--stat-values">
+          <div id="ticketsHeldCurrent">-</div>
+          <div id="ticketsHeldTotal">-</div>
+          <div id="winnings">-</div>
+        </div>
+      </div>
+      <button
+        type="button"
+        class="btn btn-success lottery-page--action"
+        id="purchaseTicket"
+        onclick="purchaseLotteryTicket()"
+      >
+        Purchase 1 for
+        <img
+          alt="coins"
+          class="mr-1 ml-1"
+          data-bs-toggle="tooltip"
+          data-bs-placement="bottom"
+          height="13"
+          src="/assets/images/rDrama/coins.webp?v=2"
+          title=""
+          aria-label="coins"
+          data-bs-original-title="coins"
+        />
+
+        12
+      </button>
+    </div>
+  </div>
+  
+  <!-- Success -->
+  <div
+    class="toast"
+    id="lottery-post-success"
+    style="
+      position: fixed;
+      bottom: 1.5rem;
+      margin: 0 auto;
+      left: 0;
+      right: 0;
+      width: unset;
+      z-index: 1000;
+    "
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+    data-bs-animation="true"
+    data-bs-autohide="true"
+    data-bs-delay="5000"
+  >
+    <div class="toast-body bg-success text-center text-white">
+      <i class="fas fa-comment-alt-smile mr-2"></i
+      ><span id="lottery-post-success-text"></span>
+    </div>
+  </div>
+
+  <!-- Error -->
+  <div
+    class="toast"
+    id="lottery-post-error"
+    style="
+      position: fixed;
+      bottom: 1.5rem;
+      margin: 0 auto;
+      left: 0;
+      right: 0;
+      width: unset;
+      z-index: 1000;
+    "
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+    data-bs-animation="true"
+    data-bs-autohide="true"
+    data-bs-delay="5000"
+  >
+    <div class="toast-body bg-danger text-center text-white">
+      <i class="fas fa-exclamation-circle mr-2"></i
+      ><span id="lottery-post-error-text"></span>
+    </div>
+  </div>
+</div>
+
+<script src="{{asset('js/lottery.js')}}" data-cfasync="false"></script>
+</div>
+{% endblock %}

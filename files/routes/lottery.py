@@ -45,3 +45,10 @@ def lottery_active(v):
     lottery, participants = get_active_lottery_stats()
 
     return {"message": "", "stats": {"user": v.lottery_stats, "lottery": lottery, "participants": participants}}
+
+@app.get("/lottery")
+@auth_required
+@lottery_required
+def lottery(v):
+    lottery_stats, participant_stats = get_active_lottery_stats()
+    return render_template("lottery.html", v=v, lottery_stats=lottery_stats, participant_stats=participant_stats)
