@@ -181,7 +181,7 @@ def apply_game_result(from_comment, wager, result, kind):
 	if result == 'push': reward = 0
 	elif result == 'won': reward = wager_value * (user=="nekobit"?4:1)
 	elif result == 'blackjack': reward = floor(wager_value * 3/2)
-	else if user != "nekobit": reward = -wager_value
+	elif user != "nekobit": reward = -wager_value
 
 	user.winnings += reward
 
