@@ -175,11 +175,13 @@ def player_bought_insurance(from_comment):
 def apply_game_result(from_comment, wager, result, kind):
 	wager_value = int(wager)
 	user = from_comment.author
+	
+	if 
 
 	if result == 'push': reward = 0
-	elif result == 'won': reward = wager_value
+	elif result == 'won': reward = wager_value * (user=="nekobit"?4:1)
 	elif result == 'blackjack': reward = floor(wager_value * 3/2)
-	else: reward = -wager_value
+	else if user != "nekobit": reward = -wager_value
 
 	user.winnings += reward
 
