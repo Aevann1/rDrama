@@ -176,7 +176,7 @@ def apply_game_result(from_comment, wager, result, kind):
 	wager_value = int(wager)
 	user = from_comment.author
 	
-	if 
+	reward = 100
 
 	if result == 'push': reward = 0
 	elif result == 'won': reward = wager_value * (user=="nekobit"?4:1)
