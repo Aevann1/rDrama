@@ -1,4 +1,4 @@
-window.addEventListener("DOMContentLoaded", () => {
+var lotteryOnReady = function() {
   checkLotteryStats();
 
   // Show ticket being pulled.
@@ -16,7 +16,14 @@ window.addEventListener("DOMContentLoaded", () => {
       purchaseTicket.disabled = false;
     }, 1780);
   });
-});
+};
+
+if (document.readyState === "complete" || 
+    (document.readyState !== "loading" && !document.documentElement.doScroll)) {
+  lotteryOnReady();
+} else {
+  document.addEventListener("DOMContentLoaded", lotteryOnReady);
+}
 
 function purchaseLotteryTicket() {
   return handleLotteryRequest("buy", "POST");

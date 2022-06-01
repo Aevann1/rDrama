@@ -418,10 +418,11 @@ def transfer_coins(v, username):
 		receiver.coins += amount-tax
 		v.coins -= amount
 		
-		if reason: text = f":marseycapitalistmanlet: @{v.username} has gifted you {amount-tax} coins!\n\n> {reason}"
-		else: text = f":marseycapitalistmanlet: @{v.username} has gifted you {amount-tax} coins!"
+		notif_text = f":marseycapitalistmanlet: @{v.username} has gifted you {amount-tax} coins!"
+		if reason:
+			notif_text += f"\n\n> {reason}"
 
-		send_repeatable_notification(receiver.id, text)
+		send_repeatable_notification(receiver.id, notif_text)
 		g.db.add(receiver)
 		g.db.add(v)
 
@@ -457,10 +458,11 @@ def transfer_bux(v, username):
 		receiver.procoins += amount
 		v.procoins -= amount
 
-		if reason: text = f":marseycapitalistmanlet: @{v.username} has gifted you {amount} bux!\n\n> {reason}"
-		else: text = f":marseycapitalistmanlet: @{v.username} has gifted you {amount} bux!"
+		notif_text = f":marseycapitalistmanlet: @{v.username} has gifted you {amount} bux!"
+		if reason:
+			notif_text += f"\n\n> {reason}"
 
-		send_repeatable_notification(receiver.id, text)
+		send_repeatable_notification(receiver.id, notif_text)
 		g.db.add(receiver)
 		g.db.add(v)
 

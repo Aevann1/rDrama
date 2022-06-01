@@ -52,3 +52,10 @@ def lottery_active(v):
 def lottery(v):
     lottery_stats, participant_stats = get_active_lottery_stats()
     return render_template("lottery.html", v=v, lottery_stats=lottery_stats, participant_stats=participant_stats)
+
+@app.get("/admin/lottery/participants")
+@admin_level_required(2)
+@lottery_required
+def lottery_admin(v):
+    participants = get_users_participating_in_lottery()
+    return render_template("admin/lottery.html", v=v, participants=participants)
