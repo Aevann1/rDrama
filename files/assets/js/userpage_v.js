@@ -81,6 +81,7 @@ function updateBux(mobile=false) {
 }
 
 function transferCoins(mobile=false) {
+
 	for(let el of document.getElementsByClassName('toggleable')) {
 		el.classList.add('d-none');
 	}
@@ -89,10 +90,13 @@ function transferCoins(mobile=false) {
 
 	let amount = parseInt(document.getElementById("coin-transfer-amount").value);
 	let transferred = amount - Math.ceil(amount*TRANSFER_TAX);
-	let username = document.getElementById('username').innerHTML
+	let username = document.getElementById('username').innerHTML;
 
-	post_toast_callback(`/@${username}/transfer_coins`,
-		{"amount": document.getElementById(mobile ? "coin-transfer-amount-mobile" : "coin-transfer-amount").value},
+	post_toast_callback(`/@${username}/transfer_coins`, 
+		{
+		"amount": document.getElementById(mobile ? "coin-transfer-amount-mobile" : "coin-transfer-amount").value,
+		"reason": document.getElementById(mobile ? "coin-transfer-reason-mobile" : "coin-transfer-reason").value
+		},
 		(xhr) => {
 		if(xhr.status == 200) {
 			document.getElementById("user-coins-amount").innerText = parseInt(document.getElementById("user-coins-amount").innerText) - amount;
@@ -116,7 +120,10 @@ function transferBux(mobile=false) {
 	let username = document.getElementById('username').innerHTML
 
 	post_toast_callback(`/@${username}/transfer_bux`,
-		{"amount": document.getElementById(mobile ? "bux-transfer-amount-mobile" : "bux-transfer-amount").value},
+		{
+		"amount": document.getElementById(mobile ? "bux-transfer-amount-mobile" : "bux-transfer-amount").value,
+		"reason": document.getElementById(mobile ? "bux-transfer-reason-mobile" : "bux-transfer-reason").value
+		},
 		(xhr) => {
 		if(xhr.status == 200) {
 			document.getElementById("user-bux-amount").innerText = parseInt(document.getElementById("user-bux-amount").innerText) - amount;

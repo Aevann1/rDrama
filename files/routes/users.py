@@ -403,6 +403,7 @@ def transfer_coins(v, username):
 	if receiver.id != v.id:
 		amount = request.values.get("amount", "").strip()
 		amount = int(amount) if amount.isdigit() else None
+		reason = request.values.get("reason", "").strip()
 
 		if amount is None or amount <= 0: return {"error": "Invalid amount of coins."}, 400
 		if v.coins < amount: return {"error": "You don't have enough coins."}, 400
@@ -416,11 +417,16 @@ def transfer_coins(v, username):
 
 		receiver.coins += amount-tax
 		v.coins -= amount
-		send_repeatable_notification(receiver.id, f":marseycapitalistmanlet: @{v.username} has gifted you {amount-tax} coins!")
+		
+		if reason: text = f":marseycapitalistmanlet: @{v.username} has gifted you {amount-tax} coins!\n\n> {reason}"
+		else: text = f":marseycapitalistmanlet: @{v.username} has gifted you {amount-tax} coins!"
+
+		send_repeatable_notification(receiver.id, text)
 		g.db.add(receiver)
 		g.db.add(v)
 
 		g.db.commit()
+
 		return {"message": f"{amount-tax} coins transferred!"}, 200
 
 	return {"message": "You can't transfer coins to yourself!"}, 400
@@ -438,6 +444,8 @@ def transfer_bux(v, username):
 	if receiver.id != v.id:
 		amount = request.values.get("amount", "").strip()
 		amount = int(amount) if amount.isdigit() else None
+		reason = request.values.get("reason", "").strip()
+
 
 		if not amount or amount < 0: return {"error": "Invalid amount of marseybux."}, 400
 		if v.procoins < amount: return {"error": "You don't have enough marseybux"}, 400
@@ -448,7 +456,11 @@ def transfer_bux(v, username):
 
 		receiver.procoins += amount
 		v.procoins -= amount
-		send_repeatable_notification(receiver.id, f":marseycapitalistmanlet: @{v.username} has gifted you {amount} marseybux!")
+
+		if reason: text = f":marseycapitalistmanlet: @{v.username} has gifted you {amount} bux!\n\n> {reason}"
+		else: text = f":marseycapitalistmanlet: @{v.username} has gifted you {amount} bux!"
+
+		send_repeatable_notification(receiver.id, text)
 		g.db.add(receiver)
 		g.db.add(v)
 
