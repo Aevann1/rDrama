@@ -1,0 +1,23 @@
+{% extends "default.html" %}
+
+{% block content %}
+<pre></pre>
+<h5>Admin — Lottery Info</h5>
+<pre></pre>
+<div class="overflow-x-auto"><table class="table table-striped mb-5">
+<thead class="bg-primary text-white">
+	<tr>
+		<th>#</th>
+		<th>Name</th>
+		<th>Tickets Held</th>
+	</tr>
+</thead>
+{% for user in participants %}
+	<tr>
+		<td>{{loop.index}}</td>
+		<td><a style="color:#{{user.namecolor}}" href="/@{{user.username}}"><img loading="lazy" src="{{user.profile_url}}" class="pp20"><span {% if user.patron %}class="patron" style="background-color:#{{user.namecolor}}"{% endif %}>{{user.username}}</span></a></td>
+		<td>{{user.currently_held_lottery_tickets}}</td>
+	</tr>
+{% endfor %}
+</table>
+{% endblock %}

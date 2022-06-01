@@ -12,7 +12,9 @@ def get_active_lottery():
 
 
 def get_users_participating_in_lottery():
-    return g.db.query(User).filter(User.currently_held_lottery_tickets > 0).all()
+    return g.db.query(User) \
+        .filter(User.currently_held_lottery_tickets > 0) \
+        .order_by(User.currently_held_lottery_tickets.desc()).all()
 
 
 def get_active_lottery_stats():

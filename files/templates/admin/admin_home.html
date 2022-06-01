@@ -46,6 +46,13 @@
 	<li><a href="/admin/apps">Apps</a></li>
 </ul>
 
+{% if LOTTERY_ENABLED -%}
+<h4>Lottery</h4>
+<ul>
+	<li><a href="/admin/lottery/participants">Participants</a></li>
+</ul>
+{%- endif %}
+
 <h4>Statistics</h4>
 <ul>
 	<li><a href="/stats">Content Stats</a></li>

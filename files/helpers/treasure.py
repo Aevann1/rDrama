@@ -5,7 +5,7 @@ from files.helpers.lottery import *
 
 special_min = 100
 special_max = 200
-standard_min = 10
+standard_min = 12
 standard_max = 100
 lotterizer_rate = 33
 
