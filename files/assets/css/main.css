@@ -4686,7 +4686,7 @@ video {
 .text-removed {
 	color: #ffabab !important;
 }
-.mirrored, img[alt^=":!"], img[alt^=":#!"] {
+.mirrored, img[alt^=":!"], img[alt^=":#!"], span[alt^=":!"], span[alt^=":#!"] {
 	transform: scaleX(-1);
 	-webkit-transform: scaleX(-1);
 }
