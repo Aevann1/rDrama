@@ -43,12 +43,12 @@ def marsey_list():
 	} for emoji, author in g.db.query(Marsey, User.username).join(User, User.id==Marsey.author_id).order_by(Marsey.count.desc())]
 
 	# Stastic shit
-	shit = open("files/assets/shit emojis.json", "r", encoding="utf-8")
+	shit = open("files/assets/emojis.json", "r", encoding="utf-8")
 	emojis = emojis + json.load(shit)
 	shit.close()
 
 	if SITE_NAME == 'Cringetopia':
-		shit = open("files/assets/shit emojis.cringetopia.json", "r", encoding="utf-8")
+		shit = open("files/assets/emojis.cringetopia.json", "r", encoding="utf-8")
 		emojis = emojis + json.load(shit)
 		shit.close()
 
