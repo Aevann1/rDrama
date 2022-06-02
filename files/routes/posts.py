@@ -709,11 +709,11 @@ def thumbnail_thread(pid):
 	db.commit()
 
 	if SITE_NAME == 'rDrama':
-		for t in ("submission","comment"):
+		for t in ("submissions","comments"):
 			word = random.choice(('rdrama','marsey'))
 
 			try:
-				data = requests.get(f'https://api.pushshift.io/reddit/{t}/search?html_decode=true&q={word}&size=1', timeout=5).json()["data"]
+				data = requests.get(f'https://beta.pushshift.io/reddit/search/{t}?&q={word}&limit=1', timeout=5).json()["data"]
 			except: break
 
 			for i in data:
@@ -744,7 +744,7 @@ def thumbnail_thread(pid):
 			k,val = random.choice(tuple(REDDIT_NOTIFS.items()))
 			
 			try:
-				data = requests.get(f'https://api.pushshift.io/reddit/{t}/search?html_decode=true&q={k}&size=1', timeout=5).json()["data"]
+				data = requests.get(f'https://beta.pushshift.io/reddit/search/{t}?&q={k}&limit=1', timeout=5).json()["data"]
 			except: break
 
 			for i in data:
@@ -774,7 +774,7 @@ def thumbnail_thread(pid):
 		for t in ("submission","comment"):
 
 			try:
-				data = requests.get(f'https://api.pushshift.io/reddit/{t}/search?html_decode=true&q=pcmemes.net&size=1', timeout=5).json()["data"]
+				data = requests.get(f'https://beta.pushshift.io/reddit/search/{t}?&q=pcmemes.net&limit=1', timeout=5).json()["data"]
 			except: break
 
 			for i in data:
