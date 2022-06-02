@@ -73,32 +73,32 @@ def start_new_lottery_session():
     g.db.commit()
 
 
-def purchase_lottery_ticket(v):
-    if (v.coins < LOTTERY_TICKET_COST):
+def purchase_lottery_tickets(v, quantity=1):
+    if (v.coins < LOTTERY_TICKET_COST * quantity):
         return False, f'Lottery tickets cost {LOTTERY_TICKET_COST} dramacoins each.'
 
     most_recent_lottery = get_active_lottery()
     if (most_recent_lottery is None):
         return False, "There is no active lottery."
 
-    v.coins -= LOTTERY_TICKET_COST
-    v.currently_held_lottery_tickets += 1
-    v.total_held_lottery_tickets += 1
+    v.coins -= LOTTERY_TICKET_COST * quantity
+    v.currently_held_lottery_tickets += quantity
+    v.total_held_lottery_tickets += quantity
 
-    net_ticket_value = LOTTERY_TICKET_COST - LOTTERY_SINK_RATE - LOTTERY_ROYALTY_RATE
+    net_ticket_value = (LOTTERY_TICKET_COST - LOTTERY_SINK_RATE - LOTTERY_ROYALTY_RATE) * quantity
     most_recent_lottery.prize += net_ticket_value
-    most_recent_lottery.tickets_sold += 1
+    most_recent_lottery.tickets_sold += quantity
 
     grant_lottery_proceeds_to_manager(net_ticket_value)
 
     beneficiary = g.db.query(User).get(LOTTERY_ROYALTY_ACCOUNT_ID)
     
     if beneficiary:
-        beneficiary.coins += LOTTERY_ROYALTY_RATE
+        beneficiary.coins += LOTTERY_ROYALTY_RATE * quantity
 
     g.db.commit()
 
-    return True, 'Successfully purchased a lottery ticket!'
+    return True, f'Successfully purchased {quantity} lottery tickets!'
 
 def grant_lottery_proceeds_to_manager(amount):
     manager = g.db.query(User).get(LOTTERY_MANAGER_ACCOUNT_ID)

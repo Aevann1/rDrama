@@ -1,6 +1,4 @@
-{% extends "default.html" %}
-
-{% block content %}
+{% extends "default.html" %} {% block content %}
 <div>
   <div class="lottery-page--wrapper">
     <div class="lottery-page--image">
@@ -15,7 +13,7 @@
       {% if v.admin_level > 2 %}
       <div
         class="lottery-page--stat"
-        style="position: relative; padding-top: 1rem; overflow: hidden;"
+        style="position: relative; padding-top: 1rem; overflow: hidden"
       >
         <i
           class="fas fa-broom"
@@ -89,13 +87,36 @@
           <div id="winnings">-</div>
         </div>
       </div>
+
+      <div class="lottery-page--stat">
+        <div class="lottery-page--stat-keys">
+          <div>Purchase Quantity</div>
+        </div>
+        <div class="lottery-page--stat-values">
+          <div>
+            <input
+              id="ticketPurchaseQuantity"
+              class="form-control"
+              autocomplete="off"
+              value="1"
+              min="1"
+              step="1"
+              aria-label="Quantity"
+              name="ticketPurchaseQuantity"
+              type="number"
+              style="flex: 1; max-width: 100px; text-align: center;"
+            />
+          </div>
+        </div>
+      </div>
+
       <button
         type="button"
         class="btn btn-success lottery-page--action"
         id="purchaseTicket"
         onclick="purchaseLotteryTicket()"
       >
-        Purchase 1 for
+      Purchase <span id="totalQuantityOfTickets">1</span> for 
         <img
           alt="coins"
           class="mr-1 ml-1"
@@ -107,65 +128,64 @@
           aria-label="coins"
           data-bs-original-title="coins"
         />
-
-        12
+        
+        <span id="totalCostOfTickets">12</span>
       </button>
     </div>
-  </div>
-  
-  <!-- Success -->
-  <div
-    class="toast"
-    id="lottery-post-success"
-    style="
-      position: fixed;
-      bottom: 1.5rem;
-      margin: 0 auto;
-      left: 0;
-      right: 0;
-      width: unset;
-      z-index: 1000;
-    "
-    role="alert"
-    aria-live="assertive"
-    aria-atomic="true"
-    data-bs-animation="true"
-    data-bs-autohide="true"
-    data-bs-delay="5000"
-  >
-    <div class="toast-body bg-success text-center text-white">
-      <i class="fas fa-comment-alt-smile mr-2"></i
-      ><span id="lottery-post-success-text"></span>
+
+    <!-- Success -->
+    <div
+      class="toast"
+      id="lottery-post-success"
+      style="
+        position: fixed;
+        bottom: 1.5rem;
+        margin: 0 auto;
+        left: 0;
+        right: 0;
+        width: unset;
+        z-index: 1000;
+      "
+      role="alert"
+      aria-live="assertive"
+      aria-atomic="true"
+      data-bs-animation="true"
+      data-bs-autohide="true"
+      data-bs-delay="5000"
+    >
+      <div class="toast-body bg-success text-center text-white">
+        <i class="fas fa-comment-alt-smile mr-2"></i
+        ><span id="lottery-post-success-text"></span>
+      </div>
+    </div>
+
+    <!-- Error -->
+    <div
+      class="toast"
+      id="lottery-post-error"
+      style="
+        position: fixed;
+        bottom: 1.5rem;
+        margin: 0 auto;
+        left: 0;
+        right: 0;
+        width: unset;
+        z-index: 1000;
+      "
+      role="alert"
+      aria-live="assertive"
+      aria-atomic="true"
+      data-bs-animation="true"
+      data-bs-autohide="true"
+      data-bs-delay="5000"
+    >
+      <div class="toast-body bg-danger text-center text-white">
+        <i class="fas fa-exclamation-circle mr-2"></i
+        ><span id="lottery-post-error-text"></span>
+      </div>
     </div>
   </div>
 
-  <!-- Error -->
-  <div
-    class="toast"
-    id="lottery-post-error"
-    style="
-      position: fixed;
-      bottom: 1.5rem;
-      margin: 0 auto;
-      left: 0;
-      right: 0;
-      width: unset;
-      z-index: 1000;
-    "
-    role="alert"
-    aria-live="assertive"
-    aria-atomic="true"
-    data-bs-animation="true"
-    data-bs-autohide="true"
-    data-bs-delay="5000"
-  >
-    <div class="toast-body bg-danger text-center text-white">
-      <i class="fas fa-exclamation-circle mr-2"></i
-      ><span id="lottery-post-error-text"></span>
-    </div>
-  </div>
-</div>
-
-<script src="{{asset('js/lottery.js')}}"></script>
+  <script src="{{asset('js/lottery.js')}}"></script>
 </div>
 {% endblock %}

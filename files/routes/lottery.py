@@ -5,7 +5,7 @@ from files.helpers.get import *
 from files.helpers.const import *
 from files.helpers.wrappers import *
 from files.helpers.lottery import *
-
+import requests
 
 @app.post("/lottery/end")
 @admin_level_required(3)
@@ -28,8 +28,10 @@ def lottery_start(v):
 @auth_required
 @lottery_required
 def lottery_buy(v):
-    success, message = purchase_lottery_ticket(v)
+    quantity = int(request.values.get("quantity"))
+    success, message = purchase_lottery_tickets(v, quantity)
     lottery, participants = get_active_lottery_stats()
+
 
     if success:
         return {"message": message, "stats": {"user": v.lottery_stats, "lottery": lottery, "participants": participants}}

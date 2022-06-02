@@ -1,4 +1,5 @@
-var lotteryOnReady = function() {
+let purchaseQuantity = 1;
+var lotteryOnReady = function () {
   checkLotteryStats();
 
   // Show ticket being pulled.
@@ -16,10 +17,28 @@ var lotteryOnReady = function() {
       purchaseTicket.disabled = false;
     }, 1780);
   });
+
+  // Update the quantity field
+  const purchaseQuantityField = document.getElementById(
+    "totalQuantityOfTickets"
+  );
+  const purchaseTotalCostField = document.getElementById("totalCostOfTickets");
+  const ticketPurchaseQuantityInput = document.getElementById(
+    "ticketPurchaseQuantity"
+  );
+
+  ticketPurchaseQuantityInput.addEventListener("change", (event) => {
+    const value = Math.max(1, parseInt(event.target.value))
+    purchaseQuantity = value
+    purchaseQuantityField.innerText = value
+    purchaseTotalCostField.innerText = value * 12
+  });
 };
 
-if (document.readyState === "complete" || 
-    (document.readyState !== "loading" && !document.documentElement.doScroll)) {
+if (
+  document.readyState === "complete" ||
+  (document.readyState !== "loading" && !document.documentElement.doScroll)
+) {
   lotteryOnReady();
 } else {
   document.addEventListener("DOMContentLoaded", lotteryOnReady);
@@ -29,7 +48,6 @@ function purchaseLotteryTicket() {
   return handleLotteryRequest("buy", "POST");
 }
 
-// Continously checking
 function checkLotteryStats() {
   return handleLotteryRequest("active", "GET");
 }
@@ -66,6 +84,7 @@ function handleLotteryRequest(uri, method, callback = () => {}) {
 
   const form = new FormData();
   form.append("formkey", formkey());
+  form.append("quantity", purchaseQuantity)
 
   xhr.send(form);
 }
