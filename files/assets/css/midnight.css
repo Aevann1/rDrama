@@ -1,54 +1,54 @@
-@charset "UTF-8";
+/* @charset "UTF-8"; */
 
-:root {
-	--dark: #505961;
-	--secondary: #505961;
-	--white: #c9d1d9;
-	--black: #c9d1d9;
-	--light: #b1bac4;
-	--muted: #c9d1d9;
-	--gray: #505961;
-	--gray-100: #c9d1d9;
-	--gray-200: #b1bac4;
-	--gray-300: #505961;
-	--gray-400: #6e7681;
-	--gray-500: #21262d;
-	--gray-600: #21262d;
-	--gray-700: #21262d;
-	--gray-800: #161b22;
-	--gray-900: #0d1117;
-	--background: #21262d;
-}
+/* :root { */
+/* 	--dark: #505961; */
+/* 	--secondary: #505961; */
+/* 	--white: #c9d1d9; */
+/* 	--black: #c9d1d9; */
+/* 	--light: #b1bac4; */
+/* 	--muted: #c9d1d9; */
+/* 	--gray: #505961; */
+/* 	--gray-100: #c9d1d9; */
+/* 	--gray-200: #b1bac4; */
+/* 	--gray-300: #505961; */
+/* 	--gray-400: #6e7681; */
+/* 	--gray-500: #21262d; */
+/* 	--gray-600: #21262d; */
+/* 	--gray-700: #21262d; */
+/* 	--gray-800: #161b22; */
+/* 	--gray-900: #0d1117; */
+/* 	--background: #21262d; */
+/* } */
 
 
 
-body, .navbar-light, .navbar-dark, .card, .modal-content, .comment-write textarea {
-	background-color: var(--gray-600) !important;
-}
+/* body, .navbar-light, .navbar-dark, .card, .modal-content, .comment-write textarea { */
+/* 	background-color: var(--gray-600) !important; */
+/* } */
 
-.transparent, #login {
-	background: None !important;
-}
+/* .transparent, #login { */
+/* 	background: None !important; */
+/* } */
 
-.tooltip-inner {
-	color: #383838 !important;
-}
+/* .tooltip-inner { */
+/* 	color: #383838 !important; */
+/* } */
 
-.modal .comment-actions .list-group-item {
-	background-color: var(--gray-600)!important;	
-}
+/* .modal .comment-actions .list-group-item { */
+/* 	background-color: var(--gray-600)!important;	 */
+/* } */
 
-.page-link {
-	background-color: #ccc;
-}
+/* .page-link { */
+/* 	background-color: #ccc; */
+/* } */
 
-#frontpage .post-title a:visited, .visited {
-	color: #6e6e6e !important;
-}
+/* #frontpage .post-title a:visited, .visited { */
+/* 	color: #6e6e6e !important; */
+/* } */
 
-.sidebar
-{
-    background-color: #1c1f25 !important;
-    border-radius: 6px;
-    margin-top: 6px;
-}
+/* .sidebar */
+/* { */
+/*     background-color: #1c1f25 !important; */
+/*     border-radius: 6px; */
+/*     margin-top: 6px; */
+/* } */
