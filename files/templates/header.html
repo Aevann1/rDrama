@@ -1,300 +1,298 @@
-<nav class=" shadow-md fixed-top">
-	<div class="srd">
-		{% if SITE_NAME == 'rDrama' %}
-			{% include "journoid_banner.html" %}
-		{%- else -%}
-			<img src="/e/marseylowpoly.webp" height=18 width=28>
+<nav>
+  <div class="srd">
+	{% if SITE_NAME == 'rDrama' %}
+	{% include "journoid_banner.html" %}
+	{%- else -%}
+	<img src="/e/marseylowpoly.webp" height=18 width=28>
 
-			{% if v and v.admin_level > 1 %}
-				People here now: <a href="/admin/loggedin">{{g.loggedin_counter}} logged in</a>, <a href="/admin/loggedout">{{g.loggedout_counter}} logged out</a>
-			{% else %}
-				People here now: {{g.loggedin_counter}} logged in, {{g.loggedout_counter}} logged out
-			{% endif %}
-		{%- endif -%}
+	{% if v and v.admin_level > 1 %}
+	People here now: <a href="/admin/loggedin">{{g.loggedin_counter}} logged in</a>, <a href="/admin/loggedout">{{g.loggedout_counter}} logged out</a>
+	{% else %}
+	People here now: {{g.loggedin_counter}} logged in, {{g.loggedout_counter}} logged out
+	{% endif %}
+	{%- endif -%}
+  </div>
+
+  <div class="navbar" id="navbar">
+	<a href="/" class="brand {% if SITE_NAME in ('PCM','WPD') and not sub %}flex-grow-1{% endif %}">
+	  <img alt="header icon" height=33 src="/assets/images/{{SITE_NAME}}/headericon.webp?v=1019">
+	</a>
+	
+	{% if sub %}
+	<a href="/h/{{sub.name}}" class="sub-name">/h/{{sub.name}}</a>
+	{% elif SITE_NAME not in ('PCM','WPD') %}
+	<style>
+	  {% if g.webview %}
+	  @media (min-width: 480px) {
+		  {% else %}
+		  @media (min-width: 380px) {
+			  #logo {
+				  width: 100px;
+				  margin-left: 0.5rem !important;
+			  }
+		  }
+		  {% endif %}
+	</style>
+	<div id="logo">
+	  <a href="/">
+		<img id="logo" alt="logo" src="/assets/images/{{SITE_NAME}}/logo.webp?v=1013" width="70">
+	  </a>
+	</div>
+	{% endif %}
+
+	<div class="search {% if not v %}pad{% endif %}">
+	  <form class="form-inline search flex-nowrap mx-0 mx-lg-auto" {% if err %}style="margin-right:40rem!important"{% endif %} action="{% if request.path.startswith('/search') %}{{request.path}}{% else %}/search/posts/{% endif %}" method="get">
+		<input autocomplete="off" class="search-input" type="search" placeholder="Search" aria-label="Search" name="q" value="{{request.values.get('q', '')}}">
+		<span class="input-group-append">
+		  <span class="input-group-text border-0 bg-transparent" style="margin-left: -2.5rem;">
+			<i class="fa fa-search" aria-hidden="true"></i>
+		  </span>
+		</span>
+	  </form>
 	</div>
 
-		<div class="navbar navbar-expand-md navbar-light" id="navbar">
-			<div class="container-fluid" style="padding:0;">
-			<a href="/" class="navbar-brand mr-auto {% if SITE_NAME in ('PCM','WPD') and not sub %}flex-grow-1{% endif %}">
-				<img alt="header icon" height=33 src="/assets/images/{{SITE_NAME}}/headericon.webp?v=1019">
-			</a>
-			
-			{% if sub %}
-				<a href="/h/{{sub.name}}" class="font-weight-bold ml-1 flex-grow-1 mt-1" style="font-size:max(14px,1.2vw)">/h/{{sub.name}}</a>
-			{% elif SITE_NAME not in ('PCM','WPD') %}
-				<style>
-					{% if g.webview %}
-						@media (min-width: 480px) {
-					{% else %}
-						@media (min-width: 380px) {
-							#logo {
-								width: 100px;
-								margin-left: 0.5rem !important;
-							}
-						}
-					{% endif %}
-				</style>
-				<div id="logo-container" class="flex-grow-1 logo-container">
-				<a href="/">
-					<img class="ml-1" id="logo" alt="logo" src="/assets/images/{{SITE_NAME}}/logo.webp?v=1013" width=70>
-				</a>
-				</div>
-			{% endif %}
+	{% if g.webview %}
+	<a class="mobile-nav-icon d-md-none" onclick="location.reload()"><i class="fas fa-arrow-rotate-right align-middle text-gray-500 black"></i></a>
+	{% endif %}
 
-			<div class="flex-grow-1 d-fl d-none d-md-block {% if not v %}pad{% endif %}">
-				<form class="form-inline search flex-nowrap mx-0 mx-lg-auto" {% if err %}style="margin-right:40rem!important"{% endif %} action="{% if request.path.startswith('/search') %}{{request.path}}{% else %}/search/posts/{% endif %}" method="get">
-					<input autocomplete="off" class="form-control w-100" type="search" placeholder="Search" aria-label="Search" name="q" value="{{request.values.get('q', '')}}">
-					<span class="input-group-append">
-						<span class="input-group-text border-0 bg-transparent" style="margin-left: -2.5rem;">
-							<i class="fa fa-search" aria-hidden="true"></i>
-						</span>
-					</span>
-				</form>
-			</div>
+	{% if v %}
+	{% if v.notifications_count %}
+	<a class="mobile-nav-icon d-md-none" href="/notifications{% if v.notifications_do %}?{{v.notifications_do}}=true{% endif %}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Notifications"><i class="fas fa-bell align-middle" style="color: {{v.notifications_color}}"></i><span class="notif-count ml-1" style="padding-left: 4.5px;{% if v.notifications_do %}background:{{v.notifications_color}}{% endif %}">{{v.notifications_count}}</span></a>
+	{% else %}
+	<a class="mobile-nav-icon d-md-none" href="/notifications" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Notifications"><i class="fas fa-bell  align-middle text-gray-500 black"></i></a>
+	{% endif %}
+	{% endif %}
+	
+	{% if not err %}
+	{% if v and v.admin_level > 1 %}
+		<a class="mobile-nav-icon d-md-none" href="/admin"><i class="fas fa-crown align-middle text-gray-500 black"></i></a>
+		{% endif %}
 
-			{% if g.webview %}
-				<a class="mobile-nav-icon d-md-none" onclick="location.reload()"><i class="fas fa-arrow-rotate-right align-middle text-gray-500 black"></i></a>
-			{% endif %}
+		{% if v %}
+		<a class="mobile-nav-icon d-md-none" href="{% if sub %}/h/{{sub.name}}{% endif %}/submit"><i class="fas fa-feather-alt align-middle text-gray-500 black"></i></a>
+		{% else %}
+		<a class="mobile-nav-icon d-md-none" href="/login"><i class="fas fa-feather-alt align-middle text-gray-500 black"></i></a>
+		{% endif %}
 
-			{% if v %}
-				{% if v.notifications_count %}
-					<a class="mobile-nav-icon d-md-none" href="/notifications{% if v.notifications_do %}?{{v.notifications_do}}=true{% endif %}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Notifications"><i class="fas fa-bell align-middle" style="color: {{v.notifications_color}}"></i><span class="notif-count ml-1" style="padding-left: 4.5px;{% if v.notifications_do %}background:{{v.notifications_color}}{% endif %}">{{v.notifications_count}}</span></a>
-				{% else %}
-					<a class="mobile-nav-icon d-md-none" href="/notifications" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Notifications"><i class="fas fa-bell  align-middle text-gray-500 black"></i></a>
-				{% endif %}
-			{% endif %}
-			
-		{% if not err %}
-			{% if v and v.admin_level > 1 %}
-				<a class="mobile-nav-icon d-md-none" href="/admin"><i class="fas fa-crown align-middle text-gray-500 black"></i></a>
-			{% endif %}
+		{% if v and v.can_gamble and LOTTERY_ENABLED %}
+		<span data-bs-toggle="tooltip" data-bs-placement="bottom" title={{'Lottershe' if SITE_NAME == 'rDrama' else 'Lottery'}}>
+		  <a
+			href="/lottery"
+			class="mobile-nav-icon d-md-none"> 
+			<i class="fas fa-ticket align-middle text-gray-500"></i>
+		  </a>
+		</span>
+		{% endif %}
 
-			{% if v %}
-				<a class="mobile-nav-icon d-md-none" href="{% if sub %}/h/{{sub.name}}{% endif %}/submit"><i class="fas fa-feather-alt align-middle text-gray-500 black"></i></a>
-			{% else %}
-				<a class="mobile-nav-icon d-md-none" href="/login"><i class="fas fa-feather-alt align-middle text-gray-500 black"></i></a>
-			{% endif %}
-
-			{% if v and v.can_gamble and LOTTERY_ENABLED %}
-			<span data-bs-toggle="tooltip" data-bs-placement="bottom" title={{'Lottershe' if SITE_NAME == 'rDrama' else 'Lottery'}}>
-				<a
-					href="/lottery"
-					class="mobile-nav-icon d-md-none"> 
-					<i class="fas fa-ticket align-middle text-gray-500"></i>
-				</a>
-			</span>
-			{% endif %}
-
-			<button class="navbar-toggler" role="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive"
-			aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
-			<span class="navbar-toggler-icon {% if v and v.notifications_count %}position-relative{% endif %}"><i class="fal fa-bars text-gray-500 black"></i>
-			</span>
+        <!-- Mobile navbar toggler -->
+		<button class="navbar-toggler" role="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive"
+			    aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+		  <span class="navbar-toggler-icon {% if v and v.notifications_count %}position-relative{% endif %}"><i class="fal fa-bars text-gray-500 black"></i>
+		  </span>
 		</button>
 
 		<div class="collapse navbar-collapse" id="navbarResponsive">
-			<ul class="navbar-nav ml-auto d-none d-md-flex">
+		  <ul class="navbar-nav">
 
 			{% if v %}
 
-				{% if v.notifications_count %}
-				<li class="nav-item d-flex align-items-center text-center justify-content-center mx-1">
-					<a class="nav-link position-relative" href="/notifications{% if v.notifications_do %}?{{v.notifications_do}}=true{% endif %}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Notifications"><i class="fas fa-bell" style="color: {{v.notifications_color}}"></i><span class="notif-count ml-1" style="padding-left: 4.5px;{% if v.notifications_do %}background:{{v.notifications_color}}{% endif %}">{{v.notifications_count}}</span></a>
-				</li>
-				{% else %}
-				<li class="nav-item d-flex align-items-center text-center justify-content-center mx-1">
-					<a class="nav-link" href="/notifications" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Notifications"><i class="fas fa-bell"></i></a>
-				</li>
-				{% endif %}
-
-				{% if v.admin_level > 1 %}
-				<li class="nav-item d-flex align-items-center justify-content-center text-center mx-1">
-					<a class="nav-link" href="/admin/" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Admin tools"><i class="fas fa-crown{% if v.has_report_queue %} text-success{% endif %}"></i></a>
-				</li>
-				{% endif %}
-
-				<li class="nav-item d-flex align-items-center justify-content-center text-center mx-1">
-					<a class="nav-link" href="{% if sub %}/h/{{sub.name}}{% endif %}/submit" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Create post"><i class="fas fa-feather-alt"></i></a>
-				</li>
-
-				<li class="nav-item d-flex align-items-center justify-content-center text-center mx-1">
-					<a class="nav-link" href="/chat/" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Chat"><i class="fas fa-messages"></i></a>
-				</li>
-
-				<li class="nav-item d-flex align-items-center justify-content-center text-center mx-1">
-					<a class="nav-link" href="/leaderboard" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Leaderboard"><i class="fas fa-trophy"></i></a>
-				</li>
-
-				{% if v.can_gamble and LOTTERY_ENABLED %}
-				<li class="nav-item d-flex align-items-center justify-content-center text-center mx-1">
-					<span 
-						data-bs-toggle="tooltip"
-						data-bs-placement="bottom"
-						title={{'Lottershe' if SITE_NAME == 'rDrama' else 'Lottery'}}>
-						<a
-							href="/lottery"
-							class="nav-link"> 
-							<i class="fas fa-ticket"></i>
-						</a>
-					</span>
-				</li>
-				{% endif %}
-
-				<li class="nav-item d-flex align-items-center justify-content-center text-center mx-1">
-					<a class="nav-link" href="/shop" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Shop"><i class="fas fa-store"></i></a>
-				</li>
-			
-				<li class="nav-item d-flex align-items-center justify-content-center text-center">
-					<div class="dropdown">
-						<a class="nav-link bg-transparent py-0 pr-0" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown"
-						aria-haspopup="true" aria-expanded="false">
-						<div class="d-flex">
-							<div>
-								<img alt="your profile picture" loading="lazy" src="{{v.profile_url}}" class="profile-pic-35">
-								{% if v.is_cakeday %}
-									<img class="party-hat4" src="/assets/images/party-hat.webp" data-bs-toggle="tooltip" data-bs-placement="bottom" title="I’ve spent another year rotting my brain with dramaposting, please ridicule me 🤓">
-								{% endif %}
-							</div>
-							<div class="text-left pl-2">
-								<div style="color: #{{v.namecolor}}" class="text-small font-weight-bold {% if v.patron %}patron{% endif %}"><span {% if v.patron %}class="patron" style="background-color:#{{v.namecolor}}"{% endif %}>{{v.username}}</span></div>
-								<div class="text-small-extra"><img alt="coins" class="mr-1 ml-1" data-bs-toggle="tooltip" data-bs-placement="bottom" height="13" src="/assets/images/{{SITE_NAME}}/coins.webp?v=2" title="coins" aria-label="coins"><span id="user-coins-amount">{{v.coins}}</span> Coin{{ help.plural(v.coins) }}</div>
-								{% if SITE_NAME not in ('Cringetopia', 'WPD') %}
-									<div class="text-small-extra"><img alt="marseybux" class="mr-1 ml-1" data-bs-toggle="tooltip" data-bs-placement="bottom" height="13" width="30" src="/assets/images/marseybux.webp?v=1008" title="Marseybux" aria-label="Marseybux"><span id="user-bux-amount">{{v.procoins}}</span> Marseybux</div>
-								{% endif %}
-							</div>
-						</div>
-					</a>
-					<div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-left shadow fade px-0">
-					<div class="px-2">
-						<a class="dropdown-item" href="{{v.url}}"><i class="fas fa-user-circle fa-fw mr-3"></i>My
-							profile</a>
-								<a class="dropdown-item" href="/settings"><i class="fas fa-cog fa-fw mr-3"></i>Settings</a>
-							</div>
-							<div class="px-2">
-								<button class="dropdown-item copy-link" data-clipboard-text="{{SITE_FULL}}/signup?ref={{v.username}}"><i class="fas fa-user-friends fa-fw mr-3"></i>Invite friends</button>
-							</div>
-							<div class="px-2">
-								<a class="dropdown-item" href="/assets/app_{{config('SITE_NAME')}}_v2.4.apk"><i class="fab fa-android fa-fw mr-3"></i>Android app</a>
-
-								<a class="dropdown-item" href="https://rdrama.net/changelog"><i class="fas fa-clipboard fa-fw mr-3"></i>Changelog</a>
-
-								<a class="dropdown-item" rel="nofollow noopener noreferrer" href="https://github.com/Aevann1/rDrama"><i class="fab fa-github fa-fw mr-3"></i>Source code</a>
-
-								{% if SITE_NAME in ['rDrama', 'PCM'] %}
-									<a class="dropdown-item" rel="nofollow noopener noreferrer" href="/report_bugs"><i class="fas fa-bug fa-fw mr-3"></i>Bugs/Suggestions</a>
-								{% endif %}
-
-								{% if SITE_NAME == 'rDrama' %}
-									<a class="dropdown-item" href="/discord"><i class="fab fa-discord fa-fw mr-3"></i>Discord</a>
-									<a class="dropdown-item" href="/post/75863/"><i class="fas fa-square-share-nodes fa-fw mr-3"></i>Fediverse</a>
-								{% endif %}
-								{% if SITE_NAME not in ('Cringetopia', 'WPD') %}
-									<a class="dropdown-item" rel="nofollow noopener noreferrer" href="{{config('GUMROAD_LINK')}}"><i class="fas fa-dollar-sign fa-fw mr-3"></i>Donate</a>
-								{% endif %}
-								{% if SITE_NAME == 'rDrama' %}
-									<a class="dropdown-item" href="/archives"><i class="fas fa-book fa-fw mr-3"></i>Archives</a>
-								{% endif %}
-								<a class="dropdown-item" href="/contact"><i class="fas fa-file-signature fa-fw mr-3"></i>Contact us</a>
-							</div>
-							<div class="px-2">
-								<a class="dropdown-item" role="button", onclick="post_toast(this,'/logout', '1')"><i class="fas fa-sign-out fa-fw mr-3"></i>Log out</a>
-							</div>
-						</div>
-					</div>
-				</li>
+			<li class="nav-item">
+			{% if v.notifications_count %}
+			  <a class="nav-link notifications-nav notifications-active" href="/notifications{% if v.notifications_do %}?{{v.notifications_do}}=true{% endif %}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Notifications"><i class="fas fa-bell" style="color: {{v.notifications_color}}"></i><span class="notif-count ml-1" style="padding-left: 4.5px;{% if v.notifications_do %}background:{{v.notifications_color}}{% endif %}">{{v.notifications_count}}</span></a>
 			{% else %}
-				<li class="nav-item d-flex align-items-center justify-content-center mx-1">
-				<a class="btn btn-primary" href="/contact">Contact us</a>
+			  <a class="nav-link notifications-nav" href="/notifications" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Notifications"><i class="fas fa-bell"></i></a>
+			{% endif %}
 			</li>
-				<li class="nav-item d-flex align-items-center justify-content-center mx-1">
-				<a class="btn btn-primary" href="/login?redirect={{request.path | urlencode}}">Sign in</a>
+
+			{% if v.admin_level > 1 %}
+			<li class="nav-item">
+			  <a class="nav-link admin-nav" href="/admin/" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Admin tools"><i class="fas fa-crown{% if v.has_report_queue %} text-success{% endif %}"></i></a>
+			</li>
+			{% endif %}
+
+			<li class="nav-item">
+			  <a class="nav-link post-nav" href="{% if sub %}/h/{{sub.name}}{% endif %}/submit" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Create post"><i class="fas fa-feather-alt"></i></a>
+			</li>
+
+			<li class="nav-item">
+			  <a class="nav-link chat-nav" href="/chat/" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Chat"><i class="fas fa-messages"></i></a>
+			</li>
+
+			<li class="nav-item">
+			  <a class="nav-link leaderboard-nav" href="/leaderboard" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Leaderboard"><i class="fas fa-trophy"></i></a>
+			</li>
+
+			{% if v.can_gamble and LOTTERY_ENABLED %}
+			<li class="nav-item">
+			  <span 
+				data-bs-toggle="tooltip"
+				data-bs-placement="bottom"
+				title={{'Lottershe' if SITE_NAME == 'rDrama' else 'Lottery'}}>
+				<a
+				  href="/lottery"
+				  class="nav-link lottery-nav"> 
+				  <i class="fas fa-ticket"></i>
+				</a>
+			  </span>
+			</li>
+			{% endif %}
+
+			<li class="nav-item">
+			  <a class="nav-link shop-nav" href="/shop" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Shop"><i class="fas fa-store"></i></a>
+			</li>
+			
+			<li class="nav-item">
+			  <label for="dropdown-checkbox" class="dropdown-label navbar-profile">
+				<div class="profile">
+				  <img alt="your profile picture" loading="lazy" src="{{v.profile_url}}" class="profile-pic-navbar">
+				  {% if v.is_cakeday %}
+				  <img class="party-hat4" src="/assets/images/party-hat.webp" data-bs-toggle="tooltip" data-bs-placement="bottom" title="I’ve spent another year rotting my brain with dramaposting, please ridicule me 🤓">
+				  {% endif %}
+				</div>
+				<div class="user-info">
+				  <div style="color: #{{v.namecolor}}" class="username {% if v.patron %}patron{% endif %}"><span {% if v.patron %}class="patron" style="background-color:#{{v.namecolor}}"{% endif %}>{{v.username}}</span></div>
+				  <div class="coins-wrapper">
+                    <img alt="coins" class="coins-icon" data-bs-toggle="tooltip" data-bs-placement="bottom" height="13" src="/assets/images/{{SITE_NAME}}/coins.webp?v=2" title="coins" aria-label="coins"><span id="user-coins-amount">{{v.coins}}</span> Coin{{ help.plural(v.coins) }}
+                  </div>
+				  {% if SITE_NAME not in ('Cringetopia', 'WPD') %}
+				  <div class="marseybux-wrapper">
+                    <img alt="marseybux" class="marseybux-icon" data-bs-toggle="tooltip" data-bs-placement="bottom" height="13" width="30" src="/assets/images/marseybux.webp?v=1008" title="Marseybux" aria-label="Marseybux"><span id="user-bux-amount">{{v.procoins}}</span> Marseybux
+				  {% endif %}
+				  </div>
+                </div>
+                  
+                <input type="checkbox" id="dropdown-checkbox" class="checkbox-display hidden">
+				<div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-left shadow fade px-0">
+				  <div class="px-2">
+					<a class="dropdown-item" href="{{v.url}}"><i class="fas fa-user-circle fa-fw mr-3"></i>My
+					  profile</a>
+					<a class="dropdown-item" href="/settings"><i class="fas fa-cog fa-fw mr-3"></i>Settings</a>
+				  </div>
+				  <div class="px-2">
+					<button class="dropdown-item copy-link" data-clipboard-text="{{SITE_FULL}}/signup?ref={{v.username}}"><i class="fas fa-user-friends fa-fw mr-3"></i>Invite friends</button>
+				  </div>
+				  <div class="px-2">
+					<a class="dropdown-item" href="/assets/app_{{config('SITE_NAME')}}_v2.4.apk"><i class="fab fa-android fa-fw mr-3"></i>Android app</a>
+
+					<a class="dropdown-item" href="https://rdrama.net/changelog"><i class="fas fa-clipboard fa-fw mr-3"></i>Changelog</a>
+
+					<a class="dropdown-item" rel="nofollow noopener noreferrer" href="https://github.com/Aevann1/rDrama"><i class="fab fa-github fa-fw mr-3"></i>Source code</a>
+
+					{% if SITE_NAME in ['rDrama', 'PCM'] %}
+					<a class="dropdown-item" rel="nofollow noopener noreferrer" href="/report_bugs"><i class="fas fa-bug fa-fw mr-3"></i>Bugs/Suggestions</a>
+					{% endif %}
+
+					{% if SITE_NAME == 'rDrama' %}
+					<a class="dropdown-item" href="/discord"><i class="fab fa-discord fa-fw mr-3"></i>Discord</a>
+					<a class="dropdown-item" href="/post/75863/"><i class="fas fa-square-share-nodes fa-fw mr-3"></i>Fediverse</a>
+					{% endif %}
+					{% if SITE_NAME not in ('Cringetopia', 'WPD') %}
+					<a class="dropdown-item" rel="nofollow noopener noreferrer" href="{{config('GUMROAD_LINK')}}"><i class="fas fa-dollar-sign fa-fw mr-3"></i>Donate</a>
+					{% endif %}
+					{% if SITE_NAME == 'rDrama' %}
+					<a class="dropdown-item" href="/archives"><i class="fas fa-book fa-fw mr-3"></i>Archives</a>
+					{% endif %}
+					<a class="dropdown-item" href="/contact"><i class="fas fa-file-signature fa-fw mr-3"></i>Contact us</a>
+				  </div>
+				  <div class="px-2">
+					<a class="dropdown-item" role="button", onclick="post_toast(this,'/logout', '1')"><i class="fas fa-sign-out fa-fw mr-3"></i>Log out</a>
+				  </div>
+				</div>
+			  </label>
+			</li>
+			{% else %}
+			<li class="nav-item d-flex align-items-center justify-content-center mx-1">
+			  <a class="btn btn-primary" href="/contact">Contact us</a>
 			</li>
 			<li class="nav-item d-flex align-items-center justify-content-center mx-1">
-				<a class="btn btn-primary" href="/signup">Sign up</a>
+			  <a class="btn btn-primary" href="/login?redirect={{request.path | urlencode}}">Sign in</a>
+			</li>
+			<li class="nav-item d-flex align-items-center justify-content-center mx-1">
+			  <a class="btn btn-primary" href="/signup">Sign up</a>
 			</li>
 			{% endif %}
-		</ul>
+		  </ul>
 
-		<ul style="overflow:auto" class="navbar-nav ml-auto d-flex d-md-none mt-3">
+		  <ul style="overflow:auto" class="navbar-nav navbar-nav-mobile">
 			<li class="nav-item pb-3">
-				<form id="searchform" class="form-inline search flex-nowrap mx-0 mx-lg-auto" action="/search/posts/" method="get">
-					<input autocomplete="off" class="form-control form-control-sm w-100" type="search" placeholder="Search" aria-label="Search" name="q">
-					<span class="input-group-append">
-						<span class="input-group-text border-0 bg-transparent" style="margin-left: -2.5rem"onclick="document.getElementById('searchform').submit()">
-							<i class="fa fa-search" aria-hidden="true"></i>
-						</span>
-					</span>
-				</form>
+			  <form id="searchform" class="form-inline search flex-nowrap mx-0 mx-lg-auto" action="/search/posts/" method="get">
+				<input autocomplete="off" class="form-control form-control-sm w-100" type="search" placeholder="Search" aria-label="Search" name="q">
+				<span class="input-group-append">
+				  <span class="input-group-text border-0 bg-transparent" style="margin-left: -2.5rem"onclick="document.getElementById('searchform').submit()">
+					<i class="fa fa-search" aria-hidden="true"></i>
+				  </span>
+				</span>
+			  </form>
 			</li>
 			{% if v %}
-				<li class="nav-item">
-					<a class="nav-link" href="{{v.url}}"><i class="fas fa-user-circle fa-fw mr-3"></i>@{{v.username}}</a>
-				</li>
-				<li class="nav-item">
-					<a class="nav-link" href="/settings"><i class="fas fa-cog fa-fw mr-3"></i>Settings</a>
-				</li>
-				{% if not g.webview %}
-					<li class="nav-item">
-						<a class="nav-link copy-link" data-clipboard-text="{{SITE_FULL}}/signup?ref={{v.username}}"><i class="fas fa-user-friends fa-fw mr-3"></i>Invite friends</a>
-					</li>
-				{% endif %}
-				
-				<a class="nav-item nav-link" href="/assets/app_{{config('SITE_NAME')}}_v2.4.apk"><i class="fab fa-android fa-fw mr-3"></i>Android app</a>
+			<li class="nav-item">
+			  <a class="nav-link" href="{{v.url}}"><i class="fas fa-user-circle fa-fw mr-3"></i>@{{v.username}}</a>
+			</li>
+			<li class="nav-item">
+			  <a class="nav-link" href="/settings"><i class="fas fa-cog fa-fw mr-3"></i>Settings</a>
+			</li>
+			{% if not g.webview %}
+			<li class="nav-item">
+			  <a class="nav-link copy-link" data-clipboard-text="{{SITE_FULL}}/signup?ref={{v.username}}"><i class="fas fa-user-friends fa-fw mr-3"></i>Invite friends</a>
+			</li>
+			{% endif %}
+			
+			<a class="nav-item nav-link" href="/assets/app_{{config('SITE_NAME')}}_v2.4.apk"><i class="fab fa-android fa-fw mr-3"></i>Android app</a>
 
-				<a class="nav-item nav-link" rel="nofollow noopener noreferrer" href="https://github.com/Aevann1/rDrama"><i class="fab fa-github fa-fw mr-3"></i>Source code</a>
+			<a class="nav-item nav-link" rel="nofollow noopener noreferrer" href="https://github.com/Aevann1/rDrama"><i class="fab fa-github fa-fw mr-3"></i>Source code</a>
 
-				{% if SITE_NAME == 'rDrama' %}
-					<a class="nav-item nav-link" href="/discord"><i class="fab fa-discord fa-fw mr-3"></i>Discord</a>
-					<a class="nav-item nav-link" href="/post/75863/"><i class="fas fa-square-share-nodes fa-fw mr-3"></i>Fediverse</a>
-				{% endif %}
-				{% if SITE_NAME not in ('Cringetopia', 'WPD') %}
-					<a class="nav-item nav-link" rel="nofollow noopener noreferrer" href="{{config('GUMROAD_LINK')}}"><i class="fas fa-dollar-sign fa-fw mr-3"></i>Donate</a>
-				{% endif %}
-				{% if SITE_NAME == 'rDrama' %}<a class="nav-item nav-link" href="/archives"><i class="fas fa-book fa-fw mr-3"></i>Archives</a>{% endif %}
-				<a class="nav-item nav-link" href="/contact"><i class="fas fa-file-signature fa-fw mr-3"></i>Contact us</a>
+			{% if SITE_NAME == 'rDrama' %}
+			<a class="nav-item nav-link" href="/discord"><i class="fab fa-discord fa-fw mr-3"></i>Discord</a>
+			<a class="nav-item nav-link" href="/post/75863/"><i class="fas fa-square-share-nodes fa-fw mr-3"></i>Fediverse</a>
+			{% endif %}
+			{% if SITE_NAME not in ('Cringetopia', 'WPD') %}
+			<a class="nav-item nav-link" rel="nofollow noopener noreferrer" href="{{config('GUMROAD_LINK')}}"><i class="fas fa-dollar-sign fa-fw mr-3"></i>Donate</a>
+			{% endif %}
+			{% if SITE_NAME == 'rDrama' %}<a class="nav-item nav-link" href="/archives"><i class="fas fa-book fa-fw mr-3"></i>Archives</a>{% endif %}
+			<a class="nav-item nav-link" href="/contact"><i class="fas fa-file-signature fa-fw mr-3"></i>Contact us</a>
 
-				<li class="nav-item border-top border-bottom mt-2 pt-2">
-					<a class="nav-link" role="button", onclick="post_toast(this,'/logout', '1')"><i class="fas fa-sign-out fa-fw mr-3 text-danger"></i>Log out</a>
-				</li>
+			<li class="nav-item border-top border-bottom mt-2 pt-2">
+			  <a class="nav-link" role="button", onclick="post_toast(this,'/logout', '1')"><i class="fas fa-sign-out fa-fw mr-3 text-danger"></i>Log out</a>
+			</li>
 			{% else %}
-				<li class="nav-item d-flex align-items-center justify-content-center pb-3">
-					<a class="btn btn-primary btn-block" href="/contact">Contact us</a>
-				</li>
-				<li class="nav-item d-flex align-items-center justify-content-center pb-3">
-					<a class="btn btn-primary btn-block" href="/login?redirect={{request.path | urlencode}}">Sign in</a>
-				</li>
-				<li class="nav-item d-flex align-items-center justify-content-center">
-					<a class="btn btn-primary btn-block" href="/signup">Sign up</a>
-				</li>
+			<li class="nav-item d-flex align-items-center justify-content-center pb-3">
+			  <a class="btn btn-primary btn-block" href="/contact">Contact us</a>
+			</li>
+			<li class="nav-item d-flex align-items-center justify-content-center pb-3">
+			  <a class="btn btn-primary btn-block" href="/login?redirect={{request.path | urlencode}}">Sign in</a>
+			</li>
+			<li class="nav-item d-flex align-items-center justify-content-center">
+			  <a class="btn btn-primary btn-block" href="/signup">Sign up</a>
+			</li>
 			{% endif %}
 			<li class="mt-3">
-				{% include "sidebar_" + SITE_NAME + ".html" %}
+			  {% include "sidebar_" + SITE_NAME + ".html" %}
 			</li>
-		</ul>
-	</div>
-	{% endif %}
-	</div>
-	</div>
+		  </ul>
+	    </div>
+	    {% endif %}
+  </div>
 </nav>
 
 <script src="{{asset('js/header.js')}}"></script>
 
 {% if v and not err %}
-	<div id="formkey" class="d-none">{{v.formkey}}</div>
+<div id="formkey" class="d-none">{{v.formkey}}</div>
 {% endif %}
 
 {% if not v %}
-	<style>
-		.pad {
-			padding-bottom: 7.4px;
-			padding-top: 7.4px;
-		}
-	</style>
+<style>
+  .pad {
+	  padding-bottom: 7.4px;
+	  padding-top: 7.4px;
+  }
+</style>
 {% endif %}
 
 {% if v and not v.animations -%}
-	<style>
-		* :not(img[src="/assets/images/hand.webp"] + img):not(img.golden, img[g]) {
-			animation: unset !important;
-		}
-	</style>
+<style>
+  * :not(img[src="/assets/images/hand.webp"] + img):not(img.golden, img[g]) {
+	  animation: unset !important;
+  }
+</style>
 {%- endif %}
