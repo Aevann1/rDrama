@@ -300,10 +300,9 @@
 {% endblock %}
 
 <div class="container">
-	<div class="row justify-content-around" id="main-content-row">
+	<div id="main-content-view">
 
-		<div class="col h-100 {% block customPadding %}{% if request.path.startswith('/@') %}user-gutters{% else %}custom-gutters{% endif %}{% endblock %}" id="main-content-col">
-
+		<div class="{% block customPadding %}{% if request.path.startswith('/@') %}user-gutters{% else %}custom-gutters{% endif %}{% endblock %}" id="main-content">
 			{% block desktopUserBanner %}
 			{% endblock %}
 
@@ -321,7 +320,6 @@
 
 			{% block pagenav %}
 			{% endblock %}
-
 		</div>
 		{% block sidebar %}
 			{% if home or sub and p %}

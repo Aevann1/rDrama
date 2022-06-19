@@ -130,35 +130,19 @@
 
 {% block PseudoSubmitForm %}
 
-<div class="row no-gutters d-none d-lg-flex mt-3 {% if not v %}mb-3{% endif %}">
-
-	<div class="col">
-		<div class="card pseudo-submit-form border">
-			<div class="card-header bg-gray-100">
-				<div class="mb-0">CREATE A POST</div>
-				<ul class="list-inline no-bullets mb-0 d-none">
-					<li class="list-inline-item active mr-4"><i class="fas fa-align-left text-gray-400"></i></li>
-					<li class="list-inline-item"><i class="fas fa-link text-gray-400"></i></li>
-				</ul>
-			</div>
-			<div class="card-body">
-				{% if v %}
-					<a href="{% if sub %}/h/{{sub.name}}{% endif %}/submit">
-						<input autocomplete="off" type="text" class="form-control"
-						aria-label="Username"
-						aria-describedby="basic-addon1">
-					</a>
-				{% else %}
-					<a href="/signup">
-						<input autocomplete="off" type="text" class="form-control"
-						aria-label="Username"
-						aria-describedby="basic-addon1">
-					</a>
-				{% endif %}
-			</div>
-		</div>
+<div class="pseudo-submit-form">
+  <div class="card pseudo-submit-form">
+	<span class="card-header card-title">
+	  Create a post
+	</span>
+	<div class="card-body">
+	  {% if v %}
+	  <a href="{% if sub %}/h/{{sub.name}}{% endif %}/submit" class="pseudo-textbox submit-pseudo-text"></a>
+	  {% else %}
+	  <a href="/signup" class="pseudo-textbox submit-pseudo-text"></a>
+	  {% endif %}
 	</div>
-
+  </div>
 </div>
 {% endblock %}
 

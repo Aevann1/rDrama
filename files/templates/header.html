@@ -143,60 +143,51 @@
 			
 			<li class="nav-item">
 			  <label for="dropdown-checkbox" class="dropdown-label navbar-profile">
-				<div class="profile">
-				  <img alt="your profile picture" loading="lazy" src="{{v.profile_url}}" class="profile-pic-navbar">
-				  {% if v.is_cakeday %}
-				  <img class="party-hat4" src="/assets/images/party-hat.webp" data-bs-toggle="tooltip" data-bs-placement="bottom" title="I’ve spent another year rotting my brain with dramaposting, please ridicule me 🤓">
-				  {% endif %}
-				</div>
-				<div class="user-info">
-				  <div style="color: #{{v.namecolor}}" class="username {% if v.patron %}patron{% endif %}"><span {% if v.patron %}class="patron" style="background-color:#{{v.namecolor}}"{% endif %}>{{v.username}}</span></div>
-				  <div class="coins-wrapper">
-                    <img alt="coins" class="coins-icon" data-bs-toggle="tooltip" data-bs-placement="bottom" height="13" src="/assets/images/{{SITE_NAME}}/coins.webp?v=2" title="coins" aria-label="coins"><span id="user-coins-amount">{{v.coins}}</span> Coin{{ help.plural(v.coins) }}
-                  </div>
-				  {% if SITE_NAME not in ('Cringetopia', 'WPD') %}
-				  <div class="marseybux-wrapper">
-                    <img alt="marseybux" class="marseybux-icon" data-bs-toggle="tooltip" data-bs-placement="bottom" height="13" width="30" src="/assets/images/marseybux.webp?v=1008" title="Marseybux" aria-label="Marseybux"><span id="user-bux-amount">{{v.procoins}}</span> Marseybux
-				  {% endif %}
+                <div class="dropdown-btn">
+				  <div class="profile">
+				    <img alt="your profile picture" loading="lazy" src="{{v.profile_url}}" class="profile-pic-navbar">
+				    {% if v.is_cakeday %}
+				    <img class="party-hat4" src="/assets/images/party-hat.webp" data-bs-toggle="tooltip" data-bs-placement="bottom" title="I’ve spent another year rotting my brain with dramaposting, please ridicule me 🤓">
+				    {% endif %}
 				  </div>
+				  <div class="user-info">
+				    <div style="color: #{{v.namecolor}}" class="username {% if v.patron %}patron{% endif %}"><span {% if v.patron %}class="patron" style="background-color:#{{v.namecolor}}"{% endif %}>{{v.username}}</span></div>
+				    <div class="coins-wrapper">
+                      <img alt="coins" class="coins-icon" data-bs-toggle="tooltip" data-bs-placement="bottom" height="13" src="/assets/images/{{SITE_NAME}}/coins.webp?v=2" title="coins" aria-label="coins"><span id="user-coins-amount">{{v.coins}}</span> Coin{{ help.plural(v.coins) }}
+                    </div>
+				    {% if SITE_NAME not in ('Cringetopia', 'WPD') %}
+				    <div class="marseybux-wrapper">
+                      <img alt="marseybux" class="marseybux-icon" data-bs-toggle="tooltip" data-bs-placement="bottom" height="13" width="30" src="/assets/images/marseybux.webp?v=1008" title="Marseybux" aria-label="Marseybux"><span id="user-bux-amount">{{v.procoins}}</span> Marseybux
+				      {% endif %}
+				    </div>
+                  </div>
                 </div>
                   
                 <input type="checkbox" id="dropdown-checkbox" class="checkbox-display hidden">
-				<div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-left shadow fade px-0">
-				  <div class="px-2">
-					<a class="dropdown-item" href="{{v.url}}"><i class="fas fa-user-circle fa-fw mr-3"></i>My
+				<div class="dropdown-menu dropdown-menu-right">
+                  <div class="dropdown-bg"></div>
+				  <a class="dropdown-item" href="{{v.url}}"><i class="fas fa-user-circle fa-fw mr-3"></i>My
 					  profile</a>
-					<a class="dropdown-item" href="/settings"><i class="fas fa-cog fa-fw mr-3"></i>Settings</a>
-				  </div>
-				  <div class="px-2">
-					<button class="dropdown-item copy-link" data-clipboard-text="{{SITE_FULL}}/signup?ref={{v.username}}"><i class="fas fa-user-friends fa-fw mr-3"></i>Invite friends</button>
-				  </div>
-				  <div class="px-2">
-					<a class="dropdown-item" href="/assets/app_{{config('SITE_NAME')}}_v2.4.apk"><i class="fab fa-android fa-fw mr-3"></i>Android app</a>
-
-					<a class="dropdown-item" href="https://rdrama.net/changelog"><i class="fas fa-clipboard fa-fw mr-3"></i>Changelog</a>
-
-					<a class="dropdown-item" rel="nofollow noopener noreferrer" href="https://github.com/Aevann1/rDrama"><i class="fab fa-github fa-fw mr-3"></i>Source code</a>
-
-					{% if SITE_NAME in ['rDrama', 'PCM'] %}
-					<a class="dropdown-item" rel="nofollow noopener noreferrer" href="/report_bugs"><i class="fas fa-bug fa-fw mr-3"></i>Bugs/Suggestions</a>
+				  <a class="dropdown-item" href="/settings"><i class="fas fa-cog fa-fw mr-3"></i>Settings</a>
+				  <span class="dropdown-item copy-link" data-clipboard-text="{{SITE_FULL}}/signup?ref={{v.username}}"><i class="fas fa-user-friends fa-fw mr-3"></i>Invite friends</span>
+				  <a class="dropdown-item" href="/assets/app_{{config('SITE_NAME')}}_v2.4.apk"><i class="fab fa-android fa-fw mr-3"></i>Android app</a>
+				  <a class="dropdown-item" href="https://rdrama.net/changelog"><i class="fas fa-clipboard fa-fw mr-3"></i>Changelog</a>
+				  <a class="dropdown-item" rel="nofollow noopener noreferrer" href="https://github.com/Aevann1/rDrama"><i class="fab fa-github fa-fw mr-3"></i>Source code</a>
+				  {% if SITE_NAME in ['rDrama', 'PCM'] %}
+				  <a class="dropdown-item" rel="nofollow noopener noreferrer" href="/report_bugs"><i class="fas fa-bug fa-fw mr-3"></i>Bugs/Suggestions</a>
 					{% endif %}
-
 					{% if SITE_NAME == 'rDrama' %}
-					<a class="dropdown-item" href="/discord"><i class="fab fa-discord fa-fw mr-3"></i>Discord</a>
-					<a class="dropdown-item" href="/post/75863/"><i class="fas fa-square-share-nodes fa-fw mr-3"></i>Fediverse</a>
+				  <a class="dropdown-item" href="/discord"><i class="fab fa-discord fa-fw mr-3"></i>Discord</a>
+				  <a class="dropdown-item" href="/post/75863/"><i class="fas fa-square-share-nodes fa-fw mr-3"></i>Fediverse</a>
 					{% endif %}
 					{% if SITE_NAME not in ('Cringetopia', 'WPD') %}
-					<a class="dropdown-item" rel="nofollow noopener noreferrer" href="{{config('GUMROAD_LINK')}}"><i class="fas fa-dollar-sign fa-fw mr-3"></i>Donate</a>
+				  <a class="dropdown-item" rel="nofollow noopener noreferrer" href="{{config('GUMROAD_LINK')}}"><i class="fas fa-dollar-sign fa-fw mr-3"></i>Donate</a>
 					{% endif %}
 					{% if SITE_NAME == 'rDrama' %}
-					<a class="dropdown-item" href="/archives"><i class="fas fa-book fa-fw mr-3"></i>Archives</a>
+				  <a class="dropdown-item" href="/archives"><i class="fas fa-book fa-fw mr-3"></i>Archives</a>
 					{% endif %}
-					<a class="dropdown-item" href="/contact"><i class="fas fa-file-signature fa-fw mr-3"></i>Contact us</a>
-				  </div>
-				  <div class="px-2">
-					<a class="dropdown-item" role="button", onclick="post_toast(this,'/logout', '1')"><i class="fas fa-sign-out fa-fw mr-3"></i>Log out</a>
-				  </div>
+				  <a class="dropdown-item" href="/contact"><i class="fas fa-file-signature fa-fw mr-3"></i>Contact us</a>
+				  <a class="dropdown-item" role="button", onclick="post_toast(this,'/logout', '1')"><i class="fas fa-sign-out fa-fw mr-3"></i>Log out</a>
 				</div>
 			  </label>
 			</li>
