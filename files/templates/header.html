@@ -43,11 +43,7 @@
 	<div class="search {% if not v %}pad{% endif %}">
 	  <form class="form-inline search flex-nowrap mx-0 mx-lg-auto" {% if err %}style="margin-right:40rem!important"{% endif %} action="{% if request.path.startswith('/search') %}{{request.path}}{% else %}/search/posts/{% endif %}" method="get">
 		<input autocomplete="off" class="search-input" type="search" placeholder="Search" aria-label="Search" name="q" value="{{request.values.get('q', '')}}">
-		<span class="input-group-append">
-		  <span class="input-group-text border-0 bg-transparent" style="margin-left: -2.5rem;">
-			<i class="fa fa-search" aria-hidden="true"></i>
-		  </span>
-		</span>
+		<i class="fa fa-search search-icon" aria-hidden="true"></i>
 	  </form>
 	</div>
 
