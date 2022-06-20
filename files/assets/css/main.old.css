@@ -3121,14 +3121,7 @@ small, .small {
 
 
 
-.arrow-up::before {
-	cursor: pointer;
-	font-size: 1.3rem;
-	color: var(--gray-200);
-	font-family: "font awesome 5 pro" !important;
-	font-weight: 900;
-	content: "\f357";
-}
+
 .arrow-up:hover::before {
 	/* color: var(--primary); */
 	/* opacity: 0.5; */
@@ -3219,14 +3212,7 @@ small, .small {
 .active.arrow-down::before {
 	color: #38B2AC;
 }
-.arrow-down::before {
-	cursor: pointer;
-	font-size: 1.3rem;
-	color: var(--gray-200);
-	font-family: "font awesome 5 pro" !important;
-	font-weight: 900;
-	content: "\f354";
-}
+
 .comment-actions .arrow-up {
 	top: 0;
 }

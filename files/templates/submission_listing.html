@@ -77,12 +77,12 @@
 	</div>
 {% endif %}
 
-<div id="post-{{p.id}}" class="card{% if p.is_banned %} banned{% endif %}{% if p.deleted_utc %} deleted{% endif %}{% if p.stickied %} stickied{% endif %}{% if voted==1 %} upvoted{% elif voted==-1 %} downvoted{% endif %}{% if p.over_18 %} nsfw{% endif %}">
+<div id="post-{{p.id}}" class="submission card{% if p.is_banned %} banned{% endif %}{% if p.deleted_utc %} deleted{% endif %}{% if p.stickied %} stickied{% endif %}{% if voted==1 %} upvoted{% elif voted==-1 %} downvoted{% endif %}{% if p.over_18 %} nsfw{% endif %}">
 
-	<div class="d-flex flex-row-reverse flex-md-row flex-nowrap justify-content-end">
+	<div class="post-contents">
 
 		{% if not postembed %}
-			<div class="voting my-2 d-none d-md-block pr-2">
+			<div class="voting">
 				{% if v and request.path.startswith('/@') and v.admin_level < 2 %}
 					<div tabindex="0" role="button" onclick="vote('post', '{{p.id}}', '1', '{{v.id}}')" class="post-{{p.id}}-up mx-auto arrow-up upvote-button post-{{p.id}}-up {% if voted==1 %}active{% else %}d-none{% endif %}"></div>
 
@@ -114,10 +114,10 @@
 
 			<div style="z-index: 3;">
 				{% if p.club and not (v and (v.paid_dues or v.id == p.author_id)) %}
-					<img alt="post thumnail" loading="lazy" src="/e/marseyglow.webp" class="post-img">
+					<img alt="post thumbnail" loading="lazy" src="/e/marseyglow.webp" class="post-img">
 				{% elif not p.url %}
 					<a {% if v and v.newtab and not g.webview %}target="_blank"{% endif %} href="{{p.permalink}}">
-						<img alt="post thumnail" loading="lazy" src="{{p.thumb_url}}" class="post-img">
+						<img alt="post thumbnail" loading="lazy" src="{{p.thumb_url}}" class="post-img">
 					</a>
 				{% elif p.is_image %}
 					<img role="button" data-bs-toggle="modal" data-bs-target="#expandImageModal" onclick="expandDesktopImage('{{p.realurl(v)}}')" alt="post thumnail" loading="lazy" src="{{p.thumb_url}}" class="post-img">
@@ -142,7 +142,7 @@
 		 
 		<div class="card-block text-left x-scroll-parent my-md-auto w-100">
 
-			<div class="post-meta text-left x-scroll mb-md-2">
+			<div class="submission-meta text-left x-scroll mb-md-2">
 				{% if p.sub %}
 					<a href='/h/{{p.sub}}'>/h/{{p.sub}}</a>&nbsp;&nbsp;
 				{% endif %}
@@ -190,7 +190,7 @@
 					{% if p.author.verified %}<i class="fas fa-badge-check align-middle ml-1 {% if p.author.verified=='Glowiefied' %}glow{% endif %}" style="color:{% if p.author.verifiedcolor %}#{{p.author.verifiedcolor}}{% else %}#1DA1F2{% endif %}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{p.author.verified}}"></i>
 					{% endif %}
 					<a class="user-name text-decoration-none" href="{{p.author.url}}" data-pop-info='{{p.author.json_popover(v) | tojson}}' onclick='popclick(event)' data-bs-placement="bottom" data-bs-toggle="popover" data-bs-trigger="click" data-content-id="popover" role="button" tabindex="0" style="color: #{{p.author.namecolor}}; font-weight: bold;">
-						<img loading="lazy" src="{{p.author.profile_url}}" class="profile-pic-25 mr-2">
+						<img loading="lazy" src="{{p.author.profile_url}}" class="profile-pic mr-2">
 						{% if p.author.is_cakeday %}
 							<img class="party-hat" src="/assets/images/party-hat.webp" data-bs-toggle="tooltip" data-bs-placement="bottom" title="I’ve spent another year rotting my brain with dramaposting, please ridicule me 🤓">
 						{% endif %}
@@ -209,32 +209,30 @@
 				&nbsp;&nbsp;{{p.views}} thread views
 			</div>
 
-			<h5 class="card-title post-title text-left w-lg-95 mb-0 pb-0 pb-md-1">
+			<span class="submission-title">
 				<a id="{{p.id}}-title" {% if v and v.newtab and not g.webview %}target="_blank"{% endif %} href="{{p.permalink}}" class="{% if voted and v.id == AEVANN_ID %}visited{% endif %} stretched-link {% if p.author.agendaposter %}agendaposter{% endif %}">
 				{% if p.club %}<span class="patron font-weight-bolder mr-1" style="background-color:red; font-size:12px; line-height:2;">{{CC}}</span>{% endif %}
 				{% if p.flair %}<span class="patron font-weight-bolder mr-1" style="background-color:var(--primary); font-size:12px; line-height:2;">{{p.flair | safe}}</span>{% endif %}
 				{{p.realtitle(v) | safe}}
-			</a></h5>
+			    </a>
+            </span>
 
-			<div class="post-actions mt-2 d-none d-md-block">
-				<ul class="list-inline text-right d-flex">
-						{% if p.realbody(v) %}
-							<a class="list-inline-item" role="button" onclick="expandText('{{p.id}}')"><i class="fas fa-expand-alt mr-0 text-expand-icon-{{p.id}}"></i></a>
-						{% endif %}
-						<li class="list-inline-item">
-							<a {% if v and v.newtab and not g.webview %}target="_blank"{% endif %} href="{{p.permalink}}">
-								<i class="fas fa-comment-dots"></i>{{p.comment_count}}
-								<span class="text-info d-none {{p.id}}-new-comments"></span>
-							</a>
-						</li>
-						{% include 'post_actions.html' %}
+			<div class="post-actions">
+			  {% if p.realbody(v) %}
+			  <a role="button" onclick="expandText('{{p.id}}')"><i class="fas fa-expand-alt mr-0 text-expand-icon-{{p.id}}"></i></a>
+			  {% endif %}
+			  <a {% if v and v.newtab and not g.webview %}target="_blank"{% endif %} href="{{p.permalink}}">
+				<i class="fas fa-comment-dots"></i>{{p.comment_count}}
+				<span class="text-info d-none {{p.id}}-new-comments"></span>
+			  </a>
+			  {% include 'post_actions.html' %}
 			</ul>
 		</div>
 	</div>
 </div>
 
 <div class="card-footer d-md-none mt-2 {% if request.path == '/changelog' %}px-0{% endif %}">
-	<div class="post-actions">
+	<div class="post-actions post-actions-mobile">
 		<ul class="list-inline text-right d-flex">
 			<li class="list-inline-item mr-auto">
 				<a {% if v and v.newtab and not g.webview %}target="_blank"{% endif %} href="{{p.permalink}}">
@@ -339,7 +337,7 @@
 
 {% if not p.club or v and (v.paid_dues or v.id == p.author_id) %}
 	{% if p.realbody(v) %}
-		<div class="d-none card rounded border pt-3 pb-2 my-2 {% if p.author.agendaposter %}agendaposter{% endif %}" id="post-text-{{p.id}}">
+		<div class="card submission-content {% if p.author.agendaposter %}agendaposter{% endif %}" id="post-text-{{p.id}}">
 			{{p.realbody(v) | safe}}
 		</div>
 	{% endif %}

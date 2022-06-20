@@ -42,6 +42,15 @@ html, body {
 	background-color: #fff;
 }
 
+/* Make all links look like regular text
+ *
+ * A lot of links are used as buttons and stuff, so if you want to
+ * make a regular link, undo these for specific areas like post content, etc */
+a, a:visited, a:hover, a:active {
+    text-decoration: none;
+    color: #000;
+}
+
 /* Font stuff */
 html, body, input, a, button {
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
@@ -54,7 +63,6 @@ html, body, input, a, button {
 
 /* Unlinkify "links" */
 .srd a {
-    text-decoration: none;
     color: #fff;
 }
 
@@ -204,9 +212,6 @@ nav {
     display: inline-block;
 }
 
-.hidden {
-    display: none;
-}
 
 #logo {
     flex-grow: 1;
@@ -225,6 +230,10 @@ nav {
     padding: 6px 10px;
     cursor: text;
     background-color: #fafafa;
+}
+
+.pseudo-submit-form {
+    margin-bottom: 8px;
 }
 
 .search-input {
@@ -312,7 +321,7 @@ nav {
     display: inline-block;
     padding: 4px 15px;
     background-color: unset;
-    border: 2px solid #eaeaea;
+    border: 1px solid #eaeaea;
     color: #000;
     font-size: .9rem;
     min-height: 32px;
@@ -339,4 +348,94 @@ nav {
     display: block;
     height: 30px;
     width: 100%;
+}
+
+.post-contents {
+    display: flex;
+    flex-direction: row;
+}
+
+.submission .profile-pic {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    vertical-align: middle;
+}
+
+.post-actions {
+    font-size: .9rem;
+}
+
+.post-actions i {
+    margin-right: 5px;
+}
+
+.post-actions a {
+    color: #000;
+    padding: 4px;
+    margin-right: 3px;
+    display: inline-block;
+}
+
+.submission-meta {
+    font-size: 0.85rem;
+}
+
+.submission-title {
+    font-size: 1.1rem;
+    margin-bottom: 3px;
+    font-weight: bold;
+}
+
+.post-actions-mobile {
+    display: none;
+}
+
+.submission-content {
+    display: none;
+}
+
+.post-meta {
+    vertical-align: middle;
+    padding: 4px;
+}
+
+.post-img {
+    width: 100px;
+    height: 70px;
+    object-fit: cover;
+    background-color: var(--gray-300);
+    border: .1px solid var(--primary);
+    border-radius: .35rem;
+}
+
+/* Voting buttons */
+.arrow-up::before {
+	cursor: pointer;
+	font-size: 1.3rem;
+	color: var(--gray-200);
+	font-family: "font awesome 5 pro" !important;
+	font-weight: 900;
+	content: "\f357";
+}
+
+.arrow-down::before {
+	cursor: pointer;
+	font-size: 1.3rem;
+	color: var(--gray-200);
+	font-family: "font awesome 5 pro" !important;
+	font-weight: 900;
+	content: "\f354";
+}
+
+.voting {
+    text-align: center;
+    padding: 3px 4px;
+    margin-left: 7px;
+}
+
+/* Everything below is best applied last */
+.hidden {
+    display: none !important;
 }
