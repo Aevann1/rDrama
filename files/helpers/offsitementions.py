@@ -6,6 +6,7 @@ import files.helpers.const as const
 from files.classes.user import User
 from files.classes.comment import Comment
 from files.classes.notifications import Notification
+from sanitize import sanitize
 
 # https://api.pushshift.io/meta provides key server_ratelimit_per_minute
 # At time of writing, the ratelimit is 120 req/min. We get nowhere near this 
@@ -38,23 +39,30 @@ def get_mentions(queries):
 				+ f'?html_decode=true&q={query}&size=1', timeout=5).json()['data']
 		except: break
 
-		for i in data: 
+		for i in data:
 			# Special case: PokemonGoRaids says 'Marsey' a lot unrelated to us.
 			if i['subreddit'] == 'PokemonGoRaids': continue
 
-			mentions.append(i['permalink'])
+			mentions.append({
+				'permalink': i['permalink'],
+				'text': i['body' if kind == 'comment' else 'title'],
+			})
 
 	return mentions
 
 def notify_mentions(send_to, mentions, mention_str='site mention'):
 	for m in mentions:
-		notif_text = f'<p>New {mention_str}: <a href="https://old.reddit.com{m}' \
+		permalink = m['permalink']
+		text = sanitize(m['text'])
+		notif_text = \
+			f'<p>New {mention_str}: <a href="https://old.reddit.com{permalink}' \
 			f'?context=89" rel="nofollow noopener noreferrer" target="_blank">' \
-			f'https://old.reddit.com{m}?context=89</a></p>'
+			f'https://old.reddit.com{permalink}?context=89</a></p>' \
+			f'<blockquote>{text}</blockquote>'
 
 		existing_comment = g.db.query(Comment.id).filter_by(
-			author_id=const.NOTIFICATIONS_ID, 
-			parent_submission=None, 
+			author_id=const.NOTIFICATIONS_ID,
+			parent_submission=None,
 			body_html=notif_text).one_or_none()
 		if existing_comment: continue
 
