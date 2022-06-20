@@ -86,10 +86,11 @@ function bs_trigger(e) {
 		}
 	}
 
-	let tooltipTriggerList = [].slice.call(e.querySelectorAll('[data-bs-toggle="tooltip"]'));
-	tooltipTriggerList.map(function(element){
-		return bootstrap.Tooltip.getOrCreateInstance(element);
-	});
+    // TODO
+	// let tooltipTriggerList = [].slice.call(e.querySelectorAll('[data-bs-toggle="tooltip"]'));
+	// tooltipTriggerList.map(function(element){
+	// 	return bootstrap.Tooltip.getOrCreateInstance(element);
+	// });
 
 	const popoverTriggerList = [].slice.call(e.querySelectorAll('[data-bs-toggle="popover"]'));
 	popoverTriggerList.map(function(popoverTriggerEl) {
@@ -97,12 +98,13 @@ function bs_trigger(e) {
 		let contentEl;
 		try {contentEl = e.getElementById(popoverId);}
 		catch(t) {contentEl = document.getElementById(popoverId);}
-		if (contentEl) {
-			return bootstrap.Popover.getOrCreateInstance(popoverTriggerEl, {
-				content: contentEl.innerHTML,
-				html: true,
-			});
-		}
+        // TODO
+		// if (contentEl) {
+		// 	return bootstrap.Popover.getOrCreateInstance(popoverTriggerEl, {
+		// 		content: contentEl.innerHTML,
+		// 		html: true,
+		// 	});
+		// }
 	})
 }
 
