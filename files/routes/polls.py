@@ -32,7 +32,7 @@ def api_vote_option(option_id, v):
 			submission_id=option.submission_id,
 		)
 		g.db.add(vote)
-	elif existing and not option.exclusive:
+	elif existing:
 		g.db.delete(existing)
 
 	return "", 204
@@ -84,7 +84,7 @@ def api_vote_option_comment(option_id, v):
 			comment_id=option.comment_id,
 		)
 		g.db.add(vote)
-	elif existing and not option.exclusive:
+	elif existing:
 		g.db.delete(existing)
 
 	return "", 204
