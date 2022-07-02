@@ -170,7 +170,13 @@ def post_id(pid, anything=None, v=None, sub=None):
 			blocked,
 			blocked.c.user_id == Comment.author_id,
 			isouter=True
-		).options(joinedload(Comment.flags), joinedload(Comment.awards), joinedload(Comment.author))
+		).options(
+			joinedload(Comment.flags),
+			joinedload(Comment.awards),
+			joinedload(Comment.author),
+			joinedload(Comment.options),
+			joinedload(Comment.options, CommentOption.votes)
+		)
 
 		output = []
 		for c in comments.all():
