@@ -39,6 +39,7 @@ class SubmissionOptionVote(Base):
 	submission_id = Column(Integer, ForeignKey("submissions.id"))
 
 	user = relationship("User", viewonly=True)
+	option = relationship("SubmissionOption", viewonly=True)
 
 	def __init__(self, *args, **kwargs):
 		if "created_utc" not in kwargs: kwargs["created_utc"] = int(time.time())
@@ -88,6 +89,7 @@ class CommentOptionVote(Base):
 	comment_id = Column(Integer, ForeignKey("comments.id"))
 
 	user = relationship("User", viewonly=True)
+	option = relationship("CommentOption", viewonly=True)
 
 	def __init__(self, *args, **kwargs):
 		if "created_utc" not in kwargs: kwargs["created_utc"] = int(time.time())

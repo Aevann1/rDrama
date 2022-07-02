@@ -21,7 +21,7 @@ INSERT INTO public.users (username, passhash, created_utc, admin_level, over_18,
 		 ('zozbot', '', extract(epoch from now()), 0, true, true, '', '', 0, false, 
 			0, 'zozbot', '', 'hot', 'top', 'day', '62ca56', 'e4432d',
 			'', 'dark', '30409f', false, 'old.reddit.com', '', '', 0, 0,
-			0, 0, '', 'Verified', 0, false, '/i/pfps/5.webp', '/i/pfps/5.webp'),
+			0, 0, '', 'Verified', 0, false, '/i/pfps/5.webp', '/i/pfps/5.webp');
 
 INSERT INTO public.marseys VALUES 
 ('marseylaugh',1,'lmao reaction point funny haha lol judgment',0),

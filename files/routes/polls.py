@@ -17,7 +17,10 @@ def api_vote_option(option_id, v):
 	if not option: abort(404)
 
 	if option.exclusive:
-		vote = g.db.query(SubmissionOptionVote).filter_by(user_id=v.id, submission_id=option.submission_id).one_or_none()
+		vote = g.db.query(SubmissionOptionVote).join(SubmissionOption).filter(
+			SubmissionOptionVote.user_id==v.id,
+			SubmissionOptionVote.submission_id==option.submission_id,
+			SubmissionOption.exclusive==True).one_or_none()
 		if vote:
 			g.db.delete(vote)
 
@@ -29,6 +32,8 @@ def api_vote_option(option_id, v):
 			submission_id=option.submission_id,
 		)
 		g.db.add(vote)
+	elif existing and not option.exclusive:
+		g.db.delete(existing)
 
 	return "", 204
 
@@ -64,7 +69,10 @@ def api_vote_option_comment(option_id, v):
 	if not option: abort(404)
 
 	if option.exclusive:
-		vote = g.db.query(CommentOptionVote).filter_by(user_id=v.id, comment_id=option.comment_id).one_or_none()
+		vote = g.db.query(CommentOptionVote).join(CommentOption).filter(
+			CommentOptionVote.user_id==v.id,
+			CommentOptionVote.comment_id==option.comment_id,
+			CommentOption.exclusive==True).one_or_none()
 		if vote:
 			g.db.delete(vote)
 
@@ -76,6 +84,8 @@ def api_vote_option_comment(option_id, v):
 			comment_id=option.comment_id,
 		)
 		g.db.add(vote)
+	elif existing and not option.exclusive:
+		g.db.delete(existing)
 
 	return "", 204
 
