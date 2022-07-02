@@ -21,6 +21,9 @@ class ViewerRelationship(Base):
 
 		super().__init__(**kwargs)
 
+	def __repr__(self):
+		return f"<ViewerRelationship(user_id={self.user_id}, viewer_id={self.viewer_id})>"
+
 	@property
 	@lazy
 	def last_view_since(self):

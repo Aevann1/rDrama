@@ -22,18 +22,6 @@ INSERT INTO public.users (username, passhash, created_utc, admin_level, over_18,
 			0, 'zozbot', '', 'hot', 'top', 'day', '62ca56', 'e4432d',
 			'', 'dark', '30409f', false, 'old.reddit.com', '', '', 0, 0,
 			0, 0, '', 'Verified', 0, false, '/i/pfps/5.webp', '/i/pfps/5.webp'),
-		 ('AutoPoller', '', extract(epoch from now()), 0, true, true, '', '', 0, false, 
-			0, 'AutoPoller', '', 'hot', 'top', 'day', '62ca56', 'e4432d',
-			'', 'dark', '30409f', false, 'old.reddit.com', '', '', 0, 0,
-			0, 0, '', 'Verified', 0, false, '', ''),
-		 ('AutoBetter', '', extract(epoch from now()), 0, true, true, '', '', 0, false, 
-			0, 'AutoBetter', '', 'hot', 'top', 'day', '62ca56', 'e4432d',
-			'', 'dark', '30409f', false, 'old.reddit.com', '', '', 0, 0,
-			0, 0, '', 'Verified', 0, false, '', ''),
-		 ('AutoChoice', '', extract(epoch from now()), 0, true, true, '', '', 0, false, 
-			0, 'AutoChoice', '', 'hot', 'top', 'day', '62ca56', 'e4432d',
-			'', 'dark', '30409f', false, 'old.reddit.com', '', '', 0, 0,
-			0, 0, '', 'Verified', 0, false, '', '');
 
 INSERT INTO public.marseys VALUES 
 ('marseylaugh',1,'lmao reaction point funny haha lol judgment',0),

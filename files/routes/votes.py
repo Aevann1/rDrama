@@ -6,12 +6,9 @@ from flask import *
 from files.__main__ import app, limiter, cache
 from os import environ
 
-@app.get("/votes")
+@app.get("/votes/<linK>")
 @auth_required
-def admin_vote_info_get(v):
-	link = request.values.get("link")
-	if not link: return render_template("votes.html", v=v)
-
+def vote_info_get(v, link):
 	try:
 		if "t2_" in link: thing = get_post(int(link.split("t2_")[1]), v=v)
 		elif "t3_" in link: thing = get_comment(int(link.split("t3_")[1]), v=v)
@@ -20,8 +17,6 @@ def admin_vote_info_get(v):
 
 	if thing.ghost and v.id != AEVANN_ID: abort(403)
 
-	if not thing.author:
-		print(thing.id, flush=True)
 	if isinstance(thing, Submission):
 		if thing.author.shadowbanned and not (v and v.admin_level):
 			thing_id = g.db.query(Submission.id).filter_by(upvotes=thing.upvotes, downvotes=thing.downvotes).order_by(Submission.id).first()[0]
@@ -151,8 +146,6 @@ def api_vote_comment(comment_id, new, v):
 	except: abort(404)
 
 	comment = get_comment(comment_id)
-
-	if new == 1 and comment.author_id in poll_bots: return {"error": "forbidden."}, 403
 	
 	existing = g.db.query(CommentVote).filter_by(user_id=v.id, comment_id=comment.id).one_or_none()
 
@@ -206,101 +199,5 @@ def api_vote_comment(comment_id, new, v):
 	comment.downvotes = g.db.query(CommentVote).filter_by(comment_id=comment.id, vote_type=-1).count()
 	comment.realupvotes = g.db.query(CommentVote).filter_by(comment_id=comment.id, real=True).count()
 	if comment.author.progressivestack: comment.realupvotes *= 2
-	g.db.add(comment)
-	return "", 204
-
-
-@app.post("/vote/poll/<comment_id>")
-@is_not_permabanned
-def api_vote_poll(comment_id, v):
-	
-	vote = request.values.get("vote")
-	if vote == "true": new = 1
-	elif vote == "false": new = 0
-	else: abort(400)
-
-	comment_id = int(comment_id)
-	comment = get_comment(comment_id)
-
-	existing = g.db.query(CommentVote).filter_by(user_id=v.id, comment_id=comment.id).one_or_none()
-
-	if existing and existing.vote_type == new: return "", 204
-
-	if existing:
-		if new == 1:
-			existing.vote_type = new
-			g.db.add(existing)
-		else: g.db.delete(existing)
-	elif new == 1:
-		vote = CommentVote(user_id=v.id, vote_type=new, comment_id=comment.id)
-		g.db.add(vote)
-
-	g.db.flush()
-	comment.upvotes = g.db.query(CommentVote).filter_by(comment_id=comment.id, vote_type=1).count()
-	g.db.add(comment)
-	return "", 204
-
-
-@app.post("/bet/<comment_id>")
-@limiter.limit("1/second;30/minute;200/hour;1000/day")
-@limiter.limit("1/second;30/minute;200/hour;1000/day", key_func=lambda:f'{request.host}-{session.get("lo_user")}')
-@is_not_permabanned
-def bet(comment_id, v):
-	if not v.can_gamble: return {"error": "You have gambling disabled!"}
-	
-	if v.coins < 200: return {"error": "You don't have 200 coins!"}
-
-	vote = request.values.get("vote")
-	comment_id = int(comment_id)
-	comment = get_comment(comment_id)
-
-	option_ids = map(lambda x: x.id, comment.post.bet_options)
-	existing = g.db.query(CommentVote).filter_by(user_id=v.id) \
-		.filter(CommentVote.comment_id.in_(option_ids)).one_or_none()
-	if existing: return "", 204
-
-	vote = CommentVote(user_id=v.id, vote_type=1, comment_id=comment.id)
-	g.db.add(vote)
-
-	comment.upvotes += 1
-	g.db.add(comment)
-
-	v.coins -= 200
-	g.db.add(v)
-	autobetter = get_account(AUTOBETTER_ID)
-	autobetter.coins += 200
-	g.db.add(autobetter)
-
-	return "", 204
-
-@app.post("/vote/choice/<comment_id>")
-@is_not_permabanned
-def api_vote_choice(comment_id, v):
-
-	comment_id = int(comment_id)
-	comment = get_comment(comment_id)
-
-	existing = g.db.query(CommentVote).filter_by(user_id=v.id, comment_id=comment.id).one_or_none()
-
-	if existing and existing.vote_type == 1: return "", 204
-
-	if existing:
-		existing.vote_type = 1
-		g.db.add(existing)
-	else:
-		vote = CommentVote(user_id=v.id, vote_type=1, comment_id=comment.id)
-		g.db.add(vote)
-
-	if comment.parent_comment: parent = comment.parent_comment
-	else: parent = comment.post
-
-	vote = parent.total_choice_voted(v)
-	if vote:
-		vote.comment.upvotes = g.db.query(CommentVote).filter_by(comment_id=vote.comment.id, vote_type=1).count() - 1
-		g.db.add(vote.comment)
-		g.db.delete(vote)
-
-	g.db.flush()
-	comment.upvotes = g.db.query(CommentVote).filter_by(comment_id=comment.id, vote_type=1).count()
 	g.db.add(comment)
 	return "", 204

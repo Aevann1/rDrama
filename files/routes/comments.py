@@ -101,8 +101,7 @@ def post_pid_comment_cid(cid, pid=None, anything=None, v=None, sub=None):
 			comments = comments.join(User, User.id == Comment.author_id).filter(User.shadowbanned == None)
 		 
 		comments=comments.filter(
-			Comment.top_comment_id == c.top_comment_id,
-			Comment.author_id.notin_(poll_bots)
+			Comment.top_comment_id == c.top_comment_id
 		).join(
 			votes,
 			votes.c.comment_id == Comment.id,
@@ -365,30 +364,20 @@ def api_comment(v):
 	else: c.top_comment_id = parent.top_comment_id
 
 	for option in options:
-		c_option = Comment(author_id=AUTOPOLLER_ID,
-			parent_submission=parent_submission,
-			parent_comment_id=c.id,
-			level=level+1,
+		option = CommentOption(
+			comment_id=c.id,
 			body_html=filter_emojis_only(option),
-			upvotes=0,
-			is_bot=True,
-			ghost=c.ghost
-			)
-
-		g.db.add(c_option)
+			exclusive=False
+		)
+		g.db.add(option)
 
 	for choice in choices:
-		c_choice = Comment(author_id=AUTOCHOICE_ID,
-			parent_submission=parent_submission,
-			parent_comment_id=c.id,
-			level=level+1,
+		choice = CommentOption(
+			comment_id=c.id,
 			body_html=filter_emojis_only(choice),
-			upvotes=0,
-			is_bot=True,
-			ghost=c.ghost
-			)
-
-		g.db.add(c_choice)
+			exclusive=True
+		)
+		g.db.add(choice)
 
 	if request.host == 'pcmemes.net' and c.body.lower().startswith("based"):
 		pill = based_regex.match(body)
@@ -664,29 +653,21 @@ def edit_comment(cid, v):
 
 		for i in poll_regex.finditer(body):
 			body = body.replace(i.group(0), "")
-			c_option = Comment(author_id=AUTOPOLLER_ID,
-				parent_submission=c.parent_submission,
-				parent_comment_id=c.id,
-				level=c.level+1,
+			option = CommentOption(
+				comment_id=c.id,
 				body_html=filter_emojis_only(i.group(1)),
-				upvotes=0,
-				is_bot=True,
-				ghost=c.ghost
-				)
-			g.db.add(c_option)
+				exclusive = False
+			)
+			g.db.add(option)
 
 		for i in choice_regex.finditer(body):
 			body = body.replace(i.group(0), "")
-			c_choice = Comment(author_id=AUTOCHOICE_ID,
-				parent_submission=c.parent_submission,
-				parent_comment_id=c.id,
-				level=c.level+1,
+			option = CommentOption(
+				comment_id=c.id,
 				body_html=filter_emojis_only(i.group(1)),
-				upvotes=0,
-				is_bot=True,
-				ghost=c.ghost
-				)
-			g.db.add(c_choice)
+				exclusive = True
+			)
+			g.db.add(option)
 
 		if '!slots' not in body.lower() and '!blackjack' not in body.lower() and '!wordle' not in body.lower() and AGENDAPOSTER_PHRASE not in body.lower():
 			now = int(time.time())

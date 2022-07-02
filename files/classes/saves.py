@@ -10,6 +10,8 @@ class SaveRelationship(Base):
 	user_id=Column(Integer, ForeignKey("users.id"), primary_key=True)
 	submission_id=Column(Integer, ForeignKey("submissions.id"), primary_key=True)
 
+	def __repr__(self):
+		return f"<SaveRelationship(user_id={self.user_id}, submission_id={self.submission_id})>"
 
 
 class CommentSaveRelationship(Base):
@@ -18,3 +20,6 @@ class CommentSaveRelationship(Base):
 
 	user_id=Column(Integer, ForeignKey("users.id"), primary_key=True)
 	comment_id=Column(Integer, ForeignKey("comments.id"), primary_key=True)
+
+	def __repr__(self):
+		return f"<CommentSaveRelationship(user_id={self.user_id}, comment_id={self.comment_id})>"

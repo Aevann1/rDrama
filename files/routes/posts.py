@@ -158,7 +158,7 @@ def post_id(pid, anything=None, v=None, sub=None):
 		if not (v and v.shadowbanned) and not (v and v.admin_level >= 2):
 			comments = comments.join(User, User.id == Comment.author_id).filter(User.shadowbanned == None)
  
-		comments=comments.filter(Comment.parent_submission == post.id, Comment.author_id.notin_(poll_bots)).join(
+		comments=comments.filter(Comment.parent_submission == post.id).join(
 			votes,
 			votes.c.comment_id == Comment.id,
 			isouter=True
@@ -192,7 +192,7 @@ def post_id(pid, anything=None, v=None, sub=None):
 	else:
 		pinned = g.db.query(Comment).filter(Comment.parent_submission == post.id, Comment.stickied != None).all()
 
-		comments = g.db.query(Comment).join(User, User.id == Comment.author_id).filter(User.shadowbanned == None, Comment.parent_submission == post.id, Comment.author_id.notin_(poll_bots), Comment.level == 1, Comment.stickied == None)
+		comments = g.db.query(Comment).join(User, User.id == Comment.author_id).filter(User.shadowbanned == None, Comment.parent_submission == post.id, Comment.level == 1, Comment.stickied == None)
 
 		comments = sort_comments(sort, comments)
 
@@ -268,7 +268,7 @@ def viewmore(v, pid, sort, offset):
 			votes.c.vote_type,
 			blocking.c.target_id,
 			blocked.c.target_id,
-		).filter(Comment.parent_submission == pid, Comment.author_id.notin_(poll_bots), Comment.stickied == None, Comment.id.notin_(ids))
+		).filter(Comment.parent_submission == pid, Comment.stickied == None, Comment.id.notin_(ids))
 		
 		if not (v and v.shadowbanned) and not (v and v.admin_level >= 2):
 			comments = comments.join(User, User.id == Comment.author_id).filter(User.shadowbanned == None)
@@ -303,7 +303,7 @@ def viewmore(v, pid, sort, offset):
 		second = [c[0] for c in comments.filter(or_(Comment.slots_result != None, Comment.blackjack_result != None, Comment.wordle_result != None), func.length(Comment.body_html) <= 100).all()]
 		comments = first + second
 	else:
-		comments = g.db.query(Comment).join(User, User.id == Comment.author_id).filter(User.shadowbanned == None, Comment.parent_submission == pid, Comment.author_id.notin_(poll_bots), Comment.level == 1, Comment.stickied == None, Comment.id.notin_(ids))
+		comments = g.db.query(Comment).join(User, User.id == Comment.author_id).filter(User.shadowbanned == None, Comment.parent_submission == pid, Comment.level == 1, Comment.stickied == None, Comment.id.notin_(ids))
 
 		comments = sort_comments(sort, comments)
 		
@@ -427,27 +427,22 @@ def edit_post(pid, v):
 
 		for i in poll_regex.finditer(body):
 			body = body.replace(i.group(0), "")
-			c = Comment(author_id=AUTOPOLLER_ID,
-				parent_submission=p.id,
-				level=1,
+			option = SubmissionOption(
+				submission_id=p.id,
 				body_html=filter_emojis_only(i.group(1)),
-				upvotes=0,
-				is_bot=True,
-				ghost=p.ghost
-				)
-			g.db.add(c)
+				exclusive = False
+			)
+			g.db.add(option)
 
 		for i in choice_regex.finditer(body):
 			body = body.replace(i.group(0), "")
-			c = Comment(author_id=AUTOCHOICE_ID,
-				parent_submission=p.id,
-				level=1,
+			option = SubmissionOption(
+				submission_id=p.id,
 				body_html=filter_emojis_only(i.group(1)),
-				upvotes=0,
-				is_bot=True,
-				ghost=p.ghost
-				)
-			g.db.add(c)
+				exclusive = True
+			)
+			g.db.add(option)
+
 
 		body_html = sanitize(body, edit=True)
 
@@ -974,26 +969,20 @@ def submit_post(v, sub=None):
 			g.db.add(bet_option)
 
 	for option in options:
-		c = Comment(author_id=AUTOPOLLER_ID,
-			parent_submission=post.id,
-			level=1,
+		option = SubmissionOption(
+			submission_id=post.id,
 			body_html=filter_emojis_only(option),
-			upvotes=0,
-			is_bot=True,
-			ghost=post.ghost
-			)
-		g.db.add(c)
+			exclusive=False
+		)
+		g.db.add(option)
 
 	for choice in choices:
-		c = Comment(author_id=AUTOCHOICE_ID,
-			parent_submission=post.id,
-			level=1,
+		choice = SubmissionOption(
+			submission_id=post.id,
 			body_html=filter_emojis_only(choice),
-			upvotes=0,
-			is_bot=True,
-			ghost=post.ghost
-			)
-		g.db.add(c)
+			exclusive=True
+		)
+		g.db.add(choice)
 
 	vote = Vote(user_id=v.id,
 				vote_type=1,

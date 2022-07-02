@@ -15,6 +15,9 @@ class Lottery(Base):
 	tickets_sold = Column(Integer, default=0)
 	winner_id = Column(Integer, ForeignKey("users.id"))
 
+	def __repr__(self):
+		return f"<Lottery(id={self.id})>"
+
 	@property
 	@lazy
 	def timeleft(self):

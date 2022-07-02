@@ -17,3 +17,4 @@ from .awards import *
 from .giphy import *
 from .subs import *
 from .lottery import *
+from .polls import *

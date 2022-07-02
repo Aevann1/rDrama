@@ -81,9 +81,10 @@ class Comment(Base):
 	author = relationship("User", primaryjoin="User.id==Comment.author_id")
 	senttouser = relationship("User", primaryjoin="User.id==Comment.sentto", viewonly=True)
 	parent_comment = relationship("Comment", remote_side=[id], viewonly=True)
-	child_comments = relationship("Comment", lazy="dynamic", remote_side=[parent_comment_id], viewonly=True)
+	child_comments = relationship("Comment", remote_side=[parent_comment_id], viewonly=True)
 	awards = relationship("AwardRelationship", order_by="AwardRelationship.awarded_utc.desc()", viewonly=True)
 	flags = relationship("CommentFlag", order_by="CommentFlag.created_utc", viewonly=True)
+	options = relationship("CommentOption", order_by="CommentOption.id", viewonly=True)
 
 	def __init__(self, *args, **kwargs):
 		if "created_utc" not in kwargs:
@@ -99,35 +100,6 @@ class Comment(Base):
 	def top_comment(self):
 		return g.db.get(Comment, self.top_comment_id)
 
-	@lazy
-	def poll_voted(self, v):
-		if v:
-			vote = g.db.query(CommentVote.vote_type).filter_by(user_id=v.id, comment_id=self.id).one_or_none()
-			if vote: return vote[0]
-		return None
-
-	@property
-	@lazy
-	def options(self):
-		return self.child_comments.filter_by(author_id=AUTOPOLLER_ID).order_by(Comment.id).all()
-
-	@property
-	@lazy
-	def choices(self):
-		return self.child_comments.filter_by(author_id=AUTOCHOICE_ID).order_by(Comment.id).all()
-
-	@lazy
-	def total_poll_voted(self, v):
-		if v:
-			for option in self.options:
-				if option.poll_voted(v): return True
-		return False
-
-	@lazy
-	def total_choice_voted(self, v):
-		if v:
-			return g.db.query(CommentVote).filter(CommentVote.user_id == v.id, CommentVote.comment_id.in_([x.id for x in self.choices])).first()
-		return None
 
 	@property
 	@lazy
@@ -239,8 +211,7 @@ class Comment(Base):
 		if not self.parent_submission:
 			return [x for x in self.child_comments.order_by(Comment.id) if not x.author.shadowbanned]
 
-		comments = self.child_comments.filter(Comment.author_id.notin_(poll_bots))
-		comments = sort_comments(sort, comments)
+		comments = self.child_comments
 		return [x for x in comments if not x.author.shadowbanned]
 		
 
@@ -250,8 +221,7 @@ class Comment(Base):
 		if not self.parent_submission:
 			return self.child_comments.order_by(Comment.id).all()
 
-		comments = self.child_comments.filter(Comment.author_id.notin_(poll_bots))
-		return sort_comments(sort, comments).all()
+		return self.child_comments
 
 
 	@property
@@ -405,27 +375,25 @@ class Comment(Base):
 						self.upvotes += amount
 						g.db.add(self)
 
-		for c in self.options:
-			body += f'<div class="custom-control"><input type="checkbox" class="custom-control-input" id="{c.id}" name="option"'
-			if c.poll_voted(v): body += " checked"
-			if v: body += f''' onchange="poll_vote('{c.id}', '{self.id}')"'''
-			else: body += f''' onchange="poll_vote_no_v('{c.id}', '{self.id}')"'''
-			body += f'''><label class="custom-control-label" for="{c.id}">{c.body_html}<span class="presult-{self.id}'''
-			if not self.total_poll_voted(v): body += ' d-none'
-			body += f'"> - <a href="/votes?link=t3_{c.id}"><span id="poll-{c.id}">{c.upvotes}</span> votes</a></span></label></div>'
-
-		if self.choices:
-			curr = self.total_choice_voted(v)
-			if curr: curr = " value=" + str(curr.comment_id)
+		if self.options:
+			curr = [x for x in self.options if x.exclusive and x.voted(v)]
+			if curr: curr = " value=" + str(curr[0].id)
 			else: curr = ''
 			body += f'<input class="d-none" id="current-{self.id}"{curr}>'
 
-		for c in self.choices:
-			body += f'''<div class="custom-control"><input name="choice-{self.id}" autocomplete="off" class="custom-control-input" type="radio" id="{c.id}" onchange="choice_vote('{c.id}','{self.id}')"'''
-			if c.poll_voted(v): body += " checked "
-			body += f'''><label class="custom-control-label" for="{c.id}">{c.body_html}<span class="presult-{self.id}'''
-			if not self.total_choice_voted(v): body += ' d-none'
-			body += f'"> - <a href="/votes?link=t3_{c.id}"><span id="choice-{c.id}">{c.upvotes}</span> votes</a></span></label></div>'
+		for c in self.options:
+			if c.exclusive:
+				body += f'''<div class="custom-control"><input name="choice-{self.id}" autocomplete="off" class="custom-control-input" type="radio" id="{c.id}" onchange="choice_vote('{c.id}','{self.id}','comment')"'''
+				if c.voted(v): body += " checked "
+				body += f'''><label class="custom-control-label" for="{c.id}">{c.body_html}<span class="presult-{self.id}'''
+				body += f'"> - <a href="/votes/comment/option/{c.id}"><span id="choice-{c.id}">{c.upvotes}</span> votes</a></span></label></div>'
+			else:
+				body += f'<div class="custom-control"><input type="checkbox" class="custom-control-input" id="{c.id}" name="option"'
+				if c.voted(v): body += " checked"
+				if v: body += f''' onchange="poll_vote('{c.id}', 'comment')"'''
+				else: body += f''' onchange="poll_vote_no_v('{c.id}', '{self.id}')"'''
+				body += f'''><label class="custom-control-label" for="{c.id}">{c.body_html}<span class="presult-{self.id}'''
+				body += f'"> - <a href="/votes/comment/option/{c.id}"><span id="poll-{c.id}">{c.upvotes}</span> votes</a></span></label></div>'
 
 		if self.author.sig_html and (self.author_id == MOOSE_ID or (not self.ghost and not (v and (v.sigs_disabled or v.poor)))):
 			body += f"<hr>{self.author.sig_html}"

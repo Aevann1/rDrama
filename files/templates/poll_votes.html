@@ -1,0 +1,49 @@
+{% extends "default.html" %}
+
+{% block title %}
+<title>{{SITE_NAME}}</title>
+
+{% endblock %}
+
+{% block content %}
+
+{% if thing %}
+
+<script src="/assets/js/sort_table.js?v=243"></script>
+
+<pre>
+	
+</pre>
+
+<h2>Votes: {{ups | length}}</h2>
+<div class="overflow-x-auto mt-5">
+	<table class="table table-striped mb-5">
+		<thead class="bg-primary text-white">
+			<tr>
+				<th>User</th>
+				<th role="button" onclick="sort_table(1)">User Truescore</th>
+				<th>Vote Time</th>
+			</tr>
+		</thead>
+
+		{% for vote in ups %}
+			<tr>
+				<td>
+					<a style="color:#{{vote.user.namecolor}};font-weight:bold" href="/@{{vote.user.username}}">
+						<img loading="lazy" src="{{vote.user.profile_url}}" class="pp20">
+						<span {% if vote.user.patron %}class="patron" style="background-color:#{{vote.user.namecolor}}"{% endif %}>
+							{{vote.user.username}}
+						</span>
+					</a>
+				</td>
+				<td>{{vote.user.truecoins}}</td>
+				<td>{{vote.created_datetime}}</td>
+			</tr>
+		{% endfor %}
+	</table>
+</div>
+
+{% endif %}
+
+
+{% endblock %}

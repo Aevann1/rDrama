@@ -443,7 +443,7 @@
 						
 						{% endif %}
 						
-						{% if not c.ghost or v.id == AEVANN_ID %}<a href="/votes?link={{c.fullname}}" class="btn caction nobackground px-1 text-muted"><i class="fas fa-arrows-v"></i>Votes</a>{% endif %}
+						{% if not c.ghost or v.id == AEVANN_ID %}<a href="/votes/{{c.fullname}}" class="btn caction nobackground px-1 text-muted"><i class="fas fa-arrows-v"></i>Votes</a>{% endif %}
 						
 						<a class="btn caction nobackground px-1 text-muted" href="{{c.permalink}}"><i class="fas fa-book-open"></i>Context</a>
 
@@ -646,7 +646,7 @@
 			<div class="modal-body">
 				<ul class="list-group comment-actions">
 
-					{% if not c.ghost or v.id == AEVANN_ID %}<a href="/votes?link={{c.fullname}}"><li class="list-group-item"><i class="fas fa-arrows-v mr-2"></i>Votes</li></a>{% endif %}
+					{% if not c.ghost or v.id == AEVANN_ID %}<a href="/votes/{{c.fullname}}"><li class="list-group-item"><i class="fas fa-arrows-v mr-2"></i>Votes</li></a>{% endif %}
 
 					<a class="list-group-item" href="{{c.permalink}}"><i class="fas fa-book-open mr-2"></i>Context</a>
 

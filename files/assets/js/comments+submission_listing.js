@@ -81,23 +81,16 @@ function post(url) {
 	xhr.send(form);
 };
 
-function poll_vote(cid, parentid) {
-	for(let el of document.getElementsByClassName('presult-'+parentid)) {
-		el.classList.remove('d-none');
-	}
+function poll_vote(cid, kind) {
 	var type = document.getElementById(cid).checked;
 	var scoretext = document.getElementById('poll-' + cid);
 	var score = Number(scoretext.textContent);
 	if (type == true) scoretext.textContent = score + 1;
 	else scoretext.textContent = score - 1;
-	post('/vote/poll/' + cid + '?vote=' + type);
+	post(`/vote/${kind}/option/${cid}`);
 }
 
-function choice_vote(cid, parentid) {
-	for(let el of document.getElementsByClassName('presult-'+parentid)) {
-		el.classList.remove('d-none');
-	}
-	
+function choice_vote(cid, parentid, kind) {
 	let curr = document.getElementById(`current-${parentid}`)
 	if (curr && curr.value)
 	{
@@ -107,9 +100,10 @@ function choice_vote(cid, parentid) {
 	}
 
 	var scoretext = document.getElementById('choice-' + cid);
+
 	var score = Number(scoretext.textContent);
 	scoretext.textContent = score + 1;
-	post('/vote/choice/' + cid);
+	post(`/vote/${kind}/option/${cid}`);
 	curr.value = cid
 }
 

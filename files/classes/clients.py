@@ -21,7 +21,8 @@ class OauthApp(Base):
 
 	author = relationship("User", viewonly=True)
 
-	def __repr__(self): return f"<OauthApp(id={self.id})>"
+	def __repr__(self):
+		return f"<OauthApp(id={self.id})>"
 
 
 	@property
@@ -36,7 +37,8 @@ class OauthApp(Base):
 
 	@property
 	@lazy
-	def permalink(self): return f"/admin/app/{self.id}"
+	def permalink(self):
+		return f"/admin/app/{self.id}"
 
 	@lazy
 	def idlist(self, page=1):
@@ -72,6 +74,9 @@ class ClientAuth(Base):
 	
 	user = relationship("User", viewonly=True)
 	application = relationship("OauthApp", viewonly=True)
+
+	def __repr__(self):
+		return f"<ClientAuth(user_id={self.user_id}, oauth_client={self.oauth_client})>"
 
 	@property
 	@lazy

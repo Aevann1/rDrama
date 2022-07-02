@@ -6,7 +6,7 @@
 {% endif %}
 
 
-{% if not p.ghost or v.id == AEVANN_ID %}<a class="list-inline-item" href="/votes?link={{p.fullname}}"><i class="fas fa-arrows-v"></i>Votes</a>{% endif %}
+{% if not p.ghost or v.id == AEVANN_ID %}<a class="list-inline-item" href="/votes/{{p.fullname}}"><i class="fas fa-arrows-v"></i>Votes</a>{% endif %}
 
 {% if v %}
 	<a class="list-inline-item text-muted d-none d-md-inline-block" role="button" data-bs-toggle="modal" data-bs-target="#awardModal" data-url='/award/post/{{p.id}}'><i class="fas fa-gift fa-fw"></i>Give Award</a>

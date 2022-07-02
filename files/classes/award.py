@@ -20,6 +20,8 @@ class AwardRelationship(Base):
 	post = relationship("Submission", primaryjoin="AwardRelationship.submission_id==Submission.id", viewonly=True)
 	comment = relationship("Comment", primaryjoin="AwardRelationship.comment_id==Comment.id", viewonly=True)
 
+	def __repr__(self):
+		return f"<AwardRelationship(id={self.id})>"
 
 	@property
 	@lazy

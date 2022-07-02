@@ -16,6 +16,7 @@ from .saves import SaveRelationship
 from .sub import *
 from .subscriptions import *
 from .votes import CommentVote
+from .polls import *
 from flask import g
 
 def sort_posts(sort, posts):
@@ -78,6 +79,7 @@ class Submission(Base):
 	flags = relationship("Flag", order_by="Flag.created_utc", viewonly=True)
 	comments = relationship("Comment", primaryjoin="Comment.parent_submission==Submission.id")
 	subr = relationship("Sub", primaryjoin="foreign(Submission.sub)==remote(Sub.name)", viewonly=True)
+	options = relationship("SubmissionOption", order_by="SubmissionOption.id", viewonly=True)
 
 	bump_utc = deferred(Column(Integer, server_default=FetchedValue()))
 
@@ -94,43 +96,6 @@ class Submission(Base):
 		if self.downvotes > 5 and 0.25 < self.upvotes / self.downvotes < 4: return True
 		return False
 
-	@property
-	@lazy
-	def options(self):
-		return g.db.query(Comment).filter_by(parent_submission = self.id, author_id = AUTOPOLLER_ID, level=1).order_by(Comment.id).all()
-
-
-	@property
-	@lazy
-	def choices(self):
-		return g.db.query(Comment).filter_by(parent_submission = self.id, author_id = AUTOCHOICE_ID, level=1).order_by(Comment.id).all()
-
-
-	@property
-	@lazy
-	def bet_options(self):
-		return g.db.query(Comment).filter_by(parent_submission = self.id, author_id = AUTOBETTER_ID, level=1).all()
-
-	@lazy
-	def total_poll_voted(self, v):
-		if v:
-			for option in self.options:
-				if option.poll_voted(v): return True
-		return False
-
-	@lazy
-	def total_choice_voted(self, v):
-		if v and self.choices:
-			return g.db.query(CommentVote).filter(CommentVote.user_id == v.id, CommentVote.comment_id.in_([x.id for x in self.choices])).first()
-		return None
-
-	@lazy
-	def total_bet_voted(self, v):
-		if "closed" in self.body.lower(): return True
-		if v:
-			for option in self.bet_options:
-				if option.poll_voted(v): return True
-		return False
 
 	@property
 	@lazy
@@ -401,44 +366,31 @@ class Submission(Base):
 					self.upvotes += amount
 					g.db.add(self)
 
-		if not listing:
-			for c in self.options:
+
+		if self.options:
+			curr = [x for x in self.options if x.exclusive and x.voted(v)]
+			if curr: curr = " value=" + str(curr[0].id)
+			else: curr = ''
+			body += f'<input class="d-none" id="current-{self.id}"{curr}>'
+
+		for c in self.options:
+			if c.exclusive:
+				body += f'''<div class="custom-control"><input name="choice-{self.id}" autocomplete="off" class="custom-control-input" type="radio" id="{c.id}" onchange="choice_vote('{c.id}','{self.id}','post')"'''
+				if c.voted(v): body += " checked "
+				body += f'''><label class="custom-control-label" for="{c.id}">{c.body_html}<span class="presult-{self.id}'''
+				body += f'"> - <a href="/votes/post/option/{c.id}"><span id="choice-{c.id}">{c.upvotes}</span> votes</a></span></label></div>'
+			else:
 				body += f'<div class="custom-control"><input type="checkbox" class="custom-control-input" id="{c.id}" name="option"'
-				if c.poll_voted(v): body += " checked"
-				if v: body += f''' onchange="poll_vote('{c.id}', '{self.id}')"'''
+				if c.voted(v): body += " checked"
+				if v: body += f''' onchange="poll_vote('{c.id}', 'post')"'''
 				else: body += f''' onchange="poll_vote_no_v('{c.id}', '{self.id}')"'''
 				body += f'''><label class="custom-control-label" for="{c.id}">{c.body_html}<span class="presult-{self.id}'''
-				if not self.total_poll_voted(v): body += ' d-none'	
-				body += f'"> - <a href="/votes?link=t3_{c.id}"><span id="poll-{c.id}">{c.upvotes}</span> votes</a></span></label></div>'
-
-			if self.choices:
-				curr = self.total_choice_voted(v)
-				if curr: curr = " value=" + str(curr.comment_id)
-				else: curr = ''
-				body += f'<input class="d-none" id="current-{self.id}"{curr}>'
-
-			for c in self.choices:
-				body += f'''<div class="custom-control"><input name="choice-{self.id}" autocomplete="off" class="custom-control-input" type="radio" id="{c.id}" onchange="choice_vote('{c.id}','{self.id}')"'''
-				if c.poll_voted(v): body += " checked "
-				body += f'''><label class="custom-control-label" for="{c.id}">{c.body_html}<span class="presult-{self.id}'''
-				if not self.total_choice_voted(v): body += ' d-none'	
-				body += f'"> - <a href="/votes?link=t3_{c.id}"><span id="choice-{c.id}">{c.upvotes}</span> votes</a></span></label></div>'
-
-			for c in self.bet_options:
-				body += f'''<div class="custom-control mt-3"><input autocomplete="off" class="custom-control-input bet" type="radio" id="{c.id}" onchange="bet_vote('{c.id}')"'''
-				if c.poll_voted(v): body += " checked "
-				if not (v and v.coins >= 200) or self.total_bet_voted(v) or not v.can_gamble: body += " disabled "
-				body += f'''><label class="custom-control-label" for="{c.id}">{c.body_html} - <a href="/votes?link=t3_{c.id}"><span id="bet-{c.id}">{c.upvotes}</span> bets</a>'''
-				if not self.total_bet_voted(v):
-					body += '''<span class="cost"> (cost of entry: 200 coins)</span>'''
-				body += "</label>"
-				if v and v.admin_level > 2:
-					body += f'''<button class="btn btn-primary px-2 mx-2" style="font-size:10px;padding:2px" onclick="post_toast(this,'/distribute/{c.id}')">Declare winner</button>'''
-				body += "</div>"
+				body += f'"> - <a href="/votes/post/option/{c.id}"><span id="poll-{c.id}">{c.upvotes}</span> votes</a></span></label></div>'
 
 
-			if self.author.sig_html and (self.author_id == MOOSE_ID or (not self.ghost and not (v and (v.sigs_disabled or v.poor)))):
-				body += f"<hr>{self.author.sig_html}"
+
+		if not listing and self.author.sig_html and (self.author_id == MOOSE_ID or (not self.ghost and not (v and (v.sigs_disabled or v.poor)))):
+			body += f"<hr>{self.author.sig_html}"
 
 		return body
 

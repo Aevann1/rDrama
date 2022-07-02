@@ -463,9 +463,7 @@ def all_comments(v):
 @cache.memoize(timeout=86400)
 def comment_idlist(page=1, v=None, nsfw=False, sort="new", t="all", gt=0, lt=0, site=None):
 
-	excluded = v.userblocks + [AUTOPOLLER_ID, AUTOBETTER_ID, AUTOCHOICE_ID]
-
-	comments = g.db.query(Comment.id).filter(Comment.parent_submission != None, Comment.author_id.notin_(excluded))
+	comments = g.db.query(Comment.id).filter(Comment.parent_submission != None, Comment.author_id.notin_(v.userblocks))
 
 	if v.admin_level < 2:
 		private = [x[0] for x in g.db.query(Submission.id).filter(Submission.private == True).all()]
