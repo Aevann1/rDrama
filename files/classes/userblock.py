@@ -8,8 +8,8 @@ class UserBlock(Base):
 	user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
 	target_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
 
-	user = relationship("User", primaryjoin="User.id==UserBlock.user_id", viewonly=True)
-	target = relationship("User", primaryjoin="User.id==UserBlock.target_id", viewonly=True)
+	user = relationship("User", primaryjoin="User.id==UserBlock.user_id", back_populates="blocking")
+	target = relationship("User", primaryjoin="User.id==UserBlock.target_id", back_populates="blocked")
 
 	def __repr__(self):
 		return f"<UserBlock(user={self.user_id}, target={self.target_id})>"

@@ -16,9 +16,9 @@ class AwardRelationship(Base):
 	kind = Column(String)
 	awarded_utc = Column(Integer)
 
-	user = relationship("User", primaryjoin="AwardRelationship.user_id==User.id", viewonly=True)
-	post = relationship("Submission", primaryjoin="AwardRelationship.submission_id==Submission.id", viewonly=True)
-	comment = relationship("Comment", primaryjoin="AwardRelationship.comment_id==Comment.id", viewonly=True)
+	user = relationship("User", primaryjoin="AwardRelationship.user_id==User.id", back_populates="awards")
+	post = relationship("Submission", primaryjoin="AwardRelationship.submission_id==Submission.id", back_populates="awards")
+	comment = relationship("Comment", primaryjoin="AwardRelationship.comment_id==Comment.id", back_populates="awards")
 
 	def __repr__(self):
 		return f"<AwardRelationship(id={self.id})>"

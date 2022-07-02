@@ -29,8 +29,8 @@ class Badge(Base):
 	url = Column(String)
 	created_utc = Column(Integer)
 
-	user = relationship("User", viewonly=True)
-	badge = relationship("BadgeDef", primaryjoin="foreign(Badge.badge_id) == remote(BadgeDef.id)", viewonly=True)
+	user = relationship("User", back_populates="badges")
+	badge = relationship("BadgeDef", primaryjoin="foreign(Badge.badge_id) == remote(BadgeDef.id)")
 
 	def __init__(self, *args, **kwargs):
 		if "created_utc" not in kwargs:

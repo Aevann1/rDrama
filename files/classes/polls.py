@@ -13,8 +13,8 @@ class SubmissionOption(Base):
 	body_html = Column(Text)
 	exclusive = Column(Boolean)
 
-	votes = relationship("SubmissionOptionVote", viewonly=True)
-	post = relationship("Submission", back_populates="options", viewonly=True)
+	votes = relationship("SubmissionOptionVote")
+	post = relationship("Submission", back_populates="options")
 
 	def __repr__(self):
 		return f"<SubmissionOption(id={self.id})>"
@@ -38,7 +38,7 @@ class SubmissionOptionVote(Base):
 	created_utc = Column(Integer)
 	submission_id = Column(Integer, ForeignKey("submissions.id"))
 
-	user = relationship("User", viewonly=True)
+	user = relationship("User")
 
 	def __init__(self, *args, **kwargs):
 		if "created_utc" not in kwargs: kwargs["created_utc"] = int(time.time())
@@ -62,8 +62,8 @@ class CommentOption(Base):
 	body_html = Column(Text)
 	exclusive = Column(Boolean)
 
-	votes = relationship("CommentOptionVote", viewonly=True)
-	post = relationship("Comment", back_populates="options", viewonly=True)
+	votes = relationship("CommentOptionVote")
+	post = relationship("Comment", back_populates="options")
 
 	def __repr__(self):
 		return f"<CommentOption(id={self.id})>"
@@ -87,7 +87,7 @@ class CommentOptionVote(Base):
 	created_utc = Column(Integer)
 	comment_id = Column(Integer, ForeignKey("comments.id"))
 
-	user = relationship("User", viewonly=True)
+	user = relationship("User")
 
 	def __init__(self, *args, **kwargs):
 		if "created_utc" not in kwargs: kwargs["created_utc"] = int(time.time())

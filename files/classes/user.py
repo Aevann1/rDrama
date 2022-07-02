@@ -135,16 +135,16 @@ class User(Base):
 	total_held_lottery_tickets = Column(Integer, default=0)
 	total_lottery_winnings = Column(Integer, default=0)
 
-	badges = relationship("Badge", order_by="Badge.created_utc", viewonly=True)
-	subscriptions = relationship("Subscription", viewonly=True)
-	following = relationship("Follow", primaryjoin="Follow.user_id==User.id", viewonly=True)
-	followers = relationship("Follow", primaryjoin="Follow.target_id==User.id", viewonly=True)
-	viewers = relationship("ViewerRelationship", primaryjoin="User.id == ViewerRelationship.user_id", viewonly=True)
-	blocking = relationship("UserBlock", lazy="dynamic", primaryjoin="User.id==UserBlock.user_id", viewonly=True)
-	blocked = relationship("UserBlock", lazy="dynamic", primaryjoin="User.id==UserBlock.target_id", viewonly=True)
-	authorizations = relationship("ClientAuth", viewonly=True)
-	awards = relationship("AwardRelationship", primaryjoin="User.id==AwardRelationship.user_id", viewonly=True)
-	referrals = relationship("User", viewonly=True)
+	badges = relationship("Badge", order_by="Badge.created_utc", back_populates="user")
+	subscriptions = relationship("Subscription", back_populates="user")
+	following = relationship("Follow", primaryjoin="Follow.user_id==User.id", back_populates="user")
+	followers = relationship("Follow", primaryjoin="Follow.target_id==User.id", back_populates="target")
+	viewers = relationship("ViewerRelationship", primaryjoin="User.id == ViewerRelationship.user_id")
+	blocking = relationship("UserBlock", lazy="dynamic", primaryjoin="User.id==UserBlock.user_id", back_populates="user")
+	blocked = relationship("UserBlock", lazy="dynamic", primaryjoin="User.id==UserBlock.target_id", back_populates="target")
+	authorizations = relationship("ClientAuth", back_populates="user")
+	awards = relationship("AwardRelationship", primaryjoin="User.id==AwardRelationship.user_id", back_populates="user")
+	referrals = relationship("User")
 
 	def __init__(self, **kwargs):
 

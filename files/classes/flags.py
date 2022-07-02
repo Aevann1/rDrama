@@ -15,7 +15,7 @@ class Flag(Base):
 	reason = Column(String)
 	created_utc = Column(Integer)
 
-	user = relationship("User", primaryjoin = "Flag.user_id == User.id", uselist = False, viewonly=True)
+	user = relationship("User", primaryjoin = "Flag.user_id == User.id", uselist = False)
 
 	def __init__(self, *args, **kwargs):
 		if "created_utc" not in kwargs: kwargs["created_utc"] = int(time.time())
@@ -48,7 +48,7 @@ class CommentFlag(Base):
 	reason = Column(String)
 	created_utc = Column(Integer)
 
-	user = relationship("User", primaryjoin = "CommentFlag.user_id == User.id", uselist = False, viewonly=True)
+	user = relationship("User", primaryjoin = "CommentFlag.user_id == User.id", uselist = False)
 
 	def __init__(self, *args, **kwargs):
 		if "created_utc" not in kwargs: kwargs["created_utc"] = int(time.time())

@@ -16,8 +16,8 @@ class Vote(Base):
 	real = Column(Boolean, default=True)
 	created_utc = Column(Integer)
 
-	user = relationship("User", lazy="subquery", viewonly=True)
-	post = relationship("Submission", lazy="subquery", viewonly=True)
+	user = relationship("User", lazy="subquery")
+	post = relationship("Submission", lazy="subquery")
 
 	def __init__(self, *args, **kwargs):
 		if "created_utc" not in kwargs: kwargs["created_utc"] = int(time.time())
@@ -62,7 +62,7 @@ class CommentVote(Base):
 	created_utc = Column(Integer)
 
 	user = relationship("User", lazy="subquery")
-	comment = relationship("Comment", lazy="subquery", viewonly=True)
+	comment = relationship("Comment", lazy="subquery")
 
 	def __init__(self, *args, **kwargs):
 		if "created_utc" not in kwargs: kwargs["created_utc"] = int(time.time())

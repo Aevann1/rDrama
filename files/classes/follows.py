@@ -9,8 +9,8 @@ class Follow(Base):
 	user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
 	created_utc = Column(Integer)
 
-	user = relationship("User", uselist=False, primaryjoin="User.id==Follow.user_id", viewonly=True)
-	target = relationship("User", primaryjoin="User.id==Follow.target_id", viewonly=True)
+	user = relationship("User", uselist=False, primaryjoin="User.id==Follow.user_id", back_populates="following")
+	target = relationship("User", uselist=False, primaryjoin="User.id==Follow.target_id", back_populates="followers")
 
 	def __init__(self, *args, **kwargs):
 		if "created_utc" not in kwargs: kwargs["created_utc"] = int(time.time())

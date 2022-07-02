@@ -12,7 +12,7 @@ class ViewerRelationship(Base):
 	viewer_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
 	last_view_utc = Column(Integer)
 
-	viewer = relationship("User", primaryjoin="ViewerRelationship.viewer_id == User.id", viewonly=True)
+	viewer = relationship("User", primaryjoin="ViewerRelationship.viewer_id == User.id")
 
 	def __init__(self, **kwargs):
 

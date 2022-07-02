@@ -19,10 +19,8 @@ class Sub(Base):
 	bannerurl = Column(String)
 	css = Column(String)
 
-	blocks = relationship("SubBlock", 
-		primaryjoin="SubBlock.sub==Sub.name", viewonly=True)
-	followers = relationship("SubSubscription", 
-		primaryjoin="SubSubscription.sub==Sub.name", viewonly=True)
+	blocks = relationship("SubBlock", primaryjoin="SubBlock.sub==Sub.name")
+	followers = relationship("SubSubscription", primaryjoin="SubSubscription.sub==Sub.name")
 
 	def __repr__(self):
 		return f"<Sub(name={self.name})>"

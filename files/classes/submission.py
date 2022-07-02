@@ -73,13 +73,13 @@ class Submission(Base):
 	new = Column(Boolean)
 
 	author = relationship("User", primaryjoin="Submission.author_id==User.id")
-	oauth_app = relationship("OauthApp", viewonly=True)
-	approved_by = relationship("User", uselist=False, primaryjoin="Submission.is_approved==User.id", viewonly=True)
-	awards = relationship("AwardRelationship", order_by="AwardRelationship.awarded_utc.desc()", viewonly=True)
-	flags = relationship("Flag", order_by="Flag.created_utc", viewonly=True)
-	comments = relationship("Comment", primaryjoin="Comment.parent_submission==Submission.id")
-	subr = relationship("Sub", primaryjoin="foreign(Submission.sub)==remote(Sub.name)", viewonly=True)
-	options = relationship("SubmissionOption", order_by="SubmissionOption.id", viewonly=True)
+	oauth_app = relationship("OauthApp")
+	approved_by = relationship("User", uselist=False, primaryjoin="Submission.is_approved==User.id")
+	awards = relationship("AwardRelationship", order_by="AwardRelationship.awarded_utc.desc()", back_populates="post")
+	flags = relationship("Flag", order_by="Flag.created_utc")
+	comments = relationship("Comment", primaryjoin="Comment.parent_submission==Submission.id", back_populates="post")
+	subr = relationship("Sub", primaryjoin="foreign(Submission.sub)==remote(Sub.name)")
+	options = relationship("SubmissionOption", order_by="SubmissionOption.id")
 
 	bump_utc = deferred(Column(Integer, server_default=FetchedValue()))
 

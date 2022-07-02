@@ -19,7 +19,7 @@ class OauthApp(Base):
 	description = Column(String)
 	author_id = Column(Integer, ForeignKey("users.id"))
 
-	author = relationship("User", viewonly=True)
+	author = relationship("User")
 
 	def __repr__(self):
 		return f"<OauthApp(id={self.id})>"
@@ -72,8 +72,8 @@ class ClientAuth(Base):
 	oauth_client = Column(Integer, ForeignKey("oauth_apps.id"), primary_key=True)
 	access_token = Column(String)
 	
-	user = relationship("User", viewonly=True)
-	application = relationship("OauthApp", viewonly=True)
+	user = relationship("User")
+	application = relationship("OauthApp")
 
 	def __repr__(self):
 		return f"<ClientAuth(user_id={self.user_id}, oauth_client={self.oauth_client})>"

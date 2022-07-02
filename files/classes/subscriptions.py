@@ -7,7 +7,7 @@ class Subscription(Base):
 	user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
 	submission_id = Column(Integer, ForeignKey("submissions.id"), primary_key=True)
 	
-	user = relationship("User", uselist=False, viewonly=True)
+	user = relationship("User", uselist=False)
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)

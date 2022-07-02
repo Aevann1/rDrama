@@ -12,8 +12,8 @@ class Notification(Base):
 	read = Column(Boolean, default=False)
 	created_utc = Column(Integer)
 
-	comment = relationship("Comment", viewonly=True)
-	user = relationship("User", viewonly=True)
+	comment = relationship("Comment")
+	user = relationship("User")
 
 	def __init__(self, *args, **kwargs):
 		if "created_utc" not in kwargs: kwargs["created_utc"] = int(time.time())

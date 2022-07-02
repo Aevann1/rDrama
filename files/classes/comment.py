@@ -76,15 +76,15 @@ class Comment(Base):
 	wordle_result = Column(String)
 	treasure_amount = Column(String)
 
-	oauth_app = relationship("OauthApp", viewonly=True)
-	post = relationship("Submission", viewonly=True)
+	oauth_app = relationship("OauthApp")
+	post = relationship("Submission", back_populates="comments")
 	author = relationship("User", primaryjoin="User.id==Comment.author_id")
-	senttouser = relationship("User", primaryjoin="User.id==Comment.sentto", viewonly=True)
-	parent_comment = relationship("Comment", remote_side=[id], viewonly=True)
-	child_comments = relationship("Comment", remote_side=[parent_comment_id], viewonly=True)
-	awards = relationship("AwardRelationship", order_by="AwardRelationship.awarded_utc.desc()", viewonly=True)
-	flags = relationship("CommentFlag", order_by="CommentFlag.created_utc", viewonly=True)
-	options = relationship("CommentOption", order_by="CommentOption.id", viewonly=True)
+	senttouser = relationship("User", primaryjoin="User.id==Comment.sentto")
+	parent_comment = relationship("Comment", remote_side=[id], back_populates="child_comments")
+	child_comments = relationship("Comment", remote_side=[parent_comment_id], back_populates="parent_comment")
+	awards = relationship("AwardRelationship", order_by="AwardRelationship.awarded_utc.desc()", back_populates="comment")
+	flags = relationship("CommentFlag", order_by="CommentFlag.created_utc")
+	options = relationship("CommentOption", order_by="CommentOption.id")
 
 	def __init__(self, *args, **kwargs):
 		if "created_utc" not in kwargs:
