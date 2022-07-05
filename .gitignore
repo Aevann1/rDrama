@@ -11,3 +11,5 @@ venv/
 flask_session/
 .DS_Store
 site_settings.json
+/files/test.py
+tags

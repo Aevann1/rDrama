@@ -1,3 +1,4 @@
+import functools
 import bleach
 from bs4 import BeautifulSoup
 from bleach.css_sanitizer import CSSSanitizer
@@ -53,7 +54,7 @@ def allowed_attributes(tag, name, value):
 			except: return False
 			if 0 < value <= 250: return True
 		return False
-	
+
 	if tag == 'a':
 		if name == 'href' and '\\' not in value and 'xn--' not in value:
 			return True
@@ -121,10 +122,6 @@ def callback(attrs, new=False):
 	return attrs
 
 
-def handler(signum, frame):
-	print("Timeout!", flush=True)
-	raise Exception("Timeout")
-
 def render_emoji(html, regexp, edit, marseys_used, b=False):
 	emojis = list(regexp.finditer(html))
 	captured = set()
@@ -164,11 +161,31 @@ def render_emoji(html, regexp, edit, marseys_used, b=False):
 	return html
 
 
+def with_sigalrm_timeout(timeout: int):
+	'Use SIGALRM to raise an exception if the function executes for longer than timeout seconds'
+
+	# while trying to test this using time.sleep I discovered that gunicorn does in fact do some
+	# async so if we timeout on that (or on a db op) then the process is crashed without returning
+	# a proper 500 error. Oh well.
+	def sig_handler(signum, frame):
+		print("Timeout!", flush=True)
+		raise Exception("Timeout")
+
+	def inner(func):
+		@functools.wraps(inner)
+		def wrapped(*args, **kwargs):
+			signal.signal(signal.SIGALRM, sig_handler)
+			signal.alarm(timeout)
+			try:
+				return func(*args, **kwargs)
+			finally:
+				signal.alarm(0)
+		return wrapped
+	return inner
+
+
+@with_sigalrm_timeout(2)
 def sanitize(sanitized, edit=False):
-
-	signal.signal(signal.SIGALRM, handler)
-	signal.alarm(2)
-
 	sanitized = sanitized.strip()
 
 	sanitized = normalize_url(sanitized)
@@ -232,9 +249,9 @@ def sanitize(sanitized, edit=False):
 
 
 	sanitized = str(soup)
-	
+
 	sanitized = spoiler_regex.sub(r'<spoiler>\1</spoiler>', sanitized)
-	
+
 	marseys_used = set()
 
 	emojis = list(emoji_regex.finditer(sanitized))
@@ -311,7 +328,7 @@ def sanitize(sanitized, edit=False):
 								attributes=allowed_attributes,
 								protocols=['http', 'https'],
 								css_sanitizer=css_sanitizer,
-								filters=[partial(LinkifyFilter, skip_tags=["pre"], 
+								filters=[partial(LinkifyFilter, skip_tags=["pre"],
 									parse_email=False, callbacks=[callback], url_re=url_re)]
 								).clean(sanitized)
 
@@ -325,7 +342,7 @@ def sanitize(sanitized, edit=False):
 
 		href = link.get("href")
 		if not href: continue
-		
+
 		url = urlparse(href)
 		domain = url.netloc
 		url_path = url.path
@@ -347,8 +364,6 @@ def sanitize(sanitized, edit=False):
 
 	if len(sanitized) > 5000:
 		sanitized = showmore_regex.sub(r'\1<p><button class="btn btn-primary" onclick="showmore()">SHOW MORE</button></p><div class="d-none">\2</div>', sanitized)
-
-	signal.alarm(0)
 
 	return sanitized.strip()
 
@@ -373,11 +388,9 @@ def allowed_attributes_emojis(tag, name, value):
 	return False
 
 
+@with_sigalrm_timeout(1)
 def filter_emojis_only(title, edit=False, graceful=False):
 
-	signal.signal(signal.SIGALRM, handler)
-	signal.alarm(1)
-	
 	title = title.replace('‎','').replace('​','').replace("\ufeff", "").replace("𒐪","").replace("\n", "").replace("\r", "").replace("\t", "").replace("&", "&amp;").replace('<','&lt;').replace('>','&gt;').replace('"', '&quot;').replace("'", "&#039;").strip()
 
 	marseys_used = set()
@@ -392,8 +405,6 @@ def filter_emojis_only(title, edit=False, graceful=False):
 	title = strikethrough_regex.sub(r'\1<del>\2</del>', title)
 
 	title = bleach.clean(title, tags=['img','del','span'], attributes=allowed_attributes_emojis, protocols=['http','https'])
-
-	signal.alarm(0)
 
 	if len(title) > 1500 and not graceful: abort(400)
 	else: return title.replace('\n','').strip()
