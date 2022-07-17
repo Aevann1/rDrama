@@ -492,7 +492,7 @@ function emojiAddToInput(event)
             modal_pos.y += window.scrollY;
 
             speed_carot_modal.style.display = "initial";
-            speed_carot_modal.style.left = modal_pos.x + box_coords.x - 35 + "px";
+            speed_carot_modal.style.left = box_coords.x - 35 + "px";
             speed_carot_modal.style.top = modal_pos.y + box_coords.y + 14 + "px";
             
             // Do the search (and do something with it)
