@@ -777,6 +777,9 @@
 	{"name":"sharkysad","class":"Users"},
 	{"name":"sharkythink","class":"Users"},
 
+    {"name":"ivoted", "tags":["democracy", "spider"],"class":"Misc"},
+    {"name":"hapyday", "tags":["happyday", "wholesome", "smile"],"class":"Misc"},
+    {"name":"froth", "tags":["froth", "seethe", "angry", "ugh", "frothing", "sneed"],"class":"Misc"},
 	{"name":"chadyescapy", "tags":["capy", "aevann"],"class":"Misc"},
 	{"name":"chadnocapy", "tags":["capy", "aevann"],"class":"Misc"},
 	{"name":"capygitcommit", "tags":["capy", "aevann"],"class":"Misc"},

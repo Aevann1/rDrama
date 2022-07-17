@@ -406,6 +406,8 @@ function emojiAddToInput(event)
     speed_carot_modal.style.display = "none";
     document.body.appendChild(speed_carot_modal);
 
+    let e
+
     let current_word = "";
     let emojo_index = 0;
 
@@ -458,8 +460,6 @@ function emojiAddToInput(event)
 
     function update_speed_emoji_modal(event)
     {
-        if (event.target.tagName.toLowerCase() !== 'textarea') return;
-
         const box_coords = update_ghost_div_textarea(event.target);
 
         let text = event.target.value;
@@ -504,11 +504,8 @@ function emojiAddToInput(event)
         }
     }
 
-    // Update emoji position
-    document.addEventListener('input', update_speed_emoji_modal, false);
-    
-    // Update emoji position
-    document.addEventListener('keydown', (e) => {
+    function speed_carot_navigate(e)
+    {
         let select_items = speed_carot_modal.querySelectorAll(".speed-modal-option");
         if (!select_items || !curr_word_is_emoji()) return false;
         // Up or down arrow or enter
@@ -516,7 +513,7 @@ function emojiAddToInput(event)
         {
             if (emojo_index > select_items.length)
                 emojo_index = select_items;
-                
+            
             select_items[emojo_index].classList.remove("selected");
             switch (e.keyCode)
             {
@@ -539,7 +536,17 @@ function emojiAddToInput(event)
             select_items[emojo_index].classList.add("selected");
             e.preventDefault();
         }
-    }, false);
+    }
+
+    // Let's get it running now
+    let forms = document.querySelectorAll("textarea, .allow-emojis");
+    forms.forEach(i => {
+        let pseudo_div = document.createElement("div");
+        pseudo_div.className = "ghostdiv";
+        i.after(pseudo_div);
+        i.addEventListener('input', update_speed_emoji_modal, false);
+        i.addEventListener('keydown', speed_carot_navigate, false);
+    });
 })();
 
 
