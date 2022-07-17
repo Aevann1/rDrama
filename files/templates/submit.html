@@ -125,6 +125,7 @@
 												<label for="body" class="mt-3">Text<i class="fas fa-info-circle text-gray-400 ml-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Uses markdown. Limited to 20000 characters."></i></label>
 
 												<textarea form="submitform" id="post-text" class="form-control rounded" aria-label="With textarea" placeholder="Optional if you have a link or an image." rows="7" name="body" oninput="markdown('post-text','preview');charLimit('post-text','character-count-submit-text-form');checkForRequired();savetext()" {% if v.longpost %}minlength="280"{% endif %} maxlength="{% if v.bird %}140{% else %}20000{% endif %}" required></textarea>
+                                                <div class="ghostdiv" style="display:none;"></div>
 
 												<div class="text-small font-weight-bold mt-1" id="character-count-submit-text-form" style="right: 1rem; bottom: 0.5rem; z-index: 3;"></div>
 

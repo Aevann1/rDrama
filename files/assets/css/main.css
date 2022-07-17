@@ -1721,6 +1721,7 @@ button.close {
 .modal-dialog-centered.modal-dialog-scrollable {
 	flex-direction: column;
 	justify-content: center;
+	height: 100%;
 }
 .modal-dialog-centered.modal-dialog-scrollable .modal-content {
 	max-height: none;
@@ -6087,3 +6088,59 @@ g {
 		margin-top: -5px;
 	}
 }
+
+.ghostdiv
+{
+    display: block;
+    white-space: pre-wrap;
+    word-break: break-word;
+    /* Attempt to copy the textarea/input padding */
+    padding: 15px;
+}
+
+#speed-carot-modal
+{
+    background-color: var(--gray-700);
+    min-width: 190px;
+    max-width: 190px;
+    max-height: 300px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+#speed-carot-modal .speed-modal-option
+{
+    border-bottom: 1px solid #606060;
+    padding: 4px;
+    cursor: pointer;
+}
+
+#speed-carot-modal .speed-modal-option:hover,
+#speed-carot-modal .speed-modal-option:focus,
+#speed-carot-modal .speed-modal-option.selected
+{
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+
+#speed-carot-modal .speed-modal-image
+{
+    object-fit: contain;
+    width: 32px;
+    height: 32px;
+}
+
+#speed-carot-modal .speed-modal-option span
+{
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 10px;
+    width: 125px;
+    max-width: 125px;
+    text-overflow: ellipsis;
+}
+
