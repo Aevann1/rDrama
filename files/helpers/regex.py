@@ -57,8 +57,8 @@ email_regex = re.compile('[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}', flags=re.A|re.
 utm_regex = re.compile('utm_[a-z]+=[a-z0-9_]+&', flags=re.A)
 utm_regex2 = re.compile('[?&]utm_[a-z]+=[a-z0-9_]+', flags=re.A)
 
-slur_regex = re.compile(f"<[^>]*>|{single_words}", flags=re.I|re.A)
-slur_regex_upper = re.compile(f"<[^>]*>|{single_words.upper()}", flags=re.A)
+slur_regex = re.compile(single_words, flags=re.I|re.A)
+slur_regex_upper = re.compile(single_words.upper(), flags=re.A)
 torture_regex = re.compile('(^|\s)(i|me) ', flags=re.I|re.A)
 torture_regex2 = re.compile("(^|\s)i'm ", flags=re.I|re.A)
 torture_regex_exclude = re.compile('^\s*>', flags=re.A)
@@ -105,11 +105,8 @@ git_regex = re.compile("ref: (refs/.+)", flags=re.A)
 pronouns_regex = re.compile("([a-z]{2,5}|i)/[a-z]{2,5}", flags=re.A)
 
 def sub_matcher(match, upper=False):
-	if match.group(0).startswith('<'):
-		return match.group(0)
-	else:
-		repl = SLURS[match.group(0).lower()]
-		return repl if not upper else repl.upper()
+	repl = SLURS[match.group(0).lower()]
+	return repl if not upper else repl.upper()
 
 def sub_matcher_upper(match):
 	return sub_matcher(match, upper=True)

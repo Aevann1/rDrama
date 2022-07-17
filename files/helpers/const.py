@@ -41,8 +41,6 @@ AJ_REPLACEMENTS = {
 
 if SITE_NAME == 'rDrama':
 	SLURS = {
-		"california": "commiefornia",
-		"hollywood": "hollyweird",
 		"tiananmen square": "tiananmen square didn't happen (but it should have)",
 		"dasha": "beautiful angelic perfect Dasha/future Mrs. Carp",
 		"retarded": "r-slurred",
@@ -97,10 +95,10 @@ if SITE_NAME == 'rDrama':
 		"fake and gay": "fake and straight",
 
 		" rapist": " male feminist",
+		">rapist": ">male feminist",
 
-		" kys ": " keep yourself safe ",
-		" pedo ": " libertarian ",
-		" pedos ": " libertarians ",
+		" kys": " keep yourself safe",
+		">kys": ">keep yourself safe",
 	}
 else:
 	SLURS = {

@@ -441,7 +441,7 @@
 						
 						<a class="btn caction nobackground px-1 text-muted" href="{{c.permalink}}"><i class="fas fa-book-open"></i>Context</a>
 
-						<button class="btn caction py-0 nobackground px-1 text-muted copy-link" data-clipboard-text="{% if SITE == 'rdrama.net' %}https://chapotraphouse.club{{c.shortlink}}{% else %}{{c.permalink}}{% endif %}"><i class="fas fa-copy"></i>Copy link</button>
+						<button class="btn caction py-0 nobackground px-1 text-muted copy-link" data-clipboard-text="{% if SITE == 'rdrama.net' %}https://cringetopia.org{{c.shortlink}}{% else %}{{c.permalink}}{% endif %}"><i class="fas fa-copy"></i>Copy link</button>
 
 						{% if v %}
 							<button class="btn caction py-0 nobackground px-1 text-muted" role="button" onclick="openReplyBox('reply-to-{{c.id}}')"><i class="fas fa-reply" aria-hidden="true"></i>Reply</button>
@@ -648,7 +648,7 @@
 
 					<a class="list-group-item" href="{{c.permalink}}"><i class="fas fa-book-open mr-2"></i>Context</a>
 
-					<a role="button" class="list-group-item copy-link" data-bs-dismiss="modal" data-clipboard-text="{% if SITE == 'rdrama.net' %}https://chapotraphouse.club{{c.shortlink}}{% else %}{{c.permalink}}{% endif %}"><i class="fas fa-copy mr-2"></i>Copy link</a>
+					<a role="button" class="list-group-item copy-link" data-bs-dismiss="modal" data-clipboard-text="{% if SITE == 'rdrama.net' %}https://cringetopia.org{{c.shortlink}}{% else %}{{c.permalink}}{% endif %}"><i class="fas fa-copy mr-2"></i>Copy link</a>
 
 					{% if v %}
 						<a role="button" data-bs-toggle="modal" data-bs-dismiss="modal" data-bs-target="#reportCommentModal" onclick="report_commentModal('{{c.id}}','{{c.author_name}}')" class="list-group-item"><i class="fas fa-flag mr-2"></i>Report</a>

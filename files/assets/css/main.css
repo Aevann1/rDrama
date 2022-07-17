@@ -6102,7 +6102,6 @@ g {
 {
     background-color: var(--gray-700);
     min-width: 190px;
-    max-width: 190px;
     max-height: 300px;
     overflow-y: auto;
     overflow-x: hidden;
@@ -6144,3 +6143,10 @@ g {
     text-overflow: ellipsis;
 }
 
+.rainbow-text {
+	background-image: linear-gradient(to left, violet, indigo, blue, green, yellow, orange, red);
+    color: transparent;
+    background-clip: text;
+    -webkit-background-clip: text;
+    font-weight: 700;
+}
