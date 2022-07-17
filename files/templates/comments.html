@@ -122,7 +122,7 @@
 			<span class="font-weight-bold">Comment {{'Replies' if (replies | length)>1 else 'Reply'}}: <a href="{{c.post.permalink}}">{{c.post.realtitle(v) | safe}}</a></span>
 		{% elif c.post.author_id==v.id and c.level == 1 and is_notification_page%}
 			<span class="font-weight-bold">Post Reply: <a href="{{c.post.permalink}}">{{c.post.realtitle(v) | safe}}</a></span>
-		{% elif is_notification_page and c.parent_submission in v.subscribed_idlist %}
+		{% elif is_notification_page and c.parent_submission in v.subscribed_idlist() %}
 			<span class="font-weight-bold">Subscribed Thread: <a href="{{c.post.permalink}}">{{c.post.realtitle(v) | safe}}</a></span>
 		{% elif is_notification_page %}
 			<span class="font-weight-bold">Username Mention: <a href="{{c.post.permalink}}">{{c.post.realtitle(v) | safe}}</a></span>
@@ -450,9 +450,9 @@
 
 							<button class="btn caction py-0 nobackground px-1 text-muted" role="button" data-bs-toggle="modal" data-bs-target="#awardModal" data-url="/award/comment/{{c.id}}"><i class="fas fa-gift" aria-hidden="true"></i>Give Award</button>
 							
-							<button id="unsave-{{c.id}}" class="btn caction py-0 nobackground px-1 {% if c.id in v.saved_comment_idlist %}d-md-inline-block{% endif %} text-muted d-none" role="button" onclick="post_toast(this,'/unsave_comment/{{c.id}}','save-{{c.id}}','unsave-{{c.id}}','d-md-inline-block')"><i class="fas fa-save"></i>Unsave</button>
+							<button id="unsave-{{c.id}}" class="btn caction py-0 nobackground px-1 {% if c.id in v.saved_comment_idlist() %}d-md-inline-block{% endif %} text-muted d-none" role="button" onclick="post_toast(this,'/unsave_comment/{{c.id}}','save-{{c.id}}','unsave-{{c.id}}','d-md-inline-block')"><i class="fas fa-save"></i>Unsave</button>
 							
-							<button id="save-{{c.id}}" class="btn caction py-0 nobackground px-1 {% if c.id not in v.saved_comment_idlist %}d-md-inline-block{% endif %} text-muted d-none" role="button" onclick="post_toast(this,'/save_comment/{{c.id}}','save-{{c.id}}','unsave-{{c.id}}','d-md-inline-block')"><i class="fas fa-save"></i>Save</button>
+							<button id="save-{{c.id}}" class="btn caction py-0 nobackground px-1 {% if c.id not in v.saved_comment_idlist() %}d-md-inline-block{% endif %} text-muted d-none" role="button" onclick="post_toast(this,'/save_comment/{{c.id}}','save-{{c.id}}','unsave-{{c.id}}','d-md-inline-block')"><i class="fas fa-save"></i>Save</button>
 						{% endif %}
 
 						{% if c.parent_submission %}
@@ -551,7 +551,8 @@
 					<input type="hidden" name="formkey" value="{{v.formkey}}"> 
 					<input type="hidden" name="parent_fullname" value="{{c.fullname}}"> 
 					<input autocomplete="off" id="reply-form-submission-{{c.fullname}}" type="hidden" name="submission" value="{{c.post.id}}"> 
-					<textarea required autocomplete="off" {% if v.longpost %}minlength="280"{% else %}minlength="1"{% endif %} maxlength="{% if v.bird %}140{% else %}10000{% endif %}" oninput="markdown('reply-form-body-{{c.fullname}}', 'reply-edit-{{c.id}}');charLimit('reply-form-body-{{c.fullname}}','charcount-{{c.id}}')" id="reply-form-body-{{c.fullname}}" data-fullname="{{c.fullname}}" name="body" form="reply-to-t3_{{c.id}}" class="comment-box form-control rounded" aria-label="With textarea" placeholder="Add your comment..." rows="3"></textarea> 
+					<textarea required autocomplete="off" {% if v.longpost %}minlength="280"{% else %}minlength="1"{% endif %} maxlength="{% if v.bird %}140{% else %}10000{% endif %}" oninput="markdown('reply-form-body-{{c.fullname}}', 'reply-edit-{{c.id}}');charLimit('reply-form-body-{{c.fullname}}','charcount-{{c.id}}')" id="reply-form-body-{{c.fullname}}" data-fullname="{{c.fullname}}" name="body" form="reply-to-t3_{{c.id}}" class="comment-box form-control rounded" aria-label="With textarea" placeholder="Add your comment..." rows="3"></textarea>
+                    <div class="ghostdiv" style="display:none;"></div>
 					
 					<div class="text-small font-weight-bold mt-1" id="charcount-{{c.id}}" style="right: 1rem; bottom: 0.5rem; z-index: 3;"></div>
 
@@ -655,9 +656,9 @@
 
 						<a class="list-group-item" role="button" data-bs-toggle="modal" data-bs-target="#awardModal" data-url="/award/comment/{{c.id}}"><i class="fas fa-gift mr-2" aria-hidden="true"></i>Give Award</a>
 
-						<a id="save2-{{c.id}}" class="list-group-item {% if c.id in v.saved_comment_idlist %}d-none{% endif %}" role="button" data-bs-dismiss="modal" onclick="post_toast(this,'/save_comment/{{c.id}}','save2-{{c.id}}','unsave2-{{c.id}}','d-none')"><i class="fas fa-save mr-2"></i>Save</a>
+						<a id="save2-{{c.id}}" class="list-group-item {% if c.id in v.saved_comment_idlist() %}d-none{% endif %}" role="button" data-bs-dismiss="modal" onclick="post_toast(this,'/save_comment/{{c.id}}','save2-{{c.id}}','unsave2-{{c.id}}','d-none')"><i class="fas fa-save mr-2"></i>Save</a>
 
-						<a id="unsave2-{{c.id}}" class="list-group-item {% if c.id not in v.saved_comment_idlist %}d-none{% endif %}" role="button" onclick="post_toast(this,'/unsave_comment/{{c.id}}','save2-{{c.id}}','unsave2-{{c.id}}','d-none')" data-bs-dismiss="modal"><i class="fas fa-save mr-2"></i>Unsave</a>
+						<a id="unsave2-{{c.id}}" class="list-group-item {% if c.id not in v.saved_comment_idlist() %}d-none{% endif %}" role="button" onclick="post_toast(this,'/unsave_comment/{{c.id}}','save2-{{c.id}}','unsave2-{{c.id}}','d-none')" data-bs-dismiss="modal"><i class="fas fa-save mr-2"></i>Unsave</a>
 
 						{% if c.author_id == v.id %}
 							<a role="button" data-bs-dismiss="modal" onclick="toggleEdit('{{c.id}}')" class="list-group-item"><i class="fas fa-edit mr-2"></i>Edit</a>
