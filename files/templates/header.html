@@ -3,18 +3,9 @@
 	{%- set search_placeholder = "Search (try '" ~ HOLE_NAME ~ ":" ~ sub.name ~ "')" -%}
 {%- endif -%}
 
-<nav class=" shadow-md fixed-top">
-	<style>
-		body {padding-top: 85.88px !important}
-		@media (max-width: 767.98px) {
-			body {
-				padding-top: 69.55px !important
-			}
-		}
-	</style>
-
-{% if g.loggedin_counter and not err and (SITE_NAME in ('PCM','rDrama') or g.loggedin_counter+g.loggedout_counter > 100) %}
-	<div class="srd">
+<nav>
+  {% if g.loggedin_counter and not err and (SITE_NAME in ('PCM','rDrama') or g.loggedin_counter+g.loggedout_counter > 100) %}
+     <div class="srd">
 		<img src="/e/marseylowpoly.webp" height=18 width=28>
 
 		{% if v and v.admin_level > 1 and (SITE != 'rdrama.net' or v.id == AEVANN_ID) %}
@@ -31,7 +22,7 @@
 						' fanboys currently obsessing over Carp',
 						' postmodern obscurantists currently whistling for dogs',
 						' NEETs currently LDARmaxxing',
-						' valid women currently dilating ',
+						' valid women currently dilating',
 						' stochastic terrorists currently writing manifestos',
 						' negholes currently being pozzed',
 						' bussies currently on standby',
@@ -44,7 +35,15 @@
 						' coomers currently gooning',
 						' oopsie woopsie fucko boingos narwhaling bacons',
 						' well-behaved rule following goodthinkers',
-						' throwing shade right now',
+                        ' throwing shade right now',
+                        ' dramanauts effort-posting',
+                        ' feds fitting in',
+                        ' phoneposters touching grass',
+                        ' roids spouting statistics',
+                        ' misinformation spreading wrongthinkers',
+                        ' Oomfies huggy wugging',
+                        ' worsties meanmaxxing',
+                        ' hot foids in your area'
 					]
 					-%}
 					{{g.loggedin_counter+g.loggedout_counter}} {{ VISITORS_HERE_FLAVOR|random|safe }} ({{ g.loggedin_counter }} logged in)
@@ -53,56 +52,34 @@
 				{{g.loggedin_counter+g.loggedout_counter}} people here now ({{g.loggedin_counter}} logged in)
 			{% endif %}
 		{% endif %}
-	</div>
-{% else %}
-	<style>
-		body {padding-top: 54.62px !important}
-		@media (max-width: 767.98px) {
-			body {
-				padding-top: 44.05px !important
-			}
-		}
-	</style>
-{% endif %}
+	 </div>
+     {% endif %}
 
-		<div class="navbar navbar-expand-md navbar-light" id="navbar">
-			<div class="container-fluid" style="padding:0;">
-			<a href="/" class="navbar-brand mr-auto {% if not has_logo and not sub %}flex-grow-1{% endif %}">
+		<div class="navbar" id="navbar">
+			<a href="/" class="brand">
 				<img alt="header icon" height=33 src="{{asset_siteimg('headericon.webp')}}">
 			</a>
 			
 			{% if sub %}
-				<a href="/h/{{sub.name}}" class="font-weight-bold ml-2 flex-grow-1 mt-1" style="font-size:max(14px,1.2vw)">{% if not HOLE_STYLE_FLAIR %}/h/{% endif %}{{sub.name}}</a>
+				<a href="/h/{{sub.name}}" class="sub-name">{% if not HOLE_STYLE_FLAIR %}/h/{% endif %}{{sub.name}}</a>
 			{% elif has_logo %}
-				<style>
-					{% if g.webview %}
-						@media (min-width: 480px) {
-					{% else %}
-						@media (min-width: 380px) {
-							#logo {
-								width: 100px;
-								margin-left: 0.5rem !important;
-							}
-						}
-					{% endif %}
-				</style>
-				<div id="logo-container" class="flex-grow-1 logo-container">
-				<a href="/">
-					<img class="ml-1" id="logo" alt="logo" src="{{asset_siteimg('logo.webp')}}" width=70>
+
+				<a id="logo" href="/">
+					<img alt="logo" src="{{asset_siteimg('logo.webp')}}">
 				</a>
-				</div>
 			{% endif %}
 
-			<div class="flex-grow-1 d-fl d-none d-md-block {% if not v %}pad{% endif %}">
-				<form class="form-inline search flex-nowrap mx-0 mx-lg-auto" {% if err %}style="margin-right:40rem!important"{% endif %} action="{% if request.path.startswith('/search') %}{{request.path}}{% else %}/search/posts/{% endif %}" method="get">
-					<input autocomplete="off" class="form-control w-100" type="search" placeholder="{{search_placeholder}}" aria-label="Search" name="q" value="{{request.values.get('q', '')}}">
-					<span class="input-group-append">
-						<span class="input-group-text border-0 bg-transparent" style="margin-left: -2.5rem;">
-							<i class="fa fa-search" aria-hidden="true"></i>
-						</span>
-					</span>
-				</form>
-			</div>
+			    <div class="search">
+				  <form action="{% if request.path.startswith('/search') %}{{request.path}}{% else %}/search/posts/{% endif %}" method="get">
+				    <input class="search-input" autocomplete="off" type="text" placeholder="{{search_placeholder}}" aria-label="Search" name="q" value="{{request.values.get('q', '')}}">
+                    <!-- wtf? -->
+				    <span class="input-group-append">
+					  <span class="input-group-text border-0 bg-transparent" style="margin-left: -2.5rem;">
+					    <i class="fa fa-search" aria-hidden="true"></i>
+					  </span>
+				    </span>
+				  </form>
+			    </div>
 
 			{% if g.webview %}
 				<a class="mobile-nav-icon d-md-none" onclick="location.reload()"><i class="fas fa-arrow-rotate-right align-middle text-gray-500 black"></i></a>
@@ -116,7 +93,7 @@
 				{% endif %}
 			{% endif %}
 			
-		{% if not err %}
+		            {% if not err %}
 			{% if v and v.admin_level > 1 %}
 				<a class="mobile-nav-icon d-md-none" href="/admin"><i class="fas fa-crown align-middle text-gray-500 black"></i></a>
 			{% endif %}
@@ -149,182 +126,105 @@
 			{% if v %}
 
 				{% if v.notifications_count %}
-				<li class="nav-item d-flex align-items-center text-center justify-content-center mx-1">
+				<li class="nav-item notifications-nav notifications-active">
 					<a class="nav-link position-relative" href="/notifications{% if v.notifications_do %}/{{v.notifications_do}}{% endif %}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Notifications"><i class="fas fa-bell" style="color: {{v.notifications_color}}"></i><span class="notif-count ml-1" style="padding-left: 4.5px;{% if v.notifications_do %}background:{{v.notifications_color}}{% endif %}">{{v.notifications_count}}</span></a>
 				</li>
 				{% else %}
-				<li class="nav-item d-flex align-items-center text-center justify-content-center mx-1">
+				<li class="nav-item notifications-nav">
 					<a class="nav-link" href="/notifications" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Notifications"><i class="fas fa-bell"></i></a>
 				</li>
 				{% endif %}
 
 				{% if v.admin_level > 1 %}
-				<li class="nav-item d-flex align-items-center justify-content-center text-center mx-1">
+				<li class="nav-item admin-nav">
 					<a class="nav-link" href="/admin/" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Admin Tools"><i class="fas fa-crown{% if v.has_report_queue %} text-success{% endif %}"></i></a>
 				</li>
 				{% endif %}
 
-				<li class="nav-item d-flex align-items-center justify-content-center text-center mx-1">
+				<li class="nav-item post-nav">
 					<a class="nav-link" href="{% if sub %}/h/{{sub.name}}{% endif %}/submit" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Create Post"><i class="fas fa-feather-alt"></i></a>
 				</li>
 
 				{% if FEATURES['CHAT'] -%}
-				<li class="nav-item d-flex align-items-center justify-content-center text-center mx-1">
+				<li class="nav-item chat-nav">
 					<a class="nav-link" href="/chat/" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Chat"><i class="fas fa-messages"></i></a>
 				</li>
 				{%- endif %}
 
-				<li class="nav-item d-flex align-items-center justify-content-center text-center mx-1">
+				<li class="nav-item leaderboard-nav">
 					<a class="nav-link" href="/leaderboard" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Leaderboard"><i class="fas fa-trophy"></i></a>
 				</li>
 
-				<li class="nav-item d-flex align-items-center justify-content-center text-center mx-1">
+				<li class="nav-item music-nav">
 					<a class="nav-link" href="/random_user" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Random User"><i class="fas fa-music"></i></a>
 				</li>
 
 				{% if v.can_gamble and LOTTERY_ENABLED %}
-					<li class="nav-item d-flex align-items-center justify-content-center text-center mx-1">
+					<li class="nav-item lottery-nav">
 						<a class="nav-link" href="/lottery" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Lottery"><i class="fas fa-ticket"></i></a>
 					</li>
 				{% endif %}
 
-				<li class="nav-item d-flex align-items-center justify-content-center text-center mx-1">
+				<li class="nav-item store-nav">
 					<a class="nav-link" href="/shop" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Shop"><i class="fas fa-store"></i></a>
 				</li>
 			
-				<li class="nav-item d-flex align-items-center justify-content-center text-center mx-1">
+				<li class="nav-item comments-nav">
 					<a class="nav-link" href="/comments" data-bs-toggle="tooltip" data-bs-placement="bottom" title="All Comments"><i class="fas fa-comment-dots"></i></a>
 				</li>
 
-				<li class="nav-item d-flex align-items-center justify-content-center text-center">
-					<div class="dropdown" id="header--dropdown">
-						<a class="nav-link bg-transparent py-0 pr-0" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown"
-						aria-haspopup="true" aria-expanded="false">
-						<div class="d-flex">
-							<div>
-								<img alt="your profile picture" loading="lazy" src="{{v.profile_url}}" class="profile-pic-35">
-								{% if v.is_cakeday %}
-									<img class="party-hat4" src="/i/party-hat.webp" data-bs-toggle="tooltip" data-bs-placement="bottom" title="I’ve spent another year rotting my brain with dramaposting, please ridicule me 🤓">
-								{% endif %}
-							</div>
-							<div class="text-left pl-2">
-								<div style="color: #{{v.namecolor}}" class="text-small font-weight-bold" id="header--username"><span {% if v.patron %}class="patron" style="background-color:#{{v.namecolor}}"{% endif %}>{{v.username}}</span></div>
-								<div class="header--currency"><img alt="coins" class="mr-1 ml-1" data-bs-toggle="tooltip" data-bs-placement="bottom" src="{{asset_siteimg('coins.webp')}}" title="coins" aria-label="coins"><span id="user-coins-amount">{{v.coins}}</span>{% if not FEATURES['PROCOINS'] %} Coin{{ help.plural(v.coins) }}{% endif %}</div>
-								{% if FEATURES['PROCOINS'] %}
-									<div class="header--currency"><img alt="marseybux" class="mr-1 ml-1" data-bs-toggle="tooltip" data-bs-placement="bottom" src="/i/marseybux.webp?v=2000" title="Marseybux" aria-label="Marseybux"><span id="user-bux-amount">{{v.procoins}}</span></div>
-								{% endif %}
-							</div>
-						</div>
-					</a>
-					<div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-left shadow fade px-0" id="header--dropdown-menu">
-					<div class="px-2">
-						<a class="dropdown-item" href="{{v.url}}"><i class="fas fa-user-circle fa-fw mr-3"></i>My
-							profile</a>
-								<a class="dropdown-item" href="/settings"><i class="fas fa-cog fa-fw mr-3"></i>Settings</a>
-							</div>
-							<div class="px-2">
-								<button class="dropdown-item copy-link" data-clipboard-text="{{SITE_FULL}}/signup?ref={{v.username}}"><i class="fas fa-user-friends fa-fw mr-3"></i>Invite friends</button>
-							</div>
-							<div class="px-2">
-								<a class="dropdown-item" href="/assets/app_{{SITE_NAME}}_v2.4.apk"><i class="fab fa-android fa-fw mr-3"></i>Android app</a>
-
-								<a class="dropdown-item" href="https://rdrama.net/h/changelog"><i class="fas fa-clipboard fa-fw mr-3"></i>Changelog</a>
-
-								<a class="dropdown-item" rel="nofollow noopener noreferrer" href="https://github.com/Aevann1/rDrama"><i class="fab fa-github fa-fw mr-3"></i>Source code</a>
-
-								{% if SITE_NAME in ['rDrama', 'PCM'] %}
-									<a class="dropdown-item" rel="nofollow noopener noreferrer" href="/report_bugs"><i class="fas fa-bug fa-fw mr-3"></i>Bugs/Suggestions</a>
-								{% endif %}
-
-								{% if SITE_NAME == 'rDrama' %}
-									<a class="dropdown-item" href="/discord"><i class="fab fa-discord fa-fw mr-3"></i>Discord</a>
-									<a class="dropdown-item" href="/post/75863/"><i class="fas fa-square-share-nodes fa-fw mr-3"></i>Fediverse</a>
-								{% endif %}
-								{% if FEATURES['PROCOINS'] %}
-									<a class="dropdown-item" rel="nofollow noopener noreferrer" href="{{GUMROAD_LINK}}"><i class="fas fa-dollar-sign fa-fw mr-3"></i>Donate</a>
-								{% endif %}
-								{% if SITE_NAME == 'rDrama' %}
-									<a class="dropdown-item" href="/archives"><i class="fas fa-book fa-fw mr-3"></i>Archives</a>
-								{% endif %}
-								<a class="dropdown-item" href="/contact"><i class="fas fa-file-signature fa-fw mr-3"></i>Contact us</a>
-							</div>
-							<div class="px-2">
-								<a class="dropdown-item" role="button", onclick="post_toast(this,'/logout', true)"><i class="fas fa-sign-out fa-fw mr-3"></i>Log out</a>
-							</div>
-						</div>
-					</div>
-				</li>
-			{% else %}
-				<li class="nav-item d-flex align-items-center justify-content-center mx-1">
-				<a class="btn btn-primary" href="/contact">Contact us</a>
-			</li>
-				<li class="nav-item d-flex align-items-center justify-content-center mx-1">
-				<a class="btn btn-primary" href="/login?redirect={{request.path | urlencode}}">Sign in</a>
-			</li>
-			<li class="nav-item d-flex align-items-center justify-content-center mx-1">
-				<a class="btn btn-primary" href="/signup">Sign up</a>
-			</li>
-			{% endif %}
-		</ul>
-
-		<ul style="overflow:auto" class="navbar-nav ml-auto d-flex d-md-none mt-3">
-			<li class="nav-item pb-3">
-				<form id="searchform" class="form-inline search flex-nowrap mx-0 mx-lg-auto" action="/search/posts/" method="get">
-					<input autocomplete="off" class="form-control form-control-sm w-100" type="search" placeholder="{{search_placeholder}}" aria-label="Search" name="q">
-					<span class="input-group-append">
-						<span class="input-group-text border-0 bg-transparent" style="margin-left: -2.5rem"onclick="document.getElementById('searchform').submit()">
-							<i class="fa fa-search" aria-hidden="true"></i>
-						</span>
-					</span>
-				</form>
-			</li>
-			{% if v %}
-				<li class="nav-item">
-					<a class="nav-link" href="{{v.url}}"><i class="fas fa-user-circle fa-fw mr-3"></i>@{{v.username}}</a>
-				</li>
-				<li class="nav-item">
-					<a class="nav-link" href="/settings"><i class="fas fa-cog fa-fw mr-3"></i>Settings</a>
-				</li>
-				{% if not g.webview %}
-					<li class="nav-item">
-						<a class="nav-link copy-link" data-clipboard-text="{{SITE_FULL}}/signup?ref={{v.username}}"><i class="fas fa-user-friends fa-fw mr-3"></i>Invite friends</a>
-					</li>
-				{% endif %}
-				
-				<a class="nav-item nav-link" href="/assets/app_{{SITE_NAME}}_v2.4.apk"><i class="fab fa-android fa-fw mr-3"></i>Android app</a>
-
-				<a class="nav-item nav-link" rel="nofollow noopener noreferrer" href="https://github.com/Aevann1/rDrama"><i class="fab fa-github fa-fw mr-3"></i>Source code</a>
-
+            <li class="nav-item">
+			  <label for="dropdown-checkbox" class="dropdown-label navbar-profile">
+                <div class="dropdown-btn">
+				  <div class="profile">
+				    <img alt="your profile picture" loading="lazy" src="{{v.profile_url}}" class="profile-pic-navbar">
+				    {% if v.is_cakeday %}
+				    <img class="party-hat4" src="/assets/images/party-hat.webp" data-bs-toggle="tooltip" data-bs-placement="bottom" title="I’ve spent another year rotting my brain with dramaposting, please ridicule me 🤓">
+				    {% endif %}
+				  </div>
+				  <div class="user-info">
+				    <div style="color: #{{v.namecolor}}" class="username {% if v.patron %}patron{% endif %}"><span {% if v.patron %}class="patron" style="background-color:#{{v.namecolor}}"{% endif %}>{{v.username}}</span></div>
+				    <div class="header--currency header-coins">
+                      <img alt="coins" class="coins-icon" data-bs-toggle="tooltip" data-bs-placement="bottom" height="13" src="/assets/images/{{SITE_NAME}}/coins.webp?v=2" title="coins" aria-label="coins"><span id="user-coins-amount">{{v.coins}}</span>
+                    </div>
+                      {% if FEATURES['PROCOINS'] %}
+				    <div class="header--currency header-marseybux">
+                      <img alt="marseybux" class="marseybux-icon" data-bs-toggle="tooltip" data-bs-placement="bottom" height="13" width="30" src="/assets/images/marseybux.webp?v=1008" title="Marseybux" aria-label="Marseybux"><span id="user-bux-amount">{{v.procoins}}</span>
+				      {% endif %}
+				    </div>
+                  </div>
+                </div>
+                  
+                <input type="checkbox" id="dropdown-checkbox" class="checkbox-display hidden">
+				<div class="dropdown-menu dropdown-menu-right">
+                  <div class="dropdown-bg"></div>
+				  <a class="dropdown-item" href="{{v.url}}"><i class="fas fa-user-circle fa-fw mr-3"></i>My
+					  profile</a>
+				  <a class="dropdown-item" href="/settings"><i class="fas fa-cog fa-fw mr-3"></i>Settings</a>
+				  <span class="dropdown-item copy-link" data-clipboard-text="{{SITE_FULL}}/signup?ref={{v.username}}"><i class="fas fa-user-friends fa-fw mr-3"></i>Invite friends</span>
+				  <a class="dropdown-item" href="/assets/app_{{SITE_NAME}}_v2.4.apk"><i class="fab fa-android fa-fw mr-3"></i>Android app</a>
+				  <a class="dropdown-item" href="https://rdrama.net/changelog"><i class="fas fa-clipboard fa-fw mr-3"></i>Changelog</a>
+				  <a class="dropdown-item" rel="nofollow noopener noreferrer" href="https://github.com/Aevann1/rDrama"><i class="fab fa-github fa-fw mr-3"></i>Source code</a>
+				  {% if SITE_NAME in ['rDrama', 'PCM'] %}
+				  <a class="dropdown-item" rel="nofollow noopener noreferrer" href="/report_bugs"><i class="fas fa-bug fa-fw mr-3"></i>Bugs/Suggestions</a>
+					{% endif %}
 				{% if SITE_NAME == 'rDrama' %}
-					<a class="nav-item nav-link" href="/discord"><i class="fab fa-discord fa-fw mr-3"></i>Discord</a>
-					<a class="nav-item nav-link" href="/post/75863/"><i class="fas fa-square-share-nodes fa-fw mr-3"></i>Fediverse</a>
-				{% endif %}
-				{% if FEATURES['PROCOINS'] %}
-					<a class="nav-item nav-link" rel="nofollow noopener noreferrer" href="{{GUMROAD_LINK}}"><i class="fas fa-dollar-sign fa-fw mr-3"></i>Donate</a>
-				{% endif %}
-				{% if SITE_NAME == 'rDrama' %}<a class="nav-item nav-link" href="/archives"><i class="fas fa-book fa-fw mr-3"></i>Archives</a>{% endif %}
-				<a class="nav-item nav-link" href="/contact"><i class="fas fa-file-signature fa-fw mr-3"></i>Contact us</a>
-
-				<li class="nav-item border-top border-bottom mt-2 pt-2">
-					<a class="nav-link" role="button", onclick="post_toast(this,'/logout', true)"><i class="fas fa-sign-out fa-fw mr-3 text-danger"></i>Log out</a>
-				</li>
-			{% else %}
-				<li class="nav-item d-flex align-items-center justify-content-center pb-3">
-					<a class="btn btn-primary btn-block" href="/contact">Contact us</a>
-				</li>
-				<li class="nav-item d-flex align-items-center justify-content-center pb-3">
-					<a class="btn btn-primary btn-block" href="/login?redirect={{request.path | urlencode}}">Sign in</a>
-				</li>
-				<li class="nav-item d-flex align-items-center justify-content-center">
-					<a class="btn btn-primary btn-block" href="/signup">Sign up</a>
-				</li>
-			{% endif %}
-			<li class="mt-3">
-				{% if has_sidebar %}
-					{% include "sidebar_" + SITE_NAME + ".html" %}
-				{% endif %}
+				  <a class="dropdown-item" href="/discord"><i class="fab fa-discord fa-fw mr-3"></i>Discord</a>
+				  <a class="dropdown-item" href="/post/75863/"><i class="fas fa-square-share-nodes fa-fw mr-3"></i>Fediverse</a>
+					{% endif %}
+					{% if SITE_NAME not in ('WPD') %}
+				  <a class="dropdown-item" rel="nofollow noopener noreferrer" href="{{GUMROAD_LINK}}"><i class="fas fa-dollar-sign fa-fw mr-3"></i>Donate</a>
+					{% endif %}
+					{% if SITE_NAME == 'rDrama' %}
+				  <a class="dropdown-item" href="/archives"><i class="fas fa-book fa-fw mr-3"></i>Archives</a>
+					{% endif %}
+				  <a class="dropdown-item" href="/contact"><i class="fas fa-file-signature fa-fw mr-3"></i>Contact us</a>
+				  <a class="dropdown-item" role="button", onclick="post_toast(this,'/logout', '1')"><i class="fas fa-sign-out fa-fw mr-3"></i>Log out</a>
+				</div>
+			  </label>
 			</li>
-		</ul>
+            </ul>
+         {% endif %}
 	</div>
 	{% endif %}
 	</div>
@@ -351,5 +251,6 @@
 		}
 	</style>
 {%- endif %}
+
 
 <link rel="preload" as="image" href="/i/l.webp">
