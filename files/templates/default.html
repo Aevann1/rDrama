@@ -272,6 +272,9 @@
 
  <body id="{% if request.path != '/comments' %}{% block pagetype %}frontpage{% endblock %}{% endif %}" {% if SITE_NAME == 'rDrama' and v and (v.is_banned or v.agendaposter) %}style="overflow-x: hidden;background:url(/assets/images/backgrounds/anime/1.webp?v=3) center center fixed; background-color: var(--background)"{% elif v and v.background %}style="{% if path != '/formatting' %}overflow-x: hidden; {% endif %} background:url(/assets/images/backgrounds/{{v.background}}?v=3) center center fixed; background-color: var(--background){% if 'anime' not in v.background %};background-size: cover{% endif %}"{% endif %}>
 
+   {% include "header.html" %}
+
+   
 {% block Banner %}
 	{% if '@' not in request.path %}	
 		{% if sub and SITE_NAME != 'WPD' %}
@@ -296,8 +299,6 @@
 	{% endif %}
 {% endblock %}
 
-{% include "header.html" %}
-
 {% block mobileUserBanner %}
 {% endblock %}
 
@@ -308,10 +309,9 @@
 {% endblock %}
 
 <div class="container">
-	<div class="row justify-content-around" id="main-content-row">
+	<div id="main-content-view">
 
-		<div class="col h-100 {% block customPadding %}{% if request.path.startswith('/@') %}user-gutters{% else %}custom-gutters{% endif %}{% endblock %}" id="main-content-col">
-
+		<div class="{% block customPadding %}{% if request.path.startswith('/@') %}user-gutters{% else %}custom-gutters{% endif %}{% endblock %}" id="main-content">
 			{% block desktopUserBanner %}
 			{% endblock %}
 
@@ -362,18 +362,18 @@
 	</div>
 </div>
 
-<div class="toast" id="toast-post-success" style="position: fixed; bottom: 1.5rem; margin: 0 auto; left: 0; right: 0; width: 275px; z-index: 1000" role="alert" aria-live="assertive" aria-atomic="true" data-bs-animation="true" data-bs-autohide="true" data-bs-delay="5000">
+<div class="toast" id="toast-post-success" role="alert" aria-live="assertive" aria-atomic="true" data-bs-animation="true" data-bs-autohide="true" data-bs-delay="5000">
 	<div class="toast-body bg-success text-center text-white">
 		<i class="fas fa-comment-alt-smile mr-2"></i><span id="toast-post-success-text">Action successful!</span>
 	</div>
 </div>
-<div class="toast" id="toast-post-error" style="position: fixed; bottom: 1.5rem; margin: 0 auto; left: 0; right: 0; width: 275px; z-index: 1000" role="alert" aria-live="assertive" aria-atomic="true" data-bs-animation="true" data-bs-autohide="true" data-bs-delay="5000">
+<div class="toast" id="toast-post-error" role="alert" aria-live="assertive" aria-atomic="true" data-bs-animation="true" data-bs-autohide="true" data-bs-delay="5000">
 	<div class="toast-body bg-danger text-center text-white">
 		<i class="fas fa-exclamation-circle mr-2"></i><span id="toast-post-error-text">Error, please try again later.</span>
 	</div>
 </div>
 
-<script src="{{asset('js/bootstrap.js')}}"></script>
+<script src="{{asset('js/main.js')}}"></script>
 
 <script src="{{asset('js/lozad.js')}}"></script>
 

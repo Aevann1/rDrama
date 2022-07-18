@@ -1,0 +1,352 @@
+/* ------- Font Awesome ------- */
+@font-face{
+	font-family:"Font Awesome 6 Pro";
+	font-style:normal;
+	font-weight:400;
+	font-display:block;
+	src:url(../fonts/fa-regular-400.woff2) format("woff2"),
+		url(../fonts/fa-regular-400.ttf) format("truetype")
+}
+@font-face{
+	font-family:"Font Awesome 6 Pro";
+	font-style:normal;
+	font-weight:900;
+	font-display:block;
+	src:url(../fonts/fa-solid-900.woff2) format("woff2"),
+		url(../fonts/fa-solid-900.ttf) format("truetype")
+}
+@font-face{
+	font-family:"Font Awesome 6 Pro";
+	font-style:normal;
+	font-weight:100;
+	font-display:block;
+	src:url(../fonts/fa-thin-100.woff2) format("woff2"),
+		url(../fonts/fa-thin-100.ttf) format("truetype")
+}
+@font-face{
+	font-family:"Font Awesome 5 Brands";
+	font-display:block;
+	font-weight:400;
+	src:url(../fonts/fa-brands-400.woff2) format("woff2"),
+		url(../fonts/fa-brands-400.ttf) format("truetype")
+}
+@font-face{
+	font-family:"Font Awesome 5 Pro";
+	font-display:block;
+	font-weight:900;
+	src:url(../fonts/fa-solid-900.woff2) format("woff2"),
+		url(../fonts/fa-solid-900.ttf) format("truetype")
+}
+@font-face{
+	font-family:"Font Awesome 5 Pro";
+	font-display:block;
+	font-weight:400;
+	src:url(../fonts/fa-regular-400.woff2) format("woff2"),
+		url(../fonts/fa-regular-400.ttf) format("truetype")
+}
+@font-face{
+	font-family:"Font Awesome 5 Pro";
+	font-display:block;
+	font-weight:300;
+	src:url(../fonts/fa-light-300.woff2) format("woff2"),
+		url(../fonts/fa-light-300.ttf) format("truetype")
+}
+@font-face{
+	font-family:"Font Awesome 5 Duotone";
+	font-display:block;
+	font-weight:900;
+	src:url(../fonts/fa-duotone-900.woff2) format("woff2"),
+		url(../fonts/fa-duotone-900.ttf) format("truetype")
+}
+@font-face{
+	font-family:"FontAwesome";
+	font-display:block;
+	src:url(../fonts/fa-solid-900.woff2) format("woff2"),
+		url(../fonts/fa-solid-900.ttf) format("truetype")
+}
+@font-face{
+	font-family:"FontAwesome";
+	font-display:block;
+	src:url(../fonts/fa-brands-400.woff2) format("woff2"),
+		url(../fonts/fa-brands-400.ttf) format("truetype")
+}
+@font-face{
+	font-family:"FontAwesome";
+	font-display:block;
+	src:url(../fonts/fa-regular-400.woff2) format("woff2"),
+		url(../fonts/fa-regular-400.ttf) format("truetype");
+	unicode-range:u+f003,u+f006,u+f014,u+f016-f017,u+f01a-f01b,u+f01d,u+f022,u+f03e,u+f044,
+		u+f046,u+f05c-f05d,u+f06e,u+f070,u+f087-f088,u+f08a,u+f094,u+f096-f097,u+f09d,u+f0a0,
+		u+f0a2,u+f0a4-f0a7,u+f0c5,u+f0c7,u+f0e5-f0e6,u+f0eb,u+f0f6-f0f8,u+f10c,u+f114-f115,
+		u+f118-f11a,u+f11c-f11d,u+f133,u+f147,u+f14e,u+f150-f152,u+f185-f186,u+f18e,u+f190-f192,
+		u+f196,u+f1c1-f1c9,u+f1d9,u+f1db,u+f1e3,u+f1ea,u+f1f7,u+f1f9,u+f20a,u+f247-f248,u+f24a,
+		u+f24d,u+f255-f25b,u+f25d,u+f271-f274,u+f278,u+f27b,u+f28c,u+f28e,u+f29c,u+f2b5,u+f2b7,
+		u+f2ba,u+f2bc,u+f2be,u+f2c0-f2c1,u+f2c3,u+f2d0,u+f2d2,u+f2d4,u+f2dc;
+}
+@font-face{
+	font-family:"FontAwesome";
+	font-display:block;
+	src:url(../fonts/fa-v4compatibility.woff2) format("woff2"),
+		url(../fonts/fa-v4compatibility.ttf) format("truetype");
+	unicode-range:u+f041,u+f047,u+f065-f066,u+f07d-f07e,u+f080,u+f08b,u+f08e,u+f090,u+f09a,u+f0ac,
+		u+f0ae,u+f0b2,u+f0d0,u+f0d6,u+f0e4,u+f0ec,u+f10a-f10b,u+f123,u+f13e,u+f148-f149,u+f14c,
+		u+f156,u+f15e,u+f160-f161,u+f163,u+f175-f178,u+f195,u+f1f8,u+f219,u+f250,u+f252,u+f27a;
+}
+@font-face{
+	font-family:"Font Awesome 6 Pro";
+	font-style:normal;
+	font-weight:300;
+	font-display:block;
+	src:url(../fonts/fa-light-300.woff2) format("woff2"),
+		url(../fonts/fa-light-300.ttf) format("truetype");
+}
+@font-face{
+	font-family:"Font Awesome 6 Brands";
+	font-style:normal;font-weight:400;
+	font-display:block;
+	src:url(../fonts/fa-brands-400.woff2) format("woff2"),
+	url(../fonts/fa-brands-400.ttf) format("truetype");
+}
+@font-face{
+	font-family:"Font Awesome 6 Duotone";
+	font-style:normal;font-weight:900;
+	font-display:block;
+	src:url(../fonts/fa-duotone-900.woff2) format("woff2"),
+	url(../fonts/fa-duotone-900.ttf) format("truetype");
+}
+
+:root{
+	--fa-font-solid:normal 900 1em/1 "Font Awesome 6 Pro";
+	--fa-font-regular:normal 400 1em/1 "Font Awesome 6 Pro";
+	--fa-font-light:normal 300 1em/1 "Font Awesome 6 Pro";
+	--fa-font-thin:normal 100 1em/1 "Font Awesome 6 Pro";
+	--fa-font-brands:normal 400 1em/1 "Font Awesome 6 Brands";
+	--fa-font-duotone:normal 900 1em/1 "Font Awesome 6 Duotone";
+}
+.fa{font-family:var(--fa-style-family,"Font Awesome 6 Pro");font-weight:var(--fa-style,900)}
+.fas{font-family:"Font Awesome 6 Pro";font-weight:900}
+.far{font-family:"Font Awesome 6 Pro";font-weight:400}
+.fal{font-family:"Font Awesome 6 Pro";font-weight:300}
+.fab{font-family:"Font Awesome 6 Brands";font-weight:400}
+.fad{
+	position:relative;
+	font-family:"Font Awesome 6 Duotone";
+	font-weight:900;
+	letter-spacing:normal;
+}
+.fad:before{
+	position:absolute;
+	color:var(--fa-primary-color,inherit);
+	opacity:var(--fa-primary-opacity,1);
+}
+.fad:after{
+	color:var(--fa-secondary-color,inherit);
+}
+.fad:after{
+	opacity:var(--fa-secondary-opacity,.4);
+}
+.fa,.fab,.fad,.fal,.far,.fas{
+	-moz-osx-font-smoothing:grayscale;
+	-webkit-font-smoothing:antialiased;
+	display:var(--fa-display,inline-block);
+	font-style:normal;
+	font-variant:normal;
+	line-height:1;
+	text-rendering:auto;
+}
+
+.fa-2x{font-size:2em}
+.fa-sm{font-size:.875em;line-height:.07143em;vertical-align:.05357em}
+.fa-lg{font-size:1.25em;line-height:.05em;vertical-align:-.075em}
+.fa-fw{text-align:center;width:1.25em}
+.fa-flip-horizontal{-webkit-transform:scaleX(-1);transform:scaleX(-1)}
+.fa-stack{
+	display:inline-block;
+	height:2em;
+	line-height:2em;
+	position:relative;
+	vertical-align:middle;
+	width:2.5em;
+}
+.fa-stack-1x,.fa-stack-2x{
+	left:0;
+	position:absolute;
+	text-align:center;
+	width:100%;
+	z-index:var(--fa-stack-z-index,auto);
+}
+.fa-stack-1x{line-height:inherit}
+.fa-stack-2x{font-size:2em}
+
+.fa-align-left:before{content:"\f036"}
+.fa-long-arrow-left:before{content:"\f177"}
+.fa-arrow-right:before{content:"\f061"}
+.fa-sign-out:before{content:"\f08b"}
+.fa-long-arrow-right:before{content:"\f178"}
+.fa-arrows-v:before{content:"\f07d"}
+.fa-award:before{content:"\f559"}
+.fa-badge:before{content:"\f335"}
+.fa-badge-check:before{content:"\f336"}
+.fa-ban:before{content:"\f05e"}
+.fa-bars:before{content:"\f0c9"}
+.fa-bell:before{content:"\f0f3"}
+.fa-bold:before{content:"\f032"}
+.fa-book:before{content:"\f02d"}
+.fa-book-open:before{content:"\f518"}
+.fa-book-dead:before{content:"\f6b7"}
+.fa-broom:before{content:"\f51a"}
+.fa-bug:before{content:"\f188"}
+.fa-bullhorn:before{content:"\f0a1"}
+.fa-calendar:before{content:"\f133"}
+.fa-calendar-day:before{content:"\f783"}
+.fa-calendar-alt:before{content:"\f073"}
+.fa-calendar-week:before{content:"\f784"}
+.fa-campfire:before{content:"\f6ba"}
+.fa-candy-cane:before{content:"\f786"}
+.fa-car-tilt:before{content:"\f5e5"}
+.fa-cat:before{content:"\f6be"}
+.fa-check:before{content:"\f00c"}
+.fa-circle:before{content:"\f111"}
+.fa-check-circle:before{content:"\f058"}
+.fa-arrow-alt-circle-down:before{content:"\f358"}
+.fa-exclamation-circle:before{content:"\f06a"}
+.fa-info-circle:before{content:"\f05a"}
+.fa-radiation-alt:before{content:"\f7ba"}
+.fa-arrow-alt-circle-up:before{content:"\f35b"}
+.fa-user-circle:before{content:"\f2bd"}
+.fa-times-circle:before{content:"\f057"}
+.fa-clipboard:before{content:"\f328"}
+.fa-clipboard-check:before{content:"\f46c"}
+.fa-clock:before{content:"\f017"}
+.fa-history:before{content:"\f1da"}
+.fa-code:before{content:"\f121"}
+.fa-comment:before{content:"\f075"}
+.fa-comment-dots:before{content:"\f4ad"}
+.fa-comments:before{content:"\f086"}
+.fa-copy:before{content:"\f0c5"}
+.fa-crown:before{content:"\f521"}
+.fa-dice-six:before{content:"\f526"}
+.fa-dollar-sign:before{content:"\24"}
+.fa-arrow-alt-down:before{content:"\f354"}
+.fa-compress-alt:before{content:"\f422"}
+.fa-ellipsis-h:before{content:"\f141"}
+.fa-envelope:before{content:"\f0e0"}
+.fa-envelope-open-text:before{content:"\f658"}
+.fa-eye:before{content:"\f06e"}
+.fa-eye-evil:before{content:"\f6db"}
+.fa-eye-slash:before{content:"\f070"}
+.fa-angry:before{content:"\f556"}
+.fa-frown:before{content:"\f119"}
+.fa-grin-beam-sweat:before{content:"\f583"}
+.fa-laugh-squint:before{content:"\f59b"}
+.fa-smile-beam:before{content:"\f5b8"}
+.fa-feather-alt:before{content:"\f56b"}
+.fa-file-signature:before{content:"\f573"}
+.fa-filter:before{content:"\f0b0"}
+.fa-fire:before{content:"\f06d"}
+.fa-fireplace:before{content:"\f79a"}
+.fa-fish:before{content:"\f578"}
+.fa-flag:before{content:"\f024"}
+.fa-flag-usa:before{content:"\f74d"}
+.fa-save:before{content:"\f0c7"}
+.fa-gavel:before{content:"\f0e3"}
+.fa-cog:before{content:"\f013"}
+.fa-ghost:before{content:"\f6e2"}
+.fa-gift:before{content:"\f06b"}
+.fa-gingerbread-man:before{content:"\f79d"}
+.fa-globe:before{content:"\f0ac"}
+.fa-golf-club:before{content:"\f451"}
+.fa-home-alt:before{content:"\f015"}
+.fa-id-badge:before{content:"\f2c1"}
+.fa-id-card:before{content:"\f2c2"}
+.fa-image:before{content:"\f03e"}
+.fa-infinity:before{content:"\f534"}
+.fa-italic:before{content:"\f033"}
+.fa-knife-kitchen:before{content:"\f6f5"}
+.fa-lights-holiday:before{content:"\f7b2"}
+.fa-link:before{content:"\f0c1"}
+.fa-lock:before{content:"\f023"}
+.fa-lock-alt:before{content:"\f30d"}
+.fa-search:before{content:"\f002"}
+.fa-memory:before{content:"\f538"}
+.fa-comment-alt-smile:before{content:"\f4aa"}
+.fa-microphone-stand:before{content:"\f8cb"}
+.fa-palette:before{content:"\f53f"}
+.fa-edit:before{content:"\f044"}
+.fa-pizza-slice:before{content:"\f818"}
+.fa-poop:before{content:"\f619"}
+.fa-quote-right:before{content:"\f10e"}
+.fa-reply:before{content:"\f3e5"}
+.fa-robot:before{content:"\f544"}
+.fa-sack-dollar:before{content:"\f81d"}
+.fa-scroll-old:before{content:"\f70f"}
+.fa-seedling:before{content:"\f4d8"}
+.fa-shield:before{content:"\f132"}
+.fa-random:before{content:"\f074"}
+.fa-smoke:before{content:"\f760"}
+.fa-snooze:before{content:"\f880"}
+.fa-snowflake:before{content:"\f2dc"}
+.fa-sparkles:before{content:"\f890"}
+.fa-ticket:before{content:"\f145"}
+.fa-spider:before{content:"\f717"}
+.fa-square:before{content:"\f0c8"}
+.fa-stocking:before{content:"\f7d5"}
+.fa-store:before{content:"\f54e"}
+.fa-columns:before{content:"\f0db"}
+.fa-thumbtack:before{content:"\f08d"}
+.fa-train:before{content:"\f238"}
+.fa-trash-alt:before{content:"\f2ed"}
+.fa-exclamation-triangle:before{content:"\f071"}
+.fa-trophy:before{content:"\f091"}
+.fa-arrow-alt-up:before{content:"\f357"}
+.fa-expand-alt:before{content:"\f424"}
+.fa-external-link-alt:before{content:"\f35d"}
+.fa-user:before{content:"\f007"}
+.fa-user-crown:before{content:"\f6a4"}
+.fa-user-cog:before{content:"\f4fe"}
+.fa-user-friends:before{content:"\f500"}
+.fa-user-lock:before{content:"\f502"}
+.fa-user-minus:before{content:"\f503"}
+.fa-user-plus:before{content:"\f234"}
+.fa-user-slash:before{content:"\f506"}
+.fa-user-tag:before{content:"\f507"}
+.fa-user-times:before{content:"\f235"}
+.fa-users:before{content:"\f0c0"}
+.fa-volume:before{content:"\f6a8"}
+.fa-volume-mute:before{content:"\f6a9"}
+.fa-times:before{content:"\f00d"}
+.fa-android:before{content:"\f17b"}
+.fa-discord:before{content:"\f392"}
+.fa-github:before{content:"\f09b"}
+.fa-twitter:before{content:"\f099"}
+.fa-head-side:before{content:"\f6e9"}
+.fa-crab:before{content:"\e3ff"}
+.fa-socks:before{content:"\f696"}
+.fa-arrow-up:before{content:"\f062"}
+.fa-tag:before{content:"\f02b"}
+.fa-messages:before{content:"\f4b6"}
+.fa-user-secret:before{content:"\f21b"}
+.fa-gas-pump-slash:before{content:"\f5f4"}
+.fa-gas-pump:before{content:"\f52f"}
+.fa-hammer-crash:before{content:"\e414"}
+.fa-music:before{content:"\f001"}
+.fa-arrow-rotate-right:before{content:"\f01e"}
+.fa-columns-3:before{content:"\e361"}
+.fa-bahai:before{content:"\f666"}
+.fa-party-horn:before{content:"\e31b"}
+.fa-pinata:before{content:"\e3c3"}
+.fa-file:before{content:"\f15b"}
+.fa-box-open:before{content:"\f49e"}
+.fa-eyes:before{content:"\e367"}
+.fa-hexagon:before{content:"\f312"}
+.fa-arrow-right-arrow-left:before{content:"\f0ec"}
+.fa-coins:before{content:"\f51e"}
+.fa-bell-slash:before{content:"\f1f6"}
+.fa-chart-network:before{content:"\f78a"}
+.fa-square-share-nodes:before{content:"\f1e1"}
+.fa-sidebar:before{content:"\e24e"}
+.fa-panorama:before{content:"\e209"}
+.fa-external-link:before{content:"\f08e"}
+.fa-circle-info:before{content:"\f05a"}
+.fa-comment-question:before{content:"\e14b"}
+.fa-sitemap:before{content:"\f0e8"}
