@@ -922,7 +922,7 @@ def u_username(username, v=None):
 
 
 	if username != u.username:
-		return redirect(SITE_FULL + request.full_path.replace(username, u.username)[:-1])
+		return redirect(SITE_FULL + request.full_path.replace(username, u.username))
 
 	if u.reserved:
 		if request.headers.get("Authorization") or request.headers.get("xhr") or request.path.endswith(".json"):
